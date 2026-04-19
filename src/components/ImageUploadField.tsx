@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import {
   ensureClientAuthorized,
   PERMISSION_DENIED_MN,
@@ -73,24 +73,55 @@ export default function ImageUploadField({
   const fileRef = useRef<HTMLInputElement>(null);
   const [busy, setBusy] = useState(false);
   const [err, setErr] = useState<string | null>(null);
+  /** Instant preview while upload runs; cleared once parent `value` matches uploaded path */
+  const [blobUrl, setBlobUrl] = useState<string | null>(null);
+  const pendingPathRef = useRef<string | null>(null);
+
+  useEffect(() => {
+    const pending = pendingPathRef.current;
+    if (!pending || !blobUrl) return;
+    if (value.trim() === pending.trim()) {
+      URL.revokeObjectURL(blobUrl);
+      setBlobUrl(null);
+      pendingPathRef.current = null;
+    }
+  }, [value, blobUrl]);
+
+  useEffect(() => {
+    return () => {
+      if (blobUrl) URL.revokeObjectURL(blobUrl);
+    };
+  }, [blobUrl]);
 
   async function onPick(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
     e.target.value = "";
     if (!file) return;
     setErr(null);
+    const local = URL.createObjectURL(file);
+    setBlobUrl((prev) => {
+      if (prev) URL.revokeObjectURL(prev);
+      return local;
+    });
     setBusy(true);
     try {
       const path = await uploadImageFile(file);
+      pendingPathRef.current = path;
       onChange(path);
     } catch (x) {
       setErr(x instanceof Error ? x.message : "Алдаа");
+      setBlobUrl((prev) => {
+        if (prev) URL.revokeObjectURL(prev);
+        return null;
+      });
+      pendingPathRef.current = null;
     } finally {
       setBusy(false);
     }
   }
 
-  const src = previewUrl(value);
+  const remoteSrc = previewUrl(value);
+  const src = blobUrl ?? remoteSrc;
 
   return (
     <div className="overflow-hidden rounded-2xl border border-zinc-200/90 bg-white shadow-sm dark:border-zinc-700/90 dark:bg-zinc-950">
@@ -102,8 +133,11 @@ export default function ImageUploadField({
         {src ? (
           // eslint-disable-next-line @next/next/no-img-element -- dynamic CMS URLs
           <img
+            key={blobUrl ?? value || "empty"}
             src={src}
             alt=""
+            decoding="async"
+            fetchPriority={blobUrl ? "high" : "auto"}
             className={
               previewFit === "contain"
                 ? "h-auto max-h-[min(50vh,280px)] w-full max-w-full object-contain object-center"
