@@ -12,7 +12,8 @@ export async function middleware(request: NextRequest) {
     pathname.startsWith("/orders") ||
     pathname.startsWith("/sales-ads") ||
     pathname.startsWith("/jobs") ||
-    pathname.startsWith("/chat");
+    pathname.startsWith("/chat") ||
+    pathname.startsWith("/users");
   if (rootAdminLike) {
     const u = request.nextUrl.clone();
     u.pathname = `${ADMIN_BASE_PATH}${pathname}`;

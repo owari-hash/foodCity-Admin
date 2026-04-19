@@ -217,7 +217,9 @@ export default async function DashboardPage() {
           <p className="text-sm text-amber-800 dark:text-amber-400">
             {statsResult.error === "unauthorized"
               ? "Статистик ачаалагдсангүй. Серверийн нэвтрэх эрх хүчингүй байна — дахин нэвтэрнэ үү. Үргэлжилбэл: admin болон API дээрх ADMIN_JWT_SECRET ижил эсэх, серверээс API руу зөв хаяг (API_INTERNAL_URL) ашиглаж байгаа эсэхийг шалгана уу."
-              : "Статистик ачаалагдаагүй. API холболт болон backend статусыг шалгана уу."}
+              : statsResult.error === "forbidden"
+                ? "Самбарын статистик харах эрх танд байхгүй байна."
+                : "Статистик ачаалагдаагүй. API холболт болон backend статусыг шалгана уу."}
           </p>
         </div>
       )}

@@ -3,7 +3,11 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { Bot, ChevronLeft, MessageSquare, Plus, Trash2 } from "lucide-react";
 import { io, type Socket } from "socket.io-client";
-import { ensureClientAuthorized, withClientAdminAuth } from "@/lib/adminClientAuth";
+import {
+  ensureClientAuthorized,
+  PERMISSION_DENIED_MN,
+  withClientAdminAuth,
+} from "@/lib/adminClientAuth";
 import { getApiBaseUrl, getSocketBaseUrl, joinBackendRequestUrl } from "@/lib/api";
 
 type Conv = {
@@ -20,6 +24,8 @@ type Msg = {
   role: string;
   text: string;
   createdAt?: string;
+  agentDisplayName?: string;
+  agentUsername?: string;
 };
 
 type ChatChoiceNode = {
@@ -217,7 +223,12 @@ export default function ChatAdminPage() {
         joinBackendRequestUrl(getApiBaseUrl(), "/api/v1/admin/conversations"),
         withClientAdminAuth(),
       );
-      if (!(await ensureClientAuthorized(res))) return;
+      const gate = await ensureClientAuthorized(res);
+      if (gate === "forbidden") {
+        setError(PERMISSION_DENIED_MN);
+        return;
+      }
+      if (gate !== "ok") return;
       if (!res.ok) throw new Error(await res.text());
       const json = (await res.json()) as { data: Conv[] };
       setConversations(json.data);
@@ -233,7 +244,12 @@ export default function ChatAdminPage() {
           joinBackendRequestUrl(getApiBaseUrl(), `/api/v1/admin/conversations/${id}/messages`),
           withClientAdminAuth(),
         );
-        if (!(await ensureClientAuthorized(res))) return;
+        const gate = await ensureClientAuthorized(res);
+      if (gate === "forbidden") {
+        setError(PERMISSION_DENIED_MN);
+        return;
+      }
+      if (gate !== "ok") return;
         if (!res.ok) throw new Error(await res.text());
         const json = (await res.json()) as { data: Msg[] };
         setMessages(json.data);
@@ -251,7 +267,12 @@ export default function ChatAdminPage() {
         joinBackendRequestUrl(getApiBaseUrl(), "/api/v1/admin/site-pages/chatbot"),
         withClientAdminAuth(),
       );
-      if (!(await ensureClientAuthorized(res))) return;
+      const gate = await ensureClientAuthorized(res);
+      if (gate === "forbidden") {
+        setError(PERMISSION_DENIED_MN);
+        return;
+      }
+      if (gate !== "ok") return;
       if (!res.ok) throw new Error(await res.text());
       const json = (await res.json()) as { data?: { sections?: unknown } };
       setBotConfig(normalizeChatbotConfig(json.data?.sections));
@@ -345,7 +366,12 @@ export default function ChatAdminPage() {
           body: JSON.stringify({ text: input.trim() }),
         }),
       );
-      if (!(await ensureClientAuthorized(res))) return;
+      const gate = await ensureClientAuthorized(res);
+      if (gate === "forbidden") {
+        setError(PERMISSION_DENIED_MN);
+        return;
+      }
+      if (gate !== "ok") return;
       if (!res.ok) throw new Error(await res.text());
       const json = (await res.json()) as { data: Msg };
       setMessages((prev) =>
@@ -369,7 +395,12 @@ export default function ChatAdminPage() {
           body: JSON.stringify({ humanMode }),
         }),
       );
-      if (!(await ensureClientAuthorized(res))) return;
+      const gate = await ensureClientAuthorized(res);
+      if (gate === "forbidden") {
+        setError(PERMISSION_DENIED_MN);
+        return;
+      }
+      if (gate !== "ok") return;
       if (!res.ok) throw new Error(await res.text());
       const json = (await res.json()) as { data: Conv };
       setSelected(json.data);
@@ -398,7 +429,12 @@ export default function ChatAdminPage() {
           body: JSON.stringify({ sections: cleaned }),
         }),
       );
-      if (!(await ensureClientAuthorized(res))) return;
+      const gate = await ensureClientAuthorized(res);
+      if (gate === "forbidden") {
+        setError(PERMISSION_DENIED_MN);
+        return;
+      }
+      if (gate !== "ok") return;
       if (!res.ok) throw new Error(await res.text());
       setConfigMsg("Чатботын сонголтууд хадгалагдлаа.");
       setTimeout(() => setConfigMsg(null), 3000);
@@ -660,7 +696,9 @@ export default function ChatAdminPage() {
                     }`}
                   >
                     <span className="mb-0.5 block text-[10px] uppercase opacity-70">
-                      {m.role}
+                      {m.role === "agent" && (m.agentDisplayName || m.agentUsername)
+                        ? `Ажилтан: ${m.agentDisplayName ?? m.agentUsername}`
+                        : m.role}
                     </span>
                     {m.text}
                   </div>

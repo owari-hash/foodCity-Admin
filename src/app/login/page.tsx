@@ -4,7 +4,7 @@ import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { ADMIN_BASE_PATH } from "@/lib/adminBasePath";
-import { writeClientAdminToken } from "@/lib/adminClientAuth";
+import { writeClientAdminSession } from "@/lib/adminClientAuth";
 
 type LoginErrorShape = {
   code?: string;
@@ -61,14 +61,27 @@ export default function AdminLoginPage() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ username, password }),
       });
-      const json = (await res.json()) as { ok?: boolean; token?: string; error?: string };
+      const json = (await res.json()) as {
+        ok?: boolean;
+        token?: string;
+        username?: string;
+        displayName?: string;
+        permissions?: string[];
+        error?: string;
+      };
       if (!res.ok) {
         const parsed = parseLoginError(json.error);
         setError(mapLoginErrorToMn(parsed.code, parsed.message));
         return;
       }
       if (json.token) {
-        writeClientAdminToken(json.token);
+        const username = typeof json.username === "string" ? json.username : "";
+        const displayName =
+          typeof json.displayName === "string" ? json.displayName : username || "Admin";
+        const permissions = Array.isArray(json.permissions)
+          ? json.permissions.filter((x): x is string => typeof x === "string")
+          : [];
+        writeClientAdminSession(json.token, { username, displayName, permissions });
       }
       router.replace("/dashboard");
       router.refresh();

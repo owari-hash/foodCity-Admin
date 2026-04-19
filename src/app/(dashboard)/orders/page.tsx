@@ -1,7 +1,11 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
-import { ensureClientAuthorized, withClientAdminAuth } from "@/lib/adminClientAuth";
+import {
+  ensureClientAuthorized,
+  PERMISSION_DENIED_MN,
+  withClientAdminAuth,
+} from "@/lib/adminClientAuth";
 import { getApiBaseUrl, joinBackendRequestUrl } from "@/lib/api";
 
 type OrderRow = {
@@ -25,7 +29,12 @@ export default function OrdersPage() {
         joinBackendRequestUrl(getApiBaseUrl(), "/api/v1/admin/orders"),
         withClientAdminAuth(),
       );
-      if (!(await ensureClientAuthorized(res))) return;
+      const gate = await ensureClientAuthorized(res);
+      if (gate === "forbidden") {
+        setError(PERMISSION_DENIED_MN);
+        return;
+      }
+      if (gate !== "ok") return;
       if (!res.ok) throw new Error(await res.text());
       const json = (await res.json()) as { data: OrderRow[] };
       setOrders(json.data);
@@ -48,7 +57,12 @@ export default function OrdersPage() {
           body: JSON.stringify({ status }),
         }),
       );
-      if (!(await ensureClientAuthorized(res))) return;
+      const gate = await ensureClientAuthorized(res);
+      if (gate === "forbidden") {
+        setError(PERMISSION_DENIED_MN);
+        return;
+      }
+      if (gate !== "ok") return;
       if (!res.ok) throw new Error(await res.text());
       await load();
     } catch (e) {

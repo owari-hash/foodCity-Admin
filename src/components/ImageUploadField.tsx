@@ -1,7 +1,11 @@
 "use client";
 
 import { useRef, useState } from "react";
-import { ensureClientAuthorized, withClientAdminAuth } from "@/lib/adminClientAuth";
+import {
+  ensureClientAuthorized,
+  PERMISSION_DENIED_MN,
+  withClientAdminAuth,
+} from "@/lib/adminClientAuth";
 import { getApiBaseUrl, getPublicFrontOrigin, getSocketBaseUrl, joinBackendRequestUrl } from "@/lib/api";
 import { ImageIcon, Loader2, Upload } from "lucide-react";
 
@@ -28,7 +32,11 @@ export async function uploadImageFile(file: File): Promise<string> {
       body: fd,
     }),
   );
-  if (!(await ensureClientAuthorized(res))) {
+  const gate = await ensureClientAuthorized(res);
+  if (gate === "forbidden") {
+    throw new Error(PERMISSION_DENIED_MN);
+  }
+  if (gate !== "ok") {
     throw new Error("Unauthorized");
   }
   if (!res.ok) {

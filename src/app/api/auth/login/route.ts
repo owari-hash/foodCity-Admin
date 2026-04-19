@@ -74,9 +74,23 @@ export async function POST(req: NextRequest) {
     );
   }
 
-  let parsed: { data?: { token?: string } };
+  let parsed: {
+    data?: {
+      token?: string;
+      username?: string;
+      displayName?: string;
+      permissions?: string[];
+    };
+  };
   try {
-    parsed = JSON.parse(text) as { data?: { token?: string } };
+    parsed = JSON.parse(text) as {
+      data?: {
+        token?: string;
+        username?: string;
+        displayName?: string;
+        permissions?: string[];
+      };
+    };
   } catch {
     return NextResponse.json({ error: "Bad response from API", attemptedUrl }, { status: 502 });
   }
@@ -85,7 +99,14 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "No token in response", attemptedUrl }, { status: 502 });
   }
 
-  const out = NextResponse.json({ ok: true, token });
+  const username = typeof parsed.data?.username === "string" ? parsed.data.username : "";
+  const displayName =
+    typeof parsed.data?.displayName === "string" ? parsed.data.displayName : username || "Admin";
+  const permissions = Array.isArray(parsed.data?.permissions)
+    ? parsed.data!.permissions!.filter((x): x is string => typeof x === "string")
+    : [];
+
+  const out = NextResponse.json({ ok: true, token, username, displayName, permissions });
   const secure = isHttpsRequest(req);
   out.cookies.set({
     name: "fc_admin_token",

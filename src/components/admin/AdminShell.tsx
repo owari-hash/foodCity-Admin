@@ -4,6 +4,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
+import type { LucideIcon } from "lucide-react";
 import {
   LayoutDashboard,
   Megaphone,
@@ -14,18 +15,33 @@ import {
   LogOut,
   Menu,
   X,
+  Users,
 } from "lucide-react";
 import { ThemeToggle } from "@/components/theme-toggle";
-import { clearClientAdminToken } from "@/lib/adminClientAuth";
+import {
+  adminClientHasPermission,
+  clearClientAdminToken,
+  readClientAdminProfile,
+  readClientAdminToken,
+  type AdminPermissionKey,
+} from "@/lib/adminClientAuth";
 import { ADMIN_BASE_PATH, pathnameWithoutBase } from "@/lib/adminBasePath";
 
-const nav = [
-  { href: "/dashboard", label: "Самбар", icon: LayoutDashboard },
-  { href: "/site-content", label: "Вэб агуулга", icon: FileEdit },
-  { href: "/orders", label: "Захиалга", icon: ShoppingBag },
-  { href: "/sales-ads", label: "Борлуулалтын зар", icon: Megaphone },
-  { href: "/jobs", label: "Ажлын зар", icon: Briefcase },
-  { href: "/chat", label: "Чат", icon: MessageCircle },
+type NavItem = {
+  href: string;
+  label: string;
+  icon: LucideIcon;
+  perm: AdminPermissionKey;
+};
+
+const navItems: NavItem[] = [
+  { href: "/dashboard", label: "Самбар", icon: LayoutDashboard, perm: "dashboard" },
+  { href: "/site-content", label: "Вэб агуулга", icon: FileEdit, perm: "site-content" },
+  { href: "/orders", label: "Захиалга", icon: ShoppingBag, perm: "orders" },
+  { href: "/sales-ads", label: "Борлуулалтын зар", icon: Megaphone, perm: "sales-ads" },
+  { href: "/jobs", label: "Ажлын зар", icon: Briefcase, perm: "jobs" },
+  { href: "/chat", label: "Чат", icon: MessageCircle, perm: "chat" },
+  { href: "/users", label: "Админ хэрэглэгчид", icon: Users, perm: "admin-users" },
 ];
 
 const titles: Record<string, string> = {
@@ -35,6 +51,7 @@ const titles: Record<string, string> = {
   "/sales-ads": "Борлуулалтын зар",
   "/jobs": "Ажлын зар",
   "/chat": "Шууд чат",
+  "/users": "Админ хэрэглэгчид",
 };
 
 export default function AdminShell({ children }: { children: React.ReactNode }) {
@@ -42,6 +59,23 @@ export default function AdminShell({ children }: { children: React.ReactNode }) 
   const pathname = pathnameWithoutBase(usePathname());
   const title = titles[pathname] ?? "Админ хуудас";
   const [navOpen, setNavOpen] = useState(false);
+  const [perms, setPerms] = useState<string[]>([]);
+  const [who, setWho] = useState<string>("");
+
+  useEffect(() => {
+    const prof = readClientAdminProfile();
+    if (prof?.permissions?.length) {
+      setPerms(prof.permissions);
+      setWho(prof.displayName || prof.username);
+      return;
+    }
+    if (readClientAdminToken()) {
+      setPerms(["*"]);
+      setWho("Админ");
+    }
+  }, []);
+
+  const visibleNav = navItems.filter((item) => adminClientHasPermission(perms, item.perm));
 
   async function logout() {
     try {
@@ -82,7 +116,7 @@ export default function AdminShell({ children }: { children: React.ReactNode }) 
           navOpen ? "translate-x-0 shadow-xl" : "-translate-x-full lg:translate-x-0"
         }`}
       >
-        <div className="relative flex min-h-[4.25rem] items-center justify-center border-b border-zinc-200 px-3 py-3 dark:border-zinc-800">
+        <div className="relative flex min-h-17 items-center justify-center border-b border-zinc-200 px-12 py-3 dark:border-zinc-800 lg:px-3">
           <Link
             href="/dashboard"
             className="flex max-w-full items-center justify-center rounded-md px-2 py-1 outline-offset-2 focus-visible:outline-2 focus-visible:outline-emerald-600"
@@ -107,7 +141,7 @@ export default function AdminShell({ children }: { children: React.ReactNode }) 
           </button>
         </div>
         <nav className="flex flex-col gap-0.5 overflow-y-auto p-2 pb-[max(0.5rem,env(safe-area-inset-bottom))]">
-          {nav.map(({ href, label, icon: Icon }) => {
+          {visibleNav.map(({ href, label, icon: Icon }) => {
             const active = pathname === href;
             return (
               <Link
@@ -138,9 +172,14 @@ export default function AdminShell({ children }: { children: React.ReactNode }) 
           >
             <Menu className="h-5 w-5" aria-hidden />
           </button>
-          <h1 className="min-w-0 flex-1 truncate text-base font-semibold text-zinc-900 sm:text-lg dark:text-zinc-50">
-            {title}
-          </h1>
+          <div className="min-w-0 flex-1">
+            <h1 className="truncate text-base font-semibold text-zinc-900 sm:text-lg dark:text-zinc-50">
+              {title}
+            </h1>
+            {who ? (
+              <p className="truncate text-xs text-zinc-500 dark:text-zinc-400">{who}</p>
+            ) : null}
+          </div>
           <ThemeToggle />
           <button
             type="button"

@@ -14,7 +14,7 @@ export type AdminStats = {
 
 export type AdminStatsResult = {
   data: AdminStats | null;
-  error: "unauthorized" | "unavailable" | null;
+  error: "unauthorized" | "forbidden" | "unavailable" | null;
 };
 
 export async function fetchAdminStats(): Promise<AdminStatsResult> {
@@ -31,6 +31,9 @@ export async function fetchAdminStats(): Promise<AdminStatsResult> {
       msg.includes("missing or invalid authorization")
     ) {
       return { data: null, error: "unauthorized" };
+    }
+    if (msg.includes("forbidden") || msg.includes("permission denied")) {
+      return { data: null, error: "forbidden" };
     }
     return { data: null, error: "unavailable" };
   }

@@ -4,6 +4,7 @@ import { useCallback, useEffect, useState } from "react";
 import { useDebounce } from "@/hooks/useDebounce";
 import {
   ensureClientAuthorized,
+  PERMISSION_DENIED_MN,
   withClientAdminAuth,
 } from "@/lib/adminClientAuth";
 import { getApiBaseUrl, joinBackendRequestUrl } from "@/lib/api";
@@ -288,7 +289,9 @@ async function fetchSections(pageId: string): Promise<Record<string, unknown>> {
     joinBackendRequestUrl(getApiBaseUrl(), `/api/v1/admin/site-pages/${pageId}`),
     withClientAdminAuth(),
   );
-  if (!(await ensureClientAuthorized(res))) return {};
+  const gate = await ensureClientAuthorized(res);
+  if (gate === "forbidden") throw new Error("FC_FORBIDDEN");
+  if (gate !== "ok") return {};
   if (!res.ok) throw new Error(await res.text());
   const json = (await res.json()) as { data?: { sections?: unknown } };
   const s = json.data?.sections;
@@ -400,7 +403,11 @@ export default function SiteContentPage() {
       setTeamPage(normalizeTeamPage(tm));
       setFooter(normalizeFooter(f));
     } catch (e) {
-      setError(e instanceof Error ? e.message : "Алдаа");
+      if (e instanceof Error && e.message === "FC_FORBIDDEN") {
+        setError(PERMISSION_DENIED_MN);
+      } else {
+        setError(e instanceof Error ? e.message : "Алдаа");
+      }
     } finally {
       setLoading(false);
     }
@@ -422,7 +429,12 @@ export default function SiteContentPage() {
           }),
         );
 
-        if (!(await ensureClientAuthorized(res))) return;
+        const gate = await ensureClientAuthorized(res);
+        if (gate === "forbidden") {
+          setError(PERMISSION_DENIED_MN);
+          return;
+        }
+        if (gate !== "ok") return;
         if (!res.ok) throw new Error(await res.text());
 
         setSaved("Амжилттай хадгаллаа");
@@ -470,7 +482,12 @@ export default function SiteContentPage() {
           body: JSON.stringify({ sections }),
         }),
       );
-      if (!(await ensureClientAuthorized(res))) return;
+      const gate = await ensureClientAuthorized(res);
+      if (gate === "forbidden") {
+        setError(PERMISSION_DENIED_MN);
+        return;
+      }
+      if (gate !== "ok") return;
       if (!res.ok) throw new Error(await res.text());
 
       const rev = await fetch("/api/revalidate-front", { method: "POST" });
