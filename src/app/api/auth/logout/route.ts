@@ -1,9 +1,10 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import { ADMIN_BASE_PATH } from "@/lib/adminBasePath";
+import { isHttpsRequest } from "@/lib/requestHttps";
 
-export async function POST() {
+export async function POST(req: NextRequest) {
   const res = NextResponse.json({ ok: true });
-  const secure = process.env.NODE_ENV === "production";
+  const secure = isHttpsRequest(req);
   res.cookies.set({
     name: "fc_admin_token",
     value: "",
