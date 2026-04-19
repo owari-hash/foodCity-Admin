@@ -7,18 +7,6 @@ import {
   withClientAdminAuth,
 } from "@/lib/adminClientAuth";
 import { getApiBaseUrl } from "@/lib/api";
-import { mergeDeep } from "@/lib/mergeDeep";
-import {
-  defaultAboutSections,
-  defaultContactSections,
-  defaultFooterSections,
-  defaultHomeSections,
-  defaultJobsPageSections,
-  defaultPropertiesPageSections,
-  defaultSalesPageSections,
-  defaultServicesSections,
-  defaultTeamPageSections,
-} from "@/lib/siteContentDefaults";
 import {
   Briefcase,
   Building2,
@@ -84,15 +72,215 @@ type FooterState = {
   brand: { desc: string };
 };
 
-type ContactState = typeof defaultContactSections;
-type ServicesState = typeof defaultServicesSections;
-type PropertiesPageState = typeof defaultPropertiesPageSections;
-type SalesPageState = typeof defaultSalesPageSections;
-type JobsPageState = typeof defaultJobsPageSections;
-type TeamPageState = typeof defaultTeamPageSections;
+type ContactState = {
+  hero: { badge: string; h2Accent: string; intro: string };
+  items: { title: string; value: string }[];
+  agent: {
+    initials: string;
+    name: string;
+    role: string;
+    telHref: string;
+    telLabel: string;
+  };
+  formTitle: string;
+};
+type ServicesState = {
+  header: { badge: string; h2Line1: string; h2Accent: string; intro: string };
+  features: { title: string; desc: string }[];
+  banner: { value: string; suffix: string; label: string }[];
+};
+type PropertiesPageState = {
+  header: {
+    badge: string;
+    titleLine1: string;
+    titleAccent: string;
+    intro: string;
+  };
+  categories: string[];
+  items: {
+    id: number;
+    name: string;
+    image: string;
+    category: string;
+    badge: string | null;
+    size: string;
+    floor: string;
+    parking: string;
+    price: string;
+    tag: string;
+    description: string;
+  }[];
+  cta: { href: string; label: string };
+};
+type SalesPageState = { header: { eyebrow: string; title: string; intro: string } };
+type JobsPageState = { header: { title: string; intro: string } };
+type TeamPageState = {
+  header: { eyebrow: string; h2Line1: string; h2Accent: string; intro: string };
+  members: {
+    name: string;
+    role: string;
+    initials: string;
+    color: string;
+    phone: string;
+    email: string;
+    bio: string;
+    projects: number;
+  }[];
+  cta: { title: string; subtitle: string; buttonLabel: string; buttonHref: string };
+};
 
-function clone<T>(x: T): T {
-  return JSON.parse(JSON.stringify(x)) as T;
+const EMPTY_HOME: HomeState = {
+  hero: {
+    slideImages: [],
+    badge: "",
+    titleLine1: "",
+    titleAccent: "",
+    titleLine2: "",
+    desc: "",
+    btn1: "",
+    btn2: "",
+    stats: [],
+    slideLabel: "",
+  },
+};
+const EMPTY_ABOUT: AboutState = {
+  main: {
+    sectionLabel: "",
+    h2Line1: "",
+    h2Accent: "",
+    p1: "",
+    p2: "",
+    imageUrl: "",
+    imageBuildingName: "",
+    imageBuildingSubtitle: "",
+    yearsBadgeValue: "",
+    yearsLabel: "",
+    stats: [],
+  },
+};
+const EMPTY_FOOTER: FooterState = {
+  partners: { partnersLabel: "", items: [] },
+  brand: { desc: "" },
+};
+const EMPTY_CONTACT: ContactState = {
+  hero: { badge: "", h2Accent: "", intro: "" },
+  items: [],
+  agent: { initials: "", name: "", role: "", telHref: "", telLabel: "" },
+  formTitle: "",
+};
+const EMPTY_SERVICES: ServicesState = {
+  header: { badge: "", h2Line1: "", h2Accent: "", intro: "" },
+  features: [],
+  banner: [],
+};
+const EMPTY_PROPERTIES_PAGE: PropertiesPageState = {
+  header: { badge: "", titleLine1: "", titleAccent: "", intro: "" },
+  categories: [],
+  items: [],
+  cta: { href: "", label: "" },
+};
+const EMPTY_SALES_PAGE: SalesPageState = {
+  header: { eyebrow: "", title: "", intro: "" },
+};
+const EMPTY_JOBS_PAGE: JobsPageState = {
+  header: { title: "", intro: "" },
+};
+const EMPTY_TEAM_PAGE: TeamPageState = {
+  header: { eyebrow: "", h2Line1: "", h2Accent: "", intro: "" },
+  members: [],
+  cta: { title: "", subtitle: "", buttonLabel: "", buttonHref: "" },
+};
+
+function asRecord(v: unknown): Record<string, unknown> {
+  return v && typeof v === "object" && !Array.isArray(v)
+    ? (v as Record<string, unknown>)
+    : {};
+}
+function normalizeHome(v: unknown): HomeState {
+  const root = asRecord(v);
+  const hero = asRecord(root.hero);
+  return {
+    hero: {
+      ...EMPTY_HOME.hero,
+      ...hero,
+      slideImages: Array.isArray(hero.slideImages) ? (hero.slideImages as string[]) : [],
+      stats: Array.isArray(hero.stats) ? (hero.stats as { value: string; label: string }[]) : [],
+    },
+  };
+}
+function normalizeAbout(v: unknown): AboutState {
+  const root = asRecord(v);
+  const main = asRecord(root.main);
+  return {
+    main: {
+      ...EMPTY_ABOUT.main,
+      ...main,
+      stats: Array.isArray(main.stats) ? (main.stats as { value: string; label: string }[]) : [],
+    },
+  };
+}
+function normalizeFooter(v: unknown): FooterState {
+  const root = asRecord(v);
+  const partners = asRecord(root.partners);
+  const brand = asRecord(root.brand);
+  return {
+    partners: {
+      ...EMPTY_FOOTER.partners,
+      ...partners,
+      items: Array.isArray(partners.items)
+        ? (partners.items as { name: string; src: string; width: number; height: number }[])
+        : [],
+    },
+    brand: { ...EMPTY_FOOTER.brand, ...brand },
+  };
+}
+function normalizeContact(v: unknown): ContactState {
+  const root = asRecord(v);
+  return {
+    hero: { ...EMPTY_CONTACT.hero, ...asRecord(root.hero) },
+    items: Array.isArray(root.items) ? (root.items as { title: string; value: string }[]) : [],
+    agent: { ...EMPTY_CONTACT.agent, ...asRecord(root.agent) },
+    formTitle: typeof root.formTitle === "string" ? root.formTitle : "",
+  };
+}
+function normalizeServices(v: unknown): ServicesState {
+  const root = asRecord(v);
+  return {
+    header: { ...EMPTY_SERVICES.header, ...asRecord(root.header) },
+    features: Array.isArray(root.features) ? (root.features as { title: string; desc: string }[]) : [],
+    banner: Array.isArray(root.banner)
+      ? (root.banner as { value: string; suffix: string; label: string }[])
+      : [],
+  };
+}
+function normalizePropertiesPage(v: unknown): PropertiesPageState {
+  const root = asRecord(v);
+  return {
+    header: { ...EMPTY_PROPERTIES_PAGE.header, ...asRecord(root.header) },
+    categories: Array.isArray(root.categories) ? (root.categories as string[]) : [],
+    items: Array.isArray(root.items)
+      ? (root.items as PropertiesPageState["items"])
+      : [],
+    cta: { ...EMPTY_PROPERTIES_PAGE.cta, ...asRecord(root.cta) },
+  };
+}
+function normalizeSalesPage(v: unknown): SalesPageState {
+  const root = asRecord(v);
+  return { header: { ...EMPTY_SALES_PAGE.header, ...asRecord(root.header) } };
+}
+function normalizeJobsPage(v: unknown): JobsPageState {
+  const root = asRecord(v);
+  return { header: { ...EMPTY_JOBS_PAGE.header, ...asRecord(root.header) } };
+}
+function normalizeTeamPage(v: unknown): TeamPageState {
+  const root = asRecord(v);
+  return {
+    header: { ...EMPTY_TEAM_PAGE.header, ...asRecord(root.header) },
+    members: Array.isArray(root.members)
+      ? (root.members as TeamPageState["members"])
+      : [],
+    cta: { ...EMPTY_TEAM_PAGE.cta, ...asRecord(root.cta) },
+  };
 }
 
 async function fetchSections(
@@ -179,37 +367,17 @@ export default function SiteContentPage() {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
 
-  const [home, setHome] = useState<HomeState>(
-    () => mergeDeep(clone(defaultHomeSections), {}) as HomeState,
-  );
-  const [about, setAbout] = useState<AboutState>(
-    () => mergeDeep(clone(defaultAboutSections), {}) as AboutState,
-  );
-  const [footer, setFooter] = useState<FooterState>(
-    () => mergeDeep(clone(defaultFooterSections), {}) as FooterState,
-  );
-  const [contact, setContact] = useState<ContactState>(
-    () => mergeDeep(clone(defaultContactSections), {}) as ContactState,
-  );
-  const [services, setServices] = useState<ServicesState>(
-    () => mergeDeep(clone(defaultServicesSections), {}) as ServicesState,
-  );
+  const [home, setHome] = useState<HomeState>(EMPTY_HOME);
+  const [about, setAbout] = useState<AboutState>(EMPTY_ABOUT);
+  const [footer, setFooter] = useState<FooterState>(EMPTY_FOOTER);
+  const [contact, setContact] = useState<ContactState>(EMPTY_CONTACT);
+  const [services, setServices] = useState<ServicesState>(EMPTY_SERVICES);
   const [propertiesPage, setPropertiesPage] = useState<PropertiesPageState>(
-    () =>
-      mergeDeep(
-        clone(defaultPropertiesPageSections),
-        {},
-      ) as PropertiesPageState,
+    EMPTY_PROPERTIES_PAGE,
   );
-  const [salesPage, setSalesPage] = useState<SalesPageState>(
-    () => mergeDeep(clone(defaultSalesPageSections), {}) as SalesPageState,
-  );
-  const [jobsPage, setJobsPage] = useState<JobsPageState>(
-    () => mergeDeep(clone(defaultJobsPageSections), {}) as JobsPageState,
-  );
-  const [teamPage, setTeamPage] = useState<TeamPageState>(
-    () => mergeDeep(clone(defaultTeamPageSections), {}) as TeamPageState,
-  );
+  const [salesPage, setSalesPage] = useState<SalesPageState>(EMPTY_SALES_PAGE);
+  const [jobsPage, setJobsPage] = useState<JobsPageState>(EMPTY_JOBS_PAGE);
+  const [teamPage, setTeamPage] = useState<TeamPageState>(EMPTY_TEAM_PAGE);
 
   const load = useCallback(async () => {
     setError(null);
@@ -226,28 +394,15 @@ export default function SiteContentPage() {
         fetchSections(base, "team"),
         fetchSections(base, "footer"),
       ]);
-      setHome(mergeDeep(clone(defaultHomeSections), h) as HomeState);
-      setAbout(mergeDeep(clone(defaultAboutSections), a) as AboutState);
-      setServices(
-        mergeDeep(clone(defaultServicesSections), svc) as ServicesState,
-      );
-      setContact(mergeDeep(clone(defaultContactSections), c) as ContactState);
-      setPropertiesPage(
-        mergeDeep(
-          clone(defaultPropertiesPageSections),
-          pp,
-        ) as PropertiesPageState,
-      );
-      setSalesPage(
-        mergeDeep(clone(defaultSalesPageSections), sp) as SalesPageState,
-      );
-      setJobsPage(
-        mergeDeep(clone(defaultJobsPageSections), jp) as JobsPageState,
-      );
-      setTeamPage(
-        mergeDeep(clone(defaultTeamPageSections), tm) as TeamPageState,
-      );
-      setFooter(mergeDeep(clone(defaultFooterSections), f) as FooterState);
+      setHome(normalizeHome(h));
+      setAbout(normalizeAbout(a));
+      setServices(normalizeServices(svc));
+      setContact(normalizeContact(c));
+      setPropertiesPage(normalizePropertiesPage(pp));
+      setSalesPage(normalizeSalesPage(sp));
+      setJobsPage(normalizeJobsPage(jp));
+      setTeamPage(normalizeTeamPage(tm));
+      setFooter(normalizeFooter(f));
     } catch (e) {
       setError(e instanceof Error ? e.message : "Алдаа");
     } finally {
@@ -256,7 +411,7 @@ export default function SiteContentPage() {
   }, [base]);
 
   const debouncedSave = useDebounce(
-    async (pageId: (typeof TABS)[number]["id"], sections: any) => {
+    async (pageId: (typeof TABS)[number]["id"], sections: unknown) => {
       setError(null);
       setSaved(null);
       setSaving(true);

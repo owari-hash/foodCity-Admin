@@ -5,6 +5,19 @@ import { verifyAdminJwt } from "@/lib/verifyAdminJwt";
 
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
+  const rootAdminLike =
+    pathname === "/login" ||
+    pathname.startsWith("/dashboard") ||
+    pathname.startsWith("/site-content") ||
+    pathname.startsWith("/orders") ||
+    pathname.startsWith("/sales-ads") ||
+    pathname.startsWith("/jobs") ||
+    pathname.startsWith("/chat");
+  if (rootAdminLike) {
+    const u = request.nextUrl.clone();
+    u.pathname = `${ADMIN_BASE_PATH}${pathname}`;
+    return NextResponse.redirect(u);
+  }
   if (!pathname.startsWith(ADMIN_BASE_PATH)) {
     return NextResponse.next();
   }

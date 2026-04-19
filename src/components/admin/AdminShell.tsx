@@ -20,12 +20,12 @@ import { clearClientAdminToken } from "@/lib/adminClientAuth";
 import { ADMIN_BASE_PATH, pathnameWithoutBase } from "@/lib/adminBasePath";
 
 const nav = [
-  { href: "/dashboard", label: "Самбар", icon: LayoutDashboard },
-  { href: "/site-content", label: "Вэб агуулга", icon: FileEdit },
-  { href: "/orders", label: "Захиалга", icon: ShoppingBag },
-  { href: "/sales-ads", label: "Борлуулалтын зар", icon: Megaphone },
-  { href: "/jobs", label: "Ажлын зар", icon: Briefcase },
-  { href: "/chat", label: "Чат", icon: MessageCircle },
+  { href: `${ADMIN_BASE_PATH}/dashboard`, label: "Самбар", icon: LayoutDashboard },
+  { href: `${ADMIN_BASE_PATH}/site-content`, label: "Вэб агуулга", icon: FileEdit },
+  { href: `${ADMIN_BASE_PATH}/orders`, label: "Захиалга", icon: ShoppingBag },
+  { href: `${ADMIN_BASE_PATH}/sales-ads`, label: "Борлуулалтын зар", icon: Megaphone },
+  { href: `${ADMIN_BASE_PATH}/jobs`, label: "Ажлын зар", icon: Briefcase },
+  { href: `${ADMIN_BASE_PATH}/chat`, label: "Чат", icon: MessageCircle },
 ];
 
 const titles: Record<string, string> = {
@@ -45,10 +45,10 @@ export default function AdminShell({ children }: { children: React.ReactNode }) 
 
   async function logout() {
     try {
-      await fetch("/api/auth/logout", { method: "POST" });
+      await fetch(`${ADMIN_BASE_PATH}/api/auth/logout`, { method: "POST" });
     } finally {
       clearClientAdminToken();
-      router.replace("/login");
+      router.replace(`${ADMIN_BASE_PATH}/login`);
       router.refresh();
     }
   }
@@ -84,7 +84,7 @@ export default function AdminShell({ children }: { children: React.ReactNode }) 
       >
         <div className="flex h-14 items-center justify-between gap-2 border-b border-zinc-200 px-3 dark:border-zinc-800">
           <Link
-            href="/dashboard"
+            href={`${ADMIN_BASE_PATH}/dashboard`}
             className="flex min-w-0 flex-1 items-center rounded-md px-1 py-1 outline-offset-2 focus-visible:outline-2 focus-visible:outline-emerald-600"
             onClick={() => setNavOpen(false)}
           >
@@ -108,7 +108,7 @@ export default function AdminShell({ children }: { children: React.ReactNode }) 
         </div>
         <nav className="flex flex-col gap-0.5 overflow-y-auto p-2 pb-[max(0.5rem,env(safe-area-inset-bottom))]">
           {nav.map(({ href, label, icon: Icon }) => {
-            const active = pathname === href;
+            const active = `${ADMIN_BASE_PATH}${pathname}` === href;
             return (
               <Link
                 key={href}
