@@ -1,7 +1,8 @@
 "use client";
 
+import { useState } from "react";
 import type { LucideIcon } from "lucide-react";
-import { RefreshCw, Sparkles } from "lucide-react";
+import { ChevronDown, RefreshCw, Sparkles } from "lucide-react";
 
 /** Shared form styles for the site-content editor (distinct from rest of admin). */
 export const scInput =
@@ -77,7 +78,7 @@ export function EditorTabRail({
           <p className="text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400">
             Редактор
           </p>
-          <p className="truncate text-sm font-semibold text-slate-900 dark:text-slate-50">
+          <p className="text-sm font-semibold leading-snug text-slate-900 dark:text-slate-50">
             Хуудасны агуулга
           </p>
         </div>
@@ -166,7 +167,7 @@ export function EditorTabSelect({
 
 export function EditorSurface({ children }: { children: React.ReactNode }) {
   return (
-    <div className="relative min-h-[min(70vh,560px)] overflow-hidden rounded-2xl border border-slate-200/80 bg-gradient-to-br from-white via-slate-50/80 to-indigo-50/30 shadow-[0_1px_0_rgba(15,23,42,0.04),0_12px_32px_-8px_rgba(15,23,42,0.08)] dark:border-slate-800 dark:from-slate-950 dark:via-slate-950 dark:to-indigo-950/20 dark:shadow-[0_1px_0_rgba(255,255,255,0.04)_inset]">
+    <div className="relative w-full min-h-[min(70vh,560px)] overflow-hidden rounded-2xl border border-slate-200/80 bg-gradient-to-br from-white via-slate-50/80 to-indigo-50/30 shadow-[0_1px_0_rgba(15,23,42,0.04),0_12px_32px_-8px_rgba(15,23,42,0.08)] dark:border-slate-800 dark:from-slate-950 dark:via-slate-950 dark:to-indigo-950/20 dark:shadow-[0_1px_0_rgba(255,255,255,0.04)_inset]">
       <div
         className="pointer-events-none absolute -right-24 -top-24 h-64 w-64 rounded-full bg-indigo-400/10 blur-3xl dark:bg-indigo-500/10"
         aria-hidden
@@ -175,7 +176,139 @@ export function EditorSurface({ children }: { children: React.ReactNode }) {
         className="pointer-events-none absolute -bottom-20 -left-16 h-56 w-56 rounded-full bg-violet-400/10 blur-3xl dark:bg-violet-500/10"
         aria-hidden
       />
-      <div className="relative p-4 sm:p-6 lg:p-8">{children}</div>
+      <div className="relative w-full p-4 sm:p-6 lg:p-8">{children}</div>
+    </div>
+  );
+}
+
+/** Collapsible block — cuts vertical scroll; use with `id` for SectionTOC / jump. */
+export function EditorSection({
+  id,
+  title,
+  subtitle,
+  defaultOpen = true,
+  children,
+}: {
+  id: string;
+  title: string;
+  subtitle?: string;
+  defaultOpen?: boolean;
+  children: React.ReactNode;
+}) {
+  const [open, setOpen] = useState(defaultOpen);
+  return (
+    <details
+      id={id}
+      open={open}
+      onToggle={(e) => setOpen(e.currentTarget.open)}
+      className="group scroll-mt-28 overflow-hidden rounded-2xl border border-slate-200/85 bg-white/95 shadow-sm dark:border-slate-700/80 dark:bg-slate-900/75"
+    >
+      <summary className="flex cursor-pointer list-none items-center justify-between gap-3 px-4 py-3.5 text-left transition hover:bg-slate-50/90 dark:hover:bg-slate-800/60 [&::-webkit-details-marker]:hidden">
+        <span className="min-w-0">
+          <span className="block text-sm font-semibold text-slate-900 dark:text-slate-50">{title}</span>
+          {subtitle ? (
+            <span className="mt-0.5 block text-xs leading-relaxed text-slate-500 dark:text-slate-400">
+              {subtitle}
+            </span>
+          ) : null}
+        </span>
+        <ChevronDown
+          className="h-4 w-4 shrink-0 text-slate-400 transition-transform duration-200 group-open:rotate-180 dark:text-slate-500"
+          aria-hidden
+        />
+      </summary>
+      <div className="space-y-5 border-t border-slate-100 px-4 py-4 dark:border-slate-800 sm:px-5 sm:py-5">
+        {children}
+      </div>
+    </details>
+  );
+}
+
+export function SectionTOC({ items }: { items: { id: string; label: string }[] }) {
+  if (items.length === 0) return null;
+  return (
+    <nav
+      className="hidden w-[12rem] shrink-0 2xl:block"
+      aria-label="Хэсэг рүү шилжих"
+    >
+      <div className="sticky top-2 max-h-[min(72vh,calc(100dvh-7rem))] overflow-y-auto rounded-xl border border-slate-200/80 bg-white/95 p-2 shadow-sm dark:border-slate-700 dark:bg-slate-900/85">
+        <p className="px-2 pb-2 text-[10px] font-bold uppercase tracking-wider text-slate-400">Агуулга</p>
+        <ul className="space-y-0.5">
+          {items.map(({ id, label }) => (
+            <li key={id}>
+              <a
+                href={`#${id}`}
+                className="block rounded-lg px-2 py-1.5 text-xs leading-snug text-slate-600 transition hover:bg-indigo-50 hover:text-indigo-900 dark:text-slate-400 dark:hover:bg-indigo-950/40 dark:hover:text-indigo-100"
+              >
+                {label}
+              </a>
+            </li>
+          ))}
+        </ul>
+      </div>
+    </nav>
+  );
+}
+
+export function SectionJumpSelect({
+  items,
+  selectKey,
+}: {
+  items: { id: string; label: string }[];
+  /** e.g. tab id — resets the control when switching pages */
+  selectKey: string;
+}) {
+  if (items.length === 0) return null;
+  const jumpId = `site-content-jump-${selectKey.replace(/[^a-zA-Z0-9_-]/g, "-")}`;
+  return (
+    <div className="2xl:hidden">
+      <label htmlFor={jumpId} className="sr-only">
+        Хэсэг рүү очих
+      </label>
+      <select
+        id={jumpId}
+        key={selectKey}
+        defaultValue=""
+        onChange={(e) => {
+          const id = e.target.value;
+          if (id) {
+            document.getElementById(id)?.scrollIntoView({ behavior: "smooth", block: "start" });
+          }
+        }}
+        className="w-full rounded-xl border border-slate-200 bg-white px-3 py-2.5 text-sm text-slate-800 shadow-sm focus:border-indigo-400 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 dark:border-slate-600 dark:bg-slate-900 dark:text-slate-100"
+      >
+        <option value="" disabled>
+          Хэсэг рүү очих…
+        </option>
+        {items.map(({ id, label }) => (
+          <option key={id} value={id}>
+            {label}
+          </option>
+        ))}
+      </select>
+    </div>
+  );
+}
+
+/** Full-width row: main column + optional sticky TOC (2xl+). */
+export function EditorBody({
+  sectionItems,
+  sectionJumpKey = "",
+  children,
+}: {
+  sectionItems?: { id: string; label: string }[];
+  /** Resets the mobile section jump when switching tabs (e.g. `tab` id). */
+  sectionJumpKey?: string;
+  children: React.ReactNode;
+}) {
+  const items = sectionItems ?? [];
+  return (
+    <div className="flex w-full min-w-0 flex-col gap-4 2xl:flex-row 2xl:items-start 2xl:gap-8">
+      <div className="min-w-0 w-full flex-1 space-y-4">
+        {items.length > 0 ? <SectionJumpSelect items={items} selectKey={sectionJumpKey} /> : null}
+        {children}
+      </div>
+      {items.length > 0 ? <SectionTOC items={items} /> : null}
     </div>
   );
 }

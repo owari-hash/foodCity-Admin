@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { ChevronLeft } from "lucide-react";
 import { io, type Socket } from "socket.io-client";
-import { getApiBaseUrl } from "@/lib/api";
+import { getApiBaseUrl, getSocketBaseUrl } from "@/lib/api";
 
 type Conv = {
   id: string;
@@ -68,7 +68,7 @@ export default function ChatAdminPage() {
   }, [loadConversations]);
 
   useEffect(() => {
-    const s = io(base, {
+    const s = io(getSocketBaseUrl(), {
       transports: ["websocket", "polling"],
       withCredentials: true,
     });

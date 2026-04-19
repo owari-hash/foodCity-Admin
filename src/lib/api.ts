@@ -16,6 +16,15 @@ export function getApiBaseUrl(): string {
   return url.replace(/\/$/, "");
 }
 
+/** See foodcity-front `getSocketBaseUrl` — Socket.io is not under `/api`. */
+export function getSocketBaseUrl(): string {
+  let u = getApiBaseUrl();
+  if (u.endsWith("/api")) {
+    u = u.slice(0, -4);
+  }
+  return u.replace(/\/$/, "");
+}
+
 export type AdminStats = {
   ordersToday: number;
   revenueToday: number;
