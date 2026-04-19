@@ -5,9 +5,18 @@ import { getApiBaseUrl } from "@/lib/api";
 import { mergeDeep } from "@/lib/mergeDeep";
 import {
   defaultAboutSections,
+  defaultContactSections,
   defaultFooterSections,
   defaultHomeSections,
+  defaultServicesSections,
 } from "@/lib/siteContentDefaults";
+import {
+  Briefcase,
+  Building2,
+  Home,
+  LayoutGrid,
+  Phone,
+} from "lucide-react";
 
 type HomeState = {
   hero: {
@@ -47,6 +56,9 @@ type FooterState = {
   brand: { desc: string };
 };
 
+type ContactState = typeof defaultContactSections;
+type ServicesState = typeof defaultServicesSections;
+
 function clone<T>(x: T): T {
   return JSON.parse(JSON.stringify(x)) as T;
 }
@@ -64,9 +76,17 @@ async function fetchSections(
     : {};
 }
 
+const TABS = [
+  { id: "home" as const, label: "Нүүр", hint: "Hero, слайд, статистик", icon: Home },
+  { id: "about" as const, label: "Бидний тухай", hint: "Танилцуулга, статистик", icon: Building2 },
+  { id: "services" as const, label: "Үйлчилгээ", hint: "Давуу тал, тоонууд", icon: Briefcase },
+  { id: "contact" as const, label: "Холбоо барих", hint: "Хаяг, утас, кард", icon: Phone },
+  { id: "footer" as const, label: "Хөл", hint: "Түншүүд, танилцуулга", icon: LayoutGrid },
+];
+
 export default function SiteContentPage() {
   const base = getApiBaseUrl();
-  const [tab, setTab] = useState<"home" | "about" | "footer">("home");
+  const [tab, setTab] = useState<(typeof TABS)[number]["id"]>("home");
   const [error, setError] = useState<string | null>(null);
   const [saved, setSaved] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
@@ -80,18 +100,28 @@ export default function SiteContentPage() {
   const [footer, setFooter] = useState<FooterState>(() =>
     mergeDeep(clone(defaultFooterSections), {}) as FooterState,
   );
+  const [contact, setContact] = useState<ContactState>(() =>
+    mergeDeep(clone(defaultContactSections), {}) as ContactState,
+  );
+  const [services, setServices] = useState<ServicesState>(() =>
+    mergeDeep(clone(defaultServicesSections), {}) as ServicesState,
+  );
 
   const load = useCallback(async () => {
     setError(null);
     setLoading(true);
     try {
-      const [h, a, f] = await Promise.all([
+      const [h, a, svc, c, f] = await Promise.all([
         fetchSections(base, "home"),
         fetchSections(base, "about"),
+        fetchSections(base, "services"),
+        fetchSections(base, "contact"),
         fetchSections(base, "footer"),
       ]);
       setHome(mergeDeep(clone(defaultHomeSections), h) as HomeState);
       setAbout(mergeDeep(clone(defaultAboutSections), a) as AboutState);
+      setServices(mergeDeep(clone(defaultServicesSections), svc) as ServicesState);
+      setContact(mergeDeep(clone(defaultContactSections), c) as ContactState);
       setFooter(mergeDeep(clone(defaultFooterSections), f) as FooterState);
     } catch (e) {
       setError(e instanceof Error ? e.message : "Алдаа");
@@ -104,11 +134,19 @@ export default function SiteContentPage() {
     void load();
   }, [load]);
 
-  async function save(pageId: "home" | "about" | "footer") {
+  async function save(pageId: (typeof TABS)[number]["id"]) {
     setError(null);
     setSaved(null);
     const sections =
-      pageId === "home" ? home : pageId === "about" ? about : footer;
+      pageId === "home"
+        ? home
+        : pageId === "about"
+          ? about
+          : pageId === "services"
+            ? services
+            : pageId === "contact"
+              ? contact
+              : footer;
     try {
       const res = await fetch(`${base}/api/v1/admin/site-pages/${pageId}`, {
         method: "PUT",
@@ -127,11 +165,32 @@ export default function SiteContentPage() {
     "mt-1 w-full rounded-md border border-zinc-300 bg-white px-3 py-2 text-sm text-zinc-900 shadow-sm focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500 dark:border-zinc-600 dark:bg-zinc-900 dark:text-zinc-100";
 
   return (
-    <div className="mx-auto max-w-3xl space-y-6">
-      <p className="text-sm text-zinc-600 dark:text-zinc-400">
-        Нүүр, Бидний тухай, Хөл хэсгүүдийг тусад нь засварлана. Өөрчлөлт вэбд хэдэн
-        секундын дараа харагдана (кэш шинэчлэгдэнэ).
-      </p>
+    <div className="mx-auto max-w-4xl space-y-6">
+      <div className="rounded-2xl border border-emerald-200/80 bg-gradient-to-br from-emerald-50/90 to-zinc-50 p-5 dark:border-emerald-900/50 dark:from-emerald-950/40 dark:to-zinc-950">
+        <h2 className="text-base font-semibold text-zinc-900 dark:text-zinc-50">
+          Вэбийн үндсэн агуулга
+        </h2>
+        <p className="mt-1 text-sm text-zinc-600 dark:text-zinc-400">
+          Доорх хуудсууд тус бүрт тохируулагдана.           Хадгалсны дараа нийтийн сайт дээр ойролцоогоор 30 секундын дотор шинэчлэгдэнэ (Next.js кэш).
+        </p>
+        <ul className="mt-3 grid gap-2 text-sm text-zinc-700 dark:text-zinc-300 sm:grid-cols-2">
+          <li className="flex gap-2">
+            <span className="text-emerald-600">✓</span> Нүүр — Hero, слайдын зураг, товчлуур, тоонууд
+          </li>
+          <li className="flex gap-2">
+            <span className="text-emerald-600">✓</span> Бидний тухай — гарчиг, текст, статистик
+          </li>
+          <li className="flex gap-2">
+            <span className="text-emerald-600">✓</span> Үйлчилгээ — 4 блок + доод баннерын тоо
+          </li>
+          <li className="flex gap-2">
+            <span className="text-emerald-600">✓</span> Холбоо барих — хаяг, утас, менежерийн кард
+          </li>
+          <li className="flex gap-2 sm:col-span-2">
+            <span className="text-emerald-600">✓</span> Хөл — түншүүдийн лого, танилцуулгын текст
+          </li>
+        </ul>
+      </div>
 
       {error && (
         <p className="rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-800 dark:border-red-900 dark:bg-red-950 dark:text-red-200">
@@ -144,36 +203,38 @@ export default function SiteContentPage() {
         </p>
       )}
 
-      <div className="flex flex-wrap gap-2 border-b border-zinc-200 pb-3 dark:border-zinc-700">
-        {(
-          [
-            ["home", "Нүүр (Hero)"],
-            ["about", "Бидний тухай"],
-            ["footer", "Хөл (лого, танилцуулга)"],
-          ] as const
-        ).map(([id, label]) => (
+      <div className="flex flex-col gap-3 border-b border-zinc-200 pb-4 dark:border-zinc-700">
+        <div className="flex flex-wrap gap-2">
+          {TABS.map(({ id, label, hint, icon: Icon }) => (
+            <button
+              key={id}
+              type="button"
+              onClick={() => setTab(id)}
+              className={`flex min-w-[140px] flex-1 flex-col items-start rounded-xl border px-3 py-2.5 text-left transition-colors sm:min-w-[160px] ${
+                tab === id
+                  ? "border-emerald-500 bg-emerald-50 shadow-sm dark:border-emerald-600 dark:bg-emerald-950/50"
+                  : "border-zinc-200 bg-white hover:border-zinc-300 dark:border-zinc-700 dark:bg-zinc-900 dark:hover:border-zinc-600"
+              }`}
+            >
+              <span className="flex items-center gap-2 font-medium text-zinc-900 dark:text-zinc-50">
+                <Icon className="h-4 w-4 shrink-0 text-emerald-600 dark:text-emerald-400" />
+                {label}
+              </span>
+              <span className="mt-0.5 text-xs text-zinc-500 dark:text-zinc-400">{hint}</span>
+            </button>
+          ))}
           <button
-            key={id}
             type="button"
-            onClick={() => setTab(id)}
-            className={`rounded-lg px-4 py-2 text-sm font-medium transition-colors ${
-              tab === id
-                ? "bg-emerald-600 text-white"
-                : "bg-zinc-100 text-zinc-700 hover:bg-zinc-200 dark:bg-zinc-800 dark:text-zinc-200 dark:hover:bg-zinc-700"
-            }`}
+            onClick={() => void load()}
+            disabled={loading}
+            className="self-stretch rounded-xl border border-zinc-300 px-4 py-2 text-sm text-zinc-700 hover:bg-zinc-50 disabled:opacity-50 dark:border-zinc-600 dark:text-zinc-300 dark:hover:bg-zinc-800"
           >
-            {label}
+            {loading ? "Уншиж байна…" : "Бүгдийг дахин ачаалах"}
           </button>
-        ))}
-        <button
-          type="button"
-          onClick={() => void load()}
-          disabled={loading}
-          className="ml-auto rounded-lg border border-zinc-300 px-3 py-2 text-sm text-zinc-700 hover:bg-zinc-50 disabled:opacity-50 dark:border-zinc-600 dark:text-zinc-300 dark:hover:bg-zinc-800"
-        >
-          {loading ? "Уншиж байна…" : "Дахин ачаалах"}
-        </button>
+        </div>
       </div>
+
+      <div className="rounded-2xl border border-zinc-200 bg-white p-5 shadow-sm dark:border-zinc-800 dark:bg-zinc-950 sm:p-6">
 
       {loading ? (
         <p className="text-sm text-zinc-500">Ачаалж байна…</p>
