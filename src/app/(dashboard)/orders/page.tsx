@@ -50,13 +50,13 @@ export default function OrdersPage() {
   }
 
   return (
-    <div className="mx-auto max-w-6xl space-y-4">
+    <div className="w-full max-w-none space-y-4">
       {error && (
         <p className="rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-800 dark:border-red-900 dark:bg-red-950 dark:text-red-200">
           {error}
         </p>
       )}
-      <div className="-mx-1 overflow-x-auto rounded-xl border border-zinc-200 bg-white touch-pan-x sm:mx-0 dark:border-zinc-800 dark:bg-zinc-950">
+      <div className="w-full overflow-x-auto rounded-xl border border-zinc-200 bg-white touch-pan-x dark:border-zinc-800 dark:bg-zinc-950">
         <table className="min-w-[640px] w-full text-left text-sm">
           <thead className="border-b border-zinc-200 bg-zinc-50 dark:border-zinc-800 dark:bg-zinc-900">
             <tr>

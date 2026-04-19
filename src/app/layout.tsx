@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import { ThemeProvider } from "@/components/theme-provider";
+import { ADMIN_BASE_PATH } from "@/lib/adminBasePath";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -16,6 +17,10 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   title: "Foodcity Admin",
   description: "Manage Foodcity catalog and orders",
+  icons: {
+    icon: [{ url: `${ADMIN_BASE_PATH}/fclogo.png`, type: "image/png" }],
+    apple: [{ url: `${ADMIN_BASE_PATH}/fclogo.png` }],
+  },
 };
 
 export const viewport = {

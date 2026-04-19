@@ -21,6 +21,17 @@ import {
   Trash2,
 } from "lucide-react";
 import ImageUploadField from "@/components/ImageUploadField";
+import {
+  DangerMini,
+  EditorAlerts,
+  EditorSurface,
+  EditorTabRail,
+  EditorTabSelect,
+  GhostButton,
+  PrimarySave,
+  scInput,
+  scTextarea,
+} from "./editorUi";
 
 type HomeState = {
   hero: {
@@ -95,9 +106,11 @@ const TABS = [
   { id: "footer" as const, label: "Хөл", hint: "Түншүүд, танилцуулга", icon: LayoutGrid },
 ];
 
+type TabId = (typeof TABS)[number]["id"];
+
 export default function SiteContentPage() {
   const base = getApiBaseUrl();
-  const [tab, setTab] = useState<(typeof TABS)[number]["id"]>("home");
+  const [tab, setTab] = useState<TabId>("home");
   const [error, setError] = useState<string | null>(null);
   const [saved, setSaved] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
@@ -190,58 +203,40 @@ export default function SiteContentPage() {
     }
   }
 
-  const inputClass =
-    "mt-1 w-full rounded-md border border-zinc-300 bg-white px-3 py-2 text-sm text-zinc-900 shadow-sm focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500 dark:border-zinc-600 dark:bg-zinc-900 dark:text-zinc-100";
-
   return (
-    <div className="mx-auto max-w-4xl space-y-6">
-      {error && (
-        <p className="rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-800 dark:border-red-900 dark:bg-red-950 dark:text-red-200">
-          {error}
-        </p>
-      )}
-      {saved && (
-        <p className="rounded-lg border border-emerald-200 bg-emerald-50 px-3 py-2 text-sm text-emerald-900 dark:border-emerald-900 dark:bg-emerald-950 dark:text-emerald-100">
-          {saved}
-        </p>
-      )}
+    <div className="mx-auto max-w-[1600px] space-y-4 pb-8">
+      <EditorAlerts error={error} saved={saved} />
 
-      <div className="flex flex-col gap-3 border-b border-zinc-200 pb-4 dark:border-zinc-700">
-        <div className="-mx-1 flex snap-x snap-mandatory gap-2 overflow-x-auto pb-1 sm:flex-wrap sm:overflow-visible sm:pb-0">
-          {TABS.map(({ id, label, hint, icon: Icon }) => (
-            <button
-              key={id}
-              type="button"
-              onClick={() => setTab(id)}
-              className={`flex min-w-[140px] shrink-0 snap-start flex-col items-start rounded-xl border px-3 py-2.5 text-left transition-colors sm:min-w-[160px] sm:flex-1 ${
-                tab === id
-                  ? "border-emerald-500 bg-emerald-50 shadow-sm dark:border-emerald-600 dark:bg-emerald-950/50"
-                  : "border-zinc-200 bg-white hover:border-zinc-300 dark:border-zinc-700 dark:bg-zinc-900 dark:hover:border-zinc-600"
-              }`}
-            >
-              <span className="flex items-center gap-2 font-medium text-zinc-900 dark:text-zinc-50">
-                <Icon className="h-4 w-4 shrink-0 text-emerald-600 dark:text-emerald-400" />
-                {label}
-              </span>
-              <span className="mt-0.5 text-xs text-zinc-500 dark:text-zinc-400">{hint}</span>
-            </button>
-          ))}
-          <button
-            type="button"
-            onClick={() => void load()}
-            disabled={loading || saving}
-            className="self-stretch rounded-xl border border-zinc-300 px-4 py-2 text-sm text-zinc-700 hover:bg-zinc-50 disabled:opacity-50 dark:border-zinc-600 dark:text-zinc-300 dark:hover:bg-zinc-800"
-          >
-            {loading ? "Уншиж байна…" : "Бүгдийг дахин ачаалах"}
-          </button>
-        </div>
-      </div>
+      <div className="flex flex-col gap-4 lg:grid lg:grid-cols-[minmax(260px,300px)_minmax(0,1fr)] lg:items-start lg:gap-8">
+        <aside className="hidden lg:block lg:sticky lg:top-0 lg:max-h-[calc(100dvh-5.5rem)] lg:w-full lg:overflow-hidden lg:rounded-2xl lg:border lg:border-slate-200/80 lg:bg-gradient-to-b lg:from-slate-50 lg:to-white lg:p-4 lg:shadow-sm dark:lg:border-slate-800 dark:lg:from-slate-950 dark:lg:to-slate-900">
+          <EditorTabRail
+            tabs={TABS}
+            active={tab}
+            onSelect={(id) => setTab(id as TabId)}
+            onReload={() => void load()}
+            loading={loading}
+            saving={saving}
+          />
+        </aside>
 
-      <div className="rounded-2xl border border-zinc-200 bg-white p-5 shadow-sm dark:border-zinc-800 dark:bg-zinc-950 sm:p-6">
+        <div className="min-w-0 space-y-4">
+          <EditorTabSelect tabs={TABS} active={tab} onSelect={(id) => setTab(id as TabId)} />
 
-      {loading ? (
-        <p className="text-sm text-zinc-500">Ачаалж байна…</p>
-      ) : tab === "home" ? (
+          <EditorSurface>
+            <header className="mb-6 border-b border-slate-200/80 pb-4 dark:border-slate-800">
+              <p className="text-[11px] font-bold uppercase tracking-[0.14em] text-indigo-600 dark:text-indigo-400">
+                Засварлаж буй хуудас
+              </p>
+              <h2 className="mt-1 text-xl font-bold tracking-tight text-slate-900 dark:text-slate-50">
+                {TABS.find((t) => t.id === tab)?.label ?? ""}
+              </h2>
+              <p className="mt-1 max-w-2xl text-sm leading-relaxed text-slate-600 dark:text-slate-400">
+                {TABS.find((t) => t.id === tab)?.hint}
+              </p>
+            </header>
+            {loading ? (
+              <p className="text-sm font-medium text-slate-500 dark:text-slate-400">Ачаалж байна…</p>
+            ) : tab === "home" ? (
         <div className="space-y-6">
           <div>
             <label className="text-xs font-semibold uppercase tracking-wide text-zinc-500">
@@ -269,9 +264,8 @@ export default function SiteContentPage() {
                   }}
                 />
               ))}
-              <button
-                type="button"
-                className="text-sm font-medium text-emerald-700 underline dark:text-emerald-400"
+              <GhostButton
+                className="font-medium"
                 onClick={() =>
                   setHome({
                     ...home,
@@ -283,7 +277,7 @@ export default function SiteContentPage() {
                 }
               >
                 + Слайд нэмэх
-              </button>
+              </GhostButton>
             </div>
           </div>
           {(
@@ -302,7 +296,7 @@ export default function SiteContentPage() {
                 {lab}
               </label>
               <input
-                className={inputClass}
+                className={scInput}
                 value={home.hero[key] as string}
                 onChange={(e) =>
                   setHome({
@@ -318,7 +312,7 @@ export default function SiteContentPage() {
               Тайлбар
             </label>
             <textarea
-              className={`${inputClass} min-h-[100px]`}
+              className={scTextarea("min-h-[100px]")}
               value={home.hero.desc}
               onChange={(e) =>
                 setHome({
@@ -336,7 +330,7 @@ export default function SiteContentPage() {
               {home.hero.stats.map((row, i) => (
                 <div key={i} className="flex flex-wrap gap-2">
                   <input
-                    className={`${inputClass} max-w-[140px]`}
+                    className={`${scInput} max-w-[140px]`}
                     placeholder="Утга"
                     value={row.value}
                     onChange={(e) => {
@@ -346,7 +340,7 @@ export default function SiteContentPage() {
                     }}
                   />
                   <input
-                    className={`${inputClass} min-w-[200px] flex-1`}
+                    className={`${scInput} min-w-[200px] flex-1`}
                     placeholder="Шошго"
                     value={row.label}
                     onChange={(e) => {
@@ -355,21 +349,17 @@ export default function SiteContentPage() {
                       setHome({ ...home, hero: { ...home.hero, stats } });
                     }}
                   />
-                  <button
-                    type="button"
-                    className="rounded-md border border-red-300 px-2 text-xs text-red-700 dark:border-red-800 dark:text-red-300"
+                  <DangerMini
                     onClick={() => {
                       const stats = home.hero.stats.filter((_, j) => j !== i);
                       setHome({ ...home, hero: { ...home.hero, stats } });
                     }}
                   >
                     Устгах
-                  </button>
+                  </DangerMini>
                 </div>
               ))}
-              <button
-                type="button"
-                className="text-sm text-emerald-700 underline dark:text-emerald-400"
+              <GhostButton
                 onClick={() =>
                   setHome({
                     ...home,
@@ -381,17 +371,12 @@ export default function SiteContentPage() {
                 }
               >
                 + Мөр нэмэх
-              </button>
+              </GhostButton>
             </div>
           </div>
-          <button
-            type="button"
-            disabled={saving}
-            onClick={() => void save("home")}
-            className="rounded-lg bg-emerald-600 px-5 py-2.5 text-sm font-semibold text-white hover:bg-emerald-700 disabled:cursor-not-allowed disabled:opacity-60"
-          >
+          <PrimarySave disabled={saving} onClick={() => void save("home")}>
             {saving ? "Хадгалж байна…" : "Нүүр хадгалах"}
-          </button>
+          </PrimarySave>
         </div>
       ) : tab === "about" ? (
         <div className="space-y-6">
@@ -411,7 +396,7 @@ export default function SiteContentPage() {
                 {lab}
               </label>
               <input
-                className={inputClass}
+                className={scInput}
                 value={about.main[key] as string}
                 onChange={(e) =>
                   setAbout({
@@ -427,7 +412,7 @@ export default function SiteContentPage() {
               Параграф 1
             </label>
             <textarea
-              className={`${inputClass} min-h-[100px]`}
+              className={scTextarea("min-h-[100px]")}
               value={about.main.p1}
               onChange={(e) =>
                 setAbout({ ...about, main: { ...about.main, p1: e.target.value } })
@@ -439,7 +424,7 @@ export default function SiteContentPage() {
               Параграф 2
             </label>
             <textarea
-              className={`${inputClass} min-h-[100px]`}
+              className={scTextarea("min-h-[100px]")}
               value={about.main.p2}
               onChange={(e) =>
                 setAbout({ ...about, main: { ...about.main, p2: e.target.value } })
@@ -454,7 +439,7 @@ export default function SiteContentPage() {
               {about.main.stats.map((row, i) => (
                 <div key={i} className="flex flex-wrap gap-2">
                   <input
-                    className={`${inputClass} max-w-[140px]`}
+                    className={`${scInput} max-w-[140px]`}
                     value={row.value}
                     onChange={(e) => {
                       const stats = [...about.main.stats];
@@ -463,7 +448,7 @@ export default function SiteContentPage() {
                     }}
                   />
                   <input
-                    className={`${inputClass} min-w-[200px] flex-1`}
+                    className={`${scInput} min-w-[200px] flex-1`}
                     value={row.label}
                     onChange={(e) => {
                       const stats = [...about.main.stats];
@@ -471,21 +456,17 @@ export default function SiteContentPage() {
                       setAbout({ ...about, main: { ...about.main, stats } });
                     }}
                   />
-                  <button
-                    type="button"
-                    className="rounded-md border border-red-300 px-2 text-xs text-red-700 dark:border-red-800 dark:text-red-300"
+                  <DangerMini
                     onClick={() => {
                       const stats = about.main.stats.filter((_, j) => j !== i);
                       setAbout({ ...about, main: { ...about.main, stats } });
                     }}
                   >
                     Устгах
-                  </button>
+                  </DangerMini>
                 </div>
               ))}
-              <button
-                type="button"
-                className="text-sm text-emerald-700 underline dark:text-emerald-400"
+              <GhostButton
                 onClick={() =>
                   setAbout({
                     ...about,
@@ -497,17 +478,12 @@ export default function SiteContentPage() {
                 }
               >
                 + Мөр нэмэх
-              </button>
+              </GhostButton>
             </div>
           </div>
-          <button
-            type="button"
-            disabled={saving}
-            onClick={() => void save("about")}
-            className="rounded-lg bg-emerald-600 px-5 py-2.5 text-sm font-semibold text-white hover:bg-emerald-700 disabled:cursor-not-allowed disabled:opacity-60"
-          >
+          <PrimarySave disabled={saving} onClick={() => void save("about")}>
             {saving ? "Хадгалж байна…" : "Бидний тухай хадгалах"}
-          </button>
+          </PrimarySave>
         </div>
       ) : tab === "services" ? (
         <div className="space-y-6">
@@ -523,7 +499,7 @@ export default function SiteContentPage() {
                 {lab}
               </label>
               <input
-                className={inputClass}
+                className={scInput}
                 value={services.header[key]}
                 onChange={(e) =>
                   setServices({
@@ -539,7 +515,7 @@ export default function SiteContentPage() {
               Танилцуулга
             </label>
             <textarea
-              className={`${inputClass} min-h-[80px]`}
+              className={scTextarea("min-h-[80px]")}
               value={services.header.intro}
               onChange={(e) =>
                 setServices({
@@ -555,9 +531,9 @@ export default function SiteContentPage() {
             </p>
             <div className="space-y-4">
               {services.features.map((f, i) => (
-                <div key={i} className="rounded-lg border border-zinc-200 p-3 dark:border-zinc-700">
+                <div key={i} className="rounded-xl border border-slate-200/90 bg-white/80 p-4 dark:border-slate-700 dark:bg-slate-900/40">
                   <input
-                    className={inputClass}
+                    className={scInput}
                     placeholder="Гарчиг"
                     value={f.title}
                     onChange={(e) => {
@@ -567,7 +543,7 @@ export default function SiteContentPage() {
                     }}
                   />
                   <textarea
-                    className={`${inputClass} mt-2 min-h-[72px]`}
+                    className={`mt-2 ${scTextarea("min-h-[72px]")}`}
                     placeholder="Тайлбар"
                     value={f.desc}
                     onChange={(e) => {
@@ -576,9 +552,8 @@ export default function SiteContentPage() {
                       setServices({ ...services, features });
                     }}
                   />
-                  <button
-                    type="button"
-                    className="mt-2 text-xs text-red-600 dark:text-red-400"
+                  <DangerMini
+                    className="mt-2"
                     onClick={() =>
                       setServices({
                         ...services,
@@ -587,12 +562,10 @@ export default function SiteContentPage() {
                     }
                   >
                     Устгах
-                  </button>
+                  </DangerMini>
                 </div>
               ))}
-              <button
-                type="button"
-                className="text-sm text-emerald-700 underline dark:text-emerald-400"
+              <GhostButton
                 onClick={() =>
                   setServices({
                     ...services,
@@ -601,7 +574,7 @@ export default function SiteContentPage() {
                 }
               >
                 + Онцлол нэмэх
-              </button>
+              </GhostButton>
             </div>
           </div>
           <div>
@@ -612,7 +585,7 @@ export default function SiteContentPage() {
               {services.banner.map((row, i) => (
                 <div key={i} className="flex flex-wrap gap-2">
                   <input
-                    className={`${inputClass} max-w-[100px]`}
+                    className={`${scInput} max-w-[100px]`}
                     placeholder="Утга"
                     value={row.value}
                     onChange={(e) => {
@@ -622,7 +595,7 @@ export default function SiteContentPage() {
                     }}
                   />
                   <input
-                    className={`${inputClass} max-w-[80px]`}
+                    className={`${scInput} max-w-[80px]`}
                     placeholder="Дагалдах"
                     value={row.suffix}
                     onChange={(e) => {
@@ -632,7 +605,7 @@ export default function SiteContentPage() {
                     }}
                   />
                   <input
-                    className={`${inputClass} min-w-[180px] flex-1`}
+                    className={`${scInput} min-w-[180px] flex-1`}
                     placeholder="Шошго"
                     value={row.label}
                     onChange={(e) => {
@@ -641,9 +614,7 @@ export default function SiteContentPage() {
                       setServices({ ...services, banner });
                     }}
                   />
-                  <button
-                    type="button"
-                    className="rounded-md border border-red-300 px-2 text-xs text-red-700 dark:border-red-800"
+                  <DangerMini
                     onClick={() =>
                       setServices({
                         ...services,
@@ -652,12 +623,10 @@ export default function SiteContentPage() {
                     }
                   >
                     Устгах
-                  </button>
+                  </DangerMini>
                 </div>
               ))}
-              <button
-                type="button"
-                className="text-sm text-emerald-700 underline dark:text-emerald-400"
+              <GhostButton
                 onClick={() =>
                   setServices({
                     ...services,
@@ -666,17 +635,12 @@ export default function SiteContentPage() {
                 }
               >
                 + Баннер мөр нэмэх
-              </button>
+              </GhostButton>
             </div>
           </div>
-          <button
-            type="button"
-            disabled={saving}
-            onClick={() => void save("services")}
-            className="rounded-lg bg-emerald-600 px-5 py-2.5 text-sm font-semibold text-white hover:bg-emerald-700 disabled:cursor-not-allowed disabled:opacity-60"
-          >
+          <PrimarySave disabled={saving} onClick={() => void save("services")}>
             {saving ? "Хадгалж байна…" : "Үйлчилгээ хадгалах"}
-          </button>
+          </PrimarySave>
         </div>
       ) : tab === "contact" ? (
         <div className="space-y-6">
@@ -691,7 +655,7 @@ export default function SiteContentPage() {
                 {lab}
               </label>
               <input
-                className={inputClass}
+                className={scInput}
                 value={contact.hero[key]}
                 onChange={(e) =>
                   setContact({
@@ -707,7 +671,7 @@ export default function SiteContentPage() {
               Танилцуулга
             </label>
             <textarea
-              className={`${inputClass} min-h-[80px]`}
+              className={scTextarea("min-h-[80px]")}
               value={contact.hero.intro}
               onChange={(e) =>
                 setContact({
@@ -725,7 +689,7 @@ export default function SiteContentPage() {
               {contact.items.map((row, i) => (
                 <div key={i} className="flex flex-wrap gap-2">
                   <input
-                    className={`${inputClass} max-w-[160px]`}
+                    className={`${scInput} max-w-[160px]`}
                     placeholder="Гарчиг"
                     value={row.title}
                     onChange={(e) => {
@@ -735,7 +699,7 @@ export default function SiteContentPage() {
                     }}
                   />
                   <input
-                    className={`${inputClass} min-w-[200px] flex-1`}
+                    className={`${scInput} min-w-[200px] flex-1`}
                     placeholder="Утга"
                     value={row.value}
                     onChange={(e) => {
@@ -744,9 +708,7 @@ export default function SiteContentPage() {
                       setContact({ ...contact, items });
                     }}
                   />
-                  <button
-                    type="button"
-                    className="rounded-md border border-red-300 px-2 text-xs text-red-700 dark:border-red-800"
+                  <DangerMini
                     onClick={() =>
                       setContact({
                         ...contact,
@@ -755,12 +717,10 @@ export default function SiteContentPage() {
                     }
                   >
                     Устгах
-                  </button>
+                  </DangerMini>
                 </div>
               ))}
-              <button
-                type="button"
-                className="text-sm text-emerald-700 underline dark:text-emerald-400"
+              <GhostButton
                 onClick={() =>
                   setContact({
                     ...contact,
@@ -769,7 +729,7 @@ export default function SiteContentPage() {
                 }
               >
                 + Мөр нэмэх
-              </button>
+              </GhostButton>
             </div>
           </div>
           <div className="rounded-lg border border-zinc-200 p-4 dark:border-zinc-700">
@@ -787,7 +747,7 @@ export default function SiteContentPage() {
                 <div key={key} className={key === "role" ? "sm:col-span-2" : ""}>
                   <label className="text-xs text-zinc-500">{lab}</label>
                   <input
-                    className={inputClass}
+                    className={scInput}
                     value={contact.agent[key]}
                     onChange={(e) =>
                       setContact({
@@ -805,19 +765,14 @@ export default function SiteContentPage() {
               Формын гарчиг
             </label>
             <input
-              className={inputClass}
+              className={scInput}
               value={contact.formTitle}
               onChange={(e) => setContact({ ...contact, formTitle: e.target.value })}
             />
           </div>
-          <button
-            type="button"
-            disabled={saving}
-            onClick={() => void save("contact")}
-            className="rounded-lg bg-emerald-600 px-5 py-2.5 text-sm font-semibold text-white hover:bg-emerald-700 disabled:cursor-not-allowed disabled:opacity-60"
-          >
+          <PrimarySave disabled={saving} onClick={() => void save("contact")}>
             {saving ? "Хадгалж байна…" : "Холбоо барих хадгалах"}
-          </button>
+          </PrimarySave>
         </div>
       ) : tab === "sales-page" ? (
         <div className="space-y-6">
@@ -826,7 +781,7 @@ export default function SiteContentPage() {
               Дээд шошго
             </label>
             <input
-              className={inputClass}
+              className={scInput}
               value={salesPage.header.eyebrow}
               onChange={(e) =>
                 setSalesPage({
@@ -841,7 +796,7 @@ export default function SiteContentPage() {
               Гол гарчиг
             </label>
             <input
-              className={inputClass}
+              className={scInput}
               value={salesPage.header.title}
               onChange={(e) =>
                 setSalesPage({
@@ -856,7 +811,7 @@ export default function SiteContentPage() {
               Танилцуулга
             </label>
             <textarea
-              className={`${inputClass} min-h-[100px]`}
+              className={scTextarea("min-h-[100px]")}
               value={salesPage.header.intro}
               onChange={(e) =>
                 setSalesPage({
@@ -866,14 +821,9 @@ export default function SiteContentPage() {
               }
             />
           </div>
-          <button
-            type="button"
-            disabled={saving}
-            onClick={() => void save("sales-page")}
-            className="rounded-lg bg-emerald-600 px-5 py-2.5 text-sm font-semibold text-white hover:bg-emerald-700 disabled:cursor-not-allowed disabled:opacity-60"
-          >
+          <PrimarySave disabled={saving} onClick={() => void save("sales-page")}>
             {saving ? "Хадгалж байна…" : "Борлуулалтын хуудас хадгалах"}
-          </button>
+          </PrimarySave>
         </div>
       ) : (
         <div className="space-y-6">
@@ -882,7 +832,7 @@ export default function SiteContentPage() {
               Лого хэсгийн гарчиг
             </label>
             <input
-              className={inputClass}
+              className={scInput}
               value={footer.partners.partnersLabel}
               onChange={(e) =>
                 setFooter({
@@ -897,7 +847,7 @@ export default function SiteContentPage() {
               Танилцуулга (брэндийн текст)
             </label>
             <textarea
-              className={`${inputClass} min-h-[90px]`}
+              className={scTextarea("min-h-[90px]")}
               value={footer.brand.desc}
               onChange={(e) =>
                 setFooter({
@@ -924,7 +874,7 @@ export default function SiteContentPage() {
                     <div>
                       <label className="text-xs text-zinc-500">Нэр</label>
                       <input
-                        className={inputClass}
+                        className={scInput}
                         value={row.name}
                         onChange={(e) => {
                           const items = [...footer.partners.items];
@@ -938,6 +888,7 @@ export default function SiteContentPage() {
                     </div>
                     <div className="sm:col-span-2">
                       <ImageUploadField
+                        previewFit="contain"
                         value={row.src}
                         onChange={(next) => {
                           const items = [...footer.partners.items];
@@ -953,7 +904,7 @@ export default function SiteContentPage() {
                       <label className="text-xs text-zinc-500">Өргөн</label>
                       <input
                         type="number"
-                        className={inputClass}
+                        className={scInput}
                         value={row.width}
                         onChange={(e) => {
                           const items = [...footer.partners.items];
@@ -972,7 +923,7 @@ export default function SiteContentPage() {
                       <label className="text-xs text-zinc-500">Өндөр</label>
                       <input
                         type="number"
-                        className={inputClass}
+                        className={scInput}
                         value={row.height}
                         onChange={(e) => {
                           const items = [...footer.partners.items];
@@ -1006,9 +957,7 @@ export default function SiteContentPage() {
                   </div>
                 </div>
               ))}
-              <button
-                type="button"
-                className="text-sm text-emerald-700 underline dark:text-emerald-400"
+              <GhostButton
                 onClick={() =>
                   setFooter({
                     ...footer,
@@ -1023,19 +972,16 @@ export default function SiteContentPage() {
                 }
               >
                 + Түнш нэмэх
-              </button>
+              </GhostButton>
             </div>
           </div>
-          <button
-            type="button"
-            disabled={saving}
-            onClick={() => void save("footer")}
-            className="rounded-lg bg-emerald-600 px-5 py-2.5 text-sm font-semibold text-white hover:bg-emerald-700 disabled:cursor-not-allowed disabled:opacity-60"
-          >
+          <PrimarySave disabled={saving} onClick={() => void save("footer")}>
             {saving ? "Хадгалж байна…" : "Хөл хадгалах"}
-          </button>
+          </PrimarySave>
         </div>
       )}
+          </EditorSurface>
+        </div>
       </div>
     </div>
   );

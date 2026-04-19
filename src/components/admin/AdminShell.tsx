@@ -15,7 +15,7 @@ import {
   X,
 } from "lucide-react";
 import { ThemeToggle } from "@/components/theme-toggle";
-import { pathnameWithoutBase } from "@/lib/adminBasePath";
+import { ADMIN_BASE_PATH, pathnameWithoutBase } from "@/lib/adminBasePath";
 
 const nav = [
   { href: "/dashboard", label: "Самбар", icon: LayoutDashboard },
@@ -76,7 +76,7 @@ export default function AdminShell({ children }: { children: React.ReactNode }) 
             onClick={() => setNavOpen(false)}
           >
             <Image
-              src="/fclogo.png"
+              src={`${ADMIN_BASE_PATH}/fclogo.png`}
               alt="Food City"
               width={160}
               height={56}

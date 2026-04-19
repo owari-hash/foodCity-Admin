@@ -1,4 +1,4 @@
-import { fetchAdminStats, getApiBaseUrl } from "@/lib/api";
+import { fetchAdminStats } from "@/lib/api";
 import type { LucideIcon } from "lucide-react";
 import {
   Briefcase,
@@ -35,25 +35,16 @@ function StatCard({
 
 export default async function DashboardPage() {
   const stats = await fetchAdminStats();
-  const apiBase = getApiBaseUrl();
 
   return (
     <div className="mx-auto max-w-5xl space-y-8">
-      <div>
-        <p className="break-words text-sm text-zinc-600 dark:text-zinc-400">
-          API:{" "}
-          <code className="inline-block max-w-full break-all rounded bg-zinc-100 px-1.5 py-0.5 text-xs dark:bg-zinc-800">
-            {apiBase}
-          </code>
+      {!stats && (
+        <p className="text-sm text-amber-700 dark:text-amber-400">
+          Статистик ачаалагдаагүй. MongoDB болон backend асаасан эсэхийг шалгана уу (
+          <code className="rounded bg-amber-100 px-1 dark:bg-amber-950">MONGODB_URI</code>,{" "}
+          <code className="rounded bg-amber-100 px-1 dark:bg-amber-950">npm run dev</code>).
         </p>
-        {!stats && (
-          <p className="mt-2 text-sm text-amber-700 dark:text-amber-400">
-            Статистик ачаалагдаагүй. MongoDB болон backend асаасан эсэхийг шалгана уу (
-            <code className="rounded bg-amber-100 px-1 dark:bg-amber-950">MONGODB_URI</code>,{" "}
-            <code className="rounded bg-amber-100 px-1 dark:bg-amber-950">npm run dev</code>).
-          </p>
-        )}
-      </div>
+      )}
 
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
         <StatCard

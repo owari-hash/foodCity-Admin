@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useState } from "react";
 import { getApiBaseUrl } from "@/lib/api";
+import ImageUploadField from "@/components/ImageUploadField";
 
 type Job = {
   id: string;
@@ -11,6 +12,7 @@ type Job = {
   description: string;
   salary?: string;
   contactEmail?: string;
+  imageUrl?: string;
   active: boolean;
 };
 
@@ -21,6 +23,7 @@ const empty: Omit<Job, "id"> = {
   description: "",
   salary: "",
   contactEmail: "",
+  imageUrl: "",
   active: true,
 };
 
@@ -57,6 +60,7 @@ export default function JobsPage() {
           ...form,
           salary: form.salary || undefined,
           contactEmail: form.contactEmail || undefined,
+          imageUrl: form.imageUrl?.trim() || undefined,
         }),
       });
       if (!res.ok) throw new Error(await res.text());
@@ -81,6 +85,21 @@ export default function JobsPage() {
     }
   }
 
+  async function patchJob(id: string, patch: Partial<Job>) {
+    setError(null);
+    try {
+      const res = await fetch(`${base}/api/v1/admin/jobs/${id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(patch),
+      });
+      if (!res.ok) throw new Error(await res.text());
+      await load();
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Алдаа");
+    }
+  }
+
   async function remove(id: string) {
     if (!confirm("Устгах уу?")) return;
     try {
@@ -93,7 +112,7 @@ export default function JobsPage() {
   }
 
   return (
-    <div className="mx-auto max-w-4xl space-y-8">
+    <div className="w-full max-w-none space-y-8">
       {error && (
         <p className="rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-800 dark:border-red-900 dark:bg-red-950 dark:text-red-200">
           {error}
@@ -151,6 +170,14 @@ export default function JobsPage() {
             className="rounded-lg border border-zinc-200 px-3 py-2 text-sm dark:border-zinc-700 dark:bg-zinc-900"
           />
         </div>
+        <div>
+          <p className="mb-2 text-xs font-medium text-zinc-600 dark:text-zinc-400">Зураг (сонголттой)</p>
+          <ImageUploadField
+            previewFit="contain"
+            value={form.imageUrl ?? ""}
+            onChange={(path) => setForm({ ...form, imageUrl: path })}
+          />
+        </div>
         <label className="flex items-center gap-2 text-sm">
           <input
             type="checkbox"
@@ -173,20 +200,32 @@ export default function JobsPage() {
             key={job.id}
             className="rounded-xl border border-zinc-200 bg-white p-4 dark:border-zinc-800 dark:bg-zinc-950"
           >
-            <div className="flex flex-wrap items-start justify-between gap-2">
-              <div>
-                <h3 className="font-semibold text-zinc-900 dark:text-zinc-50">{job.title}</h3>
-                <p className="text-sm text-zinc-600 dark:text-zinc-400">
-                  {job.company} · {job.location}
-                </p>
-                {job.salary && (
-                  <p className="text-sm text-emerald-700 dark:text-emerald-400">{job.salary}</p>
-                )}
-                <p className="mt-2 whitespace-pre-wrap text-sm text-zinc-700 dark:text-zinc-300">
-                  {job.description}
-                </p>
+            <div className="flex flex-wrap items-start justify-between gap-4">
+              <div className="min-w-0 flex-1 space-y-3">
+                <div>
+                  <h3 className="font-semibold text-zinc-900 dark:text-zinc-50">{job.title}</h3>
+                  <p className="text-sm text-zinc-600 dark:text-zinc-400">
+                    {job.company} · {job.location}
+                  </p>
+                  {job.salary && (
+                    <p className="text-sm text-emerald-700 dark:text-emerald-400">{job.salary}</p>
+                  )}
+                  <p className="mt-2 whitespace-pre-wrap text-sm text-zinc-700 dark:text-zinc-300">
+                    {job.description}
+                  </p>
+                </div>
+                <div>
+                  <p className="mb-2 text-xs font-medium text-zinc-500 dark:text-zinc-400">Зураг засах</p>
+                  <ImageUploadField
+                    previewFit="contain"
+                    value={job.imageUrl ?? ""}
+                    onChange={(path) =>
+                      void patchJob(job.id, { imageUrl: path.trim() ? path : "" })
+                    }
+                  />
+                </div>
               </div>
-              <div className="flex gap-2">
+              <div className="flex shrink-0 gap-2">
                 <button
                   type="button"
                   onClick={() => toggleActive(job)}

@@ -28,7 +28,13 @@ export default function ChatAdminPage() {
   const [input, setInput] = useState("");
   const [error, setError] = useState<string | null>(null);
   const socketRef = useRef<Socket | null>(null);
+  const selectedRef = useRef<Conv | null>(null);
+  const joinedConvRef = useRef<string | null>(null);
   const base = getApiBaseUrl();
+
+  useEffect(() => {
+    selectedRef.current = selected;
+  }, [selected]);
 
   const loadConversations = useCallback(async () => {
     try {
@@ -57,38 +63,47 @@ export default function ChatAdminPage() {
 
   useEffect(() => {
     void loadConversations();
-    const t = setInterval(() => void loadConversations(), 15000);
+    const t = setInterval(() => void loadConversations(), 60000);
     return () => clearInterval(t);
   }, [loadConversations]);
 
   useEffect(() => {
-    const s = io(base, { transports: ["websocket", "polling"] });
+    const s = io(base, {
+      transports: ["websocket", "polling"],
+      withCredentials: true,
+    });
     socketRef.current = s;
-    s.on(
-      "message:new",
-      (payload: { conversationId?: string; message?: Msg }) => {
-        if (!payload?.conversationId || !payload?.message) return;
-        if (selected?.id === payload.conversationId) {
-          setMessages((prev) => {
-            const id = payload.message!.id;
-            if (prev.some((m) => m.id === id)) return prev;
-            return [...prev, payload.message!];
-          });
-        }
-        void loadConversations();
-      },
-    );
+    s.on("message:new", (payload: { conversationId?: string; message?: Msg }) => {
+      if (!payload?.conversationId || !payload?.message) return;
+      const openId = selectedRef.current?.id;
+      if (openId === payload.conversationId) {
+        setMessages((prev) => {
+          const id = payload.message!.id;
+          if (prev.some((m) => m.id === id)) return prev;
+          return [...prev, payload.message!];
+        });
+      }
+      void loadConversations();
+    });
     return () => {
       s.disconnect();
       socketRef.current = null;
+      joinedConvRef.current = null;
     };
-  }, [base, selected?.id, loadConversations]);
+  }, [base, loadConversations]);
 
   useEffect(() => {
     const socket = socketRef.current;
-    if (!socket || !selected) return;
-    const convId = selected.id;
-    const run = () => {
+    const convId = selected?.id ?? null;
+    if (!socket) return;
+
+    const leavePrevAndJoin = () => {
+      const previous = joinedConvRef.current;
+      if (previous && previous !== convId) {
+        socket.emit("leave", { conversationId: previous });
+      }
+      joinedConvRef.current = convId;
+      if (!convId) return;
       socket.emit(
         "join",
         { conversationId: convId, asAdmin: true },
@@ -97,12 +112,14 @@ export default function ChatAdminPage() {
         },
       );
     };
-    if (socket.connected) run();
-    else socket.once("connect", run);
+
+    if (socket.connected) leavePrevAndJoin();
+    else socket.once("connect", leavePrevAndJoin);
+
     return () => {
-      socket.off("connect", run);
+      socket.off("connect", leavePrevAndJoin);
     };
-  }, [selected]);
+  }, [selected?.id]);
 
   useEffect(() => {
     if (selected) void loadMessages(selected.id);
@@ -119,7 +136,9 @@ export default function ChatAdminPage() {
       });
       if (!res.ok) throw new Error(await res.text());
       const json = (await res.json()) as { data: Msg };
-      setMessages((prev) => [...prev, json.data]);
+      setMessages((prev) =>
+        prev.some((m) => m.id === json.data.id) ? prev : [...prev, json.data],
+      );
       setInput("");
       void loadConversations();
     } catch (e) {

@@ -37,6 +37,11 @@ type Props = {
   /** Show remove row button (e.g. slide list) */
   showRemove?: boolean;
   onRemove?: () => void;
+  /**
+   * `cover` fills the preview (may crop). `contain` shows the full image (logos, marks).
+   * @default "cover"
+   */
+  previewFit?: "cover" | "contain";
 };
 
 export default function ImageUploadField({
@@ -44,6 +49,7 @@ export default function ImageUploadField({
   onChange,
   showRemove,
   onRemove,
+  previewFit = "cover",
 }: Props) {
   const inputId = useId();
   const fileRef = useRef<HTMLInputElement>(null);
@@ -71,10 +77,22 @@ export default function ImageUploadField({
   return (
     <div className="rounded-xl border border-zinc-200 bg-zinc-50/80 p-3 dark:border-zinc-700 dark:bg-zinc-900/50">
       <div className="flex flex-col gap-3 sm:flex-row sm:items-start">
-        <div className="flex h-24 w-full shrink-0 overflow-hidden rounded-lg border border-zinc-200 bg-zinc-100 dark:border-zinc-600 dark:bg-zinc-800 sm:h-28 sm:w-44">
+        <div
+          className={`flex h-24 w-full shrink-0 overflow-hidden rounded-lg border border-zinc-200 bg-zinc-100 dark:border-zinc-600 dark:bg-zinc-800 sm:h-28 sm:w-44 ${
+            previewFit === "contain" ? "items-center justify-center p-2" : ""
+          }`}
+        >
           {src ? (
             // eslint-disable-next-line @next/next/no-img-element -- dynamic CMS URLs
-            <img src={src} alt="" className="h-full w-full object-cover" />
+            <img
+              src={src}
+              alt=""
+              className={
+                previewFit === "contain"
+                  ? "max-h-full max-w-full object-contain"
+                  : "h-full w-full object-cover"
+              }
+            />
           ) : (
             <div className="flex h-full w-full items-center justify-center text-zinc-400">
               <ImageIcon className="h-10 w-10" aria-hidden />
@@ -83,7 +101,7 @@ export default function ImageUploadField({
         </div>
         <div className="min-w-0 flex-1 space-y-2">
           <label htmlFor={inputId} className="text-xs font-medium text-zinc-600 dark:text-zinc-400">
-            Зам (public API дээрх /upload/…)
+            Зам
           </label>
           <input
             id={inputId}
@@ -91,7 +109,8 @@ export default function ImageUploadField({
             className="w-full rounded-md border border-zinc-300 bg-white px-3 py-2 font-mono text-xs text-zinc-900 shadow-sm focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500 dark:border-zinc-600 dark:bg-zinc-950 dark:text-zinc-100"
             value={value}
             onChange={(e) => onChange(e.target.value)}
-            placeholder="/upload/… эсвэл /images/…"
+            placeholder=""
+            autoComplete="off"
           />
           {err && <p className="text-xs text-red-600 dark:text-red-400">{err}</p>}
           <div className="flex flex-wrap items-center gap-2">
