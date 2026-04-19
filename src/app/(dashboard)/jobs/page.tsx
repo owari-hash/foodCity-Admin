@@ -1,0 +1,211 @@
+"use client";
+
+import { useCallback, useEffect, useState } from "react";
+import { getApiBaseUrl } from "@/lib/api";
+
+type Job = {
+  id: string;
+  title: string;
+  company: string;
+  location: string;
+  description: string;
+  salary?: string;
+  contactEmail?: string;
+  active: boolean;
+};
+
+const empty: Omit<Job, "id"> = {
+  title: "",
+  company: "",
+  location: "",
+  description: "",
+  salary: "",
+  contactEmail: "",
+  active: true,
+};
+
+export default function JobsPage() {
+  const [jobs, setJobs] = useState<Job[]>([]);
+  const [form, setForm] = useState(empty);
+  const [error, setError] = useState<string | null>(null);
+  const base = getApiBaseUrl();
+
+  const load = useCallback(async () => {
+    setError(null);
+    try {
+      const res = await fetch(`${base}/api/v1/admin/jobs`);
+      if (!res.ok) throw new Error(await res.text());
+      const json = (await res.json()) as { data: Job[] };
+      setJobs(json.data);
+    } catch (e) {
+      setError(e instanceof Error ? e.message : "Алдаа");
+    }
+  }, [base]);
+
+  useEffect(() => {
+    void load();
+  }, [load]);
+
+  async function create(e: React.FormEvent) {
+    e.preventDefault();
+    setError(null);
+    try {
+      const res = await fetch(`${base}/api/v1/admin/jobs`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          ...form,
+          salary: form.salary || undefined,
+          contactEmail: form.contactEmail || undefined,
+        }),
+      });
+      if (!res.ok) throw new Error(await res.text());
+      setForm(empty);
+      await load();
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Алдаа");
+    }
+  }
+
+  async function toggleActive(job: Job) {
+    try {
+      const res = await fetch(`${base}/api/v1/admin/jobs/${job.id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ active: !job.active }),
+      });
+      if (!res.ok) throw new Error(await res.text());
+      await load();
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Алдаа");
+    }
+  }
+
+  async function remove(id: string) {
+    if (!confirm("Устгах уу?")) return;
+    try {
+      const res = await fetch(`${base}/api/v1/admin/jobs/${id}`, { method: "DELETE" });
+      if (!res.ok && res.status !== 204) throw new Error(await res.text());
+      await load();
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Алдаа");
+    }
+  }
+
+  return (
+    <div className="mx-auto max-w-4xl space-y-8">
+      {error && (
+        <p className="rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-800 dark:border-red-900 dark:bg-red-950 dark:text-red-200">
+          {error}
+        </p>
+      )}
+
+      <form
+        onSubmit={create}
+        className="space-y-3 rounded-xl border border-zinc-200 bg-white p-4 dark:border-zinc-800 dark:bg-zinc-950"
+      >
+        <h2 className="text-sm font-semibold text-zinc-900 dark:text-zinc-50">Шинэ ажлын зар</h2>
+        <div className="grid gap-2 sm:grid-cols-2">
+          <input
+            required
+            placeholder="Албан тушаал / гарчиг"
+            value={form.title}
+            onChange={(e) => setForm({ ...form, title: e.target.value })}
+            className="rounded-lg border border-zinc-200 px-3 py-2 text-sm dark:border-zinc-700 dark:bg-zinc-900"
+          />
+          <input
+            required
+            placeholder="Компани"
+            value={form.company}
+            onChange={(e) => setForm({ ...form, company: e.target.value })}
+            className="rounded-lg border border-zinc-200 px-3 py-2 text-sm dark:border-zinc-700 dark:bg-zinc-900"
+          />
+        </div>
+        <input
+          required
+          placeholder="Байршил"
+          value={form.location}
+          onChange={(e) => setForm({ ...form, location: e.target.value })}
+          className="w-full rounded-lg border border-zinc-200 px-3 py-2 text-sm dark:border-zinc-700 dark:bg-zinc-900"
+        />
+        <textarea
+          required
+          placeholder="Тайлбар"
+          rows={4}
+          value={form.description}
+          onChange={(e) => setForm({ ...form, description: e.target.value })}
+          className="w-full rounded-lg border border-zinc-200 px-3 py-2 text-sm dark:border-zinc-700 dark:bg-zinc-900"
+        />
+        <div className="grid gap-2 sm:grid-cols-2">
+          <input
+            placeholder="Цалин (сонголттой)"
+            value={form.salary}
+            onChange={(e) => setForm({ ...form, salary: e.target.value })}
+            className="rounded-lg border border-zinc-200 px-3 py-2 text-sm dark:border-zinc-700 dark:bg-zinc-900"
+          />
+          <input
+            type="email"
+            placeholder="Имэйл холбоо барих"
+            value={form.contactEmail}
+            onChange={(e) => setForm({ ...form, contactEmail: e.target.value })}
+            className="rounded-lg border border-zinc-200 px-3 py-2 text-sm dark:border-zinc-700 dark:bg-zinc-900"
+          />
+        </div>
+        <label className="flex items-center gap-2 text-sm">
+          <input
+            type="checkbox"
+            checked={form.active}
+            onChange={(e) => setForm({ ...form, active: e.target.checked })}
+          />
+          Идэвхтэй
+        </label>
+        <button
+          type="submit"
+          className="rounded-lg bg-emerald-600 px-4 py-2 text-sm font-medium text-white hover:bg-emerald-700"
+        >
+          Нэмэх
+        </button>
+      </form>
+
+      <ul className="space-y-3">
+        {jobs.map((job) => (
+          <li
+            key={job.id}
+            className="rounded-xl border border-zinc-200 bg-white p-4 dark:border-zinc-800 dark:bg-zinc-950"
+          >
+            <div className="flex flex-wrap items-start justify-between gap-2">
+              <div>
+                <h3 className="font-semibold text-zinc-900 dark:text-zinc-50">{job.title}</h3>
+                <p className="text-sm text-zinc-600 dark:text-zinc-400">
+                  {job.company} · {job.location}
+                </p>
+                {job.salary && (
+                  <p className="text-sm text-emerald-700 dark:text-emerald-400">{job.salary}</p>
+                )}
+                <p className="mt-2 whitespace-pre-wrap text-sm text-zinc-700 dark:text-zinc-300">
+                  {job.description}
+                </p>
+              </div>
+              <div className="flex gap-2">
+                <button
+                  type="button"
+                  onClick={() => toggleActive(job)}
+                  className="rounded-lg border border-zinc-200 px-2 py-1 text-xs dark:border-zinc-700"
+                >
+                  {job.active ? "Идэвхгүй" : "Идэвхжүүлэх"}
+                </button>
+                <button
+                  type="button"
+                  onClick={() => remove(job.id)}
+                  className="rounded-lg border border-red-200 px-2 py-1 text-xs text-red-700 dark:border-red-900 dark:text-red-400"
+                >
+                  Устгах
+                </button>
+              </div>
+            </div>
+          </li>
+        ))}
+      </ul>
+    </div>
+  );
+}
