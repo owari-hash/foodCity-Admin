@@ -45,8 +45,8 @@ function buildJobBody(form: Omit<Job, "id">) {
     company: form.company.trim(),
     location: form.location.trim(),
     description: form.description.trim(),
-    salary: form.salary.trim() || undefined,
-    contactEmail: form.contactEmail.trim() || undefined,
+    salary: (form.salary ?? "").trim() || undefined,
+    contactEmail: (form.contactEmail ?? "").trim() || undefined,
     imageUrl: form.imageUrl?.trim() || undefined,
     active: form.active,
   };
