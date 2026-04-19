@@ -1,19 +1,41 @@
-/** Default matches a backend served over plain HTTP (no TLS on API). */
-const DEFAULT_API = "http://bukhbatllc.mn/api";
+/** Default origin (no `/api` suffix). Paths append `/api/v1/…`. */
+const DEFAULT_API = "http://bukhbatllc.mn";
 
 /**
- * Base URL for foodcity-back. By default, `https://` in env is rewritten to `http://`
- * unless `NEXT_PUBLIC_API_ALLOW_HTTPS=1` (use when API is really on HTTPS).
+ * Normalizes API origin: trims slashes, optionally downgrades https→http,
+ * strips a trailing `/api` so callers can use `${base}/api/v1/…` without doubling.
  */
-export function getApiBaseUrl(): string {
-  let url = (process.env.NEXT_PUBLIC_API_URL ?? DEFAULT_API).trim();
-  if (process.env.NEXT_PUBLIC_API_ALLOW_HTTPS === "1") {
-    return url.replace(/\/$/, "");
-  }
-  if (url.startsWith("https://")) {
+export function normalizeApiOrigin(raw: string): string {
+  let url = raw.trim().replace(/\/+$/, "");
+  if (process.env.NEXT_PUBLIC_API_ALLOW_HTTPS !== "1" && url.startsWith("https://")) {
     url = `http://${url.slice("https://".length)}`;
   }
-  return url.replace(/\/$/, "");
+  if (url.endsWith("/api")) {
+    url = url.slice(0, -4).replace(/\/+$/, "");
+  }
+  return url;
+}
+
+/**
+ * Base URL for foodcity-back (browser and server fallback). No trailing slash, no trailing `/api`.
+ * By default, `https://` is rewritten to `http://` unless `NEXT_PUBLIC_API_ALLOW_HTTPS=1`.
+ */
+export function getApiBaseUrl(): string {
+  return normalizeApiOrigin(process.env.NEXT_PUBLIC_API_URL ?? DEFAULT_API);
+}
+
+/**
+ * Base URL for server-side fetches from the admin app (RSC, Route Handlers).
+ * Prefer `API_INTERNAL_URL` or `SERVER_API_URL` on production when the public URL
+ * is unreachable from the Node host (e.g. Docker network, loopback).
+ */
+export function getServerApiBaseUrl(): string {
+  const internal =
+    process.env.API_INTERNAL_URL?.trim() ||
+    process.env.SERVER_API_URL?.trim() ||
+    process.env.API_URL?.trim();
+  if (internal) return normalizeApiOrigin(internal);
+  return getApiBaseUrl();
 }
 
 /**

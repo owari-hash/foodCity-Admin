@@ -4,7 +4,7 @@ import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { ADMIN_BASE_PATH } from "@/lib/adminBasePath";
-import { clearClientAdminToken, writeClientAdminToken } from "@/lib/adminClientAuth";
+import { writeClientAdminToken } from "@/lib/adminClientAuth";
 
 type LoginErrorShape = {
   code?: string;
@@ -51,18 +51,6 @@ export default function AdminLoginPage() {
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
-  async function onLogout() {
-    setLoading(true);
-    try {
-      await fetch(`${ADMIN_BASE_PATH}/api/auth/logout`, { method: "POST" });
-    } finally {
-      clearClientAdminToken();
-      setPassword("");
-      setError(null);
-      setLoading(false);
-    }
-  }
-
   async function onSubmit(e: React.FormEvent) {
     e.preventDefault();
     setError(null);
@@ -105,14 +93,6 @@ export default function AdminLoginPage() {
           />
           <h1 className="text-lg font-semibold text-zinc-900 dark:text-zinc-50">Админ нэвтрэх</h1>
           <p className="text-sm text-zinc-500 dark:text-zinc-400">Зөвхөн эрх бүхий хэрэглэгч</p>
-          <button
-            type="button"
-            onClick={() => void onLogout()}
-            disabled={loading}
-            className="rounded-lg border border-zinc-300 px-3 py-1.5 text-xs font-medium text-zinc-700 transition hover:bg-zinc-100 disabled:opacity-60 dark:border-zinc-700 dark:text-zinc-200 dark:hover:bg-zinc-800"
-          >
-            Гарах
-          </button>
         </div>
         <form onSubmit={onSubmit} className="space-y-4">
           <div>

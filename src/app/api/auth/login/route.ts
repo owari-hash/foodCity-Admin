@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { ADMIN_BASE_PATH } from "@/lib/adminBasePath";
-import { getApiBaseUrl } from "@/lib/api";
+import { getServerApiBaseUrl } from "@/lib/api";
 
 export async function POST(req: NextRequest) {
   let body: { username?: string; password?: string };
@@ -13,7 +13,7 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "username and password required" }, { status: 400 });
   }
 
-  const base = getApiBaseUrl();
+  const base = getServerApiBaseUrl();
   const res = await fetch(`${base}/api/v1/admin/auth/login`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
