@@ -1,7 +1,19 @@
+/** Default matches a backend served over plain HTTP (no TLS on API). */
 const DEFAULT_API = "http://bukhbatllc.mn";
 
+/**
+ * Base URL for foodcity-back. By default, `https://` in env is rewritten to `http://`
+ * unless `NEXT_PUBLIC_API_ALLOW_HTTPS=1` (use when API is really on HTTPS).
+ */
 export function getApiBaseUrl(): string {
-  return process.env.NEXT_PUBLIC_API_URL ?? DEFAULT_API;
+  let url = (process.env.NEXT_PUBLIC_API_URL ?? DEFAULT_API).trim();
+  if (process.env.NEXT_PUBLIC_API_ALLOW_HTTPS === "1") {
+    return url.replace(/\/$/, "");
+  }
+  if (url.startsWith("https://")) {
+    url = `http://${url.slice("https://".length)}`;
+  }
+  return url.replace(/\/$/, "");
 }
 
 export type AdminStats = {
