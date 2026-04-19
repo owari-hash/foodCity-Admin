@@ -1,6 +1,5 @@
 import { fetchAdminStats, apiGet } from "@/lib/apiServer";
 import Link from "next/link";
-import { ADMIN_BASE_PATH } from "@/lib/adminBasePath";
 import type { LucideIcon } from "lucide-react";
 import {
   Megaphone,
@@ -191,7 +190,8 @@ type Conversation = {
 };
 
 export default async function DashboardPage() {
-  const stats = await fetchAdminStats();
+  const statsResult = await fetchAdminStats();
+  const stats = statsResult.data;
 
   let recentOrders: Order[] = [];
   let recentConversations: Conversation[] = [];
@@ -215,9 +215,9 @@ export default async function DashboardPage() {
       {!stats && (
         <div className="rounded-lg border border-amber-200 bg-amber-50 px-4 py-3 dark:border-amber-900 dark:bg-amber-950/30">
           <p className="text-sm text-amber-800 dark:text-amber-400">
-            Статистик ачаалагдаагүй. MongoDB болон backend асаасан эсэхийг шалгана уу (
-            <code className="rounded bg-amber-100 px-1 dark:bg-amber-900">MONGODB_URI</code>,{" "}
-            <code className="rounded bg-amber-100 px-1 dark:bg-amber-900">npm run dev</code>).
+            {statsResult.error === "unauthorized"
+              ? "Статистик ачаалагдсангүй. Нэвтрэх эрх хүчингүй болсон байна — дахин нэвтэрнэ үү."
+              : "Статистик ачаалагдаагүй. API холболт болон backend статусыг шалгана уу."}
           </p>
         </div>
       )}
@@ -254,25 +254,25 @@ export default async function DashboardPage() {
         <h2 className="mb-4 text-lg font-semibold text-zinc-900 dark:text-zinc-50">Хурдан үйлдэл</h2>
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
           <QuickAction
-            href={`${ADMIN_BASE_PATH}/orders`}
+            href="/orders"
             label="Захиалгууд"
             description="Хүлээгдэж буй захиалгыг харах"
             icon={ShoppingBag}
           />
           <QuickAction
-            href={`${ADMIN_BASE_PATH}/chat`}
+            href="/chat"
             label="Чат"
             description="Харилцагчтай чатлах"
             icon={MessageCircle}
           />
           <QuickAction
-            href={`${ADMIN_BASE_PATH}/sales-ads`}
+            href="/sales-ads"
             label="Борлуулалтын зар"
             description="Шинэ зар нэмэх"
             icon={Plus}
           />
           <QuickAction
-            href={`${ADMIN_BASE_PATH}/site-content`}
+            href="/site-content"
             label="Вэб агуулга"
             description="Сайтын мэдээлэл засах"
             icon={FileEdit}
@@ -281,7 +281,7 @@ export default async function DashboardPage() {
       </section>
 
       <div className="grid gap-6 lg:grid-cols-2">
-        <SectionCard title="Сүүлийн захиалгууд" href={`${ADMIN_BASE_PATH}/orders`}>
+        <SectionCard title="Сүүлийн захиалгууд" href="/orders">
           {recentOrders.length === 0 ? (
             <p className="py-8 text-center text-sm text-zinc-500 dark:text-zinc-400">
               Одоогоор захиалга байхгүй
@@ -313,7 +313,7 @@ export default async function DashboardPage() {
           )}
         </SectionCard>
 
-        <SectionCard title="Сүүлийн чатууд" href={`${ADMIN_BASE_PATH}/chat`}>
+        <SectionCard title="Сүүлийн чатууд" href="/chat">
           {recentConversations.length === 0 ? (
             <p className="py-8 text-center text-sm text-zinc-500 dark:text-zinc-400">
               Одоогоор идэвхтэй чат байхгүй

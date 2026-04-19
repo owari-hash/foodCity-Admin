@@ -12,13 +12,22 @@ export type AdminStats = {
   humanModeChats?: number;
 };
 
-export async function fetchAdminStats(): Promise<AdminStats | null> {
+export type AdminStatsResult = {
+  data: AdminStats | null;
+  error: "unauthorized" | "unavailable" | null;
+};
+
+export async function fetchAdminStats(): Promise<AdminStatsResult> {
   try {
     const res = await apiGet<{ data: AdminStats }>("/api/v1/admin/stats");
-    return res.data;
+    return { data: res.data, error: null };
   } catch (error) {
     console.error("fetchAdminStats error:", error);
-    return null;
+    const msg = error instanceof Error ? error.message.toLowerCase() : "";
+    if (msg.includes("unauthorized") || msg.includes("invalid authorization")) {
+      return { data: null, error: "unauthorized" };
+    }
+    return { data: null, error: "unavailable" };
   }
 }
 

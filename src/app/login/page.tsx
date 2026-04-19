@@ -82,7 +82,7 @@ export default function AdminLoginPage() {
       if (json.token) {
         writeClientAdminToken(json.token);
       }
-      router.replace(`${ADMIN_BASE_PATH}/dashboard`);
+      router.replace("/dashboard");
       router.refresh();
     } catch {
       setError("Сүлжээний алдаа");
