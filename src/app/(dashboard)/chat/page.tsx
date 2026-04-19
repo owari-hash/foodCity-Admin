@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
-import { ChevronLeft } from "lucide-react";
+import { ChevronLeft, Plus, Trash2 } from "lucide-react";
 import { io, type Socket } from "socket.io-client";
 import { withClientAdminAuth } from "@/lib/adminClientAuth";
 import { getApiBaseUrl, getSocketBaseUrl } from "@/lib/api";
@@ -22,11 +22,184 @@ type Msg = {
   createdAt?: string;
 };
 
+type ChatChoiceNode = {
+  id: string;
+  label: string;
+  answer: string;
+  choices: ChatChoiceNode[];
+};
+
+type ChatbotConfig = {
+  startButtonLabel: string;
+  welcomeMessage: string;
+  restartLabel: string;
+  rootChoices: ChatChoiceNode[];
+};
+
+const DEFAULT_CHATBOT_CONFIG: ChatbotConfig = {
+  startButtonLabel: "Чат эхлүүлэх",
+  welcomeMessage: "Сайн байна уу! Доорх сонголтоос нэгийг сонгоно уу.",
+  restartLabel: "Эхлэл рүү буцах",
+  rootChoices: [],
+};
+
+function newChoiceNode(): ChatChoiceNode {
+  return {
+    id: `choice-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 7)}`,
+    label: "",
+    answer: "",
+    choices: [],
+  };
+}
+
+function normalizeChoiceNode(raw: unknown, depth = 0): ChatChoiceNode | null {
+  if (!raw || typeof raw !== "object" || depth > 8) return null;
+  const r = raw as Record<string, unknown>;
+  const label = String(r.label ?? "").trim();
+  if (!label) return null;
+  const id = String(r.id ?? "").trim() || `choice-${depth}-${label}`;
+  const answer = String(r.answer ?? "").trim() || label;
+  const childrenRaw = Array.isArray(r.choices) ? r.choices : [];
+  return {
+    id,
+    label,
+    answer,
+    choices: childrenRaw
+      .map((c) => normalizeChoiceNode(c, depth + 1))
+      .filter((c): c is ChatChoiceNode => Boolean(c)),
+  };
+}
+
+function normalizeChatbotConfig(sections: unknown): ChatbotConfig {
+  if (!sections || typeof sections !== "object") return DEFAULT_CHATBOT_CONFIG;
+  const r = sections as Record<string, unknown>;
+  const rootChoicesRaw = Array.isArray(r.rootChoices) ? r.rootChoices : [];
+  return {
+    startButtonLabel:
+      String(r.startButtonLabel ?? "").trim() ||
+      DEFAULT_CHATBOT_CONFIG.startButtonLabel,
+    welcomeMessage:
+      String(r.welcomeMessage ?? "").trim() || DEFAULT_CHATBOT_CONFIG.welcomeMessage,
+    restartLabel:
+      String(r.restartLabel ?? "").trim() || DEFAULT_CHATBOT_CONFIG.restartLabel,
+    rootChoices: rootChoicesRaw
+      .map((n) => normalizeChoiceNode(n))
+      .filter((n): n is ChatChoiceNode => Boolean(n)),
+  };
+}
+
+function updateNodeAtPath(
+  nodes: ChatChoiceNode[],
+  path: number[],
+  updater: (node: ChatChoiceNode) => ChatChoiceNode,
+): ChatChoiceNode[] {
+  if (path.length === 0) return nodes;
+  const [head, ...rest] = path;
+  return nodes.map((node, idx) => {
+    if (idx !== head) return node;
+    if (rest.length === 0) return updater(node);
+    return {
+      ...node,
+      choices: updateNodeAtPath(node.choices, rest, updater),
+    };
+  });
+}
+
+function removeNodeAtPath(nodes: ChatChoiceNode[], path: number[]): ChatChoiceNode[] {
+  if (path.length === 0) return nodes;
+  const [head, ...rest] = path;
+  if (rest.length === 0) return nodes.filter((_, i) => i !== head);
+  return nodes.map((node, idx) => {
+    if (idx !== head) return node;
+    return { ...node, choices: removeNodeAtPath(node.choices, rest) };
+  });
+}
+
+function ChatChoiceEditor({
+  nodes,
+  path = [],
+  onChangeLabel,
+  onChangeAnswer,
+  onAddChild,
+  onRemove,
+}: {
+  nodes: ChatChoiceNode[];
+  path?: number[];
+  onChangeLabel: (path: number[], value: string) => void;
+  onChangeAnswer: (path: number[], value: string) => void;
+  onAddChild: (path: number[]) => void;
+  onRemove: (path: number[]) => void;
+}) {
+  return (
+    <div className="space-y-3">
+      {nodes.map((node, idx) => {
+        const nodePath = [...path, idx];
+        return (
+          <div
+            key={node.id}
+            className="rounded-xl border border-zinc-200 bg-white p-3 dark:border-zinc-700 dark:bg-zinc-900"
+          >
+            <div className="grid gap-2 sm:grid-cols-[minmax(0,1fr)_auto] sm:items-start">
+              <div className="space-y-2">
+                <input
+                  value={node.label}
+                  onChange={(e) => onChangeLabel(nodePath, e.target.value)}
+                  placeholder="Сонголтын текст (ж: Захиалга)"
+                  className="w-full rounded-lg border border-zinc-200 px-3 py-2 text-sm dark:border-zinc-700 dark:bg-zinc-950"
+                />
+                <textarea
+                  value={node.answer}
+                  onChange={(e) => onChangeAnswer(nodePath, e.target.value)}
+                  rows={2}
+                  placeholder="Хариу текст"
+                  className="w-full rounded-lg border border-zinc-200 px-3 py-2 text-sm dark:border-zinc-700 dark:bg-zinc-950"
+                />
+              </div>
+              <div className="flex gap-2">
+                <button
+                  type="button"
+                  onClick={() => onAddChild(nodePath)}
+                  className="inline-flex items-center gap-1 rounded-lg border border-zinc-300 px-2.5 py-2 text-xs dark:border-zinc-600"
+                >
+                  <Plus className="h-3.5 w-3.5" /> Дэд сонголт
+                </button>
+                <button
+                  type="button"
+                  onClick={() => onRemove(nodePath)}
+                  className="inline-flex items-center gap-1 rounded-lg border border-rose-300 px-2.5 py-2 text-xs text-rose-700 dark:border-rose-800 dark:text-rose-300"
+                >
+                  <Trash2 className="h-3.5 w-3.5" /> Устгах
+                </button>
+              </div>
+            </div>
+            {node.choices.length > 0 && (
+              <div className="mt-3 border-l border-zinc-200 pl-3 dark:border-zinc-700">
+                <ChatChoiceEditor
+                  nodes={node.choices}
+                  path={nodePath}
+                  onChangeLabel={onChangeLabel}
+                  onChangeAnswer={onChangeAnswer}
+                  onAddChild={onAddChild}
+                  onRemove={onRemove}
+                />
+              </div>
+            )}
+          </div>
+        );
+      })}
+    </div>
+  );
+}
+
 export default function ChatAdminPage() {
   const [conversations, setConversations] = useState<Conv[]>([]);
   const [selected, setSelected] = useState<Conv | null>(null);
   const [messages, setMessages] = useState<Msg[]>([]);
   const [input, setInput] = useState("");
+  const [botConfig, setBotConfig] = useState<ChatbotConfig>(DEFAULT_CHATBOT_CONFIG);
+  const [configLoading, setConfigLoading] = useState(false);
+  const [configSaving, setConfigSaving] = useState(false);
+  const [configMsg, setConfigMsg] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const socketRef = useRef<Socket | null>(null);
   const selectedRef = useRef<Conv | null>(null);
@@ -65,11 +238,32 @@ export default function ChatAdminPage() {
     [base],
   );
 
+  const loadBotConfig = useCallback(async () => {
+    setConfigLoading(true);
+    try {
+      const res = await fetch(
+        `${base}/api/v1/admin/site-pages/chatbot`,
+        withClientAdminAuth(),
+      );
+      if (!res.ok) throw new Error(await res.text());
+      const json = (await res.json()) as { data?: { sections?: unknown } };
+      setBotConfig(normalizeChatbotConfig(json.data?.sections));
+    } catch (e) {
+      setError(e instanceof Error ? e.message : "Алдаа");
+    } finally {
+      setConfigLoading(false);
+    }
+  }, [base]);
+
   useEffect(() => {
     void loadConversations();
     const t = setInterval(() => void loadConversations(), 60000);
     return () => clearInterval(t);
   }, [loadConversations]);
+
+  useEffect(() => {
+    void loadBotConfig();
+  }, [loadBotConfig]);
 
   useEffect(() => {
     const s = io(getSocketBaseUrl(), {
@@ -171,6 +365,79 @@ export default function ChatAdminPage() {
     } catch (e) {
       setError(e instanceof Error ? e.message : "Алдаа");
     }
+  }
+
+  async function saveBotConfig() {
+    setConfigSaving(true);
+    setConfigMsg(null);
+    setError(null);
+    try {
+      const cleaned = {
+        ...botConfig,
+        rootChoices: botConfig.rootChoices
+          .map((n) => normalizeChoiceNode(n))
+          .filter((n): n is ChatChoiceNode => Boolean(n)),
+      };
+      const res = await fetch(
+        `${base}/api/v1/admin/site-pages/chatbot`,
+        withClientAdminAuth({
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ sections: cleaned }),
+        }),
+      );
+      if (!res.ok) throw new Error(await res.text());
+      setConfigMsg("Чатботын сонголтууд хадгалагдлаа.");
+      setTimeout(() => setConfigMsg(null), 3000);
+    } catch (e) {
+      setError(e instanceof Error ? e.message : "Алдаа");
+    } finally {
+      setConfigSaving(false);
+    }
+  }
+
+  function changeNodeLabel(path: number[], value: string) {
+    setBotConfig((prev) => ({
+      ...prev,
+      rootChoices: updateNodeAtPath(prev.rootChoices, path, (node) => ({
+        ...node,
+        label: value,
+      })),
+    }));
+  }
+
+  function changeNodeAnswer(path: number[], value: string) {
+    setBotConfig((prev) => ({
+      ...prev,
+      rootChoices: updateNodeAtPath(prev.rootChoices, path, (node) => ({
+        ...node,
+        answer: value,
+      })),
+    }));
+  }
+
+  function addNode(path: number[]) {
+    if (path.length === 0) {
+      setBotConfig((prev) => ({
+        ...prev,
+        rootChoices: [...prev.rootChoices, newChoiceNode()],
+      }));
+      return;
+    }
+    setBotConfig((prev) => ({
+      ...prev,
+      rootChoices: updateNodeAtPath(prev.rootChoices, path, (node) => ({
+        ...node,
+        choices: [...node.choices, newChoiceNode()],
+      })),
+    }));
+  }
+
+  function removeNode(path: number[]) {
+    setBotConfig((prev) => ({
+      ...prev,
+      rootChoices: removeNodeAtPath(prev.rootChoices, path),
+    }));
   }
 
   const threadMinH =
