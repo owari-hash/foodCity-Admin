@@ -482,6 +482,320 @@ export default function SiteContentPage() {
             Бидний тухай хадгалах
           </button>
         </div>
+      ) : tab === "services" ? (
+        <div className="space-y-6">
+          <p className="text-xs text-zinc-500">
+            Үйлчилгээний хуудас — дөрвөн карт + доод хар баннерын тоонууд.
+          </p>
+          {(
+            [
+              ["badge", "Дээд шошго"],
+              ["h2Line1", "Гарчиг (эхний хэсэг)"],
+              ["h2Accent", "Гарчиг (онцлох өнгө)"],
+            ] as const
+          ).map(([key, lab]) => (
+            <div key={key}>
+              <label className="text-xs font-semibold uppercase tracking-wide text-zinc-500">
+                {lab}
+              </label>
+              <input
+                className={inputClass}
+                value={services.header[key]}
+                onChange={(e) =>
+                  setServices({
+                    ...services,
+                    header: { ...services.header, [key]: e.target.value },
+                  })
+                }
+              />
+            </div>
+          ))}
+          <div>
+            <label className="text-xs font-semibold uppercase tracking-wide text-zinc-500">
+              Танилцуулга
+            </label>
+            <textarea
+              className={`${inputClass} min-h-[80px]`}
+              value={services.header.intro}
+              onChange={(e) =>
+                setServices({
+                  ...services,
+                  header: { ...services.header, intro: e.target.value },
+                })
+              }
+            />
+          </div>
+          <div>
+            <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-zinc-500">
+              Давуу талууд (4 хүртэл)
+            </p>
+            <div className="space-y-4">
+              {services.features.map((f, i) => (
+                <div key={i} className="rounded-lg border border-zinc-200 p-3 dark:border-zinc-700">
+                  <input
+                    className={inputClass}
+                    placeholder="Гарчиг"
+                    value={f.title}
+                    onChange={(e) => {
+                      const features = [...services.features];
+                      features[i] = { ...features[i], title: e.target.value };
+                      setServices({ ...services, features });
+                    }}
+                  />
+                  <textarea
+                    className={`${inputClass} mt-2 min-h-[72px]`}
+                    placeholder="Тайлбар"
+                    value={f.desc}
+                    onChange={(e) => {
+                      const features = [...services.features];
+                      features[i] = { ...features[i], desc: e.target.value };
+                      setServices({ ...services, features });
+                    }}
+                  />
+                  <button
+                    type="button"
+                    className="mt-2 text-xs text-red-600 dark:text-red-400"
+                    onClick={() =>
+                      setServices({
+                        ...services,
+                        features: services.features.filter((_, j) => j !== i),
+                      })
+                    }
+                  >
+                    Устгах
+                  </button>
+                </div>
+              ))}
+              <button
+                type="button"
+                className="text-sm text-emerald-700 underline dark:text-emerald-400"
+                onClick={() =>
+                  setServices({
+                    ...services,
+                    features: [...services.features, { title: "", desc: "" }],
+                  })
+                }
+              >
+                + Онцлол нэмэх
+              </button>
+            </div>
+          </div>
+          <div>
+            <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-zinc-500">
+              Доод баннер (тоо)
+            </p>
+            <div className="space-y-3">
+              {services.banner.map((row, i) => (
+                <div key={i} className="flex flex-wrap gap-2">
+                  <input
+                    className={`${inputClass} max-w-[100px]`}
+                    placeholder="Утга"
+                    value={row.value}
+                    onChange={(e) => {
+                      const banner = [...services.banner];
+                      banner[i] = { ...banner[i], value: e.target.value };
+                      setServices({ ...services, banner });
+                    }}
+                  />
+                  <input
+                    className={`${inputClass} max-w-[80px]`}
+                    placeholder="Дагалдах"
+                    value={row.suffix}
+                    onChange={(e) => {
+                      const banner = [...services.banner];
+                      banner[i] = { ...banner[i], suffix: e.target.value };
+                      setServices({ ...services, banner });
+                    }}
+                  />
+                  <input
+                    className={`${inputClass} min-w-[180px] flex-1`}
+                    placeholder="Шошго"
+                    value={row.label}
+                    onChange={(e) => {
+                      const banner = [...services.banner];
+                      banner[i] = { ...banner[i], label: e.target.value };
+                      setServices({ ...services, banner });
+                    }}
+                  />
+                  <button
+                    type="button"
+                    className="rounded-md border border-red-300 px-2 text-xs text-red-700 dark:border-red-800"
+                    onClick={() =>
+                      setServices({
+                        ...services,
+                        banner: services.banner.filter((_, j) => j !== i),
+                      })
+                    }
+                  >
+                    Устгах
+                  </button>
+                </div>
+              ))}
+              <button
+                type="button"
+                className="text-sm text-emerald-700 underline dark:text-emerald-400"
+                onClick={() =>
+                  setServices({
+                    ...services,
+                    banner: [...services.banner, { value: "", suffix: "", label: "" }],
+                  })
+                }
+              >
+                + Баннер мөр нэмэх
+              </button>
+            </div>
+          </div>
+          <button
+            type="button"
+            onClick={() => void save("services")}
+            className="rounded-lg bg-emerald-600 px-5 py-2.5 text-sm font-semibold text-white hover:bg-emerald-700"
+          >
+            Үйлчилгээ хадгалах
+          </button>
+        </div>
+      ) : tab === "contact" ? (
+        <div className="space-y-6">
+          <p className="text-xs text-zinc-500">
+            Холбоо барих хуудас — дээд гарчиг, мөрүүд (икон автоматаар), менежерийн кард.
+          </p>
+          {(
+            [
+              ["badge", "Дээд шошго"],
+              ["h2Accent", "Гол гарчиг (онцлох)"],
+            ] as const
+          ).map(([key, lab]) => (
+            <div key={key}>
+              <label className="text-xs font-semibold uppercase tracking-wide text-zinc-500">
+                {lab}
+              </label>
+              <input
+                className={inputClass}
+                value={contact.hero[key]}
+                onChange={(e) =>
+                  setContact({
+                    ...contact,
+                    hero: { ...contact.hero, [key]: e.target.value },
+                  })
+                }
+              />
+            </div>
+          ))}
+          <div>
+            <label className="text-xs font-semibold uppercase tracking-wide text-zinc-500">
+              Танилцуулга
+            </label>
+            <textarea
+              className={`${inputClass} min-h-[80px]`}
+              value={contact.hero.intro}
+              onChange={(e) =>
+                setContact({
+                  ...contact,
+                  hero: { ...contact.hero, intro: e.target.value },
+                })
+              }
+            />
+          </div>
+          <div>
+            <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-zinc-500">
+              Мэдээллийн мөрүүд
+            </p>
+            <div className="space-y-3">
+              {contact.items.map((row, i) => (
+                <div key={i} className="flex flex-wrap gap-2">
+                  <input
+                    className={`${inputClass} max-w-[160px]`}
+                    placeholder="Гарчиг"
+                    value={row.title}
+                    onChange={(e) => {
+                      const items = [...contact.items];
+                      items[i] = { ...items[i], title: e.target.value };
+                      setContact({ ...contact, items });
+                    }}
+                  />
+                  <input
+                    className={`${inputClass} min-w-[200px] flex-1`}
+                    placeholder="Утга"
+                    value={row.value}
+                    onChange={(e) => {
+                      const items = [...contact.items];
+                      items[i] = { ...items[i], value: e.target.value };
+                      setContact({ ...contact, items });
+                    }}
+                  />
+                  <button
+                    type="button"
+                    className="rounded-md border border-red-300 px-2 text-xs text-red-700 dark:border-red-800"
+                    onClick={() =>
+                      setContact({
+                        ...contact,
+                        items: contact.items.filter((_, j) => j !== i),
+                      })
+                    }
+                  >
+                    Устгах
+                  </button>
+                </div>
+              ))}
+              <button
+                type="button"
+                className="text-sm text-emerald-700 underline dark:text-emerald-400"
+                onClick={() =>
+                  setContact({
+                    ...contact,
+                    items: [...contact.items, { title: "", value: "" }],
+                  })
+                }
+              >
+                + Мөр нэмэх
+              </button>
+            </div>
+          </div>
+          <div className="rounded-lg border border-zinc-200 p-4 dark:border-zinc-700">
+            <p className="mb-3 text-xs font-semibold uppercase text-zinc-500">Менежерийн кард</p>
+            <div className="grid gap-3 sm:grid-cols-2">
+              {(
+                [
+                  ["initials", "Эхний үсэг"],
+                  ["name", "Нэр"],
+                  ["role", "Албан тушаал"],
+                  ["telHref", "Утас (ж: tel:+976…)"],
+                  ["telLabel", "Товчны текст"],
+                ] as const
+              ).map(([key, lab]) => (
+                <div key={key} className={key === "role" ? "sm:col-span-2" : ""}>
+                  <label className="text-xs text-zinc-500">{lab}</label>
+                  <input
+                    className={inputClass}
+                    value={contact.agent[key]}
+                    onChange={(e) =>
+                      setContact({
+                        ...contact,
+                        agent: { ...contact.agent, [key]: e.target.value },
+                      })
+                    }
+                  />
+                </div>
+              ))}
+            </div>
+          </div>
+          <div>
+            <label className="text-xs font-semibold uppercase tracking-wide text-zinc-500">
+              Формын гарчиг
+            </label>
+            <input
+              className={inputClass}
+              value={contact.formTitle}
+              onChange={(e) => setContact({ ...contact, formTitle: e.target.value })}
+            />
+          </div>
+          <button
+            type="button"
+            onClick={() => void save("contact")}
+            className="rounded-lg bg-emerald-600 px-5 py-2.5 text-sm font-semibold text-white hover:bg-emerald-700"
+          >
+            Холбоо барих хадгалах
+          </button>
+        </div>
       ) : (
         <div className="space-y-6">
           <div>
@@ -640,6 +954,7 @@ export default function SiteContentPage() {
           </button>
         </div>
       )}
+      </div>
     </div>
   );
 }
