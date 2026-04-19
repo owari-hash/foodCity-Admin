@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
+import { createPortal } from "react-dom";
 import { ensureClientAuthorized, withClientAdminAuth } from "@/lib/adminClientAuth";
 import { getApiBaseUrl, joinBackendRequestUrl } from "@/lib/api";
 import ImageUploadField from "@/components/ImageUploadField";
@@ -34,6 +35,7 @@ export default function SalesAdsPage() {
   const [ads, setAds] = useState<Ad[]>([]);
   const [form, setForm] = useState(empty);
   const [error, setError] = useState<string | null>(null);
+  const [addOpen, setAddOpen] = useState(false);
   const load = useCallback(async () => {
     setError(null);
     try {
@@ -53,6 +55,23 @@ export default function SalesAdsPage() {
   useEffect(() => {
     void load();
   }, [load]);
+
+  useEffect(() => {
+    if (!addOpen) return;
+    const onKey = (ev: KeyboardEvent) => {
+      if (ev.key === "Escape") {
+        setAddOpen(false);
+        setForm(empty);
+      }
+    };
+    window.addEventListener("keydown", onKey);
+    const prev = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    return () => {
+      window.removeEventListener("keydown", onKey);
+      document.body.style.overflow = prev;
+    };
+  }, [addOpen]);
 
   async function create(e: React.FormEvent) {
     e.preventDefault();
@@ -76,6 +95,7 @@ export default function SalesAdsPage() {
       if (!(await ensureClientAuthorized(res))) return;
       if (!res.ok) throw new Error(await res.text());
       setForm(empty);
+      setAddOpen(false);
       await load();
     } catch (err) {
       setError(err instanceof Error ? err.message : "Алдаа");
@@ -115,6 +135,134 @@ export default function SalesAdsPage() {
     }
   }
 
+  const addModal =
+    addOpen &&
+    typeof document !== "undefined" &&
+    createPortal(
+      <div
+        className="fixed inset-0 z-100 flex items-center justify-center p-4"
+        role="presentation"
+      >
+        <button
+          type="button"
+          aria-label="Хаах"
+          className="absolute inset-0 bg-black/50 backdrop-blur-[1px]"
+          onClick={() => {
+            setAddOpen(false);
+            setForm(empty);
+          }}
+        />
+        <div
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="sales-ad-add-title"
+          className="relative z-10 w-full max-w-lg max-h-[min(90vh,720px)] overflow-y-auto rounded-2xl border border-zinc-200 bg-white p-5 shadow-xl dark:border-zinc-800 dark:bg-zinc-950"
+        >
+          <div className="mb-4 flex items-start justify-between gap-3">
+            <h2
+              id="sales-ad-add-title"
+              className="text-base font-semibold text-zinc-900 dark:text-zinc-50"
+            >
+              Шинэ зар
+            </h2>
+            <button
+              type="button"
+              onClick={() => {
+                setAddOpen(false);
+                setForm(empty);
+              }}
+              className="rounded-lg px-2 py-1 text-sm text-zinc-500 transition hover:bg-zinc-100 hover:text-zinc-800 dark:hover:bg-zinc-800 dark:hover:text-zinc-200"
+            >
+              Хаах
+            </button>
+          </div>
+          <form onSubmit={create} className="space-y-3">
+            <input
+              required
+              placeholder="Гарчиг"
+              value={form.title}
+              onChange={(e) => setForm({ ...form, title: e.target.value })}
+              className="w-full rounded-lg border border-zinc-200 px-3 py-2 text-sm dark:border-zinc-700 dark:bg-zinc-900"
+            />
+            <input
+              placeholder="Товч тайлбар"
+              value={form.summary}
+              onChange={(e) => setForm({ ...form, summary: e.target.value })}
+              className="w-full rounded-lg border border-zinc-200 px-3 py-2 text-sm dark:border-zinc-700 dark:bg-zinc-900"
+            />
+            <textarea
+              required
+              placeholder="Дэлгэрэнгүй"
+              rows={4}
+              value={form.body}
+              onChange={(e) => setForm({ ...form, body: e.target.value })}
+              className="w-full rounded-lg border border-zinc-200 px-3 py-2 text-sm dark:border-zinc-700 dark:bg-zinc-900"
+            />
+            <div>
+              <p className="mb-2 text-xs font-medium text-zinc-600 dark:text-zinc-400">Зураг</p>
+              <ImageUploadField
+                value={form.imageUrl ?? ""}
+                onChange={(path) => setForm({ ...form, imageUrl: path })}
+              />
+            </div>
+            <input
+              placeholder="Гадаад холбоос (сонголттой)"
+              value={form.externalUrl}
+              onChange={(e) => setForm({ ...form, externalUrl: e.target.value })}
+              className="w-full rounded-lg border border-zinc-200 px-3 py-2 text-sm dark:border-zinc-700 dark:bg-zinc-900"
+            />
+            <div className="grid gap-2 sm:grid-cols-2">
+              <label className="text-xs text-zinc-500">
+                Эхлэх
+                <input
+                  type="datetime-local"
+                  value={form.validFrom ?? ""}
+                  onChange={(e) => setForm({ ...form, validFrom: e.target.value })}
+                  className="mt-1 w-full rounded-lg border border-zinc-200 px-3 py-2 text-sm dark:border-zinc-700 dark:bg-zinc-900"
+                />
+              </label>
+              <label className="text-xs text-zinc-500">
+                Дуусах
+                <input
+                  type="datetime-local"
+                  value={form.validTo ?? ""}
+                  onChange={(e) => setForm({ ...form, validTo: e.target.value })}
+                  className="mt-1 w-full rounded-lg border border-zinc-200 px-3 py-2 text-sm dark:border-zinc-700 dark:bg-zinc-900"
+                />
+              </label>
+            </div>
+            <label className="flex items-center gap-2 text-sm">
+              <input
+                type="checkbox"
+                checked={form.active}
+                onChange={(e) => setForm({ ...form, active: e.target.checked })}
+              />
+              Идэвхтэй
+            </label>
+            <div className="flex flex-wrap justify-end gap-2 pt-1">
+              <button
+                type="button"
+                onClick={() => {
+                  setAddOpen(false);
+                  setForm(empty);
+                }}
+                className="rounded-lg border border-zinc-200 px-4 py-2 text-sm font-medium text-zinc-700 hover:bg-zinc-50 dark:border-zinc-600 dark:text-zinc-200 dark:hover:bg-zinc-800"
+              >
+                Цуцлах
+              </button>
+              <button
+                type="submit"
+                className="rounded-lg bg-emerald-600 px-4 py-2 text-sm font-medium text-white hover:bg-emerald-700"
+              >
+                Нэмэх
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>,
+      document.body,
+    );
+
   return (
     <div className="w-full max-w-none space-y-8">
       {error && (
@@ -123,80 +271,18 @@ export default function SalesAdsPage() {
         </p>
       )}
 
-      <form
-        onSubmit={create}
-        className="space-y-3 rounded-xl border border-zinc-200 bg-white p-4 dark:border-zinc-800 dark:bg-zinc-950"
-      >
-        <h2 className="text-sm font-semibold text-zinc-900 dark:text-zinc-50">Шинэ зар</h2>
-        <input
-          required
-          placeholder="Гарчиг"
-          value={form.title}
-          onChange={(e) => setForm({ ...form, title: e.target.value })}
-          className="w-full rounded-lg border border-zinc-200 px-3 py-2 text-sm dark:border-zinc-700 dark:bg-zinc-900"
-        />
-        <input
-          placeholder="Товч тайлбар"
-          value={form.summary}
-          onChange={(e) => setForm({ ...form, summary: e.target.value })}
-          className="w-full rounded-lg border border-zinc-200 px-3 py-2 text-sm dark:border-zinc-700 dark:bg-zinc-900"
-        />
-        <textarea
-          required
-          placeholder="Дэлгэрэнгүй"
-          rows={4}
-          value={form.body}
-          onChange={(e) => setForm({ ...form, body: e.target.value })}
-          className="w-full rounded-lg border border-zinc-200 px-3 py-2 text-sm dark:border-zinc-700 dark:bg-zinc-900"
-        />
-        <div>
-          <p className="mb-2 text-xs font-medium text-zinc-600 dark:text-zinc-400">Зураг</p>
-          <ImageUploadField
-            value={form.imageUrl ?? ""}
-            onChange={(path) => setForm({ ...form, imageUrl: path })}
-          />
-        </div>
-        <input
-          placeholder="Гадаад холбоос (сонголттой)"
-          value={form.externalUrl}
-          onChange={(e) => setForm({ ...form, externalUrl: e.target.value })}
-          className="w-full rounded-lg border border-zinc-200 px-3 py-2 text-sm dark:border-zinc-700 dark:bg-zinc-900"
-        />
-        <div className="grid gap-2 sm:grid-cols-2">
-          <label className="text-xs text-zinc-500">
-            Эхлэх
-            <input
-              type="datetime-local"
-              value={form.validFrom ?? ""}
-              onChange={(e) => setForm({ ...form, validFrom: e.target.value })}
-              className="mt-1 w-full rounded-lg border border-zinc-200 px-3 py-2 text-sm dark:border-zinc-700 dark:bg-zinc-900"
-            />
-          </label>
-          <label className="text-xs text-zinc-500">
-            Дуусах
-            <input
-              type="datetime-local"
-              value={form.validTo ?? ""}
-              onChange={(e) => setForm({ ...form, validTo: e.target.value })}
-              className="mt-1 w-full rounded-lg border border-zinc-200 px-3 py-2 text-sm dark:border-zinc-700 dark:bg-zinc-900"
-            />
-          </label>
-        </div>
-        <label className="flex items-center gap-2 text-sm">
-          <input
-            type="checkbox"
-            checked={form.active}
-            onChange={(e) => setForm({ ...form, active: e.target.checked })}
-          />
-          Идэвхтэй
-        </label>
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <p className="text-sm text-zinc-600 dark:text-zinc-400">Борлуулалтын зарууд</p>
         <button
-          type="submit"
-          className="rounded-lg bg-emerald-600 px-4 py-2 text-sm font-medium text-white hover:bg-emerald-700"
+          type="button"
+          onClick={() => setAddOpen(true)}
+          className="rounded-lg bg-emerald-600 px-4 py-2 text-sm font-medium text-white shadow-sm transition hover:bg-emerald-700"
         >
-          Нэмэх
+          Зар нэмэх
         </button>
-      </form>
+      </div>
+
+      {addModal}
 
       <ul className="space-y-3">
         {ads.map((ad) => (

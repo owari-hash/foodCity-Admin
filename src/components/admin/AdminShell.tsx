@@ -82,24 +82,24 @@ export default function AdminShell({ children }: { children: React.ReactNode }) 
           navOpen ? "translate-x-0 shadow-xl" : "-translate-x-full lg:translate-x-0"
         }`}
       >
-        <div className="flex h-14 items-center justify-between gap-2 border-b border-zinc-200 px-3 dark:border-zinc-800">
+        <div className="relative flex min-h-[4.25rem] items-center justify-center border-b border-zinc-200 px-3 py-3 dark:border-zinc-800">
           <Link
             href="/dashboard"
-            className="flex min-w-0 flex-1 items-center rounded-md px-1 py-1 outline-offset-2 focus-visible:outline-2 focus-visible:outline-emerald-600"
+            className="flex max-w-full items-center justify-center rounded-md px-2 py-1 outline-offset-2 focus-visible:outline-2 focus-visible:outline-emerald-600"
             onClick={() => setNavOpen(false)}
           >
             <Image
               src={`${ADMIN_BASE_PATH}/fclogo.png`}
               alt="Food City"
-              width={160}
-              height={56}
-              className="h-9 w-auto max-w-[148px] object-contain object-left"
+              width={240}
+              height={84}
+              className="h-14 w-auto max-w-[min(100%,220px)] object-contain sm:h-16 sm:max-w-[min(100%,240px)]"
               priority
             />
           </Link>
           <button
             type="button"
-            className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg text-zinc-600 hover:bg-zinc-100 lg:hidden dark:text-zinc-400 dark:hover:bg-zinc-900"
+            className="absolute right-2 top-1/2 z-10 flex h-10 w-10 shrink-0 -translate-y-1/2 items-center justify-center rounded-lg text-zinc-600 hover:bg-zinc-100 lg:hidden dark:text-zinc-400 dark:hover:bg-zinc-900"
             aria-label="Цэс хаах"
             onClick={() => setNavOpen(false)}
           >

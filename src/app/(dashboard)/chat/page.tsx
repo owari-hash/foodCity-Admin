@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
-import { ChevronLeft, Plus, Trash2 } from "lucide-react";
+import { Bot, ChevronLeft, MessageSquare, Plus, Trash2 } from "lucide-react";
 import { io, type Socket } from "socket.io-client";
 import { ensureClientAuthorized, withClientAdminAuth } from "@/lib/adminClientAuth";
 import { getApiBaseUrl, getSocketBaseUrl, joinBackendRequestUrl } from "@/lib/api";
@@ -191,7 +191,10 @@ function ChatChoiceEditor({
   );
 }
 
+type ChatTab = "chats" | "chatbot";
+
 export default function ChatAdminPage() {
+  const [tab, setTab] = useState<ChatTab>("chats");
   const [conversations, setConversations] = useState<Conv[]>([]);
   const [selected, setSelected] = useState<Conv | null>(null);
   const [messages, setMessages] = useState<Msg[]>([]);
@@ -266,8 +269,8 @@ export default function ChatAdminPage() {
   }, [loadConversations]);
 
   useEffect(() => {
-    void loadBotConfig();
-  }, [loadBotConfig]);
+    if (tab === "chatbot") void loadBotConfig();
+  }, [tab, loadBotConfig]);
 
   useEffect(() => {
     const s = io(getSocketBaseUrl(), {
@@ -455,86 +458,123 @@ export default function ChatAdminPage() {
 
   return (
     <div className="mx-auto flex w-full max-w-6xl min-w-0 flex-col gap-4">
-      <section className="rounded-xl border border-zinc-200 bg-white p-4 dark:border-zinc-800 dark:bg-zinc-950 sm:p-5">
-        <div className="mb-4 flex flex-wrap items-center justify-between gap-2">
-          <div>
-            <h2 className="text-base font-semibold text-zinc-900 dark:text-zinc-50">
-              Чатботын салбарласан сонголтууд
-            </h2>
-            <p className="text-xs text-zinc-500">
-              Frontend дээрх Start Chat товч болон олон шатлалт сонголтуудыг эндээс
-              удирдана.
-            </p>
+      <div
+        className="flex flex-wrap gap-1 rounded-xl border border-zinc-200 bg-zinc-50/80 p-1 dark:border-zinc-800 dark:bg-zinc-900/50"
+        role="tablist"
+        aria-label="Чат хэсэг"
+      >
+        <button
+          type="button"
+          role="tab"
+          aria-selected={tab === "chats"}
+          onClick={() => setTab("chats")}
+          className={`inline-flex min-h-10 flex-1 items-center justify-center gap-2 rounded-lg px-4 py-2 text-sm font-medium transition sm:flex-none sm:min-w-40 ${
+            tab === "chats"
+              ? "bg-white text-emerald-800 shadow-sm dark:bg-zinc-950 dark:text-emerald-100"
+              : "text-zinc-600 hover:bg-white/60 dark:text-zinc-400 dark:hover:bg-zinc-800/80"
+          }`}
+        >
+          <MessageSquare className="h-4 w-4 shrink-0" aria-hidden />
+          Яриа
+        </button>
+        <button
+          type="button"
+          role="tab"
+          aria-selected={tab === "chatbot"}
+          onClick={() => setTab("chatbot")}
+          className={`inline-flex min-h-10 flex-1 items-center justify-center gap-2 rounded-lg px-4 py-2 text-sm font-medium transition sm:flex-none sm:min-w-40 ${
+            tab === "chatbot"
+              ? "bg-white text-emerald-800 shadow-sm dark:bg-zinc-950 dark:text-emerald-100"
+              : "text-zinc-600 hover:bg-white/60 dark:text-zinc-400 dark:hover:bg-zinc-800/80"
+          }`}
+        >
+          <Bot className="h-4 w-4 shrink-0" aria-hidden />
+          Чатбот
+        </button>
+      </div>
+
+      {tab === "chatbot" && (
+        <section className="rounded-xl border border-zinc-200 bg-white p-4 dark:border-zinc-800 dark:bg-zinc-950 sm:p-5">
+          <div className="mb-4 flex flex-wrap items-center justify-between gap-2">
+            <div>
+              <h2 className="text-base font-semibold text-zinc-900 dark:text-zinc-50">
+                Чатботын сонголтууд
+              </h2>
+              <p className="text-xs text-zinc-500">
+                Сайтын чат дээрх хурдан сонголтууд, хариу текст — эндээс тохируулна.
+              </p>
+            </div>
+            <button
+              type="button"
+              onClick={() => void saveBotConfig()}
+              disabled={configSaving || configLoading}
+              className="rounded-lg bg-emerald-600 px-4 py-2 text-sm font-medium text-white hover:bg-emerald-700 disabled:opacity-50"
+            >
+              {configSaving ? "Хадгалж байна…" : "Хадгалах"}
+            </button>
           </div>
-          <button
-            type="button"
-            onClick={() => void saveBotConfig()}
-            disabled={configSaving || configLoading}
-            className="rounded-lg bg-emerald-600 px-4 py-2 text-sm font-medium text-white hover:bg-emerald-700 disabled:opacity-50"
-          >
-            {configSaving ? "Хадгалж байна…" : "Хадгалах"}
-          </button>
-        </div>
 
-        <div className="grid gap-3 sm:grid-cols-3">
-          <input
-            value={botConfig.startButtonLabel}
+          <div className="grid gap-3 sm:grid-cols-3">
+            <input
+              value={botConfig.startButtonLabel}
+              onChange={(e) =>
+                setBotConfig((prev) => ({ ...prev, startButtonLabel: e.target.value }))
+              }
+              placeholder="Эхлэх товч (сонголттой)"
+              className="rounded-lg border border-zinc-200 px-3 py-2 text-sm dark:border-zinc-700 dark:bg-zinc-900"
+            />
+            <input
+              value={botConfig.restartLabel}
+              onChange={(e) =>
+                setBotConfig((prev) => ({ ...prev, restartLabel: e.target.value }))
+              }
+              placeholder="Дахин эхлэх товч (сонголттой)"
+              className="rounded-lg border border-zinc-200 px-3 py-2 text-sm dark:border-zinc-700 dark:bg-zinc-900"
+            />
+            <button
+              type="button"
+              onClick={() => addNode([])}
+              className="inline-flex items-center justify-center gap-2 rounded-lg border border-zinc-300 px-3 py-2 text-sm dark:border-zinc-600"
+            >
+              <Plus className="h-4 w-4" /> Үндсэн сонголт нэмэх
+            </button>
+          </div>
+
+          <textarea
+            value={botConfig.welcomeMessage}
             onChange={(e) =>
-              setBotConfig((prev) => ({ ...prev, startButtonLabel: e.target.value }))
+              setBotConfig((prev) => ({ ...prev, welcomeMessage: e.target.value }))
             }
-            placeholder="Эхлэх товч"
-            className="rounded-lg border border-zinc-200 px-3 py-2 text-sm dark:border-zinc-700 dark:bg-zinc-900"
+            rows={2}
+            placeholder="Нээлтийн мэндчилгээ (сонголттой)"
+            className="mt-3 w-full rounded-lg border border-zinc-200 px-3 py-2 text-sm dark:border-zinc-700 dark:bg-zinc-900"
           />
-          <input
-            value={botConfig.restartLabel}
-            onChange={(e) =>
-              setBotConfig((prev) => ({ ...prev, restartLabel: e.target.value }))
-            }
-            placeholder="Дахин эхлэх товч"
-            className="rounded-lg border border-zinc-200 px-3 py-2 text-sm dark:border-zinc-700 dark:bg-zinc-900"
-          />
-          <button
-            type="button"
-            onClick={() => addNode([])}
-            className="inline-flex items-center justify-center gap-2 rounded-lg border border-zinc-300 px-3 py-2 text-sm dark:border-zinc-600"
-          >
-            <Plus className="h-4 w-4" /> Үндсэн сонголт нэмэх
-          </button>
-        </div>
 
-        <textarea
-          value={botConfig.welcomeMessage}
-          onChange={(e) =>
-            setBotConfig((prev) => ({ ...prev, welcomeMessage: e.target.value }))
-          }
-          rows={2}
-          placeholder="Нээлтийн мэндчилгээ"
-          className="mt-3 w-full rounded-lg border border-zinc-200 px-3 py-2 text-sm dark:border-zinc-700 dark:bg-zinc-900"
-        />
+          <div className="mt-4">
+            {configLoading ? (
+              <p className="text-sm text-zinc-500">Тохиргоо ачаалж байна…</p>
+            ) : (
+              <>
+                {botConfig.rootChoices.length === 0 && (
+                  <p className="mb-3 text-sm text-zinc-500">
+                    Сонголт алга. «Үндсэн сонголт нэмэх» дээр дарж эхлүүлнэ үү.
+                  </p>
+                )}
+                <ChatChoiceEditor
+                  nodes={botConfig.rootChoices}
+                  onChangeLabel={changeNodeLabel}
+                  onChangeAnswer={changeNodeAnswer}
+                  onAddChild={addNode}
+                  onRemove={removeNode}
+                />
+              </>
+            )}
+          </div>
+          {configMsg && <p className="mt-3 text-sm text-emerald-700">{configMsg}</p>}
+        </section>
+      )}
 
-        <div className="mt-4">
-          {configLoading ? (
-            <p className="text-sm text-zinc-500">Тохиргоо ачаалж байна…</p>
-          ) : (
-            <>
-              {botConfig.rootChoices.length === 0 && (
-                <p className="mb-3 text-sm text-zinc-500">
-                  Сонголт алга. «Үндсэн сонголт нэмэх» дээр дарж эхлүүлнэ үү.
-                </p>
-              )}
-              <ChatChoiceEditor
-                nodes={botConfig.rootChoices}
-                onChangeLabel={changeNodeLabel}
-                onChangeAnswer={changeNodeAnswer}
-                onAddChild={addNode}
-                onRemove={removeNode}
-              />
-            </>
-          )}
-        </div>
-        {configMsg && <p className="mt-3 text-sm text-emerald-700">{configMsg}</p>}
-      </section>
-
+      {tab === "chats" && (
       <div className="flex w-full min-w-0 flex-col gap-4 lg:flex-row">
       {error && (
         <div className="fixed bottom-[max(1rem,env(safe-area-inset-bottom))] left-4 right-4 z-50 mx-auto max-w-[calc(100vw-2rem)] rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-800 sm:left-auto sm:right-6 sm:mx-0 sm:max-w-sm dark:border-red-900 dark:bg-red-950 dark:text-red-200">
@@ -647,6 +687,7 @@ export default function ChatAdminPage() {
         )}
       </div>
       </div>
+      )}
     </div>
   );
 }
