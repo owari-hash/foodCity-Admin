@@ -13,6 +13,10 @@ export function normalizeApiOrigin(raw: string): string {
   if (url.endsWith("/api")) {
     url = url.slice(0, -4).replace(/\/+$/, "");
   }
+  // Common mistake: set API URL to the Next admin app (…/admin) instead of foodcity-back origin.
+  if (/\/admin$/i.test(url)) {
+    url = url.replace(/\/admin$/i, "").replace(/\/+$/, "");
+  }
   return url;
 }
 

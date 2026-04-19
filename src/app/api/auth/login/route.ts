@@ -14,13 +14,26 @@ export async function POST(req: NextRequest) {
   }
 
   const base = getServerApiBaseUrl();
-  const res = await fetch(`${base}/api/v1/admin/auth/login`, {
+  const upstreamUrl = `${base.replace(/\/+$/, "")}/api/v1/admin/auth/login`;
+  const res = await fetch(upstreamUrl, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ username: body.username, password: body.password }),
+    cache: "no-store",
   });
   const text = await res.text();
   if (!res.ok) {
+    if (res.status === 404) {
+      return NextResponse.json(
+        {
+          error: "API route not found on upstream. Check NEXT_PUBLIC_API_URL / API_INTERNAL_URL (must be foodcity-back origin only, not …/admin). Server must reach POST /api/v1/admin/auth/login.",
+          code: "UPSTREAM_NOT_FOUND",
+          hint:
+            "Set API_INTERNAL_URL=http://127.0.0.1:4000 (or your Docker service URL) so the admin server calls the API directly.",
+        },
+        { status: 502 },
+      );
+    }
     return NextResponse.json(
       { error: text || res.statusText },
       { status: res.status === 401 || res.status === 503 ? res.status : 502 },

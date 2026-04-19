@@ -39,7 +39,7 @@ export async function middleware(request: NextRequest) {
     return NextResponse.next();
   }
 
-  if (norm.startsWith("/api/auth/login")) {
+  if (norm.startsWith("/api/auth/login") || norm.startsWith("/api/auth/logout")) {
     return NextResponse.next();
   }
 
