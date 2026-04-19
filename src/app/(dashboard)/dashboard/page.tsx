@@ -1,5 +1,6 @@
 import { fetchAdminStats, apiGet } from "@/lib/apiServer";
 import Link from "next/link";
+import { ADMIN_BASE_PATH } from "@/lib/adminBasePath";
 import type { LucideIcon } from "lucide-react";
 import {
   Briefcase,
@@ -255,25 +256,25 @@ export default async function DashboardPage() {
         <h2 className="mb-4 text-lg font-semibold text-zinc-900 dark:text-zinc-50">Хурдан үйлдэл</h2>
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
           <QuickAction
-            href="/orders"
+            href={`${ADMIN_BASE_PATH}/orders`}
             label="Захиалгууд"
             description="Хүлээгдэж буй захиалгыг харах"
             icon={ShoppingBag}
           />
           <QuickAction
-            href="/chat"
+            href={`${ADMIN_BASE_PATH}/chat`}
             label="Чат"
             description="Харилцагчтай чатлах"
             icon={MessageCircle}
           />
           <QuickAction
-            href="/sales-ads"
+            href={`${ADMIN_BASE_PATH}/sales-ads`}
             label="Борлуулалтын зар"
             description="Шинэ зар нэмэх"
             icon={Plus}
           />
           <QuickAction
-            href="/site-content"
+            href={`${ADMIN_BASE_PATH}/site-content`}
             label="Вэб агуулга"
             description="Сайтын мэдээлэл засах"
             icon={FileEdit}
@@ -282,7 +283,7 @@ export default async function DashboardPage() {
       </section>
 
       <div className="grid gap-6 lg:grid-cols-2">
-        <SectionCard title="Сүүлийн захиалгууд" href="/orders">
+        <SectionCard title="Сүүлийн захиалгууд" href={`${ADMIN_BASE_PATH}/orders`}>
           {recentOrders.length === 0 ? (
             <p className="py-8 text-center text-sm text-zinc-500 dark:text-zinc-400">
               Одоогоор захиалга байхгүй
@@ -314,7 +315,7 @@ export default async function DashboardPage() {
           )}
         </SectionCard>
 
-        <SectionCard title="Сүүлийн чатууд" href="/chat">
+        <SectionCard title="Сүүлийн чатууд" href={`${ADMIN_BASE_PATH}/chat`}>
           {recentConversations.length === 0 ? (
             <p className="py-8 text-center text-sm text-zinc-500 dark:text-zinc-400">
               Одоогоор идэвхтэй чат байхгүй

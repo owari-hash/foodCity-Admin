@@ -1,3 +1,5 @@
+import { ADMIN_BASE_PATH } from "@/lib/adminBasePath";
+
 const STORAGE_KEY = "fc_admin_jwt";
 
 export function readClientAdminToken(): string | null {
@@ -31,13 +33,24 @@ export function withClientAdminAuth(init?: RequestInit): RequestInit {
 
 /** Redirect to login when API token is missing/expired. */
 export async function ensureClientAuthorized(res: Response): Promise<boolean> {
-  if (res.status !== 401) return true;
+  let unauthorized = res.status === 401;
+  if (!unauthorized) {
+    try {
+      const parsed = (await res.clone().json()) as {
+        error?: { code?: string; message?: string };
+      };
+      unauthorized = (parsed.error?.code ?? "").toUpperCase() === "UNAUTHORIZED";
+    } catch {
+      /* non-JSON error body */
+    }
+  }
+  if (!unauthorized) return true;
   clearClientAdminToken();
   try {
-    await fetch("/api/auth/logout", { method: "POST" });
+    await fetch(`${ADMIN_BASE_PATH}/api/auth/logout`, { method: "POST" });
   } catch {
     /* ignore */
   }
-  window.location.replace("/login");
+  window.location.replace(`${ADMIN_BASE_PATH}/login/`);
   return false;
 }
