@@ -16,7 +16,9 @@ import {
   Home,
   LayoutGrid,
   Phone,
+  Trash2,
 } from "lucide-react";
+import ImageUploadField from "@/components/ImageUploadField";
 
 type HomeState = {
   hero: {
@@ -90,6 +92,7 @@ export default function SiteContentPage() {
   const [error, setError] = useState<string | null>(null);
   const [saved, setSaved] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
 
   const [home, setHome] = useState<HomeState>(() =>
     mergeDeep(clone(defaultHomeSections), {}) as HomeState,
@@ -137,6 +140,7 @@ export default function SiteContentPage() {
   async function save(pageId: (typeof TABS)[number]["id"]) {
     setError(null);
     setSaved(null);
+    setSaving(true);
     const sections =
       pageId === "home"
         ? home
@@ -154,10 +158,19 @@ export default function SiteContentPage() {
         body: JSON.stringify({ sections }),
       });
       if (!res.ok) throw new Error(await res.text());
-      setSaved("Хадгалагдлаа.");
-      setTimeout(() => setSaved(null), 3000);
+
+      const rev = await fetch("/api/revalidate-front", { method: "POST" });
+      if (!rev.ok) {
+        const t = await rev.text();
+        console.warn("revalidate-front:", t);
+      }
+
+      setSaved("Хадгалагдлаа. Сайт шинэчлэгдлээ.");
+      setTimeout(() => setSaved(null), 4000);
     } catch (e) {
       setError(e instanceof Error ? e.message : "Алдаа");
+    } finally {
+      setSaving(false);
     }
   }
 
@@ -166,32 +179,6 @@ export default function SiteContentPage() {
 
   return (
     <div className="mx-auto max-w-4xl space-y-6">
-      <div className="rounded-2xl border border-emerald-200/80 bg-gradient-to-br from-emerald-50/90 to-zinc-50 p-5 dark:border-emerald-900/50 dark:from-emerald-950/40 dark:to-zinc-950">
-        <h2 className="text-base font-semibold text-zinc-900 dark:text-zinc-50">
-          Вэбийн үндсэн агуулга
-        </h2>
-        <p className="mt-1 text-sm text-zinc-600 dark:text-zinc-400">
-          Доорх хуудсууд тус бүрт тохируулагдана.           Хадгалсны дараа нийтийн сайт дээр ойролцоогоор 30 секундын дотор шинэчлэгдэнэ (Next.js кэш).
-        </p>
-        <ul className="mt-3 grid gap-2 text-sm text-zinc-700 dark:text-zinc-300 sm:grid-cols-2">
-          <li className="flex gap-2">
-            <span className="text-emerald-600">✓</span> Нүүр — Hero, слайдын зураг, товчлуур, тоонууд
-          </li>
-          <li className="flex gap-2">
-            <span className="text-emerald-600">✓</span> Бидний тухай — гарчиг, текст, статистик
-          </li>
-          <li className="flex gap-2">
-            <span className="text-emerald-600">✓</span> Үйлчилгээ — 4 блок + доод баннерын тоо
-          </li>
-          <li className="flex gap-2">
-            <span className="text-emerald-600">✓</span> Холбоо барих — хаяг, утас, менежерийн кард
-          </li>
-          <li className="flex gap-2 sm:col-span-2">
-            <span className="text-emerald-600">✓</span> Хөл — түншүүдийн лого, танилцуулгын текст
-          </li>
-        </ul>
-      </div>
-
       {error && (
         <p className="rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-800 dark:border-red-900 dark:bg-red-950 dark:text-red-200">
           {error}
@@ -226,7 +213,7 @@ export default function SiteContentPage() {
           <button
             type="button"
             onClick={() => void load()}
-            disabled={loading}
+            disabled={loading || saving}
             className="self-stretch rounded-xl border border-zinc-300 px-4 py-2 text-sm text-zinc-700 hover:bg-zinc-50 disabled:opacity-50 dark:border-zinc-600 dark:text-zinc-300 dark:hover:bg-zinc-800"
           >
             {loading ? "Уншиж байна…" : "Бүгдийг дахин ачаалах"}
@@ -242,24 +229,46 @@ export default function SiteContentPage() {
         <div className="space-y-6">
           <div>
             <label className="text-xs font-semibold uppercase tracking-wide text-zinc-500">
-              Слайдын зургууд (мөр бүрт нэг зам, public/ доорх)
+              Слайдын зургууд
             </label>
-            <textarea
-              className={`${inputClass} min-h-[100px] font-mono text-xs`}
-              value={home.hero.slideImages.join("\n")}
-              onChange={(e) =>
-                setHome({
-                  ...home,
-                  hero: {
-                    ...home.hero,
-                    slideImages: e.target.value
-                      .split("\n")
-                      .map((s) => s.trim())
-                      .filter(Boolean),
-                  },
-                })
-              }
-            />
+            <p className="mt-1 text-xs text-zinc-500 dark:text-zinc-400">
+              Зураг оруулах товчоор серверийн <code className="rounded bg-zinc-100 px-1 dark:bg-zinc-800">upload</code>{" "}
+              хавтсанд хадгалагдана (<code className="rounded bg-zinc-100 px-1 dark:bg-zinc-800">/upload/…</code>). Өмнөх{" "}
+              <code className="rounded bg-zinc-100 px-1 dark:bg-zinc-800">/images/…</code> замыг гараар засаж болно.
+            </p>
+            <div className="mt-3 space-y-3">
+              {home.hero.slideImages.map((path, i) => (
+                <ImageUploadField
+                  key={`slide-${i}`}
+                  value={path}
+                  onChange={(next) => {
+                    const slideImages = [...home.hero.slideImages];
+                    slideImages[i] = next;
+                    setHome({ ...home, hero: { ...home.hero, slideImages } });
+                  }}
+                  showRemove
+                  onRemove={() => {
+                    const slideImages = home.hero.slideImages.filter((_, j) => j !== i);
+                    setHome({ ...home, hero: { ...home.hero, slideImages } });
+                  }}
+                />
+              ))}
+              <button
+                type="button"
+                className="text-sm font-medium text-emerald-700 underline dark:text-emerald-400"
+                onClick={() =>
+                  setHome({
+                    ...home,
+                    hero: {
+                      ...home.hero,
+                      slideImages: [...home.hero.slideImages, ""],
+                    },
+                  })
+                }
+              >
+                + Слайд нэмэх
+              </button>
+            </div>
           </div>
           {(
             [
@@ -361,10 +370,11 @@ export default function SiteContentPage() {
           </div>
           <button
             type="button"
+            disabled={saving}
             onClick={() => void save("home")}
-            className="rounded-lg bg-emerald-600 px-5 py-2.5 text-sm font-semibold text-white hover:bg-emerald-700"
+            className="rounded-lg bg-emerald-600 px-5 py-2.5 text-sm font-semibold text-white hover:bg-emerald-700 disabled:cursor-not-allowed disabled:opacity-60"
           >
-            Нүүр хадгалах
+            {saving ? "Хадгалж байна…" : "Нүүр хадгалах"}
           </button>
         </div>
       ) : tab === "about" ? (
@@ -476,17 +486,15 @@ export default function SiteContentPage() {
           </div>
           <button
             type="button"
+            disabled={saving}
             onClick={() => void save("about")}
-            className="rounded-lg bg-emerald-600 px-5 py-2.5 text-sm font-semibold text-white hover:bg-emerald-700"
+            className="rounded-lg bg-emerald-600 px-5 py-2.5 text-sm font-semibold text-white hover:bg-emerald-700 disabled:cursor-not-allowed disabled:opacity-60"
           >
-            Бидний тухай хадгалах
+            {saving ? "Хадгалж байна…" : "Бидний тухай хадгалах"}
           </button>
         </div>
       ) : tab === "services" ? (
         <div className="space-y-6">
-          <p className="text-xs text-zinc-500">
-            Үйлчилгээний хуудас — дөрвөн карт + доод хар баннерын тоонууд.
-          </p>
           {(
             [
               ["badge", "Дээд шошго"],
@@ -647,17 +655,15 @@ export default function SiteContentPage() {
           </div>
           <button
             type="button"
+            disabled={saving}
             onClick={() => void save("services")}
-            className="rounded-lg bg-emerald-600 px-5 py-2.5 text-sm font-semibold text-white hover:bg-emerald-700"
+            className="rounded-lg bg-emerald-600 px-5 py-2.5 text-sm font-semibold text-white hover:bg-emerald-700 disabled:cursor-not-allowed disabled:opacity-60"
           >
-            Үйлчилгээ хадгалах
+            {saving ? "Хадгалж байна…" : "Үйлчилгээ хадгалах"}
           </button>
         </div>
       ) : tab === "contact" ? (
         <div className="space-y-6">
-          <p className="text-xs text-zinc-500">
-            Холбоо барих хуудас — дээд гарчиг, мөрүүд (икон автоматаар), менежерийн кард.
-          </p>
           {(
             [
               ["badge", "Дээд шошго"],
@@ -790,10 +796,11 @@ export default function SiteContentPage() {
           </div>
           <button
             type="button"
+            disabled={saving}
             onClick={() => void save("contact")}
-            className="rounded-lg bg-emerald-600 px-5 py-2.5 text-sm font-semibold text-white hover:bg-emerald-700"
+            className="rounded-lg bg-emerald-600 px-5 py-2.5 text-sm font-semibold text-white hover:bg-emerald-700 disabled:cursor-not-allowed disabled:opacity-60"
           >
-            Холбоо барих хадгалах
+            {saving ? "Хадгалж байна…" : "Холбоо барих хадгалах"}
           </button>
         </div>
       ) : (
@@ -829,8 +836,11 @@ export default function SiteContentPage() {
             />
           </div>
           <div>
-            <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-zinc-500">
+            <p className="mb-1 text-xs font-semibold uppercase tracking-wide text-zinc-500">
               Түншүүд (лого)
+            </p>
+            <p className="mb-2 text-xs text-zinc-500 dark:text-zinc-400">
+              Лого файлуудыг <code className="rounded bg-zinc-100 px-1 dark:bg-zinc-800">public/</code> доор байршуулж, энд зөвхөн замыг оруулна (ж: <code className="rounded bg-zinc-100 px-1 dark:bg-zinc-800">/logos/x.svg</code>).
             </p>
             <div className="space-y-4">
               {footer.partners.items.map((row, i) => (
@@ -854,16 +864,12 @@ export default function SiteContentPage() {
                         }}
                       />
                     </div>
-                    <div>
-                      <label className="text-xs text-zinc-500">
-                        Зургийн зам (ж: /logos/x.svg)
-                      </label>
-                      <input
-                        className={inputClass}
+                    <div className="sm:col-span-2">
+                      <ImageUploadField
                         value={row.src}
-                        onChange={(e) => {
+                        onChange={(next) => {
                           const items = [...footer.partners.items];
-                          items[i] = { ...items[i], src: e.target.value };
+                          items[i] = { ...items[i], src: next };
                           setFooter({
                             ...footer,
                             partners: { ...footer.partners, items },
@@ -910,19 +916,22 @@ export default function SiteContentPage() {
                       />
                     </div>
                   </div>
-                  <button
-                    type="button"
-                    className="mt-2 text-xs text-red-600 dark:text-red-400"
-                    onClick={() => {
-                      const items = footer.partners.items.filter((_, j) => j !== i);
-                      setFooter({
-                        ...footer,
-                        partners: { ...footer.partners, items },
-                      });
-                    }}
-                  >
-                    Энэ түншийг устгах
-                  </button>
+                  <div className="mt-2 flex justify-end">
+                    <button
+                      type="button"
+                      className="inline-flex h-9 w-9 items-center justify-center rounded-md border border-red-200 text-red-600 transition-colors hover:bg-red-50 dark:border-red-900 dark:text-red-400 dark:hover:bg-red-950/50"
+                      onClick={() => {
+                        const items = footer.partners.items.filter((_, j) => j !== i);
+                        setFooter({
+                          ...footer,
+                          partners: { ...footer.partners, items },
+                        });
+                      }}
+                      aria-label="Түнш устгах"
+                    >
+                      <Trash2 className="h-4 w-4" aria-hidden />
+                    </button>
+                  </div>
                 </div>
               ))}
               <button
@@ -947,10 +956,11 @@ export default function SiteContentPage() {
           </div>
           <button
             type="button"
+            disabled={saving}
             onClick={() => void save("footer")}
-            className="rounded-lg bg-emerald-600 px-5 py-2.5 text-sm font-semibold text-white hover:bg-emerald-700"
+            className="rounded-lg bg-emerald-600 px-5 py-2.5 text-sm font-semibold text-white hover:bg-emerald-700 disabled:cursor-not-allowed disabled:opacity-60"
           >
-            Хөл хадгалах
+            {saving ? "Хадгалж байна…" : "Хөл хадгалах"}
           </button>
         </div>
       )}
