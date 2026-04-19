@@ -4,7 +4,6 @@ import {
   Briefcase,
   Megaphone,
   ShoppingBag,
-  TrendingUp,
   Clock,
 } from "lucide-react";
 
@@ -41,9 +40,9 @@ export default async function DashboardPage() {
   return (
     <div className="mx-auto max-w-5xl space-y-8">
       <div>
-        <p className="text-sm text-zinc-600 dark:text-zinc-400">
+        <p className="break-words text-sm text-zinc-600 dark:text-zinc-400">
           API:{" "}
-          <code className="rounded bg-zinc-100 px-1.5 py-0.5 text-xs dark:bg-zinc-800">
+          <code className="inline-block max-w-full break-all rounded bg-zinc-100 px-1.5 py-0.5 text-xs dark:bg-zinc-800">
             {apiBase}
           </code>
         </p>
@@ -61,11 +60,6 @@ export default async function DashboardPage() {
           label="Өнөөдрийн захиалга"
           value={stats ? String(stats.ordersToday) : "—"}
           icon={ShoppingBag}
-        />
-        <StatCard
-          label="Өнөөдрийн орлого"
-          value={stats ? `₮${stats.revenueToday.toLocaleString()}` : "—"}
-          icon={TrendingUp}
         />
         <StatCard
           label="Хүлээгдэж буй захиалга"

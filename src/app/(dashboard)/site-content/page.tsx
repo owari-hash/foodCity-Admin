@@ -8,6 +8,7 @@ import {
   defaultContactSections,
   defaultFooterSections,
   defaultHomeSections,
+  defaultSalesPageSections,
   defaultServicesSections,
 } from "@/lib/siteContentDefaults";
 import {
@@ -15,6 +16,7 @@ import {
   Building2,
   Home,
   LayoutGrid,
+  Megaphone,
   Phone,
   Trash2,
 } from "lucide-react";
@@ -60,6 +62,7 @@ type FooterState = {
 
 type ContactState = typeof defaultContactSections;
 type ServicesState = typeof defaultServicesSections;
+type SalesPageState = typeof defaultSalesPageSections;
 
 function clone<T>(x: T): T {
   return JSON.parse(JSON.stringify(x)) as T;
@@ -83,6 +86,12 @@ const TABS = [
   { id: "about" as const, label: "Бидний тухай", hint: "Танилцуулга, статистик", icon: Building2 },
   { id: "services" as const, label: "Үйлчилгээ", hint: "Давуу тал, тоонууд", icon: Briefcase },
   { id: "contact" as const, label: "Холбоо барих", hint: "Хаяг, утас, кард", icon: Phone },
+  {
+    id: "sales-page" as const,
+    label: "Борлуулалт",
+    hint: "Зарын хуудасны толгой",
+    icon: Megaphone,
+  },
   { id: "footer" as const, label: "Хөл", hint: "Түншүүд, танилцуулга", icon: LayoutGrid },
 ];
 
@@ -109,22 +118,27 @@ export default function SiteContentPage() {
   const [services, setServices] = useState<ServicesState>(() =>
     mergeDeep(clone(defaultServicesSections), {}) as ServicesState,
   );
+  const [salesPage, setSalesPage] = useState<SalesPageState>(() =>
+    mergeDeep(clone(defaultSalesPageSections), {}) as SalesPageState,
+  );
 
   const load = useCallback(async () => {
     setError(null);
     setLoading(true);
     try {
-      const [h, a, svc, c, f] = await Promise.all([
+      const [h, a, svc, c, sp, f] = await Promise.all([
         fetchSections(base, "home"),
         fetchSections(base, "about"),
         fetchSections(base, "services"),
         fetchSections(base, "contact"),
+        fetchSections(base, "sales-page"),
         fetchSections(base, "footer"),
       ]);
       setHome(mergeDeep(clone(defaultHomeSections), h) as HomeState);
       setAbout(mergeDeep(clone(defaultAboutSections), a) as AboutState);
       setServices(mergeDeep(clone(defaultServicesSections), svc) as ServicesState);
       setContact(mergeDeep(clone(defaultContactSections), c) as ContactState);
+      setSalesPage(mergeDeep(clone(defaultSalesPageSections), sp) as SalesPageState);
       setFooter(mergeDeep(clone(defaultFooterSections), f) as FooterState);
     } catch (e) {
       setError(e instanceof Error ? e.message : "Алдаа");
@@ -150,7 +164,9 @@ export default function SiteContentPage() {
             ? services
             : pageId === "contact"
               ? contact
-              : footer;
+              : pageId === "sales-page"
+                ? salesPage
+                : footer;
     try {
       const res = await fetch(`${base}/api/v1/admin/site-pages/${pageId}`, {
         method: "PUT",
@@ -191,13 +207,13 @@ export default function SiteContentPage() {
       )}
 
       <div className="flex flex-col gap-3 border-b border-zinc-200 pb-4 dark:border-zinc-700">
-        <div className="flex flex-wrap gap-2">
+        <div className="-mx-1 flex snap-x snap-mandatory gap-2 overflow-x-auto pb-1 sm:flex-wrap sm:overflow-visible sm:pb-0">
           {TABS.map(({ id, label, hint, icon: Icon }) => (
             <button
               key={id}
               type="button"
               onClick={() => setTab(id)}
-              className={`flex min-w-[140px] flex-1 flex-col items-start rounded-xl border px-3 py-2.5 text-left transition-colors sm:min-w-[160px] ${
+              className={`flex min-w-[140px] shrink-0 snap-start flex-col items-start rounded-xl border px-3 py-2.5 text-left transition-colors sm:min-w-[160px] sm:flex-1 ${
                 tab === id
                   ? "border-emerald-500 bg-emerald-50 shadow-sm dark:border-emerald-600 dark:bg-emerald-950/50"
                   : "border-zinc-200 bg-white hover:border-zinc-300 dark:border-zinc-700 dark:bg-zinc-900 dark:hover:border-zinc-600"
@@ -801,6 +817,62 @@ export default function SiteContentPage() {
             className="rounded-lg bg-emerald-600 px-5 py-2.5 text-sm font-semibold text-white hover:bg-emerald-700 disabled:cursor-not-allowed disabled:opacity-60"
           >
             {saving ? "Хадгалж байна…" : "Холбоо барих хадгалах"}
+          </button>
+        </div>
+      ) : tab === "sales-page" ? (
+        <div className="space-y-6">
+          <div>
+            <label className="text-xs font-semibold uppercase tracking-wide text-zinc-500">
+              Дээд шошго
+            </label>
+            <input
+              className={inputClass}
+              value={salesPage.header.eyebrow}
+              onChange={(e) =>
+                setSalesPage({
+                  ...salesPage,
+                  header: { ...salesPage.header, eyebrow: e.target.value },
+                })
+              }
+            />
+          </div>
+          <div>
+            <label className="text-xs font-semibold uppercase tracking-wide text-zinc-500">
+              Гол гарчиг
+            </label>
+            <input
+              className={inputClass}
+              value={salesPage.header.title}
+              onChange={(e) =>
+                setSalesPage({
+                  ...salesPage,
+                  header: { ...salesPage.header, title: e.target.value },
+                })
+              }
+            />
+          </div>
+          <div>
+            <label className="text-xs font-semibold uppercase tracking-wide text-zinc-500">
+              Танилцуулга
+            </label>
+            <textarea
+              className={`${inputClass} min-h-[100px]`}
+              value={salesPage.header.intro}
+              onChange={(e) =>
+                setSalesPage({
+                  ...salesPage,
+                  header: { ...salesPage.header, intro: e.target.value },
+                })
+              }
+            />
+          </div>
+          <button
+            type="button"
+            disabled={saving}
+            onClick={() => void save("sales-page")}
+            className="rounded-lg bg-emerald-600 px-5 py-2.5 text-sm font-semibold text-white hover:bg-emerald-700 disabled:cursor-not-allowed disabled:opacity-60"
+          >
+            {saving ? "Хадгалж байна…" : "Борлуулалтын хуудас хадгалах"}
           </button>
         </div>
       ) : (

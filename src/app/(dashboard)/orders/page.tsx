@@ -56,8 +56,8 @@ export default function OrdersPage() {
           {error}
         </p>
       )}
-      <div className="overflow-x-auto rounded-xl border border-zinc-200 bg-white dark:border-zinc-800 dark:bg-zinc-950">
-        <table className="min-w-full text-left text-sm">
+      <div className="-mx-1 overflow-x-auto rounded-xl border border-zinc-200 bg-white touch-pan-x sm:mx-0 dark:border-zinc-800 dark:bg-zinc-950">
+        <table className="min-w-[640px] w-full text-left text-sm">
           <thead className="border-b border-zinc-200 bg-zinc-50 dark:border-zinc-800 dark:bg-zinc-900">
             <tr>
               <th className="px-4 py-3 font-medium">Овог нэр / Утас</th>

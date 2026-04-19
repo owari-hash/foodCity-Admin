@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
+import { ChevronLeft } from "lucide-react";
 import { io, type Socket } from "socket.io-client";
 import { getApiBaseUrl } from "@/lib/api";
 
@@ -143,21 +144,28 @@ export default function ChatAdminPage() {
     }
   }
 
+  const threadMinH =
+    "min-h-[min(360px,calc(100dvh-11rem))] sm:min-h-[min(420px,calc(100dvh-12rem))]";
+
   return (
-    <div className="mx-auto flex max-w-6xl gap-4">
+    <div className="mx-auto flex w-full max-w-6xl min-w-0 flex-col gap-4 lg:flex-row">
       {error && (
-        <div className="fixed bottom-4 right-4 z-50 max-w-sm rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-800 dark:border-red-900 dark:bg-red-950 dark:text-red-200">
+        <div className="fixed bottom-[max(1rem,env(safe-area-inset-bottom))] left-4 right-4 z-50 mx-auto max-w-[calc(100vw-2rem)] rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-800 sm:left-auto sm:right-6 sm:mx-0 sm:max-w-sm dark:border-red-900 dark:bg-red-950 dark:text-red-200">
           {error}
         </div>
       )}
-      <div className="w-72 shrink-0 space-y-1 overflow-y-auto rounded-xl border border-zinc-200 bg-white p-2 dark:border-zinc-800 dark:bg-zinc-950">
+      <div
+        className={`w-full shrink-0 space-y-1 overflow-y-auto rounded-xl border border-zinc-200 bg-white p-2 dark:border-zinc-800 dark:bg-zinc-950 lg:w-72 ${
+          selected ? "hidden lg:block lg:max-h-none" : "max-h-[min(40vh,320px)] lg:max-h-none"
+        }`}
+      >
         <p className="px-2 py-1 text-xs font-medium text-zinc-500">Яриа</p>
         {conversations.map((c) => (
           <button
             key={c.id}
             type="button"
             onClick={() => setSelected(c)}
-            className={`w-full rounded-lg px-3 py-2 text-left text-sm ${
+            className={`w-full min-h-11 rounded-lg px-3 py-2 text-left text-sm ${
               selected?.id === c.id
                 ? "bg-emerald-50 text-emerald-900 dark:bg-emerald-950/50 dark:text-emerald-100"
                 : "hover:bg-zinc-50 dark:hover:bg-zinc-900"
@@ -176,24 +184,38 @@ export default function ChatAdminPage() {
         )}
       </div>
 
-      <div className="flex min-h-[420px] min-w-0 flex-1 flex-col rounded-xl border border-zinc-200 bg-white dark:border-zinc-800 dark:bg-zinc-950">
+      <div
+        className={`flex min-w-0 flex-1 flex-col rounded-xl border border-zinc-200 bg-white dark:border-zinc-800 dark:bg-zinc-950 ${threadMinH} ${
+          selected ? "flex" : "hidden lg:flex"
+        }`}
+      >
         {!selected ? (
-          <div className="flex flex-1 items-center justify-center text-zinc-500">
-            Зүүн талаас яриа сонгоно уу
+          <div className="flex flex-1 items-center justify-center p-6 text-center text-sm text-zinc-500">
+            Яриа сонгоно уу
           </div>
         ) : (
           <>
-            <div className="flex flex-wrap items-center gap-2 border-b border-zinc-200 px-4 py-2 dark:border-zinc-800">
-              <span className="text-sm font-medium">{selected.displayName || selected.guestId}</span>
+            <div className="flex flex-wrap items-center gap-2 border-b border-zinc-200 px-3 py-2 sm:px-4 dark:border-zinc-800">
+              <button
+                type="button"
+                className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg text-zinc-600 hover:bg-zinc-100 lg:hidden dark:text-zinc-400 dark:hover:bg-zinc-900"
+                aria-label="Жагсаалт руу буцах"
+                onClick={() => setSelected(null)}
+              >
+                <ChevronLeft className="h-5 w-5" aria-hidden />
+              </button>
+              <span className="min-w-0 flex-1 truncate text-sm font-medium">
+                {selected.displayName || selected.guestId}
+              </span>
               <button
                 type="button"
                 onClick={() => setHumanMode(!selected.humanMode)}
-                className="rounded-lg border border-zinc-200 px-2 py-1 text-xs dark:border-zinc-700"
+                className="min-h-9 shrink-0 rounded-lg border border-zinc-200 px-2 py-1.5 text-xs leading-tight dark:border-zinc-700 sm:max-w-none"
               >
                 {selected.humanMode ? "Бот руу буцаах" : "Ажилтан авах (бот унтраах)"}
               </button>
             </div>
-            <div className="flex-1 space-y-2 overflow-y-auto px-4 py-3">
+            <div className="min-h-0 flex-1 space-y-2 overflow-y-auto px-3 py-3 sm:px-4">
               {messages.map((m) => (
                 <div
                   key={m.id}
@@ -218,18 +240,18 @@ export default function ChatAdminPage() {
                 </div>
               ))}
             </div>
-            <div className="flex gap-2 border-t border-zinc-200 p-3 dark:border-zinc-800">
+            <div className="flex gap-2 border-t border-zinc-200 p-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] dark:border-zinc-800">
               <input
                 value={input}
                 onChange={(e) => setInput(e.target.value)}
                 onKeyDown={(e) => e.key === "Enter" && void sendAgent()}
                 placeholder="Хариу бичих…"
-                className="flex-1 rounded-lg border border-zinc-200 px-3 py-2 text-sm dark:border-zinc-700 dark:bg-zinc-900"
+                className="min-h-11 min-w-0 flex-1 rounded-lg border border-zinc-200 px-3 py-2 text-base sm:text-sm dark:border-zinc-700 dark:bg-zinc-900"
               />
               <button
                 type="button"
                 onClick={() => void sendAgent()}
-                className="rounded-lg bg-emerald-600 px-4 py-2 text-sm font-medium text-white hover:bg-emerald-700"
+                className="min-h-11 shrink-0 rounded-lg bg-emerald-600 px-4 py-2 text-sm font-medium text-white hover:bg-emerald-700"
               >
                 Илгээх
               </button>

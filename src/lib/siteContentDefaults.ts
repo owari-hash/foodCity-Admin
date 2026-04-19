@@ -119,3 +119,13 @@ export const defaultServicesSections = {
     { value: "4.8", suffix: "/5", label: "Үйлчлүүлэгчийн үнэлгээ" },
   ],
 };
+
+/** /sales header — site page id `sales-page` */
+export const defaultSalesPageSections = {
+  header: {
+    eyebrow: "Зар мэдээ",
+    title: "Борлуулалтын зар",
+    intro:
+      "Хямдрал, урамшуулал, шинэ нээлтийн мэдээллийг эндээс үзнэ үү. Картад дарж дэлгэрэнгүйг уншина уу.",
+  },
+};

@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useState } from "react";
 import { getApiBaseUrl } from "@/lib/api";
+import ImageUploadField from "@/components/ImageUploadField";
 
 type Ad = {
   id: string;
@@ -135,20 +136,19 @@ export default function SalesAdsPage() {
           onChange={(e) => setForm({ ...form, body: e.target.value })}
           className="w-full rounded-lg border border-zinc-200 px-3 py-2 text-sm dark:border-zinc-700 dark:bg-zinc-900"
         />
-        <div className="grid gap-2 sm:grid-cols-2">
-          <input
-            placeholder="Зургийн URL"
-            value={form.imageUrl}
-            onChange={(e) => setForm({ ...form, imageUrl: e.target.value })}
-            className="rounded-lg border border-zinc-200 px-3 py-2 text-sm dark:border-zinc-700 dark:bg-zinc-900"
-          />
-          <input
-            placeholder="Гадаад холбоос"
-            value={form.externalUrl}
-            onChange={(e) => setForm({ ...form, externalUrl: e.target.value })}
-            className="rounded-lg border border-zinc-200 px-3 py-2 text-sm dark:border-zinc-700 dark:bg-zinc-900"
+        <div>
+          <p className="mb-2 text-xs font-medium text-zinc-600 dark:text-zinc-400">Зураг</p>
+          <ImageUploadField
+            value={form.imageUrl ?? ""}
+            onChange={(path) => setForm({ ...form, imageUrl: path })}
           />
         </div>
+        <input
+          placeholder="Гадаад холбоос (сонголттой)"
+          value={form.externalUrl}
+          onChange={(e) => setForm({ ...form, externalUrl: e.target.value })}
+          className="w-full rounded-lg border border-zinc-200 px-3 py-2 text-sm dark:border-zinc-700 dark:bg-zinc-900"
+        />
         <div className="grid gap-2 sm:grid-cols-2">
           <label className="text-xs text-zinc-500">
             Эхлэх
