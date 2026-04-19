@@ -133,7 +133,7 @@ export default function ImageUploadField({
         {src ? (
           // eslint-disable-next-line @next/next/no-img-element -- dynamic CMS URLs
           <img
-            key={blobUrl ?? value || "empty"}
+            key={blobUrl ?? (value || "empty")}
             src={src}
             alt=""
             decoding="async"
