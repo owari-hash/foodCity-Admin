@@ -1,19 +1,24 @@
 /** Default matches a backend served over plain HTTP (no TLS on API). */
-const DEFAULT_API = "http://bukhbatllc.mn/api";
+const DEFAULT_API = "http://bukhbatllc.mn";
 
 /**
  * Base URL for foodcity-back. By default, `https://` in env is rewritten to `http://`
  * unless `NEXT_PUBLIC_API_ALLOW_HTTPS=1` (use when API is really on HTTPS).
+ *
+ * NOTE: All fetch calls already append `/api/v1/…`, so the base URL must NOT
+ * end with `/api`. If it does (e.g. from a reverse‐proxy env), we strip it.
  */
 export function getApiBaseUrl(): string {
   let url = (process.env.NEXT_PUBLIC_API_URL ?? DEFAULT_API).trim();
-  if (process.env.NEXT_PUBLIC_API_ALLOW_HTTPS === "1") {
-    return url.replace(/\/$/, "");
-  }
-  if (url.startsWith("https://")) {
+  if (process.env.NEXT_PUBLIC_API_ALLOW_HTTPS !== "1" && url.startsWith("https://")) {
     url = `http://${url.slice("https://".length)}`;
   }
-  return url.replace(/\/$/, "");
+  url = url.replace(/\/+$/, "");
+  // Strip trailing /api — callers already prepend /api/v1/…
+  if (url.endsWith("/api")) {
+    url = url.slice(0, -4);
+  }
+  return url;
 }
 
 /**
