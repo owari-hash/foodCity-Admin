@@ -3,11 +3,9 @@ import Link from "next/link";
 import { ADMIN_BASE_PATH } from "@/lib/adminBasePath";
 import type { LucideIcon } from "lucide-react";
 import {
-  Briefcase,
   Megaphone,
   ShoppingBag,
   Clock,
-  TrendingUp,
   Package,
   MessageCircle,
   Users,
