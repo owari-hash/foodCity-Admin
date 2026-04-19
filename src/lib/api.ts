@@ -46,6 +46,30 @@ export function getServerApiBaseUrl(): string {
 }
 
 /**
+ * URLs to try from the admin Node process (RSC / Route Handlers). Public hostname often
+ * fails from the same machine (hairpin NAT); second entry hits foodcity-back on loopback.
+ * `apiPath` must start with `/api/v1/...`.
+ */
+export function getBackendUpstreamUrlCandidates(apiPath: string): string[] {
+  const primary = joinBackendRequestUrl(getServerApiBaseUrl(), apiPath);
+  const urls: string[] = [primary];
+  const hasDedicated =
+    Boolean(process.env.API_INTERNAL_URL?.trim()) ||
+    Boolean(process.env.SERVER_API_URL?.trim());
+  if (hasDedicated) return urls;
+  try {
+    const u = new URL(primary);
+    if (u.hostname !== "127.0.0.1" && u.hostname !== "localhost") {
+      const port = (process.env.FOODCITY_API_PORT || "4000").trim();
+      urls.push(joinBackendRequestUrl(`http://127.0.0.1:${port}`, apiPath));
+    }
+  } catch {
+    /* ignore */
+  }
+  return urls;
+}
+
+/**
  * Public foodcity-front origin (no trailing slash). Used in admin for previews of
  * site-relative paths like `/images/…` that are served by the front app, not this admin host.
  */

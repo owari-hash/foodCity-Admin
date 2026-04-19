@@ -1,4 +1,4 @@
-import { getServerApiBaseUrl, joinBackendRequestUrl } from "@/lib/api";
+import { getBackendUpstreamUrlCandidates } from "@/lib/api";
 import { getServerAdminAuthHeaders } from "@/lib/serverAdminAuth";
 
 export type AdminStats = {
@@ -38,19 +38,38 @@ export async function fetchAdminStats(): Promise<AdminStatsResult> {
 
 const serverFetchInit: RequestInit = { cache: "no-store" };
 
+/** Try public API URL then loopback (same as login route) — server cannot always reach its own hostname. */
+async function backendFetch(path: string, init: RequestInit): Promise<Response> {
+  const urls = getBackendUpstreamUrlCandidates(path);
+  let lastErr: unknown;
+  for (let i = 0; i < urls.length; i++) {
+    const url = urls[i]!;
+    try {
+      const res = await fetch(url, { ...serverFetchInit, ...init });
+      if (res.ok) return res;
+      if (res.status === 401 || res.status === 403) return res;
+      lastErr = new Error(await res.text());
+      if (i < urls.length - 1) continue;
+      throw lastErr;
+    } catch (e) {
+      lastErr = e;
+      if (i < urls.length - 1) continue;
+      throw lastErr instanceof Error ? lastErr : new Error(String(e));
+    }
+  }
+  throw lastErr instanceof Error ? lastErr : new Error("API request failed");
+}
+
 export async function apiGet<T>(path: string): Promise<T> {
   const auth = await getServerAdminAuthHeaders();
-  const url = joinBackendRequestUrl(getServerApiBaseUrl(), path);
-  const res = await fetch(url, { ...serverFetchInit, headers: auth });
+  const res = await backendFetch(path, { headers: auth });
   if (!res.ok) throw new Error(await res.text());
   return res.json() as Promise<T>;
 }
 
 export async function apiPost<T>(path: string, body: unknown): Promise<T> {
   const auth = await getServerAdminAuthHeaders();
-  const url = joinBackendRequestUrl(getServerApiBaseUrl(), path);
-  const res = await fetch(url, {
-    ...serverFetchInit,
+  const res = await backendFetch(path, {
     method: "POST",
     headers: { "Content-Type": "application/json", ...auth },
     body: JSON.stringify(body),
@@ -61,9 +80,7 @@ export async function apiPost<T>(path: string, body: unknown): Promise<T> {
 
 export async function apiPatch<T>(path: string, body: unknown): Promise<T> {
   const auth = await getServerAdminAuthHeaders();
-  const url = joinBackendRequestUrl(getServerApiBaseUrl(), path);
-  const res = await fetch(url, {
-    ...serverFetchInit,
+  const res = await backendFetch(path, {
     method: "PATCH",
     headers: { "Content-Type": "application/json", ...auth },
     body: JSON.stringify(body),
@@ -74,9 +91,7 @@ export async function apiPatch<T>(path: string, body: unknown): Promise<T> {
 
 export async function apiDelete(path: string): Promise<void> {
   const auth = await getServerAdminAuthHeaders();
-  const url = joinBackendRequestUrl(getServerApiBaseUrl(), path);
-  const res = await fetch(url, {
-    ...serverFetchInit,
+  const res = await backendFetch(path, {
     method: "DELETE",
     headers: auth,
   });

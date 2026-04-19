@@ -1,28 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
 import { ADMIN_BASE_PATH } from "@/lib/adminBasePath";
-import { getServerApiBaseUrl, joinBackendRequestUrl } from "@/lib/api";
+import { getBackendUpstreamUrlCandidates } from "@/lib/api";
 import { isHttpsRequest } from "@/lib/requestHttps";
 
 const ADMIN_LOGIN_PATH = "/api/v1/admin/auth/login";
-
-/** Same host often cannot call its own public URL from Node (hairpin). Try loopback second. */
-function upstreamLoginUrls(): string[] {
-  const primary = joinBackendRequestUrl(getServerApiBaseUrl(), ADMIN_LOGIN_PATH);
-  const urls = [primary];
-  const hasInternal =
-    Boolean(process.env.API_INTERNAL_URL?.trim()) || Boolean(process.env.SERVER_API_URL?.trim());
-  if (hasInternal) return urls;
-  try {
-    const u = new URL(primary);
-    if (u.hostname !== "127.0.0.1" && u.hostname !== "localhost") {
-      const port = (process.env.FOODCITY_API_PORT || "4000").trim();
-      urls.push(`http://127.0.0.1:${port}${ADMIN_LOGIN_PATH}`);
-    }
-  } catch {
-    /* ignore */
-  }
-  return urls;
-}
 
 export async function POST(req: NextRequest) {
   let body: { username?: string; password?: string };
@@ -46,7 +27,7 @@ export async function POST(req: NextRequest) {
   let res: Response | undefined;
   let text = "";
   let attemptedUrl = "";
-  const urls = upstreamLoginUrls();
+  const urls = getBackendUpstreamUrlCandidates(ADMIN_LOGIN_PATH);
 
   for (let i = 0; i < urls.length; i++) {
     const upstreamUrl = urls[i]!;
