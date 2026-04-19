@@ -1,4 +1,4 @@
-const DEFAULT_API = "http://localhost:4000";
+const DEFAULT_API = "http://bukhbatllc.mn";
 
 export function getApiBaseUrl(): string {
   return process.env.NEXT_PUBLIC_API_URL ?? DEFAULT_API;
