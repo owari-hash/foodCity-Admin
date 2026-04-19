@@ -21,7 +21,7 @@ export function getApiBaseUrl(): string {
  * site-relative paths like `/images/…` that are served by the front app, not this admin host.
  */
 export function getPublicFrontOrigin(): string {
-  return (process.env.NEXT_PUBLIC_FRONT_ORIGIN ?? "http://localhost:3000")
+  return (process.env.NEXT_PUBLIC_FRONT_ORIGIN ?? "http://bukhbatllc.mn")
     .trim()
     .replace(/\/$/, "");
 }
