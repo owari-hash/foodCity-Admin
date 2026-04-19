@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
+import { withClientAdminAuth } from "@/lib/adminClientAuth";
 import { getApiBaseUrl } from "@/lib/api";
 import ImageUploadField from "@/components/ImageUploadField";
 
@@ -36,7 +37,7 @@ export default function JobsPage() {
   const load = useCallback(async () => {
     setError(null);
     try {
-      const res = await fetch(`${base}/api/v1/admin/jobs`);
+      const res = await fetch(`${base}/api/v1/admin/jobs`, withClientAdminAuth());
       if (!res.ok) throw new Error(await res.text());
       const json = (await res.json()) as { data: Job[] };
       setJobs(json.data);
@@ -53,16 +54,19 @@ export default function JobsPage() {
     e.preventDefault();
     setError(null);
     try {
-      const res = await fetch(`${base}/api/v1/admin/jobs`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          ...form,
-          salary: form.salary || undefined,
-          contactEmail: form.contactEmail || undefined,
-          imageUrl: form.imageUrl?.trim() || undefined,
+      const res = await fetch(
+        `${base}/api/v1/admin/jobs`,
+        withClientAdminAuth({
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            ...form,
+            salary: form.salary || undefined,
+            contactEmail: form.contactEmail || undefined,
+            imageUrl: form.imageUrl?.trim() || undefined,
+          }),
         }),
-      });
+      );
       if (!res.ok) throw new Error(await res.text());
       setForm(empty);
       await load();
@@ -73,11 +77,14 @@ export default function JobsPage() {
 
   async function toggleActive(job: Job) {
     try {
-      const res = await fetch(`${base}/api/v1/admin/jobs/${job.id}`, {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ active: !job.active }),
-      });
+      const res = await fetch(
+        `${base}/api/v1/admin/jobs/${job.id}`,
+        withClientAdminAuth({
+          method: "PATCH",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ active: !job.active }),
+        }),
+      );
       if (!res.ok) throw new Error(await res.text());
       await load();
     } catch (err) {
@@ -88,11 +95,14 @@ export default function JobsPage() {
   async function patchJob(id: string, patch: Partial<Job>) {
     setError(null);
     try {
-      const res = await fetch(`${base}/api/v1/admin/jobs/${id}`, {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(patch),
-      });
+      const res = await fetch(
+        `${base}/api/v1/admin/jobs/${id}`,
+        withClientAdminAuth({
+          method: "PATCH",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(patch),
+        }),
+      );
       if (!res.ok) throw new Error(await res.text());
       await load();
     } catch (err) {
@@ -103,7 +113,10 @@ export default function JobsPage() {
   async function remove(id: string) {
     if (!confirm("Устгах уу?")) return;
     try {
-      const res = await fetch(`${base}/api/v1/admin/jobs/${id}`, { method: "DELETE" });
+      const res = await fetch(
+        `${base}/api/v1/admin/jobs/${id}`,
+        withClientAdminAuth({ method: "DELETE" }),
+      );
       if (!res.ok && res.status !== 204) throw new Error(await res.text());
       await load();
     } catch (err) {

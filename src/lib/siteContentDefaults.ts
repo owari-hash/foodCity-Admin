@@ -45,7 +45,7 @@ export const defaultAboutSections = {
 
 export const defaultFooterSections = {
   partners: {
-    partnersLabel: "Тэргүүлэх байгууллагуудын итгэлийг хүлээсэн",
+    partnersLabel: "Салбарын тэргүүлэгч байгууллагуудын итгэлт түнш",
     items: [
       { name: "ING Банк", src: "/logos/ing.svg", width: 100, height: 36 },
       { name: "Голомт Банк", src: "/logos/golomt.svg", width: 130, height: 36 },

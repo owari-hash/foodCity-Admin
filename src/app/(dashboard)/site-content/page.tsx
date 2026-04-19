@@ -101,10 +101,30 @@ async function fetchSections(
 }
 
 const TABS = [
-  { id: "home" as const, label: "Нүүр", hint: "Hero, слайд, статистик", icon: Home },
-  { id: "about" as const, label: "Бидний тухай", hint: "Танилцуулга, статистик", icon: Building2 },
-  { id: "services" as const, label: "Үйлчилгээ", hint: "Давуу тал, тоонууд", icon: Briefcase },
-  { id: "contact" as const, label: "Холбоо барих", hint: "Хаяг, утас, кард", icon: Phone },
+  {
+    id: "home" as const,
+    label: "Нүүр",
+    hint: "Hero, слайд, статистик",
+    icon: Home,
+  },
+  {
+    id: "about" as const,
+    label: "Бидний тухай",
+    hint: "Танилцуулга, статистик",
+    icon: Building2,
+  },
+  {
+    id: "services" as const,
+    label: "Үйлчилгээ",
+    hint: "Давуу тал, тоонууд",
+    icon: Briefcase,
+  },
+  {
+    id: "contact" as const,
+    label: "Холбоо барих",
+    hint: "Хаяг, утас, кард",
+    icon: Phone,
+  },
   {
     id: "sales-page" as const,
     label: "Борлуулалт",
@@ -123,7 +143,12 @@ const TABS = [
     hint: "Зар мэдээ — баг, CTA",
     icon: Newspaper,
   },
-  { id: "footer" as const, label: "Хөл", hint: "Түншүүд, танилцуулга", icon: LayoutGrid },
+  {
+    id: "footer" as const,
+    label: "Хөл",
+    hint: "Түншүүд, танилцуулга",
+    icon: LayoutGrid,
+  },
 ];
 
 type TabId = (typeof TABS)[number]["id"];
@@ -136,29 +161,29 @@ export default function SiteContentPage() {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
 
-  const [home, setHome] = useState<HomeState>(() =>
-    mergeDeep(clone(defaultHomeSections), {}) as HomeState,
+  const [home, setHome] = useState<HomeState>(
+    () => mergeDeep(clone(defaultHomeSections), {}) as HomeState,
   );
-  const [about, setAbout] = useState<AboutState>(() =>
-    mergeDeep(clone(defaultAboutSections), {}) as AboutState,
+  const [about, setAbout] = useState<AboutState>(
+    () => mergeDeep(clone(defaultAboutSections), {}) as AboutState,
   );
-  const [footer, setFooter] = useState<FooterState>(() =>
-    mergeDeep(clone(defaultFooterSections), {}) as FooterState,
+  const [footer, setFooter] = useState<FooterState>(
+    () => mergeDeep(clone(defaultFooterSections), {}) as FooterState,
   );
-  const [contact, setContact] = useState<ContactState>(() =>
-    mergeDeep(clone(defaultContactSections), {}) as ContactState,
+  const [contact, setContact] = useState<ContactState>(
+    () => mergeDeep(clone(defaultContactSections), {}) as ContactState,
   );
-  const [services, setServices] = useState<ServicesState>(() =>
-    mergeDeep(clone(defaultServicesSections), {}) as ServicesState,
+  const [services, setServices] = useState<ServicesState>(
+    () => mergeDeep(clone(defaultServicesSections), {}) as ServicesState,
   );
-  const [salesPage, setSalesPage] = useState<SalesPageState>(() =>
-    mergeDeep(clone(defaultSalesPageSections), {}) as SalesPageState,
+  const [salesPage, setSalesPage] = useState<SalesPageState>(
+    () => mergeDeep(clone(defaultSalesPageSections), {}) as SalesPageState,
   );
-  const [jobsPage, setJobsPage] = useState<JobsPageState>(() =>
-    mergeDeep(clone(defaultJobsPageSections), {}) as JobsPageState,
+  const [jobsPage, setJobsPage] = useState<JobsPageState>(
+    () => mergeDeep(clone(defaultJobsPageSections), {}) as JobsPageState,
   );
-  const [teamPage, setTeamPage] = useState<TeamPageState>(() =>
-    mergeDeep(clone(defaultTeamPageSections), {}) as TeamPageState,
+  const [teamPage, setTeamPage] = useState<TeamPageState>(
+    () => mergeDeep(clone(defaultTeamPageSections), {}) as TeamPageState,
   );
 
   const load = useCallback(async () => {
@@ -177,11 +202,19 @@ export default function SiteContentPage() {
       ]);
       setHome(mergeDeep(clone(defaultHomeSections), h) as HomeState);
       setAbout(mergeDeep(clone(defaultAboutSections), a) as AboutState);
-      setServices(mergeDeep(clone(defaultServicesSections), svc) as ServicesState);
+      setServices(
+        mergeDeep(clone(defaultServicesSections), svc) as ServicesState,
+      );
       setContact(mergeDeep(clone(defaultContactSections), c) as ContactState);
-      setSalesPage(mergeDeep(clone(defaultSalesPageSections), sp) as SalesPageState);
-      setJobsPage(mergeDeep(clone(defaultJobsPageSections), jp) as JobsPageState);
-      setTeamPage(mergeDeep(clone(defaultTeamPageSections), tm) as TeamPageState);
+      setSalesPage(
+        mergeDeep(clone(defaultSalesPageSections), sp) as SalesPageState,
+      );
+      setJobsPage(
+        mergeDeep(clone(defaultJobsPageSections), jp) as JobsPageState,
+      );
+      setTeamPage(
+        mergeDeep(clone(defaultTeamPageSections), tm) as TeamPageState,
+      );
       setFooter(mergeDeep(clone(defaultFooterSections), f) as FooterState);
     } catch (e) {
       setError(e instanceof Error ? e.message : "Алдаа");
@@ -238,26 +271,27 @@ export default function SiteContentPage() {
   }
 
   return (
-    <div className="w-full max-w-none space-y-4 pb-8">
+    <div className="flex h-[calc(100dvh-5.5rem)] max-h-[calc(100dvh-5.5rem)] w-full max-w-none min-h-0 flex-col gap-4 overflow-hidden sm:h-[calc(100dvh-6.5rem)] sm:max-h-[calc(100dvh-6.5rem)]">
       <EditorAlerts error={error} saved={saved} />
 
-      <div className="flex flex-col gap-4 lg:grid lg:grid-cols-[minmax(220px,260px)_minmax(0,1fr)] lg:items-start lg:gap-6">
-        <aside className="hidden lg:block lg:sticky lg:top-0 lg:max-h-[calc(100dvh-5.5rem)] lg:w-full lg:overflow-hidden lg:rounded-2xl lg:border lg:border-slate-200/80 lg:bg-gradient-to-b lg:from-slate-50 lg:to-white lg:p-4 lg:shadow-sm dark:lg:border-slate-800 dark:lg:from-slate-950 dark:lg:to-slate-900">
+      <div className="flex min-h-0 flex-1 flex-col gap-4 overflow-hidden lg:grid lg:grid-cols-[minmax(220px,260px)_minmax(0,1fr)] lg:items-stretch lg:gap-6">
+        <aside className="hidden h-full min-h-0 lg:block lg:w-full lg:overflow-hidden lg:rounded-2xl lg:border lg:border-slate-200/80 lg:bg-linear-to-b lg:from-slate-50 lg:to-white lg:p-4 lg:shadow-sm dark:lg:border-slate-800 dark:lg:from-slate-950 dark:lg:to-slate-900">
           <EditorTabRail
             tabs={TABS}
             active={tab}
             onSelect={(id) => setTab(id as TabId)}
-            onReload={() => void load()}
-            loading={loading}
-            saving={saving}
           />
         </aside>
 
-        <div className="min-w-0 space-y-4">
-          <EditorTabSelect tabs={TABS} active={tab} onSelect={(id) => setTab(id as TabId)} />
+        <div className="flex min-h-0 min-w-0 flex-1 flex-col gap-4 overflow-hidden">
+          <EditorTabSelect
+            tabs={TABS}
+            active={tab}
+            onSelect={(id) => setTab(id as TabId)}
+          />
 
           <EditorSurface>
-            <header className="mb-6 border-b border-slate-200/80 pb-4 dark:border-slate-800">
+            <header className="shrink-0 border-b border-slate-200/80 pb-4 dark:border-slate-800">
               <p className="text-[11px] font-bold uppercase tracking-[0.14em] text-indigo-600 dark:text-indigo-400">
                 Засварлаж буй хуудас
               </p>
@@ -268,1136 +302,1383 @@ export default function SiteContentPage() {
                 {TABS.find((t) => t.id === tab)?.hint}
               </p>
             </header>
-            {loading ? (
-              <p className="text-sm font-medium text-slate-500 dark:text-slate-400">Ачаалж байна…</p>
-            ) : tab === "home" ? (
-        <EditorBody
-          sectionJumpKey={tab}
-          sectionItems={[
-            { id: "home-slides", label: "Слайд" },
-            { id: "home-hero", label: "Hero текст" },
-            { id: "home-desc", label: "Тайлбар" },
-            { id: "home-stats", label: "Статистик" },
-          ]}
-        >
-          <EditorSection
-            id="home-slides"
-            title="Слайдын зургууд"
-            subtitle="Зураг оруулах — серверийн upload (/upload/…). /images/… замыг гараар засаж болно."
-          >
-            <div className="space-y-3">
-              {home.hero.slideImages.map((path, i) => (
-                <ImageUploadField
-                  key={`slide-${i}`}
-                  value={path}
-                  onChange={(next) => {
-                    const slideImages = [...home.hero.slideImages];
-                    slideImages[i] = next;
-                    setHome({ ...home, hero: { ...home.hero, slideImages } });
-                  }}
-                  showRemove
-                  onRemove={() => {
-                    const slideImages = home.hero.slideImages.filter((_, j) => j !== i);
-                    setHome({ ...home, hero: { ...home.hero, slideImages } });
-                  }}
-                />
-              ))}
-              <GhostButton
-                className="font-medium"
-                onClick={() =>
-                  setHome({
-                    ...home,
-                    hero: {
-                      ...home.hero,
-                      slideImages: [...home.hero.slideImages, ""],
-                    },
-                  })
-                }
-              >
-                + Слайд нэмэх
-              </GhostButton>
-            </div>
-          </EditorSection>
-          <EditorSection
-            id="home-hero"
-            title="Hero текст"
-            subtitle="Badge, гарчиг, товчнууд, слайдын aria нэр"
-          >
-            <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
-              {(
-                [
-                  ["badge", "Badge"],
-                  ["titleLine1", "Гарчиг 1"],
-                  ["titleAccent", "Гарчиг онцлох"],
-                  ["titleLine2", "Гарчиг 2"],
-                  ["btn1", "Товч 1"],
-                  ["btn2", "Товч 2"],
-                  ["slideLabel", "Слайд aria нэр"],
-                ] as const
-              ).map(([key, lab]) => (
-                <div key={key}>
-                  <label className="text-xs font-semibold uppercase tracking-wide text-zinc-500">
-                    {lab}
-                  </label>
-                  <input
-                    className={scInput}
-                    value={home.hero[key] as string}
-                    onChange={(e) =>
-                      setHome({
-                        ...home,
-                        hero: { ...home.hero, [key]: e.target.value },
-                      })
-                    }
-                  />
-                </div>
-              ))}
-            </div>
-          </EditorSection>
-          <EditorSection id="home-desc" title="Тайлбар">
-            <textarea
-              className={scTextarea("min-h-[100px]")}
-              value={home.hero.desc}
-              onChange={(e) =>
-                setHome({
-                  ...home,
-                  hero: { ...home.hero, desc: e.target.value },
-                })
-              }
-            />
-          </EditorSection>
-          <EditorSection id="home-stats" title="Статистик" defaultOpen={false}>
-            <div className="space-y-3">
-              {home.hero.stats.map((row, i) => (
-                <div key={i} className="flex flex-wrap gap-2">
-                  <input
-                    className={`${scInput} max-w-[140px]`}
-                    placeholder="Утга"
-                    value={row.value}
-                    onChange={(e) => {
-                      const stats = [...home.hero.stats];
-                      stats[i] = { ...stats[i], value: e.target.value };
-                      setHome({ ...home, hero: { ...home.hero, stats } });
-                    }}
-                  />
-                  <input
-                    className={`${scInput} min-w-[200px] flex-1`}
-                    placeholder="Шошго"
-                    value={row.label}
-                    onChange={(e) => {
-                      const stats = [...home.hero.stats];
-                      stats[i] = { ...stats[i], label: e.target.value };
-                      setHome({ ...home, hero: { ...home.hero, stats } });
-                    }}
-                  />
-                  <DangerMini
-                    onClick={() => {
-                      const stats = home.hero.stats.filter((_, j) => j !== i);
-                      setHome({ ...home, hero: { ...home.hero, stats } });
-                    }}
-                  >
-                    Устгах
-                  </DangerMini>
-                </div>
-              ))}
-              <GhostButton
-                onClick={() =>
-                  setHome({
-                    ...home,
-                    hero: {
-                      ...home.hero,
-                      stats: [...home.hero.stats, { value: "", label: "" }],
-                    },
-                  })
-                }
-              >
-                + Мөр нэмэх
-              </GhostButton>
-            </div>
-          </EditorSection>
-          <PrimarySave disabled={saving} onClick={() => void save("home")}>
-            {saving ? "Хадгалж байна…" : "Нүүр хадгалах"}
-          </PrimarySave>
-        </EditorBody>
-      ) : tab === "about" ? (
-        <EditorBody
-          sectionJumpKey={tab}
-          sectionItems={[
-            { id: "about-fields", label: "Текст талбарууд" },
-            { id: "about-copy", label: "Параграф" },
-            { id: "about-stats", label: "Статистик" },
-          ]}
-        >
-          <EditorSection
-            id="about-fields"
-            title="Текст талбарууд"
-            subtitle="Шошго, гарчиг, барилгын нэр, жилийн хайрцаг"
-          >
-            <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
-              {(
-                [
-                  ["sectionLabel", "Хэсгийн шошго"],
-                  ["h2Line1", "Гарчиг 1"],
-                  ["h2Accent", "Гарчиг онцлох"],
-                  ["imageBuildingName", "Барилгын нэр (зураг дээр)"],
-                  ["imageBuildingSubtitle", "Дэд гарчиг"],
-                  ["yearsBadgeValue", "Жилийн тоо (жижиг хайрцаг)"],
-                  ["yearsLabel", "Жилийн шошго"],
-                ] as const
-              ).map(([key, lab]) => (
-                <div key={key}>
-                  <label className="text-xs font-semibold uppercase tracking-wide text-zinc-500">
-                    {lab}
-                  </label>
-                  <input
-                    className={scInput}
-                    value={about.main[key] as string}
-                    onChange={(e) =>
-                      setAbout({
-                        ...about,
-                        main: { ...about.main, [key]: e.target.value },
-                      })
-                    }
-                  />
-                </div>
-              ))}
-            </div>
-          </EditorSection>
-          <EditorSection id="about-copy" title="Параграфууд">
-            <div className="grid gap-4 lg:grid-cols-2">
-              <div>
-                <label className="text-xs font-semibold uppercase tracking-wide text-zinc-500">
-                  Параграф 1
-                </label>
-                <textarea
-                  className={scTextarea("min-h-[100px]")}
-                  value={about.main.p1}
-                  onChange={(e) =>
-                    setAbout({ ...about, main: { ...about.main, p1: e.target.value } })
-                  }
-                />
-              </div>
-              <div>
-                <label className="text-xs font-semibold uppercase tracking-wide text-zinc-500">
-                  Параграф 2
-                </label>
-                <textarea
-                  className={scTextarea("min-h-[100px]")}
-                  value={about.main.p2}
-                  onChange={(e) =>
-                    setAbout({ ...about, main: { ...about.main, p2: e.target.value } })
-                  }
-                />
-              </div>
-            </div>
-          </EditorSection>
-          <EditorSection id="about-stats" title="Статистик" defaultOpen={false}>
-            <div className="space-y-3">
-              {about.main.stats.map((row, i) => (
-                <div key={i} className="flex flex-wrap gap-2">
-                  <input
-                    className={`${scInput} max-w-[140px]`}
-                    value={row.value}
-                    onChange={(e) => {
-                      const stats = [...about.main.stats];
-                      stats[i] = { ...stats[i], value: e.target.value };
-                      setAbout({ ...about, main: { ...about.main, stats } });
-                    }}
-                  />
-                  <input
-                    className={`${scInput} min-w-[200px] flex-1`}
-                    value={row.label}
-                    onChange={(e) => {
-                      const stats = [...about.main.stats];
-                      stats[i] = { ...stats[i], label: e.target.value };
-                      setAbout({ ...about, main: { ...about.main, stats } });
-                    }}
-                  />
-                  <DangerMini
-                    onClick={() => {
-                      const stats = about.main.stats.filter((_, j) => j !== i);
-                      setAbout({ ...about, main: { ...about.main, stats } });
-                    }}
-                  >
-                    Устгах
-                  </DangerMini>
-                </div>
-              ))}
-              <GhostButton
-                onClick={() =>
-                  setAbout({
-                    ...about,
-                    main: {
-                      ...about.main,
-                      stats: [...about.main.stats, { value: "", label: "" }],
-                    },
-                  })
-                }
-              >
-                + Мөр нэмэх
-              </GhostButton>
-            </div>
-          </EditorSection>
-          <PrimarySave disabled={saving} onClick={() => void save("about")}>
-            {saving ? "Хадгалж байна…" : "Бидний тухай хадгалах"}
-          </PrimarySave>
-        </EditorBody>
-      ) : tab === "services" ? (
-        <EditorBody
-          sectionJumpKey={tab}
-          sectionItems={[
-            { id: "svc-header", label: "Толгой" },
-            { id: "svc-features", label: "Давуу тал" },
-            { id: "svc-banner", label: "Баннер" },
-          ]}
-        >
-          <EditorSection id="svc-header" title="Толгой хэсэг" subtitle="Шошго, гарчиг, танилцуулга">
-            <div className="grid gap-4 lg:grid-cols-3">
-              {(
-                [
-                  ["badge", "Дээд шошго"],
-                  ["h2Line1", "Гарчиг (эхний хэсэг)"],
-                  ["h2Accent", "Гарчиг (онцлох өнгө)"],
-                ] as const
-              ).map(([key, lab]) => (
-                <div key={key}>
-                  <label className="text-xs font-semibold uppercase tracking-wide text-zinc-500">
-                    {lab}
-                  </label>
-                  <input
-                    className={scInput}
-                    value={services.header[key]}
-                    onChange={(e) =>
-                      setServices({
-                        ...services,
-                        header: { ...services.header, [key]: e.target.value },
-                      })
-                    }
-                  />
-                </div>
-              ))}
-            </div>
-            <div>
-              <label className="text-xs font-semibold uppercase tracking-wide text-zinc-500">
-                Танилцуулга
-              </label>
-              <textarea
-                className={scTextarea("min-h-[80px]")}
-                value={services.header.intro}
-                onChange={(e) =>
-                  setServices({
-                    ...services,
-                    header: { ...services.header, intro: e.target.value },
-                  })
-                }
-              />
-            </div>
-          </EditorSection>
-          <EditorSection id="svc-features" title="Давуу талууд" subtitle="4 хүртэл" defaultOpen={false}>
-            <div className="space-y-4">
-              {services.features.map((f, i) => (
-                <div key={i} className="rounded-xl border border-slate-200/90 bg-white/80 p-4 dark:border-slate-700 dark:bg-slate-900/40">
-                  <input
-                    className={scInput}
-                    placeholder="Гарчиг"
-                    value={f.title}
-                    onChange={(e) => {
-                      const features = [...services.features];
-                      features[i] = { ...features[i], title: e.target.value };
-                      setServices({ ...services, features });
-                    }}
-                  />
-                  <textarea
-                    className={`mt-2 ${scTextarea("min-h-[72px]")}`}
-                    placeholder="Тайлбар"
-                    value={f.desc}
-                    onChange={(e) => {
-                      const features = [...services.features];
-                      features[i] = { ...features[i], desc: e.target.value };
-                      setServices({ ...services, features });
-                    }}
-                  />
-                  <DangerMini
-                    className="mt-2"
-                    onClick={() =>
-                      setServices({
-                        ...services,
-                        features: services.features.filter((_, j) => j !== i),
-                      })
-                    }
-                  >
-                    Устгах
-                  </DangerMini>
-                </div>
-              ))}
-              <GhostButton
-                onClick={() =>
-                  setServices({
-                    ...services,
-                    features: [...services.features, { title: "", desc: "" }],
-                  })
-                }
-              >
-                + Онцлол нэмэх
-              </GhostButton>
-            </div>
-          </EditorSection>
-          <EditorSection id="svc-banner" title="Доод баннер" subtitle="Тоо, дагалдах, шошго" defaultOpen={false}>
-            <div className="space-y-3">
-              {services.banner.map((row, i) => (
-                <div key={i} className="flex flex-wrap gap-2">
-                  <input
-                    className={`${scInput} max-w-[100px]`}
-                    placeholder="Утга"
-                    value={row.value}
-                    onChange={(e) => {
-                      const banner = [...services.banner];
-                      banner[i] = { ...banner[i], value: e.target.value };
-                      setServices({ ...services, banner });
-                    }}
-                  />
-                  <input
-                    className={`${scInput} max-w-[80px]`}
-                    placeholder="Дагалдах"
-                    value={row.suffix}
-                    onChange={(e) => {
-                      const banner = [...services.banner];
-                      banner[i] = { ...banner[i], suffix: e.target.value };
-                      setServices({ ...services, banner });
-                    }}
-                  />
-                  <input
-                    className={`${scInput} min-w-[180px] flex-1`}
-                    placeholder="Шошго"
-                    value={row.label}
-                    onChange={(e) => {
-                      const banner = [...services.banner];
-                      banner[i] = { ...banner[i], label: e.target.value };
-                      setServices({ ...services, banner });
-                    }}
-                  />
-                  <DangerMini
-                    onClick={() =>
-                      setServices({
-                        ...services,
-                        banner: services.banner.filter((_, j) => j !== i),
-                      })
-                    }
-                  >
-                    Устгах
-                  </DangerMini>
-                </div>
-              ))}
-              <GhostButton
-                onClick={() =>
-                  setServices({
-                    ...services,
-                    banner: [...services.banner, { value: "", suffix: "", label: "" }],
-                  })
-                }
-              >
-                + Баннер мөр нэмэх
-              </GhostButton>
-            </div>
-          </EditorSection>
-          <PrimarySave disabled={saving} onClick={() => void save("services")}>
-            {saving ? "Хадгалж байна…" : "Үйлчилгээ хадгалах"}
-          </PrimarySave>
-        </EditorBody>
-      ) : tab === "contact" ? (
-        <EditorBody
-          sectionJumpKey={tab}
-          sectionItems={[
-            { id: "contact-hero", label: "Толгой" },
-            { id: "contact-items", label: "Мөрүүд" },
-            { id: "contact-agent", label: "Менежер" },
-            { id: "contact-form", label: "Форм" },
-          ]}
-        >
-          <EditorSection id="contact-hero" title="Толгой хэсэг" subtitle="Шошго, гарчиг, танилцуулга">
-            <div className="grid gap-4 sm:grid-cols-2">
-              {(
-                [
-                  ["badge", "Дээд шошго"],
-                  ["h2Accent", "Гол гарчиг (онцлох)"],
-                ] as const
-              ).map(([key, lab]) => (
-                <div key={key}>
-                  <label className="text-xs font-semibold uppercase tracking-wide text-zinc-500">
-                    {lab}
-                  </label>
-                  <input
-                    className={scInput}
-                    value={contact.hero[key]}
-                    onChange={(e) =>
-                      setContact({
-                        ...contact,
-                        hero: { ...contact.hero, [key]: e.target.value },
-                      })
-                    }
-                  />
-                </div>
-              ))}
-            </div>
-            <div>
-              <label className="text-xs font-semibold uppercase tracking-wide text-zinc-500">
-                Танилцуулга
-              </label>
-              <textarea
-                className={scTextarea("min-h-[80px]")}
-                value={contact.hero.intro}
-                onChange={(e) =>
-                  setContact({
-                    ...contact,
-                    hero: { ...contact.hero, intro: e.target.value },
-                  })
-                }
-              />
-            </div>
-          </EditorSection>
-          <EditorSection id="contact-items" title="Мэдээллийн мөрүүд" defaultOpen={false}>
-            <div className="space-y-3">
-              {contact.items.map((row, i) => (
-                <div key={i} className="flex flex-wrap gap-2">
-                  <input
-                    className={`${scInput} max-w-[160px]`}
-                    placeholder="Гарчиг"
-                    value={row.title}
-                    onChange={(e) => {
-                      const items = [...contact.items];
-                      items[i] = { ...items[i], title: e.target.value };
-                      setContact({ ...contact, items });
-                    }}
-                  />
-                  <input
-                    className={`${scInput} min-w-[200px] flex-1`}
-                    placeholder="Утга"
-                    value={row.value}
-                    onChange={(e) => {
-                      const items = [...contact.items];
-                      items[i] = { ...items[i], value: e.target.value };
-                      setContact({ ...contact, items });
-                    }}
-                  />
-                  <DangerMini
-                    onClick={() =>
-                      setContact({
-                        ...contact,
-                        items: contact.items.filter((_, j) => j !== i),
-                      })
-                    }
-                  >
-                    Устгах
-                  </DangerMini>
-                </div>
-              ))}
-              <GhostButton
-                onClick={() =>
-                  setContact({
-                    ...contact,
-                    items: [...contact.items, { title: "", value: "" }],
-                  })
-                }
-              >
-                + Мөр нэмэх
-              </GhostButton>
-            </div>
-          </EditorSection>
-          <EditorSection id="contact-agent" title="Менежерийн кард" defaultOpen={false}>
-            <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-              {(
-                [
-                  ["initials", "Эхний үсэг"],
-                  ["name", "Нэр"],
-                  ["role", "Албан тушаал"],
-                  ["telHref", "Утас (ж: tel:+976…)"],
-                  ["telLabel", "Товчны текст"],
-                ] as const
-              ).map(([key, lab]) => (
-                <div key={key} className={key === "role" ? "sm:col-span-2 lg:col-span-3" : ""}>
-                  <label className="text-xs text-zinc-500">{lab}</label>
-                  <input
-                    className={scInput}
-                    value={contact.agent[key]}
-                    onChange={(e) =>
-                      setContact({
-                        ...contact,
-                        agent: { ...contact.agent, [key]: e.target.value },
-                      })
-                    }
-                  />
-                </div>
-              ))}
-            </div>
-          </EditorSection>
-          <EditorSection id="contact-form" title="Формын гарчиг">
-            <input
-              className={scInput}
-              value={contact.formTitle}
-              onChange={(e) => setContact({ ...contact, formTitle: e.target.value })}
-            />
-          </EditorSection>
-          <PrimarySave disabled={saving} onClick={() => void save("contact")}>
-            {saving ? "Хадгалж байна…" : "Холбоо барих хадгалах"}
-          </PrimarySave>
-        </EditorBody>
-      ) : tab === "sales-page" ? (
-        <EditorBody
-          sectionJumpKey={tab}
-          sectionItems={[
-            { id: "sales-meta", label: "Шошго & гарчиг" },
-            { id: "sales-intro", label: "Танилцуулга" },
-          ]}
-        >
-          <EditorSection id="sales-meta" title="Шошго болон гарчиг">
-            <div className="grid gap-4 lg:grid-cols-2">
-              <div>
-                <label className="text-xs font-semibold uppercase tracking-wide text-zinc-500">
-                  Дээд шошго
-                </label>
-                <input
-                  className={scInput}
-                  value={salesPage.header.eyebrow}
-                  onChange={(e) =>
-                    setSalesPage({
-                      ...salesPage,
-                      header: { ...salesPage.header, eyebrow: e.target.value },
-                    })
-                  }
-                />
-              </div>
-              <div>
-                <label className="text-xs font-semibold uppercase tracking-wide text-zinc-500">
-                  Гол гарчиг
-                </label>
-                <input
-                  className={scInput}
-                  value={salesPage.header.title}
-                  onChange={(e) =>
-                    setSalesPage({
-                      ...salesPage,
-                      header: { ...salesPage.header, title: e.target.value },
-                    })
-                  }
-                />
-              </div>
-            </div>
-          </EditorSection>
-          <EditorSection id="sales-intro" title="Танилцуулга">
-            <textarea
-              className={scTextarea("min-h-[100px]")}
-              value={salesPage.header.intro}
-              onChange={(e) =>
-                setSalesPage({
-                  ...salesPage,
-                  header: { ...salesPage.header, intro: e.target.value },
-                })
-              }
-            />
-          </EditorSection>
-          <PrimarySave disabled={saving} onClick={() => void save("sales-page")}>
-            {saving ? "Хадгалж байна…" : "Борлуулалтын хуудас хадгалах"}
-          </PrimarySave>
-        </EditorBody>
-      ) : tab === "jobs-page" ? (
-        <EditorBody
-          sectionJumpKey={tab}
-          sectionItems={[
-            { id: "jobs-header-title", label: "Гарчиг" },
-            { id: "jobs-header-intro", label: "Тайлбар" },
-          ]}
-        >
-          <EditorSection id="jobs-header-title" title="Хуудасны гарчиг">
-            <input
-              className={scInput}
-              value={jobsPage.header.title}
-              onChange={(e) =>
-                setJobsPage({
-                  ...jobsPage,
-                  header: { ...jobsPage.header, title: e.target.value },
-                })
-              }
-            />
-          </EditorSection>
-          <EditorSection id="jobs-header-intro" title="Дэд тайлбар">
-            <textarea
-              className={scTextarea("min-h-[80px]")}
-              value={jobsPage.header.intro}
-              onChange={(e) =>
-                setJobsPage({
-                  ...jobsPage,
-                  header: { ...jobsPage.header, intro: e.target.value },
-                })
-              }
-            />
-          </EditorSection>
-          <PrimarySave disabled={saving} onClick={() => void save("jobs-page")}>
-            {saving ? "Хадгалж байна…" : "Ажлын зарын толгой хадгалах"}
-          </PrimarySave>
-        </EditorBody>
-      ) : tab === "team" ? (
-        <EditorBody
-          sectionJumpKey={tab}
-          sectionItems={[
-            { id: "team-header", label: "Толгой" },
-            { id: "team-members", label: "Багийн гишүүд" },
-            { id: "team-cta", label: "CTA" },
-          ]}
-        >
-          <EditorSection
-            id="team-header"
-            title="Толгой хэсэг"
-            subtitle="Шошго, гарчиг, танилцуулга (/team)"
-          >
-            <div className="grid gap-4 sm:grid-cols-2">
-              <div className="sm:col-span-2">
-                <label className="text-xs font-semibold uppercase tracking-wide text-zinc-500">
-                  Дээд шошго
-                </label>
-                <input
-                  className={scInput}
-                  value={teamPage.header.eyebrow}
-                  onChange={(e) =>
-                    setTeamPage({
-                      ...teamPage,
-                      header: { ...teamPage.header, eyebrow: e.target.value },
-                    })
-                  }
-                />
-              </div>
-              <div>
-                <label className="text-xs font-semibold uppercase tracking-wide text-zinc-500">
-                  Гарчиг (эхний хэсэг)
-                </label>
-                <input
-                  className={scInput}
-                  value={teamPage.header.h2Line1}
-                  onChange={(e) =>
-                    setTeamPage({
-                      ...teamPage,
-                      header: { ...teamPage.header, h2Line1: e.target.value },
-                    })
-                  }
-                />
-              </div>
-              <div>
-                <label className="text-xs font-semibold uppercase tracking-wide text-zinc-500">
-                  Гарчиг (онцлох өнгө)
-                </label>
-                <input
-                  className={scInput}
-                  value={teamPage.header.h2Accent}
-                  onChange={(e) =>
-                    setTeamPage({
-                      ...teamPage,
-                      header: { ...teamPage.header, h2Accent: e.target.value },
-                    })
-                  }
-                />
-              </div>
-              <div className="sm:col-span-2">
-                <label className="text-xs font-semibold uppercase tracking-wide text-zinc-500">
-                  Танилцуулга
-                </label>
-                <textarea
-                  className={scTextarea("min-h-[80px]")}
-                  value={teamPage.header.intro}
-                  onChange={(e) =>
-                    setTeamPage({
-                      ...teamPage,
-                      header: { ...teamPage.header, intro: e.target.value },
-                    })
-                  }
-                />
-              </div>
-            </div>
-          </EditorSection>
-          <EditorSection id="team-members" title="Багийн гишүүд" defaultOpen={false}>
-            <p className="text-xs text-zinc-500 dark:text-zinc-400">
-              Өнгө: Tailwind анги (жишээ нь <code className="rounded bg-zinc-100 px-1 dark:bg-zinc-800">bg-accent-500</code>).
-            </p>
-            <div className="space-y-4">
-              {teamPage.members.map((m, i) => (
-                <div
-                  key={i}
-                  className="rounded-xl border border-slate-200/90 bg-white/80 p-4 dark:border-slate-700 dark:bg-slate-900/40"
+            <div className="min-h-0 flex-1 overflow-y-auto overscroll-y-contain [scrollbar-gutter:stable]">
+              {loading ? (
+                <p className="text-sm font-medium text-slate-500 dark:text-slate-400">
+                  Ачаалж байна…
+                </p>
+              ) : tab === "home" ? (
+                <EditorBody
+                  sectionJumpKey={tab}
+                  sectionItems={[
+                    { id: "home-slides", label: "Слайд" },
+                    { id: "home-hero", label: "Hero текст" },
+                    { id: "home-desc", label: "Тайлбар" },
+                    { id: "home-stats", label: "Статистик" },
+                  ]}
                 >
-                  <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-                    <div>
-                      <label className="text-xs text-zinc-500">Нэр</label>
-                      <input
-                        className={scInput}
-                        value={m.name}
-                        onChange={(e) => {
-                          const members = [...teamPage.members];
-                          members[i] = { ...members[i], name: e.target.value };
-                          setTeamPage({ ...teamPage, members });
-                        }}
-                      />
+                  <EditorSection
+                    id="home-slides"
+                    title="Слайдын зургууд"
+                    subtitle="Зураг оруулах"
+                  >
+                    <div className="space-y-3">
+                      {home.hero.slideImages.map((path, i) => (
+                        <ImageUploadField
+                          key={`slide-${i}`}
+                          value={path}
+                          onChange={(next) => {
+                            const slideImages = [...home.hero.slideImages];
+                            slideImages[i] = next;
+                            setHome({
+                              ...home,
+                              hero: { ...home.hero, slideImages },
+                            });
+                          }}
+                          showRemove
+                          onRemove={() => {
+                            const slideImages = home.hero.slideImages.filter(
+                              (_, j) => j !== i,
+                            );
+                            setHome({
+                              ...home,
+                              hero: { ...home.hero, slideImages },
+                            });
+                          }}
+                        />
+                      ))}
+                      <GhostButton
+                        className="font-medium"
+                        onClick={() =>
+                          setHome({
+                            ...home,
+                            hero: {
+                              ...home.hero,
+                              slideImages: [...home.hero.slideImages, ""],
+                            },
+                          })
+                        }
+                      >
+                        + Слайд нэмэх
+                      </GhostButton>
                     </div>
-                    <div>
-                      <label className="text-xs text-zinc-500">Албан тушаал</label>
-                      <input
-                        className={scInput}
-                        value={m.role}
-                        onChange={(e) => {
-                          const members = [...teamPage.members];
-                          members[i] = { ...members[i], role: e.target.value };
-                          setTeamPage({ ...teamPage, members });
-                        }}
-                      />
+                  </EditorSection>
+                  <EditorSection
+                    id="home-hero"
+                    title="Hero текст"
+                    subtitle="Badge, гарчиг, товчнууд, слайдын aria нэр"
+                  >
+                    <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
+                      {(
+                        [
+                          ["badge", "Badge"],
+                          ["titleLine1", "Гарчиг 1"],
+                          ["titleAccent", "Гарчиг онцлох"],
+                          ["titleLine2", "Гарчиг 2"],
+                          ["btn1", "Товч 1"],
+                          ["btn2", "Товч 2"],
+                          ["slideLabel", "Слайд aria нэр"],
+                        ] as const
+                      ).map(([key, lab]) => (
+                        <div key={key}>
+                          <label className="text-xs font-semibold uppercase tracking-wide text-zinc-500">
+                            {lab}
+                          </label>
+                          <input
+                            className={scInput}
+                            value={home.hero[key] as string}
+                            onChange={(e) =>
+                              setHome({
+                                ...home,
+                                hero: { ...home.hero, [key]: e.target.value },
+                              })
+                            }
+                          />
+                        </div>
+                      ))}
                     </div>
-                    <div>
-                      <label className="text-xs text-zinc-500">Эхний үсэг</label>
-                      <input
-                        className={scInput}
-                        value={m.initials}
-                        onChange={(e) => {
-                          const members = [...teamPage.members];
-                          members[i] = { ...members[i], initials: e.target.value };
-                          setTeamPage({ ...teamPage, members });
-                        }}
-                      />
-                    </div>
-                    <div className="sm:col-span-2 lg:col-span-3">
-                      <label className="text-xs text-zinc-500">Өнгө (Tailwind class)</label>
-                      <input
-                        className={scInput}
-                        value={m.color}
-                        placeholder="bg-accent-500"
-                        onChange={(e) => {
-                          const members = [...teamPage.members];
-                          members[i] = { ...members[i], color: e.target.value };
-                          setTeamPage({ ...teamPage, members });
-                        }}
-                      />
-                    </div>
-                    <div>
-                      <label className="text-xs text-zinc-500">Утас</label>
-                      <input
-                        className={scInput}
-                        value={m.phone}
-                        onChange={(e) => {
-                          const members = [...teamPage.members];
-                          members[i] = { ...members[i], phone: e.target.value };
-                          setTeamPage({ ...teamPage, members });
-                        }}
-                      />
-                    </div>
-                    <div>
-                      <label className="text-xs text-zinc-500">Имэйл</label>
-                      <input
-                        className={scInput}
-                        value={m.email}
-                        onChange={(e) => {
-                          const members = [...teamPage.members];
-                          members[i] = { ...members[i], email: e.target.value };
-                          setTeamPage({ ...teamPage, members });
-                        }}
-                      />
-                    </div>
-                    <div>
-                      <label className="text-xs text-zinc-500">Төслүүд (тоо)</label>
-                      <input
-                        type="number"
-                        className={scInput}
-                        value={m.projects}
-                        onChange={(e) => {
-                          const members = [...teamPage.members];
-                          members[i] = {
-                            ...members[i],
-                            projects: Number(e.target.value) || 0,
-                          };
-                          setTeamPage({ ...teamPage, members });
-                        }}
-                      />
-                    </div>
-                    <div className="sm:col-span-2 lg:col-span-3">
-                      <label className="text-xs text-zinc-500">Тайлбар</label>
-                      <textarea
-                        className={scTextarea("min-h-[72px]")}
-                        value={m.bio}
-                        onChange={(e) => {
-                          const members = [...teamPage.members];
-                          members[i] = { ...members[i], bio: e.target.value };
-                          setTeamPage({ ...teamPage, members });
-                        }}
-                      />
-                    </div>
-                  </div>
-                  <div className="mt-3 flex justify-end">
-                    <DangerMini
-                      onClick={() =>
-                        setTeamPage({
-                          ...teamPage,
-                          members: teamPage.members.filter((_, j) => j !== i),
+                  </EditorSection>
+                  <EditorSection id="home-desc" title="Тайлбар">
+                    <textarea
+                      className={scTextarea("min-h-[100px]")}
+                      value={home.hero.desc}
+                      onChange={(e) =>
+                        setHome({
+                          ...home,
+                          hero: { ...home.hero, desc: e.target.value },
                         })
                       }
-                    >
-                      Устгах
-                    </DangerMini>
-                  </div>
-                </div>
-              ))}
-              <GhostButton
-                onClick={() =>
-                  setTeamPage({
-                    ...teamPage,
-                    members: [
-                      ...teamPage.members,
-                      {
-                        name: "",
-                        role: "",
-                        initials: "",
-                        color: "bg-accent-500",
-                        phone: "",
-                        email: "",
-                        bio: "",
-                        projects: 0,
-                      },
-                    ],
-                  })
-                }
-              >
-                + Гишүүн нэмэх
-              </GhostButton>
-            </div>
-          </EditorSection>
-          <EditorSection id="team-cta" title="Доод урилга (CTA)">
-            <div className="grid gap-4 lg:grid-cols-2">
-              <div className="lg:col-span-2">
-                <label className="text-xs font-semibold uppercase tracking-wide text-zinc-500">
-                  Гарчиг
-                </label>
-                <input
-                  className={scInput}
-                  value={teamPage.cta.title}
-                  onChange={(e) =>
-                    setTeamPage({
-                      ...teamPage,
-                      cta: { ...teamPage.cta, title: e.target.value },
-                    })
-                  }
-                />
-              </div>
-              <div className="lg:col-span-2">
-                <label className="text-xs font-semibold uppercase tracking-wide text-zinc-500">
-                  Дэд текст
-                </label>
-                <textarea
-                  className={scTextarea("min-h-[60px]")}
-                  value={teamPage.cta.subtitle}
-                  onChange={(e) =>
-                    setTeamPage({
-                      ...teamPage,
-                      cta: { ...teamPage.cta, subtitle: e.target.value },
-                    })
-                  }
-                />
-              </div>
-              <div>
-                <label className="text-xs font-semibold uppercase tracking-wide text-zinc-500">
-                  Товчны текст
-                </label>
-                <input
-                  className={scInput}
-                  value={teamPage.cta.buttonLabel}
-                  onChange={(e) =>
-                    setTeamPage({
-                      ...teamPage,
-                      cta: { ...teamPage.cta, buttonLabel: e.target.value },
-                    })
-                  }
-                />
-              </div>
-              <div>
-                <label className="text-xs font-semibold uppercase tracking-wide text-zinc-500">
-                  Холбоос (ж: /contact)
-                </label>
-                <input
-                  className={scInput}
-                  value={teamPage.cta.buttonHref}
-                  onChange={(e) =>
-                    setTeamPage({
-                      ...teamPage,
-                      cta: { ...teamPage.cta, buttonHref: e.target.value },
-                    })
-                  }
-                />
-              </div>
-            </div>
-          </EditorSection>
-          <PrimarySave disabled={saving} onClick={() => void save("team")}>
-            {saving ? "Хадгалж байна…" : "Мэдээ мэдээлэл хадгалах"}
-          </PrimarySave>
-        </EditorBody>
-      ) : (
-        <EditorBody
-          sectionJumpKey={tab}
-          sectionItems={[
-            { id: "footer-brand", label: "Брэнд" },
-            { id: "footer-partners", label: "Түншүүд" },
-          ]}
-        >
-          <EditorSection
-            id="footer-brand"
-            title="Лого хэсэг & брэнд"
-            subtitle="Хөлийн түншүүдийн гарчиг болон брэндийн танилцуулга"
-          >
-            <div className="grid gap-4 lg:grid-cols-2">
-              <div>
-                <label className="text-xs font-semibold uppercase tracking-wide text-zinc-500">
-                  Лого хэсгийн гарчиг
-                </label>
-                <input
-                  className={scInput}
-                  value={footer.partners.partnersLabel}
-                  onChange={(e) =>
-                    setFooter({
-                      ...footer,
-                      partners: { ...footer.partners, partnersLabel: e.target.value },
-                    })
-                  }
-                />
-              </div>
-              <div className="lg:col-span-2">
-                <label className="text-xs font-semibold uppercase tracking-wide text-zinc-500">
-                  Танилцуулга (брэндийн текст)
-                </label>
-                <textarea
-                  className={scTextarea("min-h-[90px]")}
-                  value={footer.brand.desc}
-                  onChange={(e) =>
-                    setFooter({
-                      ...footer,
-                      brand: { desc: e.target.value },
-                    })
-                  }
-                />
-              </div>
-            </div>
-          </EditorSection>
-          <EditorSection
-            id="footer-partners"
-            title="Түншүүд (лого)"
-            subtitle="Лого файлуудыг public/ доор байршуулж, энд зөвхөн замыг оруулна (ж: /logos/x.svg)."
-            defaultOpen={false}
-          >
-            <div className="space-y-4">
-              {footer.partners.items.map((row, i) => (
-                <div
-                  key={i}
-                  className="rounded-lg border border-zinc-200 p-3 dark:border-zinc-700"
+                    />
+                  </EditorSection>
+                  <EditorSection
+                    id="home-stats"
+                    title="Статистик"
+                    defaultOpen={false}
+                  >
+                    <div className="space-y-3">
+                      {home.hero.stats.map((row, i) => (
+                        <div key={i} className="flex flex-wrap gap-2">
+                          <input
+                            className={`${scInput} max-w-[140px]`}
+                            placeholder="Утга"
+                            value={row.value}
+                            onChange={(e) => {
+                              const stats = [...home.hero.stats];
+                              stats[i] = { ...stats[i], value: e.target.value };
+                              setHome({
+                                ...home,
+                                hero: { ...home.hero, stats },
+                              });
+                            }}
+                          />
+                          <input
+                            className={`${scInput} min-w-[200px] flex-1`}
+                            placeholder="Шошго"
+                            value={row.label}
+                            onChange={(e) => {
+                              const stats = [...home.hero.stats];
+                              stats[i] = { ...stats[i], label: e.target.value };
+                              setHome({
+                                ...home,
+                                hero: { ...home.hero, stats },
+                              });
+                            }}
+                          />
+                          <DangerMini
+                            onClick={() => {
+                              const stats = home.hero.stats.filter(
+                                (_, j) => j !== i,
+                              );
+                              setHome({
+                                ...home,
+                                hero: { ...home.hero, stats },
+                              });
+                            }}
+                          >
+                            Устгах
+                          </DangerMini>
+                        </div>
+                      ))}
+                      <GhostButton
+                        onClick={() =>
+                          setHome({
+                            ...home,
+                            hero: {
+                              ...home.hero,
+                              stats: [
+                                ...home.hero.stats,
+                                { value: "", label: "" },
+                              ],
+                            },
+                          })
+                        }
+                      >
+                        + Мөр нэмэх
+                      </GhostButton>
+                    </div>
+                  </EditorSection>
+                  <PrimarySave
+                    disabled={saving}
+                    onClick={() => void save("home")}
+                  >
+                    {saving ? "Хадгалж байна…" : "Нүүр хадгалах"}
+                  </PrimarySave>
+                </EditorBody>
+              ) : tab === "about" ? (
+                <EditorBody
+                  sectionJumpKey={tab}
+                  sectionItems={[
+                    { id: "about-fields", label: "Текст талбарууд" },
+                    { id: "about-copy", label: "Параграф" },
+                    { id: "about-stats", label: "Статистик" },
+                  ]}
                 >
-                  <div className="grid gap-2 sm:grid-cols-2">
+                  <EditorSection
+                    id="about-fields"
+                    title="Текст талбарууд"
+                    subtitle="Шошго, гарчиг, барилгын нэр, жилийн хайрцаг"
+                  >
+                    <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
+                      {(
+                        [
+                          ["sectionLabel", "Хэсгийн шошго"],
+                          ["h2Line1", "Гарчиг 1"],
+                          ["h2Accent", "Гарчиг онцлох"],
+                          ["imageBuildingName", "Барилгын нэр (зураг дээр)"],
+                          ["imageBuildingSubtitle", "Дэд гарчиг"],
+                          ["yearsBadgeValue", "Жилийн тоо (жижиг хайрцаг)"],
+                          ["yearsLabel", "Жилийн шошго"],
+                        ] as const
+                      ).map(([key, lab]) => (
+                        <div key={key}>
+                          <label className="text-xs font-semibold uppercase tracking-wide text-zinc-500">
+                            {lab}
+                          </label>
+                          <input
+                            className={scInput}
+                            value={about.main[key] as string}
+                            onChange={(e) =>
+                              setAbout({
+                                ...about,
+                                main: { ...about.main, [key]: e.target.value },
+                              })
+                            }
+                          />
+                        </div>
+                      ))}
+                    </div>
+                  </EditorSection>
+                  <EditorSection id="about-copy" title="Параграфууд">
+                    <div className="grid gap-4 lg:grid-cols-2">
+                      <div>
+                        <label className="text-xs font-semibold uppercase tracking-wide text-zinc-500">
+                          Параграф 1
+                        </label>
+                        <textarea
+                          className={scTextarea("min-h-[100px]")}
+                          value={about.main.p1}
+                          onChange={(e) =>
+                            setAbout({
+                              ...about,
+                              main: { ...about.main, p1: e.target.value },
+                            })
+                          }
+                        />
+                      </div>
+                      <div>
+                        <label className="text-xs font-semibold uppercase tracking-wide text-zinc-500">
+                          Параграф 2
+                        </label>
+                        <textarea
+                          className={scTextarea("min-h-[100px]")}
+                          value={about.main.p2}
+                          onChange={(e) =>
+                            setAbout({
+                              ...about,
+                              main: { ...about.main, p2: e.target.value },
+                            })
+                          }
+                        />
+                      </div>
+                    </div>
+                  </EditorSection>
+                  <EditorSection
+                    id="about-stats"
+                    title="Статистик"
+                    defaultOpen={false}
+                  >
+                    <div className="space-y-3">
+                      {about.main.stats.map((row, i) => (
+                        <div key={i} className="flex flex-wrap gap-2">
+                          <input
+                            className={`${scInput} max-w-[140px]`}
+                            value={row.value}
+                            onChange={(e) => {
+                              const stats = [...about.main.stats];
+                              stats[i] = { ...stats[i], value: e.target.value };
+                              setAbout({
+                                ...about,
+                                main: { ...about.main, stats },
+                              });
+                            }}
+                          />
+                          <input
+                            className={`${scInput} min-w-[200px] flex-1`}
+                            value={row.label}
+                            onChange={(e) => {
+                              const stats = [...about.main.stats];
+                              stats[i] = { ...stats[i], label: e.target.value };
+                              setAbout({
+                                ...about,
+                                main: { ...about.main, stats },
+                              });
+                            }}
+                          />
+                          <DangerMini
+                            onClick={() => {
+                              const stats = about.main.stats.filter(
+                                (_, j) => j !== i,
+                              );
+                              setAbout({
+                                ...about,
+                                main: { ...about.main, stats },
+                              });
+                            }}
+                          >
+                            Устгах
+                          </DangerMini>
+                        </div>
+                      ))}
+                      <GhostButton
+                        onClick={() =>
+                          setAbout({
+                            ...about,
+                            main: {
+                              ...about.main,
+                              stats: [
+                                ...about.main.stats,
+                                { value: "", label: "" },
+                              ],
+                            },
+                          })
+                        }
+                      >
+                        + Мөр нэмэх
+                      </GhostButton>
+                    </div>
+                  </EditorSection>
+                  <PrimarySave
+                    disabled={saving}
+                    onClick={() => void save("about")}
+                  >
+                    {saving ? "Хадгалж байна…" : "Бидний тухай хадгалах"}
+                  </PrimarySave>
+                </EditorBody>
+              ) : tab === "services" ? (
+                <EditorBody
+                  sectionJumpKey={tab}
+                  sectionItems={[
+                    { id: "svc-header", label: "Толгой" },
+                    { id: "svc-features", label: "Давуу тал" },
+                    { id: "svc-banner", label: "Баннер" },
+                  ]}
+                >
+                  <EditorSection
+                    id="svc-header"
+                    title="Толгой хэсэг"
+                    subtitle="Шошго, гарчиг, танилцуулга"
+                  >
+                    <div className="grid gap-4 lg:grid-cols-3">
+                      {(
+                        [
+                          ["badge", "Дээд шошго"],
+                          ["h2Line1", "Гарчиг (эхний хэсэг)"],
+                          ["h2Accent", "Гарчиг (онцлох өнгө)"],
+                        ] as const
+                      ).map(([key, lab]) => (
+                        <div key={key}>
+                          <label className="text-xs font-semibold uppercase tracking-wide text-zinc-500">
+                            {lab}
+                          </label>
+                          <input
+                            className={scInput}
+                            value={services.header[key]}
+                            onChange={(e) =>
+                              setServices({
+                                ...services,
+                                header: {
+                                  ...services.header,
+                                  [key]: e.target.value,
+                                },
+                              })
+                            }
+                          />
+                        </div>
+                      ))}
+                    </div>
                     <div>
-                      <label className="text-xs text-zinc-500">Нэр</label>
-                      <input
-                        className={scInput}
-                        value={row.name}
-                        onChange={(e) => {
-                          const items = [...footer.partners.items];
-                          items[i] = { ...items[i], name: e.target.value };
-                          setFooter({
-                            ...footer,
-                            partners: { ...footer.partners, items },
-                          });
-                        }}
+                      <label className="text-xs font-semibold uppercase tracking-wide text-zinc-500">
+                        Танилцуулга
+                      </label>
+                      <textarea
+                        className={scTextarea("min-h-[80px]")}
+                        value={services.header.intro}
+                        onChange={(e) =>
+                          setServices({
+                            ...services,
+                            header: {
+                              ...services.header,
+                              intro: e.target.value,
+                            },
+                          })
+                        }
                       />
                     </div>
-                    <div className="sm:col-span-2">
-                      <ImageUploadField
-                        previewFit="contain"
-                        value={row.src}
-                        onChange={(next) => {
-                          const items = [...footer.partners.items];
-                          items[i] = { ...items[i], src: next };
-                          setFooter({
-                            ...footer,
-                            partners: { ...footer.partners, items },
-                          });
-                        }}
-                      />
+                  </EditorSection>
+                  <EditorSection
+                    id="svc-features"
+                    title="Давуу талууд"
+                    subtitle="4 хүртэл"
+                    defaultOpen={false}
+                  >
+                    <div className="space-y-4">
+                      {services.features.map((f, i) => (
+                        <div
+                          key={i}
+                          className="rounded-xl border border-slate-200/90 bg-white/80 p-4 dark:border-slate-700 dark:bg-slate-900/40"
+                        >
+                          <input
+                            className={scInput}
+                            placeholder="Гарчиг"
+                            value={f.title}
+                            onChange={(e) => {
+                              const features = [...services.features];
+                              features[i] = {
+                                ...features[i],
+                                title: e.target.value,
+                              };
+                              setServices({ ...services, features });
+                            }}
+                          />
+                          <textarea
+                            className={`mt-2 ${scTextarea("min-h-[72px]")}`}
+                            placeholder="Тайлбар"
+                            value={f.desc}
+                            onChange={(e) => {
+                              const features = [...services.features];
+                              features[i] = {
+                                ...features[i],
+                                desc: e.target.value,
+                              };
+                              setServices({ ...services, features });
+                            }}
+                          />
+                          <DangerMini
+                            className="mt-2"
+                            onClick={() =>
+                              setServices({
+                                ...services,
+                                features: services.features.filter(
+                                  (_, j) => j !== i,
+                                ),
+                              })
+                            }
+                          >
+                            Устгах
+                          </DangerMini>
+                        </div>
+                      ))}
+                      <GhostButton
+                        onClick={() =>
+                          setServices({
+                            ...services,
+                            features: [
+                              ...services.features,
+                              { title: "", desc: "" },
+                            ],
+                          })
+                        }
+                      >
+                        + Онцлол нэмэх
+                      </GhostButton>
+                    </div>
+                  </EditorSection>
+                  <EditorSection
+                    id="svc-banner"
+                    title="Доод баннер"
+                    subtitle="Тоо, дагалдах, шошго"
+                    defaultOpen={false}
+                  >
+                    <div className="space-y-3">
+                      {services.banner.map((row, i) => (
+                        <div key={i} className="flex flex-wrap gap-2">
+                          <input
+                            className={`${scInput} max-w-[100px]`}
+                            placeholder="Утга"
+                            value={row.value}
+                            onChange={(e) => {
+                              const banner = [...services.banner];
+                              banner[i] = {
+                                ...banner[i],
+                                value: e.target.value,
+                              };
+                              setServices({ ...services, banner });
+                            }}
+                          />
+                          <input
+                            className={`${scInput} max-w-[80px]`}
+                            placeholder="Дагалдах"
+                            value={row.suffix}
+                            onChange={(e) => {
+                              const banner = [...services.banner];
+                              banner[i] = {
+                                ...banner[i],
+                                suffix: e.target.value,
+                              };
+                              setServices({ ...services, banner });
+                            }}
+                          />
+                          <input
+                            className={`${scInput} min-w-[180px] flex-1`}
+                            placeholder="Шошго"
+                            value={row.label}
+                            onChange={(e) => {
+                              const banner = [...services.banner];
+                              banner[i] = {
+                                ...banner[i],
+                                label: e.target.value,
+                              };
+                              setServices({ ...services, banner });
+                            }}
+                          />
+                          <DangerMini
+                            onClick={() =>
+                              setServices({
+                                ...services,
+                                banner: services.banner.filter(
+                                  (_, j) => j !== i,
+                                ),
+                              })
+                            }
+                          >
+                            Устгах
+                          </DangerMini>
+                        </div>
+                      ))}
+                      <GhostButton
+                        onClick={() =>
+                          setServices({
+                            ...services,
+                            banner: [
+                              ...services.banner,
+                              { value: "", suffix: "", label: "" },
+                            ],
+                          })
+                        }
+                      >
+                        + Баннер мөр нэмэх
+                      </GhostButton>
+                    </div>
+                  </EditorSection>
+                  <PrimarySave
+                    disabled={saving}
+                    onClick={() => void save("services")}
+                  >
+                    {saving ? "Хадгалж байна…" : "Үйлчилгээ хадгалах"}
+                  </PrimarySave>
+                </EditorBody>
+              ) : tab === "contact" ? (
+                <EditorBody
+                  sectionJumpKey={tab}
+                  sectionItems={[
+                    { id: "contact-hero", label: "Толгой" },
+                    { id: "contact-items", label: "Мөрүүд" },
+                    { id: "contact-agent", label: "Менежер" },
+                    { id: "contact-form", label: "Форм" },
+                  ]}
+                >
+                  <EditorSection
+                    id="contact-hero"
+                    title="Толгой хэсэг"
+                    subtitle="Шошго, гарчиг, танилцуулга"
+                  >
+                    <div className="grid gap-4 sm:grid-cols-2">
+                      {(
+                        [
+                          ["badge", "Дээд шошго"],
+                          ["h2Accent", "Гол гарчиг (онцлох)"],
+                        ] as const
+                      ).map(([key, lab]) => (
+                        <div key={key}>
+                          <label className="text-xs font-semibold uppercase tracking-wide text-zinc-500">
+                            {lab}
+                          </label>
+                          <input
+                            className={scInput}
+                            value={contact.hero[key]}
+                            onChange={(e) =>
+                              setContact({
+                                ...contact,
+                                hero: {
+                                  ...contact.hero,
+                                  [key]: e.target.value,
+                                },
+                              })
+                            }
+                          />
+                        </div>
+                      ))}
                     </div>
                     <div>
-                      <label className="text-xs text-zinc-500">Өргөн</label>
-                      <input
-                        type="number"
-                        className={scInput}
-                        value={row.width}
-                        onChange={(e) => {
-                          const items = [...footer.partners.items];
-                          items[i] = {
-                            ...items[i],
-                            width: Number(e.target.value) || 0,
-                          };
-                          setFooter({
-                            ...footer,
-                            partners: { ...footer.partners, items },
-                          });
-                        }}
+                      <label className="text-xs font-semibold uppercase tracking-wide text-zinc-500">
+                        Танилцуулга
+                      </label>
+                      <textarea
+                        className={scTextarea("min-h-[80px]")}
+                        value={contact.hero.intro}
+                        onChange={(e) =>
+                          setContact({
+                            ...contact,
+                            hero: { ...contact.hero, intro: e.target.value },
+                          })
+                        }
                       />
                     </div>
-                    <div>
-                      <label className="text-xs text-zinc-500">Өндөр</label>
-                      <input
-                        type="number"
-                        className={scInput}
-                        value={row.height}
-                        onChange={(e) => {
-                          const items = [...footer.partners.items];
-                          items[i] = {
-                            ...items[i],
-                            height: Number(e.target.value) || 0,
-                          };
+                  </EditorSection>
+                  <EditorSection
+                    id="contact-items"
+                    title="Мэдээллийн мөрүүд"
+                    defaultOpen={false}
+                  >
+                    <div className="space-y-3">
+                      {contact.items.map((row, i) => (
+                        <div key={i} className="flex flex-wrap gap-2">
+                          <input
+                            className={`${scInput} max-w-[160px]`}
+                            placeholder="Гарчиг"
+                            value={row.title}
+                            onChange={(e) => {
+                              const items = [...contact.items];
+                              items[i] = { ...items[i], title: e.target.value };
+                              setContact({ ...contact, items });
+                            }}
+                          />
+                          <input
+                            className={`${scInput} min-w-[200px] flex-1`}
+                            placeholder="Утга"
+                            value={row.value}
+                            onChange={(e) => {
+                              const items = [...contact.items];
+                              items[i] = { ...items[i], value: e.target.value };
+                              setContact({ ...contact, items });
+                            }}
+                          />
+                          <DangerMini
+                            onClick={() =>
+                              setContact({
+                                ...contact,
+                                items: contact.items.filter((_, j) => j !== i),
+                              })
+                            }
+                          >
+                            Устгах
+                          </DangerMini>
+                        </div>
+                      ))}
+                      <GhostButton
+                        onClick={() =>
+                          setContact({
+                            ...contact,
+                            items: [...contact.items, { title: "", value: "" }],
+                          })
+                        }
+                      >
+                        + Мөр нэмэх
+                      </GhostButton>
+                    </div>
+                  </EditorSection>
+                  <EditorSection
+                    id="contact-agent"
+                    title="Менежерийн кард"
+                    defaultOpen={false}
+                  >
+                    <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+                      {(
+                        [
+                          ["initials", "Эхний үсэг"],
+                          ["name", "Нэр"],
+                          ["role", "Албан тушаал"],
+                          ["telHref", "Утас (ж: tel:+976…)"],
+                          ["telLabel", "Товчны текст"],
+                        ] as const
+                      ).map(([key, lab]) => (
+                        <div
+                          key={key}
+                          className={
+                            key === "role" ? "sm:col-span-2 lg:col-span-3" : ""
+                          }
+                        >
+                          <label className="text-xs text-zinc-500">{lab}</label>
+                          <input
+                            className={scInput}
+                            value={contact.agent[key]}
+                            onChange={(e) =>
+                              setContact({
+                                ...contact,
+                                agent: {
+                                  ...contact.agent,
+                                  [key]: e.target.value,
+                                },
+                              })
+                            }
+                          />
+                        </div>
+                      ))}
+                    </div>
+                  </EditorSection>
+                  <EditorSection id="contact-form" title="Формын гарчиг">
+                    <input
+                      className={scInput}
+                      value={contact.formTitle}
+                      onChange={(e) =>
+                        setContact({ ...contact, formTitle: e.target.value })
+                      }
+                    />
+                  </EditorSection>
+                  <PrimarySave
+                    disabled={saving}
+                    onClick={() => void save("contact")}
+                  >
+                    {saving ? "Хадгалж байна…" : "Холбоо барих хадгалах"}
+                  </PrimarySave>
+                </EditorBody>
+              ) : tab === "sales-page" ? (
+                <EditorBody
+                  sectionJumpKey={tab}
+                  sectionItems={[
+                    { id: "sales-meta", label: "Шошго & гарчиг" },
+                    { id: "sales-intro", label: "Танилцуулга" },
+                  ]}
+                >
+                  <EditorSection id="sales-meta" title="Шошго болон гарчиг">
+                    <div className="grid gap-4 lg:grid-cols-2">
+                      <div>
+                        <label className="text-xs font-semibold uppercase tracking-wide text-zinc-500">
+                          Дээд шошго
+                        </label>
+                        <input
+                          className={scInput}
+                          value={salesPage.header.eyebrow}
+                          onChange={(e) =>
+                            setSalesPage({
+                              ...salesPage,
+                              header: {
+                                ...salesPage.header,
+                                eyebrow: e.target.value,
+                              },
+                            })
+                          }
+                        />
+                      </div>
+                      <div>
+                        <label className="text-xs font-semibold uppercase tracking-wide text-zinc-500">
+                          Гол гарчиг
+                        </label>
+                        <input
+                          className={scInput}
+                          value={salesPage.header.title}
+                          onChange={(e) =>
+                            setSalesPage({
+                              ...salesPage,
+                              header: {
+                                ...salesPage.header,
+                                title: e.target.value,
+                              },
+                            })
+                          }
+                        />
+                      </div>
+                    </div>
+                  </EditorSection>
+                  <EditorSection id="sales-intro" title="Танилцуулга">
+                    <textarea
+                      className={scTextarea("min-h-[100px]")}
+                      value={salesPage.header.intro}
+                      onChange={(e) =>
+                        setSalesPage({
+                          ...salesPage,
+                          header: {
+                            ...salesPage.header,
+                            intro: e.target.value,
+                          },
+                        })
+                      }
+                    />
+                  </EditorSection>
+                  <PrimarySave
+                    disabled={saving}
+                    onClick={() => void save("sales-page")}
+                  >
+                    {saving ? "Хадгалж байна…" : "Борлуулалтын хуудас хадгалах"}
+                  </PrimarySave>
+                </EditorBody>
+              ) : tab === "jobs-page" ? (
+                <EditorBody
+                  sectionJumpKey={tab}
+                  sectionItems={[
+                    { id: "jobs-header-title", label: "Гарчиг" },
+                    { id: "jobs-header-intro", label: "Тайлбар" },
+                  ]}
+                >
+                  <EditorSection id="jobs-header-title" title="Хуудасны гарчиг">
+                    <input
+                      className={scInput}
+                      value={jobsPage.header.title}
+                      onChange={(e) =>
+                        setJobsPage({
+                          ...jobsPage,
+                          header: { ...jobsPage.header, title: e.target.value },
+                        })
+                      }
+                    />
+                  </EditorSection>
+                  <EditorSection id="jobs-header-intro" title="Дэд тайлбар">
+                    <textarea
+                      className={scTextarea("min-h-[80px]")}
+                      value={jobsPage.header.intro}
+                      onChange={(e) =>
+                        setJobsPage({
+                          ...jobsPage,
+                          header: { ...jobsPage.header, intro: e.target.value },
+                        })
+                      }
+                    />
+                  </EditorSection>
+                  <PrimarySave
+                    disabled={saving}
+                    onClick={() => void save("jobs-page")}
+                  >
+                    {saving ? "Хадгалж байна…" : "Ажлын зарын толгой хадгалах"}
+                  </PrimarySave>
+                </EditorBody>
+              ) : tab === "team" ? (
+                <EditorBody
+                  sectionJumpKey={tab}
+                  sectionItems={[
+                    { id: "team-header", label: "Толгой" },
+                    { id: "team-members", label: "Багийн гишүүд" },
+                    { id: "team-cta", label: "CTA" },
+                  ]}
+                >
+                  <EditorSection
+                    id="team-header"
+                    title="Толгой хэсэг"
+                    subtitle="Шошго, гарчиг, танилцуулга (/team)"
+                  >
+                    <div className="grid gap-4 sm:grid-cols-2">
+                      <div className="sm:col-span-2">
+                        <label className="text-xs font-semibold uppercase tracking-wide text-zinc-500">
+                          Дээд шошго
+                        </label>
+                        <input
+                          className={scInput}
+                          value={teamPage.header.eyebrow}
+                          onChange={(e) =>
+                            setTeamPage({
+                              ...teamPage,
+                              header: {
+                                ...teamPage.header,
+                                eyebrow: e.target.value,
+                              },
+                            })
+                          }
+                        />
+                      </div>
+                      <div>
+                        <label className="text-xs font-semibold uppercase tracking-wide text-zinc-500">
+                          Гарчиг (эхний хэсэг)
+                        </label>
+                        <input
+                          className={scInput}
+                          value={teamPage.header.h2Line1}
+                          onChange={(e) =>
+                            setTeamPage({
+                              ...teamPage,
+                              header: {
+                                ...teamPage.header,
+                                h2Line1: e.target.value,
+                              },
+                            })
+                          }
+                        />
+                      </div>
+                      <div>
+                        <label className="text-xs font-semibold uppercase tracking-wide text-zinc-500">
+                          Гарчиг (онцлох өнгө)
+                        </label>
+                        <input
+                          className={scInput}
+                          value={teamPage.header.h2Accent}
+                          onChange={(e) =>
+                            setTeamPage({
+                              ...teamPage,
+                              header: {
+                                ...teamPage.header,
+                                h2Accent: e.target.value,
+                              },
+                            })
+                          }
+                        />
+                      </div>
+                      <div className="sm:col-span-2">
+                        <label className="text-xs font-semibold uppercase tracking-wide text-zinc-500">
+                          Танилцуулга
+                        </label>
+                        <textarea
+                          className={scTextarea("min-h-[80px]")}
+                          value={teamPage.header.intro}
+                          onChange={(e) =>
+                            setTeamPage({
+                              ...teamPage,
+                              header: {
+                                ...teamPage.header,
+                                intro: e.target.value,
+                              },
+                            })
+                          }
+                        />
+                      </div>
+                    </div>
+                  </EditorSection>
+                  <EditorSection
+                    id="team-members"
+                    title="Багийн гишүүд"
+                    defaultOpen={false}
+                  >
+                    <p className="text-xs text-zinc-500 dark:text-zinc-400">
+                      Өнгө: Tailwind анги (жишээ нь{" "}
+                      <code className="rounded bg-zinc-100 px-1 dark:bg-zinc-800">
+                        bg-accent-500
+                      </code>
+                      ).
+                    </p>
+                    <div className="space-y-4">
+                      {teamPage.members.map((m, i) => (
+                        <div
+                          key={i}
+                          className="rounded-xl border border-slate-200/90 bg-white/80 p-4 dark:border-slate-700 dark:bg-slate-900/40"
+                        >
+                          <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+                            <div>
+                              <label className="text-xs text-zinc-500">
+                                Нэр
+                              </label>
+                              <input
+                                className={scInput}
+                                value={m.name}
+                                onChange={(e) => {
+                                  const members = [...teamPage.members];
+                                  members[i] = {
+                                    ...members[i],
+                                    name: e.target.value,
+                                  };
+                                  setTeamPage({ ...teamPage, members });
+                                }}
+                              />
+                            </div>
+                            <div>
+                              <label className="text-xs text-zinc-500">
+                                Албан тушаал
+                              </label>
+                              <input
+                                className={scInput}
+                                value={m.role}
+                                onChange={(e) => {
+                                  const members = [...teamPage.members];
+                                  members[i] = {
+                                    ...members[i],
+                                    role: e.target.value,
+                                  };
+                                  setTeamPage({ ...teamPage, members });
+                                }}
+                              />
+                            </div>
+                            <div>
+                              <label className="text-xs text-zinc-500">
+                                Эхний үсэг
+                              </label>
+                              <input
+                                className={scInput}
+                                value={m.initials}
+                                onChange={(e) => {
+                                  const members = [...teamPage.members];
+                                  members[i] = {
+                                    ...members[i],
+                                    initials: e.target.value,
+                                  };
+                                  setTeamPage({ ...teamPage, members });
+                                }}
+                              />
+                            </div>
+                            <div className="sm:col-span-2 lg:col-span-3">
+                              <label className="text-xs text-zinc-500">
+                                Өнгө (Tailwind class)
+                              </label>
+                              <input
+                                className={scInput}
+                                value={m.color}
+                                placeholder="bg-accent-500"
+                                onChange={(e) => {
+                                  const members = [...teamPage.members];
+                                  members[i] = {
+                                    ...members[i],
+                                    color: e.target.value,
+                                  };
+                                  setTeamPage({ ...teamPage, members });
+                                }}
+                              />
+                            </div>
+                            <div>
+                              <label className="text-xs text-zinc-500">
+                                Утас
+                              </label>
+                              <input
+                                className={scInput}
+                                value={m.phone}
+                                onChange={(e) => {
+                                  const members = [...teamPage.members];
+                                  members[i] = {
+                                    ...members[i],
+                                    phone: e.target.value,
+                                  };
+                                  setTeamPage({ ...teamPage, members });
+                                }}
+                              />
+                            </div>
+                            <div>
+                              <label className="text-xs text-zinc-500">
+                                Имэйл
+                              </label>
+                              <input
+                                className={scInput}
+                                value={m.email}
+                                onChange={(e) => {
+                                  const members = [...teamPage.members];
+                                  members[i] = {
+                                    ...members[i],
+                                    email: e.target.value,
+                                  };
+                                  setTeamPage({ ...teamPage, members });
+                                }}
+                              />
+                            </div>
+                            <div>
+                              <label className="text-xs text-zinc-500">
+                                Төслүүд (тоо)
+                              </label>
+                              <input
+                                type="number"
+                                className={scInput}
+                                value={m.projects}
+                                onChange={(e) => {
+                                  const members = [...teamPage.members];
+                                  members[i] = {
+                                    ...members[i],
+                                    projects: Number(e.target.value) || 0,
+                                  };
+                                  setTeamPage({ ...teamPage, members });
+                                }}
+                              />
+                            </div>
+                            <div className="sm:col-span-2 lg:col-span-3">
+                              <label className="text-xs text-zinc-500">
+                                Тайлбар
+                              </label>
+                              <textarea
+                                className={scTextarea("min-h-[72px]")}
+                                value={m.bio}
+                                onChange={(e) => {
+                                  const members = [...teamPage.members];
+                                  members[i] = {
+                                    ...members[i],
+                                    bio: e.target.value,
+                                  };
+                                  setTeamPage({ ...teamPage, members });
+                                }}
+                              />
+                            </div>
+                          </div>
+                          <div className="mt-3 flex justify-end">
+                            <DangerMini
+                              onClick={() =>
+                                setTeamPage({
+                                  ...teamPage,
+                                  members: teamPage.members.filter(
+                                    (_, j) => j !== i,
+                                  ),
+                                })
+                              }
+                            >
+                              Устгах
+                            </DangerMini>
+                          </div>
+                        </div>
+                      ))}
+                      <GhostButton
+                        onClick={() =>
+                          setTeamPage({
+                            ...teamPage,
+                            members: [
+                              ...teamPage.members,
+                              {
+                                name: "",
+                                role: "",
+                                initials: "",
+                                color: "bg-accent-500",
+                                phone: "",
+                                email: "",
+                                bio: "",
+                                projects: 0,
+                              },
+                            ],
+                          })
+                        }
+                      >
+                        + Гишүүн нэмэх
+                      </GhostButton>
+                    </div>
+                  </EditorSection>
+                  <EditorSection id="team-cta" title="Доод урилга (CTA)">
+                    <div className="grid gap-4 lg:grid-cols-2">
+                      <div className="lg:col-span-2">
+                        <label className="text-xs font-semibold uppercase tracking-wide text-zinc-500">
+                          Гарчиг
+                        </label>
+                        <input
+                          className={scInput}
+                          value={teamPage.cta.title}
+                          onChange={(e) =>
+                            setTeamPage({
+                              ...teamPage,
+                              cta: { ...teamPage.cta, title: e.target.value },
+                            })
+                          }
+                        />
+                      </div>
+                      <div className="lg:col-span-2">
+                        <label className="text-xs font-semibold uppercase tracking-wide text-zinc-500">
+                          Дэд текст
+                        </label>
+                        <textarea
+                          className={scTextarea("min-h-[60px]")}
+                          value={teamPage.cta.subtitle}
+                          onChange={(e) =>
+                            setTeamPage({
+                              ...teamPage,
+                              cta: {
+                                ...teamPage.cta,
+                                subtitle: e.target.value,
+                              },
+                            })
+                          }
+                        />
+                      </div>
+                      <div>
+                        <label className="text-xs font-semibold uppercase tracking-wide text-zinc-500">
+                          Товчны текст
+                        </label>
+                        <input
+                          className={scInput}
+                          value={teamPage.cta.buttonLabel}
+                          onChange={(e) =>
+                            setTeamPage({
+                              ...teamPage,
+                              cta: {
+                                ...teamPage.cta,
+                                buttonLabel: e.target.value,
+                              },
+                            })
+                          }
+                        />
+                      </div>
+                      <div>
+                        <label className="text-xs font-semibold uppercase tracking-wide text-zinc-500">
+                          Холбоос (ж: /contact)
+                        </label>
+                        <input
+                          className={scInput}
+                          value={teamPage.cta.buttonHref}
+                          onChange={(e) =>
+                            setTeamPage({
+                              ...teamPage,
+                              cta: {
+                                ...teamPage.cta,
+                                buttonHref: e.target.value,
+                              },
+                            })
+                          }
+                        />
+                      </div>
+                    </div>
+                  </EditorSection>
+                  <PrimarySave
+                    disabled={saving}
+                    onClick={() => void save("team")}
+                  >
+                    {saving ? "Хадгалж байна…" : "Мэдээ мэдээлэл хадгалах"}
+                  </PrimarySave>
+                </EditorBody>
+              ) : (
+                <EditorBody
+                  sectionJumpKey={tab}
+                  sectionItems={[
+                    { id: "footer-brand", label: "Брэнд" },
+                    { id: "footer-partners", label: "Түншүүд" },
+                  ]}
+                >
+                  <EditorSection
+                    id="footer-brand"
+                    title="Лого хэсэг & брэнд"
+                    subtitle="Хөлийн түншүүдийн гарчиг болон брэндийн танилцуулга"
+                  >
+                    <div className="grid gap-4 lg:grid-cols-2">
+                      <div>
+                        <label className="text-xs font-semibold uppercase tracking-wide text-zinc-500">
+                          Лого хэсгийн гарчиг
+                        </label>
+                        <input
+                          className={scInput}
+                          value={footer.partners.partnersLabel}
+                          onChange={(e) =>
+                            setFooter({
+                              ...footer,
+                              partners: {
+                                ...footer.partners,
+                                partnersLabel: e.target.value,
+                              },
+                            })
+                          }
+                        />
+                      </div>
+                      <div className="lg:col-span-2">
+                        <label className="text-xs font-semibold uppercase tracking-wide text-zinc-500">
+                          Танилцуулга (брэндийн текст)
+                        </label>
+                        <textarea
+                          className={scTextarea("min-h-[90px]")}
+                          value={footer.brand.desc}
+                          onChange={(e) =>
+                            setFooter({
+                              ...footer,
+                              brand: { desc: e.target.value },
+                            })
+                          }
+                        />
+                      </div>
+                    </div>
+                  </EditorSection>
+                  <EditorSection
+                    id="footer-partners"
+                    title="Түншүүд (лого)"
+                    subtitle="Лого файлуудыг public/ доор байршуулж, энд зөвхөн замыг оруулна (ж: /logos/x.svg)."
+                    defaultOpen={false}
+                  >
+                    <div className="space-y-4">
+                      {footer.partners.items.map((row, i) => (
+                        <div
+                          key={i}
+                          className="rounded-lg border border-zinc-200 p-3 dark:border-zinc-700"
+                        >
+                          <div className="grid gap-2 sm:grid-cols-2">
+                            <div>
+                              <label className="text-xs text-zinc-500">
+                                Нэр
+                              </label>
+                              <input
+                                className={scInput}
+                                value={row.name}
+                                onChange={(e) => {
+                                  const items = [...footer.partners.items];
+                                  items[i] = {
+                                    ...items[i],
+                                    name: e.target.value,
+                                  };
+                                  setFooter({
+                                    ...footer,
+                                    partners: { ...footer.partners, items },
+                                  });
+                                }}
+                              />
+                            </div>
+                            <div className="sm:col-span-2">
+                              <ImageUploadField
+                                previewFit="contain"
+                                value={row.src}
+                                onChange={(next) => {
+                                  const items = [...footer.partners.items];
+                                  items[i] = { ...items[i], src: next };
+                                  setFooter({
+                                    ...footer,
+                                    partners: { ...footer.partners, items },
+                                  });
+                                }}
+                              />
+                            </div>
+                            <div>
+                              <label className="text-xs text-zinc-500">
+                                Өргөн
+                              </label>
+                              <input
+                                type="number"
+                                className={scInput}
+                                value={row.width}
+                                onChange={(e) => {
+                                  const items = [...footer.partners.items];
+                                  items[i] = {
+                                    ...items[i],
+                                    width: Number(e.target.value) || 0,
+                                  };
+                                  setFooter({
+                                    ...footer,
+                                    partners: { ...footer.partners, items },
+                                  });
+                                }}
+                              />
+                            </div>
+                            <div>
+                              <label className="text-xs text-zinc-500">
+                                Өндөр
+                              </label>
+                              <input
+                                type="number"
+                                className={scInput}
+                                value={row.height}
+                                onChange={(e) => {
+                                  const items = [...footer.partners.items];
+                                  items[i] = {
+                                    ...items[i],
+                                    height: Number(e.target.value) || 0,
+                                  };
+                                  setFooter({
+                                    ...footer,
+                                    partners: { ...footer.partners, items },
+                                  });
+                                }}
+                              />
+                            </div>
+                          </div>
+                          <div className="mt-2 flex justify-end">
+                            <button
+                              type="button"
+                              className="inline-flex h-9 w-9 items-center justify-center rounded-md border border-red-200 text-red-600 transition-colors hover:bg-red-50 dark:border-red-900 dark:text-red-400 dark:hover:bg-red-950/50"
+                              onClick={() => {
+                                const items = footer.partners.items.filter(
+                                  (_, j) => j !== i,
+                                );
+                                setFooter({
+                                  ...footer,
+                                  partners: { ...footer.partners, items },
+                                });
+                              }}
+                              aria-label="Түнш устгах"
+                            >
+                              <Trash2 className="h-4 w-4" aria-hidden />
+                            </button>
+                          </div>
+                        </div>
+                      ))}
+                      <GhostButton
+                        onClick={() =>
                           setFooter({
                             ...footer,
-                            partners: { ...footer.partners, items },
-                          });
-                        }}
-                      />
+                            partners: {
+                              ...footer.partners,
+                              items: [
+                                ...footer.partners.items,
+                                {
+                                  name: "",
+                                  src: "/logos/ing.svg",
+                                  width: 100,
+                                  height: 36,
+                                },
+                              ],
+                            },
+                          })
+                        }
+                      >
+                        + Түнш нэмэх
+                      </GhostButton>
                     </div>
-                  </div>
-                  <div className="mt-2 flex justify-end">
-                    <button
-                      type="button"
-                      className="inline-flex h-9 w-9 items-center justify-center rounded-md border border-red-200 text-red-600 transition-colors hover:bg-red-50 dark:border-red-900 dark:text-red-400 dark:hover:bg-red-950/50"
-                      onClick={() => {
-                        const items = footer.partners.items.filter((_, j) => j !== i);
-                        setFooter({
-                          ...footer,
-                          partners: { ...footer.partners, items },
-                        });
-                      }}
-                      aria-label="Түнш устгах"
-                    >
-                      <Trash2 className="h-4 w-4" aria-hidden />
-                    </button>
-                  </div>
-                </div>
-              ))}
-              <GhostButton
-                onClick={() =>
-                  setFooter({
-                    ...footer,
-                    partners: {
-                      ...footer.partners,
-                      items: [
-                        ...footer.partners.items,
-                        { name: "", src: "/logos/ing.svg", width: 100, height: 36 },
-                      ],
-                    },
-                  })
-                }
-              >
-                + Түнш нэмэх
-              </GhostButton>
+                  </EditorSection>
+                  <PrimarySave
+                    disabled={saving}
+                    onClick={() => void save("footer")}
+                  >
+                    {saving ? "Хадгалж байна…" : "Хөл хадгалах"}
+                  </PrimarySave>
+                </EditorBody>
+              )}
             </div>
-          </EditorSection>
-          <PrimarySave disabled={saving} onClick={() => void save("footer")}>
-            {saving ? "Хадгалж байна…" : "Хөл хадгалах"}
-          </PrimarySave>
-        </EditorBody>
-      )}
           </EditorSurface>
         </div>
       </div>

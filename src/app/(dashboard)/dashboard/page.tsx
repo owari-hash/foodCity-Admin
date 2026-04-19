@@ -1,4 +1,4 @@
-import { fetchAdminStats } from "@/lib/api";
+import { fetchAdminStats } from "@/lib/apiServer";
 import type { LucideIcon } from "lucide-react";
 import {
   Briefcase,

@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
+import { withClientAdminAuth } from "@/lib/adminClientAuth";
 import { getApiBaseUrl } from "@/lib/api";
 
 type OrderRow = {
@@ -22,7 +23,7 @@ export default function OrdersPage() {
   const load = useCallback(async () => {
     setError(null);
     try {
-      const res = await fetch(`${base}/api/v1/admin/orders`);
+      const res = await fetch(`${base}/api/v1/admin/orders`, withClientAdminAuth());
       if (!res.ok) throw new Error(await res.text());
       const json = (await res.json()) as { data: OrderRow[] };
       setOrders(json.data);
@@ -37,11 +38,14 @@ export default function OrdersPage() {
 
   async function updateStatus(id: string, status: string) {
     try {
-      const res = await fetch(`${base}/api/v1/admin/orders/${id}`, {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ status }),
-      });
+      const res = await fetch(
+        `${base}/api/v1/admin/orders/${id}`,
+        withClientAdminAuth({
+          method: "PATCH",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ status }),
+        }),
+      );
       if (!res.ok) throw new Error(await res.text());
       await load();
     } catch (e) {

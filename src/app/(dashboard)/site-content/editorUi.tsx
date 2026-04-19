@@ -2,13 +2,14 @@
 
 import { useState } from "react";
 import type { LucideIcon } from "lucide-react";
-import { ChevronDown, RefreshCw, Sparkles } from "lucide-react";
+import { ChevronDown } from "lucide-react";
 
 /** Shared form styles for the site-content editor (distinct from rest of admin). */
 export const scInput =
   "mt-1.5 w-full rounded-xl border border-slate-200/90 bg-white px-3.5 py-2.5 text-sm text-slate-900 shadow-[inset_0_1px_0_rgba(255,255,255,0.6)] transition-[border-color,box-shadow] placeholder:text-slate-400 focus:border-indigo-400 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 dark:border-slate-600/80 dark:bg-slate-950 dark:text-slate-100 dark:shadow-none dark:focus:border-indigo-500";
 
-export const scTextarea = (minH = "min-h-[100px]") => `${scInput} ${minH} resize-y`;
+export const scTextarea = (minH = "min-h-[100px]") =>
+  `${scInput} ${minH} resize-y`;
 
 export function EditorAlerts({
   error,
@@ -57,34 +58,25 @@ export function EditorTabRail({
   tabs,
   active,
   onSelect,
-  onReload,
-  loading,
-  saving,
 }: {
   tabs: TabDef[];
   active: string;
   onSelect: (id: TabDef["id"]) => void;
-  onReload: () => void;
-  loading: boolean;
-  saving: boolean;
 }) {
   return (
     <div className="flex h-full min-h-0 flex-col">
       <div className="mb-4 hidden items-center gap-2 lg:flex">
-        <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-indigo-600 text-white shadow-md shadow-indigo-600/25">
-          <Sparkles className="h-4 w-4" aria-hidden />
-        </div>
         <div className="min-w-0">
-          <p className="text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400">
-            Редактор
-          </p>
           <p className="text-sm font-semibold leading-snug text-slate-900 dark:text-slate-50">
             Хуудасны агуулга
           </p>
         </div>
       </div>
 
-      <nav className="min-h-0 flex-1 space-y-1 overflow-y-auto pr-0.5 pb-2" aria-label="Хуудас сонгох">
+      <nav
+        className="min-h-0 flex-1 space-y-1 overflow-y-auto pr-0.5 pb-2"
+        aria-label="Хуудас сонгох"
+      >
         {tabs.map(({ id, label, hint, icon: Icon }) => {
           const isActive = active === id;
           return (
@@ -108,10 +100,14 @@ export function EditorTabRail({
                 <Icon className="h-4 w-4" aria-hidden />
               </span>
               <span className="min-w-0">
-                <span className="block text-sm font-semibold leading-tight">{label}</span>
+                <span className="block text-sm font-semibold leading-tight">
+                  {label}
+                </span>
                 <span
                   className={`mt-0.5 block text-[11px] leading-snug ${
-                    isActive ? "text-indigo-100/90" : "text-slate-500 group-hover:text-slate-600 dark:text-slate-500"
+                    isActive
+                      ? "text-indigo-100/90"
+                      : "text-slate-500 group-hover:text-slate-600 dark:text-slate-500"
                   }`}
                 >
                   {hint}
@@ -121,16 +117,6 @@ export function EditorTabRail({
           );
         })}
       </nav>
-
-      <button
-        type="button"
-        onClick={onReload}
-        disabled={loading || saving}
-        className="mt-auto flex w-full items-center justify-center gap-2 rounded-xl border border-slate-200/90 bg-white px-3 py-2.5 text-sm font-medium text-slate-700 shadow-sm transition-colors hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-50 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200 dark:hover:bg-slate-800"
-      >
-        <RefreshCw className={`h-4 w-4 shrink-0 ${loading ? "animate-spin" : ""}`} aria-hidden />
-        {loading ? "Уншиж байна…" : "Дахин ачаалах"}
-      </button>
     </div>
   );
 }
@@ -167,7 +153,7 @@ export function EditorTabSelect({
 
 export function EditorSurface({ children }: { children: React.ReactNode }) {
   return (
-    <div className="relative w-full min-h-[min(70vh,560px)] overflow-hidden rounded-2xl border border-slate-200/80 bg-gradient-to-br from-white via-slate-50/80 to-indigo-50/30 shadow-[0_1px_0_rgba(15,23,42,0.04),0_12px_32px_-8px_rgba(15,23,42,0.08)] dark:border-slate-800 dark:from-slate-950 dark:via-slate-950 dark:to-indigo-950/20 dark:shadow-[0_1px_0_rgba(255,255,255,0.04)_inset]">
+    <div className="relative flex min-h-0 w-full flex-1 flex-col overflow-hidden rounded-2xl border border-slate-200/80 bg-linear-to-br from-white via-slate-50/80 to-indigo-50/30 shadow-[0_1px_0_rgba(15,23,42,0.04),0_12px_32px_-8px_rgba(15,23,42,0.08)] dark:border-slate-800 dark:from-slate-950 dark:via-slate-950 dark:to-indigo-950/20 dark:shadow-[0_1px_0_rgba(255,255,255,0.04)_inset]">
       <div
         className="pointer-events-none absolute -right-24 -top-24 h-64 w-64 rounded-full bg-indigo-400/10 blur-3xl dark:bg-indigo-500/10"
         aria-hidden
@@ -176,7 +162,9 @@ export function EditorSurface({ children }: { children: React.ReactNode }) {
         className="pointer-events-none absolute -bottom-20 -left-16 h-56 w-56 rounded-full bg-violet-400/10 blur-3xl dark:bg-violet-500/10"
         aria-hidden
       />
-      <div className="relative w-full p-4 sm:p-6 lg:p-8">{children}</div>
+      <div className="relative flex min-h-0 w-full flex-1 flex-col overflow-hidden p-4 sm:p-6 lg:p-8">
+        {children}
+      </div>
     </div>
   );
 }
@@ -205,7 +193,9 @@ export function EditorSection({
     >
       <summary className="flex cursor-pointer list-none items-center justify-between gap-3 px-4 py-3.5 text-left transition hover:bg-slate-50/90 dark:hover:bg-slate-800/60 [&::-webkit-details-marker]:hidden">
         <span className="min-w-0">
-          <span className="block text-sm font-semibold text-slate-900 dark:text-slate-50">{title}</span>
+          <span className="block text-sm font-semibold text-slate-900 dark:text-slate-50">
+            {title}
+          </span>
           {subtitle ? (
             <span className="mt-0.5 block text-xs leading-relaxed text-slate-500 dark:text-slate-400">
               {subtitle}
@@ -224,7 +214,11 @@ export function EditorSection({
   );
 }
 
-export function SectionTOC({ items }: { items: { id: string; label: string }[] }) {
+export function SectionTOC({
+  items,
+}: {
+  items: { id: string; label: string }[];
+}) {
   if (items.length === 0) return null;
   return (
     <nav
@@ -232,7 +226,9 @@ export function SectionTOC({ items }: { items: { id: string; label: string }[] }
       aria-label="Хэсэг рүү шилжих"
     >
       <div className="sticky top-2 max-h-[min(72vh,calc(100dvh-7rem))] overflow-y-auto rounded-xl border border-slate-200/80 bg-white/95 p-2 shadow-sm dark:border-slate-700 dark:bg-slate-900/85">
-        <p className="px-2 pb-2 text-[10px] font-bold uppercase tracking-wider text-slate-400">Агуулга</p>
+        <p className="px-2 pb-2 text-[10px] font-bold uppercase tracking-wider text-slate-400">
+          Агуулга
+        </p>
         <ul className="space-y-0.5">
           {items.map(({ id, label }) => (
             <li key={id}>
@@ -272,7 +268,9 @@ export function SectionJumpSelect({
         onChange={(e) => {
           const id = e.target.value;
           if (id) {
-            document.getElementById(id)?.scrollIntoView({ behavior: "smooth", block: "start" });
+            document
+              .getElementById(id)
+              ?.scrollIntoView({ behavior: "smooth", block: "start" });
           }
         }}
         className="w-full rounded-xl border border-slate-200 bg-white px-3 py-2.5 text-sm text-slate-800 shadow-sm focus:border-indigo-400 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 dark:border-slate-600 dark:bg-slate-900 dark:text-slate-100"
@@ -305,7 +303,9 @@ export function EditorBody({
   return (
     <div className="flex w-full min-w-0 flex-col gap-4 2xl:flex-row 2xl:items-start 2xl:gap-8">
       <div className="min-w-0 w-full flex-1 space-y-4">
-        {items.length > 0 ? <SectionJumpSelect items={items} selectKey={sectionJumpKey} /> : null}
+        {items.length > 0 ? (
+          <SectionJumpSelect items={items} selectKey={sectionJumpKey} />
+        ) : null}
         {children}
       </div>
       {items.length > 0 ? <SectionTOC items={items} /> : null}
@@ -325,9 +325,13 @@ export function Panel({
   return (
     <section className="rounded-2xl border border-slate-200/70 bg-white/90 p-4 shadow-sm backdrop-blur-sm dark:border-slate-700/80 dark:bg-slate-900/60 sm:p-5">
       <header className="mb-4 border-b border-slate-100 pb-3 dark:border-slate-800">
-        <h2 className="text-base font-semibold tracking-tight text-slate-900 dark:text-slate-50">{title}</h2>
+        <h2 className="text-base font-semibold tracking-tight text-slate-900 dark:text-slate-50">
+          {title}
+        </h2>
         {subtitle ? (
-          <p className="mt-1 text-xs leading-relaxed text-slate-500 dark:text-slate-400">{subtitle}</p>
+          <p className="mt-1 text-xs leading-relaxed text-slate-500 dark:text-slate-400">
+            {subtitle}
+          </p>
         ) : null}
       </header>
       <div className="space-y-5">{children}</div>
@@ -349,7 +353,11 @@ export function Field({
       <label className="text-[11px] font-bold uppercase tracking-[0.12em] text-slate-500 dark:text-slate-400">
         {label}
       </label>
-      {hint ? <div className="mt-1 text-xs text-slate-500 dark:text-slate-400">{hint}</div> : null}
+      {hint ? (
+        <div className="mt-1 text-xs text-slate-500 dark:text-slate-400">
+          {hint}
+        </div>
+      ) : null}
       {children}
     </div>
   );
@@ -418,11 +426,7 @@ export function DangerMini({
   );
 }
 
-export function ListRow({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
+export function ListRow({ children }: { children: React.ReactNode }) {
   return (
     <div className="flex flex-wrap items-end gap-2 rounded-xl border border-slate-100 bg-slate-50/80 p-3 dark:border-slate-800 dark:bg-slate-900/50">
       {children}

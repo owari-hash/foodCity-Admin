@@ -1,10 +1,16 @@
+import { cookies } from "next/headers";
 import { NextResponse } from "next/server";
+import { verifyAdminJwt } from "@/lib/verifyAdminJwt";
 
 /**
  * Server-only: triggers the public site to drop cached CMS fetches.
  * Called from the site-content UI after a successful save (no secret in the browser).
  */
 export async function POST() {
+  const token = (await cookies()).get("fc_admin_token")?.value;
+  if (!token || !(await verifyAdminJwt(token))) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
   const origin = (
     process.env.FRONT_ORIGIN ??
     process.env.NEXT_PUBLIC_FRONT_ORIGIN ??

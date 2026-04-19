@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { ChevronLeft } from "lucide-react";
 import { io, type Socket } from "socket.io-client";
+import { withClientAdminAuth } from "@/lib/adminClientAuth";
 import { getApiBaseUrl, getSocketBaseUrl } from "@/lib/api";
 
 type Conv = {
@@ -38,7 +39,7 @@ export default function ChatAdminPage() {
 
   const loadConversations = useCallback(async () => {
     try {
-      const res = await fetch(`${base}/api/v1/admin/conversations`);
+      const res = await fetch(`${base}/api/v1/admin/conversations`, withClientAdminAuth());
       if (!res.ok) throw new Error(await res.text());
       const json = (await res.json()) as { data: Conv[] };
       setConversations(json.data);
@@ -50,7 +51,10 @@ export default function ChatAdminPage() {
   const loadMessages = useCallback(
     async (id: string) => {
       try {
-        const res = await fetch(`${base}/api/v1/admin/conversations/${id}/messages`);
+        const res = await fetch(
+          `${base}/api/v1/admin/conversations/${id}/messages`,
+          withClientAdminAuth(),
+        );
         if (!res.ok) throw new Error(await res.text());
         const json = (await res.json()) as { data: Msg[] };
         setMessages(json.data);
@@ -129,11 +133,14 @@ export default function ChatAdminPage() {
     if (!selected || !input.trim()) return;
     setError(null);
     try {
-      const res = await fetch(`${base}/api/v1/admin/conversations/${selected.id}/messages`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ text: input.trim() }),
-      });
+      const res = await fetch(
+        `${base}/api/v1/admin/conversations/${selected.id}/messages`,
+        withClientAdminAuth({
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ text: input.trim() }),
+        }),
+      );
       if (!res.ok) throw new Error(await res.text());
       const json = (await res.json()) as { data: Msg };
       setMessages((prev) =>
@@ -149,11 +156,14 @@ export default function ChatAdminPage() {
   async function setHumanMode(humanMode: boolean) {
     if (!selected) return;
     try {
-      const res = await fetch(`${base}/api/v1/admin/conversations/${selected.id}`, {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ humanMode }),
-      });
+      const res = await fetch(
+        `${base}/api/v1/admin/conversations/${selected.id}`,
+        withClientAdminAuth({
+          method: "PATCH",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ humanMode }),
+        }),
+      );
       if (!res.ok) throw new Error(await res.text());
       const json = (await res.json()) as { data: Conv };
       setSelected(json.data);

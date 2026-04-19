@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
+import { withClientAdminAuth } from "@/lib/adminClientAuth";
 import { getApiBaseUrl } from "@/lib/api";
 import ImageUploadField from "@/components/ImageUploadField";
 
@@ -38,7 +39,7 @@ export default function SalesAdsPage() {
   const load = useCallback(async () => {
     setError(null);
     try {
-      const res = await fetch(`${base}/api/v1/admin/sales-ads`);
+      const res = await fetch(`${base}/api/v1/admin/sales-ads`, withClientAdminAuth());
       if (!res.ok) throw new Error(await res.text());
       const json = (await res.json()) as { data: Ad[] };
       setAds(json.data);
@@ -55,18 +56,21 @@ export default function SalesAdsPage() {
     e.preventDefault();
     setError(null);
     try {
-      const res = await fetch(`${base}/api/v1/admin/sales-ads`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          ...form,
-          imageUrl: form.imageUrl || undefined,
-          externalUrl: form.externalUrl || undefined,
-          summary: form.summary || undefined,
-          validFrom: form.validFrom ? new Date(form.validFrom) : undefined,
-          validTo: form.validTo ? new Date(form.validTo) : undefined,
+      const res = await fetch(
+        `${base}/api/v1/admin/sales-ads`,
+        withClientAdminAuth({
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            ...form,
+            imageUrl: form.imageUrl || undefined,
+            externalUrl: form.externalUrl || undefined,
+            summary: form.summary || undefined,
+            validFrom: form.validFrom ? new Date(form.validFrom) : undefined,
+            validTo: form.validTo ? new Date(form.validTo) : undefined,
+          }),
         }),
-      });
+      );
       if (!res.ok) throw new Error(await res.text());
       setForm(empty);
       await load();
@@ -77,11 +81,14 @@ export default function SalesAdsPage() {
 
   async function toggleActive(ad: Ad) {
     try {
-      const res = await fetch(`${base}/api/v1/admin/sales-ads/${ad.id}`, {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ active: !ad.active }),
-      });
+      const res = await fetch(
+        `${base}/api/v1/admin/sales-ads/${ad.id}`,
+        withClientAdminAuth({
+          method: "PATCH",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ active: !ad.active }),
+        }),
+      );
       if (!res.ok) throw new Error(await res.text());
       await load();
     } catch (err) {
@@ -92,9 +99,10 @@ export default function SalesAdsPage() {
   async function remove(id: string) {
     if (!confirm("Устгах уу?")) return;
     try {
-      const res = await fetch(`${base}/api/v1/admin/sales-ads/${id}`, {
-        method: "DELETE",
-      });
+      const res = await fetch(
+        `${base}/api/v1/admin/sales-ads/${id}`,
+        withClientAdminAuth({ method: "DELETE" }),
+      );
       if (!res.ok && res.status !== 204) throw new Error(await res.text());
       await load();
     } catch (err) {

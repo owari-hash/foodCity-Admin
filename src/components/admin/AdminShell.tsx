@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import {
   LayoutDashboard,
@@ -11,10 +11,12 @@ import {
   ShoppingBag,
   Briefcase,
   FileEdit,
+  LogOut,
   Menu,
   X,
 } from "lucide-react";
 import { ThemeToggle } from "@/components/theme-toggle";
+import { clearClientAdminToken } from "@/lib/adminClientAuth";
 import { ADMIN_BASE_PATH, pathnameWithoutBase } from "@/lib/adminBasePath";
 
 const nav = [
@@ -36,9 +38,20 @@ const titles: Record<string, string> = {
 };
 
 export default function AdminShell({ children }: { children: React.ReactNode }) {
+  const router = useRouter();
   const pathname = pathnameWithoutBase(usePathname());
   const title = titles[pathname] ?? "Foodcity Admin";
   const [navOpen, setNavOpen] = useState(false);
+
+  async function logout() {
+    try {
+      await fetch("/api/auth/logout", { method: "POST" });
+    } finally {
+      clearClientAdminToken();
+      router.replace("/login");
+      router.refresh();
+    }
+  }
 
   useEffect(() => {
     setNavOpen(false);
@@ -128,6 +141,14 @@ export default function AdminShell({ children }: { children: React.ReactNode }) 
           <h1 className="min-w-0 flex-1 truncate text-base font-semibold text-zinc-900 sm:text-lg dark:text-zinc-50">
             {title}
           </h1>
+          <button
+            type="button"
+            onClick={() => void logout()}
+            className="flex h-10 shrink-0 items-center gap-1.5 rounded-lg px-2 text-sm text-zinc-600 hover:bg-zinc-100 dark:text-zinc-400 dark:hover:bg-zinc-900"
+          >
+            <LogOut className="h-4 w-4" aria-hidden />
+            <span className="hidden sm:inline">Гарах</span>
+          </button>
           <ThemeToggle />
         </header>
         <main className="flex min-h-0 flex-1 overflow-auto p-4 pb-[max(1rem,env(safe-area-inset-bottom))] sm:p-6">

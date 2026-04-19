@@ -1,7 +1,8 @@
 "use client";
 
-import { useId, useRef, useState } from "react";
-import { getApiBaseUrl } from "@/lib/api";
+import { useRef, useState } from "react";
+import { withClientAdminAuth } from "@/lib/adminClientAuth";
+import { getApiBaseUrl, getPublicFrontOrigin } from "@/lib/api";
 import { ImageIcon, Loader2, Upload } from "lucide-react";
 
 function previewUrl(path: string): string {
@@ -9,7 +10,10 @@ function previewUrl(path: string): string {
   if (!p) return "";
   if (/^https?:\/\//i.test(p)) return p;
   if (p.startsWith("/upload/")) {
-    return `${getApiBaseUrl().replace(/\/$/, "")}${p}`;
+    return `${getApiBaseUrl()}${p}`;
+  }
+  if (p.startsWith("/")) {
+    return `${getPublicFrontOrigin()}${p}`;
   }
   return p;
 }
@@ -17,10 +21,13 @@ function previewUrl(path: string): string {
 export async function uploadImageFile(file: File): Promise<string> {
   const fd = new FormData();
   fd.append("file", file);
-  const res = await fetch(`${getApiBaseUrl()}/api/v1/admin/upload`, {
-    method: "POST",
-    body: fd,
-  });
+  const res = await fetch(
+    `${getApiBaseUrl()}/api/v1/admin/upload`,
+    withClientAdminAuth({
+      method: "POST",
+      body: fd,
+    }),
+  );
   if (!res.ok) {
     const t = await res.text();
     throw new Error(t || "Upload failed");
@@ -38,7 +45,8 @@ type Props = {
   showRemove?: boolean;
   onRemove?: () => void;
   /**
-   * `cover` fills the preview (may crop). `contain` shows the full image (logos, marks).
+   * Both preserve aspect ratio (`object-contain`). `cover` allows a taller preview (slides);
+   * `contain` uses a smaller cap (logos, marks).
    * @default "cover"
    */
   previewFit?: "cover" | "contain";
@@ -51,7 +59,6 @@ export default function ImageUploadField({
   onRemove,
   previewFit = "cover",
 }: Props) {
-  const inputId = useId();
   const fileRef = useRef<HTMLInputElement>(null);
   const [busy, setBusy] = useState(false);
   const [err, setErr] = useState<string | null>(null);
@@ -75,77 +82,72 @@ export default function ImageUploadField({
   const src = previewUrl(value);
 
   return (
-    <div className="rounded-xl border border-zinc-200 bg-zinc-50/80 p-3 dark:border-zinc-700 dark:bg-zinc-900/50">
-      <div className="flex flex-col gap-3 sm:flex-row sm:items-start">
-        <div
-          className={`flex h-24 w-full shrink-0 overflow-hidden rounded-lg border border-zinc-200 bg-zinc-100 dark:border-zinc-600 dark:bg-zinc-800 sm:h-28 sm:w-44 ${
-            previewFit === "contain" ? "items-center justify-center p-2" : ""
-          }`}
-        >
-          {src ? (
-            // eslint-disable-next-line @next/next/no-img-element -- dynamic CMS URLs
-            <img
-              src={src}
-              alt=""
-              className={
-                previewFit === "contain"
-                  ? "max-h-full max-w-full object-contain"
-                  : "h-full w-full object-cover"
-              }
-            />
-          ) : (
-            <div className="flex h-full w-full items-center justify-center text-zinc-400">
-              <ImageIcon className="h-10 w-10" aria-hidden />
-            </div>
-          )}
-        </div>
-        <div className="min-w-0 flex-1 space-y-2">
-          <label htmlFor={inputId} className="text-xs font-medium text-zinc-600 dark:text-zinc-400">
-            Зам
-          </label>
-          <input
-            id={inputId}
-            type="text"
-            className="w-full rounded-md border border-zinc-300 bg-white px-3 py-2 font-mono text-xs text-zinc-900 shadow-sm focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500 dark:border-zinc-600 dark:bg-zinc-950 dark:text-zinc-100"
-            value={value}
-            onChange={(e) => onChange(e.target.value)}
-            placeholder=""
-            autoComplete="off"
+    <div className="overflow-hidden rounded-2xl border border-zinc-200/90 bg-white shadow-sm dark:border-zinc-700/90 dark:bg-zinc-950">
+      <div
+        className={`flex w-full items-center justify-center overflow-hidden bg-linear-to-b from-zinc-50 to-zinc-100/90 p-3 dark:from-zinc-900 dark:to-zinc-950 sm:p-4 ${
+          previewFit === "contain" ? "min-h-[140px] sm:min-h-[160px]" : "min-h-[180px] sm:min-h-[220px]"
+        }`}
+      >
+        {src ? (
+          // eslint-disable-next-line @next/next/no-img-element -- dynamic CMS URLs
+          <img
+            src={src}
+            alt=""
+            className={
+              previewFit === "contain"
+                ? "h-auto max-h-[min(50vh,280px)] w-full max-w-full object-contain object-center"
+                : "h-auto max-h-[min(85vh,1200px)] w-full max-w-full object-contain object-center"
+            }
           />
-          {err && <p className="text-xs text-red-600 dark:text-red-400">{err}</p>}
-          <div className="flex flex-wrap items-center gap-2">
-            <input
-              ref={fileRef}
-              type="file"
-              accept="image/*"
-              className="hidden"
-              onChange={onPick}
-            />
-            <button
-              type="button"
-              disabled={busy}
-              onClick={() => fileRef.current?.click()}
-              className="inline-flex items-center gap-2 rounded-lg bg-emerald-600 px-3 py-1.5 text-xs font-medium text-white hover:bg-emerald-700 disabled:opacity-50"
-            >
-              {busy ? (
-                <Loader2 className="h-3.5 w-3.5 animate-spin" aria-hidden />
-              ) : (
-                <Upload className="h-3.5 w-3.5" aria-hidden />
-              )}
-              Зураг оруулах
-            </button>
-            {showRemove && onRemove && (
-              <button
-                type="button"
-                onClick={onRemove}
-                className="text-xs text-red-600 underline dark:text-red-400"
-              >
-                Устгах
-              </button>
-            )}
+        ) : (
+          <div
+            className="flex w-full flex-col items-center justify-center gap-2 px-6 py-12 text-center text-zinc-400 dark:text-zinc-500"
+          >
+            <div className="rounded-full bg-zinc-200/80 p-4 dark:bg-zinc-800/80">
+              <ImageIcon className="h-10 w-10 sm:h-12 sm:w-12" aria-hidden />
+            </div>
+            <p className="text-xs font-medium text-zinc-500 dark:text-zinc-400">Зураг оруулна уу</p>
           </div>
-        </div>
+        )}
       </div>
+
+      <div className="flex flex-wrap items-center gap-2 border-t border-zinc-100 px-3 py-3 dark:border-zinc-800 sm:px-4">
+        <input
+          ref={fileRef}
+          type="file"
+          accept="image/*"
+          className="hidden"
+          onChange={onPick}
+        />
+        <button
+          type="button"
+          disabled={busy}
+          onClick={() => fileRef.current?.click()}
+          className="inline-flex flex-1 items-center justify-center gap-2 rounded-xl bg-emerald-600 px-4 py-2.5 text-sm font-medium text-white shadow-sm transition hover:bg-emerald-700 disabled:opacity-50 sm:flex-none sm:justify-start"
+        >
+          {busy ? (
+            <Loader2 className="h-4 w-4 shrink-0 animate-spin" aria-hidden />
+          ) : (
+            <Upload className="h-4 w-4 shrink-0" aria-hidden />
+          )}
+          Зураг оруулах
+        </button>
+        {showRemove && onRemove && (
+          <button
+            type="button"
+            onClick={onRemove}
+            className="rounded-xl border border-red-200/90 px-4 py-2.5 text-sm font-medium text-red-700 transition hover:bg-red-50 dark:border-red-900/60 dark:text-red-400 dark:hover:bg-red-950/40"
+          >
+            Устгах
+          </button>
+        )}
+      </div>
+
+      {err && (
+        <p className="border-t border-zinc-100 px-4 py-2 text-xs text-red-600 dark:border-zinc-800 dark:text-red-400">
+          {err}
+        </p>
+      )}
     </div>
   );
 }
