@@ -9,6 +9,14 @@ import {
 import { getApiBaseUrl, getPublicFrontOrigin, getSocketBaseUrl, joinBackendRequestUrl } from "@/lib/api";
 import { ImageIcon, Loader2, Upload } from "lucide-react";
 
+/** Match backend `UPLOAD_MAX_MB` (default 15). Set `NEXT_PUBLIC_UPLOAD_MAX_MB` to keep UI in sync. */
+const UPLOAD_MAX_MB =
+  Number(process.env.NEXT_PUBLIC_UPLOAD_MAX_MB ?? "15") || 15;
+const UPLOAD_MAX_BYTES = Math.max(1, UPLOAD_MAX_MB) * 1024 * 1024;
+
+const MSG_IMAGE_TOO_LARGE =
+  "Зургийн хэмжээ хэтэрсэн. Жижигрүүлээд эсвэл бага хэмжээтэй зураг сонгоно уу.";
+
 function previewUrl(path: string): string {
   const p = path.trim();
   if (!p) return "";
@@ -41,7 +49,19 @@ export async function uploadImageFile(file: File): Promise<string> {
   }
   if (!res.ok) {
     const t = await res.text();
-    throw new Error(t || "Upload failed");
+    if (res.status === 413) {
+      throw new Error(MSG_IMAGE_TOO_LARGE);
+    }
+    try {
+      const j = JSON.parse(t) as { error?: { code?: string; message?: string } };
+      if (j?.error?.code === "FILE_TOO_LARGE") {
+        throw new Error(MSG_IMAGE_TOO_LARGE);
+      }
+      if (j?.error?.message) throw new Error(j.error.message);
+    } catch (e) {
+      if (e instanceof Error && e.message === MSG_IMAGE_TOO_LARGE) throw e;
+    }
+    throw new Error(t.slice(0, 200) || "Алдаа");
   }
   const json = (await res.json()) as { data?: { path?: string } };
   const path = json.data?.path;
@@ -98,6 +118,12 @@ export default function ImageUploadField({
     e.target.value = "";
     if (!file) return;
     setErr(null);
+    if (file.size > UPLOAD_MAX_BYTES) {
+      setErr(
+        `Зургийн хэмжээ хэтэрсэн (хамгийн ихдээ ~${UPLOAD_MAX_MB} МБ). Жижигрүүлээд оролдоно уу.`,
+      );
+      return;
+    }
     const local = URL.createObjectURL(file);
     setBlobUrl((prev) => {
       if (prev) URL.revokeObjectURL(prev);
@@ -109,7 +135,16 @@ export default function ImageUploadField({
       pendingPathRef.current = path;
       onChange(path);
     } catch (x) {
-      setErr(x instanceof Error ? x.message : "Алдаа");
+      const failedFetch =
+        x instanceof TypeError && String(x.message).includes("fetch");
+      const msg = failedFetch
+        ? file.size > UPLOAD_MAX_BYTES
+          ? MSG_IMAGE_TOO_LARGE
+          : "Сүлжээний алдаа эсвэл зургийн хэмжээ хэтэрсэн байж магадгүй. Дахин оролдоно уу."
+        : x instanceof Error
+          ? x.message
+          : "Алдаа";
+      setErr(msg);
       setBlobUrl((prev) => {
         if (prev) URL.revokeObjectURL(prev);
         return null;
