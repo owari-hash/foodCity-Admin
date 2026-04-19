@@ -12,6 +12,7 @@ import {
   FileEdit,
 } from "lucide-react";
 import { ThemeToggle } from "@/components/theme-toggle";
+import { pathnameWithoutBase } from "@/lib/adminBasePath";
 
 const nav = [
   { href: "/dashboard", label: "Самбар", icon: LayoutDashboard },
@@ -32,7 +33,7 @@ const titles: Record<string, string> = {
 };
 
 export default function AdminShell({ children }: { children: React.ReactNode }) {
-  const pathname = usePathname();
+  const pathname = pathnameWithoutBase(usePathname());
   const title = titles[pathname] ?? "Foodcity Admin";
 
   return (
