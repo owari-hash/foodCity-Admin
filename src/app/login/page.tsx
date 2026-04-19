@@ -6,6 +6,44 @@ import { useState } from "react";
 import { ADMIN_BASE_PATH } from "@/lib/adminBasePath";
 import { writeClientAdminToken } from "@/lib/adminClientAuth";
 
+type LoginErrorShape = {
+  code?: string;
+  message?: string;
+};
+
+function mapLoginErrorToMn(code?: string, message?: string): string {
+  const c = (code ?? "").toUpperCase();
+  const m = (message ?? "").toLowerCase();
+  if (c === "UNAUTHORIZED" || m.includes("invalid credentials")) {
+    return "Нэвтрэх нэр эсвэл нууц үг буруу байна.";
+  }
+  if (c === "VALIDATION_ERROR") {
+    return "Оруулсан мэдээллээ шалгаад дахин оролдоно уу.";
+  }
+  if (c === "NOT_FOUND") {
+    return "Серверийн хаяг олдсонгүй.";
+  }
+  return "Нэвтрэхэд алдаа гарлаа. Дахин оролдоно уу.";
+}
+
+function parseLoginError(raw: unknown): LoginErrorShape {
+  if (typeof raw !== "string" || !raw.trim()) return {};
+  try {
+    const parsed = JSON.parse(raw) as { error?: LoginErrorShape | string };
+    if (typeof parsed.error === "string") {
+      try {
+        const nested = JSON.parse(parsed.error) as { error?: LoginErrorShape };
+        return nested.error ?? {};
+      } catch {
+        return {};
+      }
+    }
+    return parsed.error ?? {};
+  } catch {
+    return {};
+  }
+}
+
 export default function AdminLoginPage() {
   const router = useRouter();
   const [username, setUsername] = useState("");
@@ -25,7 +63,8 @@ export default function AdminLoginPage() {
       });
       const json = (await res.json()) as { ok?: boolean; token?: string; error?: string };
       if (!res.ok) {
-        setError(json.error ?? "Нэвтрэх амжилтгүй");
+        const parsed = parseLoginError(json.error);
+        setError(mapLoginErrorToMn(parsed.code, parsed.message));
         return;
       }
       if (json.token) {

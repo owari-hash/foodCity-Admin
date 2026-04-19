@@ -7,6 +7,9 @@ export type AdminStats = {
   pendingOrders: number;
   activeSalesAds: number;
   activeJobs: number;
+  totalOrders?: number;
+  openConversations?: number;
+  humanModeChats?: number;
 };
 
 export async function fetchAdminStats(): Promise<AdminStats | null> {

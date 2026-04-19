@@ -1,7 +1,7 @@
 "use client";
 
 import { useRef, useState } from "react";
-import { withClientAdminAuth } from "@/lib/adminClientAuth";
+import { ensureClientAuthorized, withClientAdminAuth } from "@/lib/adminClientAuth";
 import { getApiBaseUrl, getPublicFrontOrigin } from "@/lib/api";
 import { ImageIcon, Loader2, Upload } from "lucide-react";
 
@@ -28,6 +28,9 @@ export async function uploadImageFile(file: File): Promise<string> {
       body: fd,
     }),
   );
+  if (!(await ensureClientAuthorized(res))) {
+    throw new Error("Unauthorized");
+  }
   if (!res.ok) {
     const t = await res.text();
     throw new Error(t || "Upload failed");

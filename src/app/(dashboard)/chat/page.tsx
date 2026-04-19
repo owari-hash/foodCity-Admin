@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { ChevronLeft, Plus, Trash2 } from "lucide-react";
 import { io, type Socket } from "socket.io-client";
-import { withClientAdminAuth } from "@/lib/adminClientAuth";
+import { ensureClientAuthorized, withClientAdminAuth } from "@/lib/adminClientAuth";
 import { getApiBaseUrl, getSocketBaseUrl } from "@/lib/api";
 
 type Conv = {
@@ -213,6 +213,7 @@ export default function ChatAdminPage() {
   const loadConversations = useCallback(async () => {
     try {
       const res = await fetch(`${base}/api/v1/admin/conversations`, withClientAdminAuth());
+      if (!(await ensureClientAuthorized(res))) return;
       if (!res.ok) throw new Error(await res.text());
       const json = (await res.json()) as { data: Conv[] };
       setConversations(json.data);
@@ -228,6 +229,7 @@ export default function ChatAdminPage() {
           `${base}/api/v1/admin/conversations/${id}/messages`,
           withClientAdminAuth(),
         );
+        if (!(await ensureClientAuthorized(res))) return;
         if (!res.ok) throw new Error(await res.text());
         const json = (await res.json()) as { data: Msg[] };
         setMessages(json.data);
@@ -245,6 +247,7 @@ export default function ChatAdminPage() {
         `${base}/api/v1/admin/site-pages/chatbot`,
         withClientAdminAuth(),
       );
+      if (!(await ensureClientAuthorized(res))) return;
       if (!res.ok) throw new Error(await res.text());
       const json = (await res.json()) as { data?: { sections?: unknown } };
       setBotConfig(normalizeChatbotConfig(json.data?.sections));
@@ -335,6 +338,7 @@ export default function ChatAdminPage() {
           body: JSON.stringify({ text: input.trim() }),
         }),
       );
+      if (!(await ensureClientAuthorized(res))) return;
       if (!res.ok) throw new Error(await res.text());
       const json = (await res.json()) as { data: Msg };
       setMessages((prev) =>
@@ -358,6 +362,7 @@ export default function ChatAdminPage() {
           body: JSON.stringify({ humanMode }),
         }),
       );
+      if (!(await ensureClientAuthorized(res))) return;
       if (!res.ok) throw new Error(await res.text());
       const json = (await res.json()) as { data: Conv };
       setSelected(json.data);
@@ -386,6 +391,7 @@ export default function ChatAdminPage() {
           body: JSON.stringify({ sections: cleaned }),
         }),
       );
+      if (!(await ensureClientAuthorized(res))) return;
       if (!res.ok) throw new Error(await res.text());
       setConfigMsg("Чатботын сонголтууд хадгалагдлаа.");
       setTimeout(() => setConfigMsg(null), 3000);
@@ -444,7 +450,88 @@ export default function ChatAdminPage() {
     "min-h-[min(360px,calc(100dvh-11rem))] sm:min-h-[min(420px,calc(100dvh-12rem))]";
 
   return (
-    <div className="mx-auto flex w-full max-w-6xl min-w-0 flex-col gap-4 lg:flex-row">
+    <div className="mx-auto flex w-full max-w-6xl min-w-0 flex-col gap-4">
+      <section className="rounded-xl border border-zinc-200 bg-white p-4 dark:border-zinc-800 dark:bg-zinc-950 sm:p-5">
+        <div className="mb-4 flex flex-wrap items-center justify-between gap-2">
+          <div>
+            <h2 className="text-base font-semibold text-zinc-900 dark:text-zinc-50">
+              Чатботын салбарласан сонголтууд
+            </h2>
+            <p className="text-xs text-zinc-500">
+              Frontend дээрх Start Chat товч болон олон шатлалт сонголтуудыг эндээс
+              удирдана.
+            </p>
+          </div>
+          <button
+            type="button"
+            onClick={() => void saveBotConfig()}
+            disabled={configSaving || configLoading}
+            className="rounded-lg bg-emerald-600 px-4 py-2 text-sm font-medium text-white hover:bg-emerald-700 disabled:opacity-50"
+          >
+            {configSaving ? "Хадгалж байна…" : "Хадгалах"}
+          </button>
+        </div>
+
+        <div className="grid gap-3 sm:grid-cols-3">
+          <input
+            value={botConfig.startButtonLabel}
+            onChange={(e) =>
+              setBotConfig((prev) => ({ ...prev, startButtonLabel: e.target.value }))
+            }
+            placeholder="Эхлэх товч"
+            className="rounded-lg border border-zinc-200 px-3 py-2 text-sm dark:border-zinc-700 dark:bg-zinc-900"
+          />
+          <input
+            value={botConfig.restartLabel}
+            onChange={(e) =>
+              setBotConfig((prev) => ({ ...prev, restartLabel: e.target.value }))
+            }
+            placeholder="Дахин эхлэх товч"
+            className="rounded-lg border border-zinc-200 px-3 py-2 text-sm dark:border-zinc-700 dark:bg-zinc-900"
+          />
+          <button
+            type="button"
+            onClick={() => addNode([])}
+            className="inline-flex items-center justify-center gap-2 rounded-lg border border-zinc-300 px-3 py-2 text-sm dark:border-zinc-600"
+          >
+            <Plus className="h-4 w-4" /> Үндсэн сонголт нэмэх
+          </button>
+        </div>
+
+        <textarea
+          value={botConfig.welcomeMessage}
+          onChange={(e) =>
+            setBotConfig((prev) => ({ ...prev, welcomeMessage: e.target.value }))
+          }
+          rows={2}
+          placeholder="Нээлтийн мэндчилгээ"
+          className="mt-3 w-full rounded-lg border border-zinc-200 px-3 py-2 text-sm dark:border-zinc-700 dark:bg-zinc-900"
+        />
+
+        <div className="mt-4">
+          {configLoading ? (
+            <p className="text-sm text-zinc-500">Тохиргоо ачаалж байна…</p>
+          ) : (
+            <>
+              {botConfig.rootChoices.length === 0 && (
+                <p className="mb-3 text-sm text-zinc-500">
+                  Сонголт алга. «Үндсэн сонголт нэмэх» дээр дарж эхлүүлнэ үү.
+                </p>
+              )}
+              <ChatChoiceEditor
+                nodes={botConfig.rootChoices}
+                onChangeLabel={changeNodeLabel}
+                onChangeAnswer={changeNodeAnswer}
+                onAddChild={addNode}
+                onRemove={removeNode}
+              />
+            </>
+          )}
+        </div>
+        {configMsg && <p className="mt-3 text-sm text-emerald-700">{configMsg}</p>}
+      </section>
+
+      <div className="flex w-full min-w-0 flex-col gap-4 lg:flex-row">
       {error && (
         <div className="fixed bottom-[max(1rem,env(safe-area-inset-bottom))] left-4 right-4 z-50 mx-auto max-w-[calc(100vw-2rem)] rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-800 sm:left-auto sm:right-6 sm:mx-0 sm:max-w-sm dark:border-red-900 dark:bg-red-950 dark:text-red-200">
           {error}
@@ -554,6 +641,7 @@ export default function ChatAdminPage() {
             </div>
           </>
         )}
+      </div>
       </div>
     </div>
   );

@@ -28,3 +28,16 @@ export function withClientAdminAuth(init?: RequestInit): RequestInit {
   if (t) headers.set("Authorization", `Bearer ${t}`);
   return { ...init, headers };
 }
+
+/** Redirect to login when API token is missing/expired. */
+export async function ensureClientAuthorized(res: Response): Promise<boolean> {
+  if (res.status !== 401) return true;
+  clearClientAdminToken();
+  try {
+    await fetch("/api/auth/logout", { method: "POST" });
+  } catch {
+    /* ignore */
+  }
+  window.location.replace("/login");
+  return false;
+}

@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
-import { withClientAdminAuth } from "@/lib/adminClientAuth";
+import { ensureClientAuthorized, withClientAdminAuth } from "@/lib/adminClientAuth";
 import { getApiBaseUrl } from "@/lib/api";
 import ImageUploadField from "@/components/ImageUploadField";
 
@@ -40,6 +40,7 @@ export default function SalesAdsPage() {
     setError(null);
     try {
       const res = await fetch(`${base}/api/v1/admin/sales-ads`, withClientAdminAuth());
+      if (!(await ensureClientAuthorized(res))) return;
       if (!res.ok) throw new Error(await res.text());
       const json = (await res.json()) as { data: Ad[] };
       setAds(json.data);
@@ -71,6 +72,7 @@ export default function SalesAdsPage() {
           }),
         }),
       );
+      if (!(await ensureClientAuthorized(res))) return;
       if (!res.ok) throw new Error(await res.text());
       setForm(empty);
       await load();
@@ -89,6 +91,7 @@ export default function SalesAdsPage() {
           body: JSON.stringify({ active: !ad.active }),
         }),
       );
+      if (!(await ensureClientAuthorized(res))) return;
       if (!res.ok) throw new Error(await res.text());
       await load();
     } catch (err) {
@@ -103,6 +106,7 @@ export default function SalesAdsPage() {
         `${base}/api/v1/admin/sales-ads/${id}`,
         withClientAdminAuth({ method: "DELETE" }),
       );
+      if (!(await ensureClientAuthorized(res))) return;
       if (!res.ok && res.status !== 204) throw new Error(await res.text());
       await load();
     } catch (err) {

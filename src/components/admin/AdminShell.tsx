@@ -40,7 +40,7 @@ const titles: Record<string, string> = {
 export default function AdminShell({ children }: { children: React.ReactNode }) {
   const router = useRouter();
   const pathname = pathnameWithoutBase(usePathname());
-  const title = titles[pathname] ?? "Foodcity Admin";
+  const title = titles[pathname] ?? "Админ хуудас";
   const [navOpen, setNavOpen] = useState(false);
 
   async function logout() {
@@ -141,6 +141,7 @@ export default function AdminShell({ children }: { children: React.ReactNode }) 
           <h1 className="min-w-0 flex-1 truncate text-base font-semibold text-zinc-900 sm:text-lg dark:text-zinc-50">
             {title}
           </h1>
+          <ThemeToggle />
           <button
             type="button"
             onClick={() => void logout()}
@@ -149,7 +150,6 @@ export default function AdminShell({ children }: { children: React.ReactNode }) 
             <LogOut className="h-4 w-4" aria-hidden />
             <span className="hidden sm:inline">Гарах</span>
           </button>
-          <ThemeToggle />
         </header>
         <main className="flex min-h-0 flex-1 overflow-auto p-4 pb-[max(1rem,env(safe-area-inset-bottom))] sm:p-6">
           {children}

@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
+import { ensureClientAuthorized, withClientAdminAuth } from "@/lib/adminClientAuth";
 import { getApiBaseUrl } from "@/lib/api";
 import { mergeDeep } from "@/lib/mergeDeep";
 import {
@@ -9,6 +10,7 @@ import {
   defaultFooterSections,
   defaultHomeSections,
   defaultJobsPageSections,
+  defaultPropertiesPageSections,
   defaultSalesPageSections,
   defaultServicesSections,
   defaultTeamPageSections,
@@ -61,6 +63,7 @@ type AboutState = {
     h2Accent: string;
     p1: string;
     p2: string;
+    imageUrl: string;
     imageBuildingName: string;
     imageBuildingSubtitle: string;
     yearsBadgeValue: string;
@@ -79,6 +82,7 @@ type FooterState = {
 
 type ContactState = typeof defaultContactSections;
 type ServicesState = typeof defaultServicesSections;
+type PropertiesPageState = typeof defaultPropertiesPageSections;
 type SalesPageState = typeof defaultSalesPageSections;
 type JobsPageState = typeof defaultJobsPageSections;
 type TeamPageState = typeof defaultTeamPageSections;
@@ -91,7 +95,11 @@ async function fetchSections(
   base: string,
   pageId: string,
 ): Promise<Record<string, unknown>> {
-  const res = await fetch(`${base}/api/v1/admin/site-pages/${pageId}`);
+  const res = await fetch(
+    `${base}/api/v1/admin/site-pages/${pageId}`,
+    withClientAdminAuth(),
+  );
+  if (!(await ensureClientAuthorized(res))) return {};
   if (!res.ok) throw new Error(await res.text());
   const json = (await res.json()) as { data?: { sections?: unknown } };
   const s = json.data?.sections;
@@ -124,6 +132,12 @@ const TABS = [
     label: "Холбоо барих",
     hint: "Хаяг, утас, кард",
     icon: Phone,
+  },
+  {
+    id: "properties-page" as const,
+    label: "Хамтран ажиллах",
+    hint: "/properties — ангилал, картууд",
+    icon: Building2,
   },
   {
     id: "sales-page" as const,
@@ -176,6 +190,9 @@ export default function SiteContentPage() {
   const [services, setServices] = useState<ServicesState>(
     () => mergeDeep(clone(defaultServicesSections), {}) as ServicesState,
   );
+  const [propertiesPage, setPropertiesPage] = useState<PropertiesPageState>(
+    () => mergeDeep(clone(defaultPropertiesPageSections), {}) as PropertiesPageState,
+  );
   const [salesPage, setSalesPage] = useState<SalesPageState>(
     () => mergeDeep(clone(defaultSalesPageSections), {}) as SalesPageState,
   );
@@ -190,11 +207,12 @@ export default function SiteContentPage() {
     setError(null);
     setLoading(true);
     try {
-      const [h, a, svc, c, sp, jp, tm, f] = await Promise.all([
+      const [h, a, svc, c, pp, sp, jp, tm, f] = await Promise.all([
         fetchSections(base, "home"),
         fetchSections(base, "about"),
         fetchSections(base, "services"),
         fetchSections(base, "contact"),
+        fetchSections(base, "properties-page"),
         fetchSections(base, "sales-page"),
         fetchSections(base, "jobs-page"),
         fetchSections(base, "team"),
@@ -206,6 +224,9 @@ export default function SiteContentPage() {
         mergeDeep(clone(defaultServicesSections), svc) as ServicesState,
       );
       setContact(mergeDeep(clone(defaultContactSections), c) as ContactState);
+      setPropertiesPage(
+        mergeDeep(clone(defaultPropertiesPageSections), pp) as PropertiesPageState,
+      );
       setSalesPage(
         mergeDeep(clone(defaultSalesPageSections), sp) as SalesPageState,
       );
@@ -240,6 +261,8 @@ export default function SiteContentPage() {
             ? services
             : pageId === "contact"
               ? contact
+              : pageId === "properties-page"
+                ? propertiesPage
               : pageId === "sales-page"
                 ? salesPage
                 : pageId === "jobs-page"
@@ -248,11 +271,15 @@ export default function SiteContentPage() {
                     ? teamPage
                     : footer;
     try {
-      const res = await fetch(`${base}/api/v1/admin/site-pages/${pageId}`, {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ sections }),
-      });
+      const res = await fetch(
+        `${base}/api/v1/admin/site-pages/${pageId}`,
+        withClientAdminAuth({
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ sections }),
+        }),
+      );
+      if (!(await ensureClientAuthorized(res))) return;
       if (!res.ok) throw new Error(await res.text());
 
       const rev = await fetch("/api/revalidate-front", { method: "POST" });
@@ -489,6 +516,7 @@ export default function SiteContentPage() {
                   sectionJumpKey={tab}
                   sectionItems={[
                     { id: "about-fields", label: "Текст талбарууд" },
+                    { id: "about-image", label: "Зураг" },
                     { id: "about-copy", label: "Параграф" },
                     { id: "about-stats", label: "Статистик" },
                   ]}
@@ -527,6 +555,22 @@ export default function SiteContentPage() {
                         </div>
                       ))}
                     </div>
+                  </EditorSection>
+                  <EditorSection
+                    id="about-image"
+                    title="Зураг"
+                    subtitle="About хэсгийн үндсэн зураг"
+                  >
+                    <ImageUploadField
+                      value={about.main.imageUrl ?? "/images/baclground-image-1.jpg"}
+                      onChange={(path) =>
+                        setAbout({
+                          ...about,
+                          main: { ...about.main, imageUrl: path },
+                        })
+                      }
+                      previewFit="cover"
+                    />
                   </EditorSection>
                   <EditorSection id="about-copy" title="Параграфууд">
                     <div className="grid gap-4 lg:grid-cols-2">
@@ -1012,6 +1056,392 @@ export default function SiteContentPage() {
                     {saving ? "Хадгалж байна…" : "Холбоо барих хадгалах"}
                   </PrimarySave>
                 </EditorBody>
+              ) : tab === "properties-page" ? (
+                <EditorBody
+                  sectionJumpKey={tab}
+                  sectionItems={[
+                    { id: "properties-header", label: "Толгой" },
+                    { id: "properties-categories", label: "Ангиллууд" },
+                    { id: "properties-items", label: "Картууд" },
+                    { id: "properties-cta", label: "Доод CTA" },
+                  ]}
+                >
+                  <EditorSection
+                    id="properties-header"
+                    title="Толгой хэсэг"
+                    subtitle="Badge, гарчиг, танилцуулга"
+                  >
+                    <div className="grid gap-4 sm:grid-cols-2">
+                      <div>
+                        <label className="text-xs font-semibold uppercase tracking-wide text-zinc-500">
+                          Badge
+                        </label>
+                        <input
+                          className={scInput}
+                          value={propertiesPage.header.badge}
+                          onChange={(e) =>
+                            setPropertiesPage({
+                              ...propertiesPage,
+                              header: {
+                                ...propertiesPage.header,
+                                badge: e.target.value,
+                              },
+                            })
+                          }
+                        />
+                      </div>
+                      <div>
+                        <label className="text-xs font-semibold uppercase tracking-wide text-zinc-500">
+                          Гарчиг 1
+                        </label>
+                        <input
+                          className={scInput}
+                          value={propertiesPage.header.titleLine1}
+                          onChange={(e) =>
+                            setPropertiesPage({
+                              ...propertiesPage,
+                              header: {
+                                ...propertiesPage.header,
+                                titleLine1: e.target.value,
+                              },
+                            })
+                          }
+                        />
+                      </div>
+                      <div className="sm:col-span-2">
+                        <label className="text-xs font-semibold uppercase tracking-wide text-zinc-500">
+                          Онцлох гарчиг
+                        </label>
+                        <input
+                          className={scInput}
+                          value={propertiesPage.header.titleAccent}
+                          onChange={(e) =>
+                            setPropertiesPage({
+                              ...propertiesPage,
+                              header: {
+                                ...propertiesPage.header,
+                                titleAccent: e.target.value,
+                              },
+                            })
+                          }
+                        />
+                      </div>
+                      <div className="sm:col-span-2">
+                        <label className="text-xs font-semibold uppercase tracking-wide text-zinc-500">
+                          Танилцуулга
+                        </label>
+                        <textarea
+                          className={scTextarea("min-h-[90px]")}
+                          value={propertiesPage.header.intro}
+                          onChange={(e) =>
+                            setPropertiesPage({
+                              ...propertiesPage,
+                              header: {
+                                ...propertiesPage.header,
+                                intro: e.target.value,
+                              },
+                            })
+                          }
+                        />
+                      </div>
+                    </div>
+                  </EditorSection>
+                  <EditorSection
+                    id="properties-categories"
+                    title="Шүүлтүүр ангиллууд"
+                    subtitle="Эхний мөр нь ихэвчлэн Бүгд байх ёстой"
+                    defaultOpen={false}
+                  >
+                    <div className="space-y-3">
+                      {propertiesPage.categories.map((row, i) => (
+                        <div key={i} className="flex flex-wrap gap-2">
+                          <input
+                            className={`${scInput} min-w-[220px] flex-1`}
+                            value={row}
+                            onChange={(e) => {
+                              const categories = [...propertiesPage.categories];
+                              categories[i] = e.target.value;
+                              setPropertiesPage({ ...propertiesPage, categories });
+                            }}
+                          />
+                          <DangerMini
+                            onClick={() =>
+                              setPropertiesPage({
+                                ...propertiesPage,
+                                categories: propertiesPage.categories.filter(
+                                  (_, j) => j !== i,
+                                ),
+                              })
+                            }
+                          >
+                            Устгах
+                          </DangerMini>
+                        </div>
+                      ))}
+                      <GhostButton
+                        onClick={() =>
+                          setPropertiesPage({
+                            ...propertiesPage,
+                            categories: [...propertiesPage.categories, ""],
+                          })
+                        }
+                      >
+                        + Ангилал нэмэх
+                      </GhostButton>
+                    </div>
+                  </EditorSection>
+                  <EditorSection
+                    id="properties-items"
+                    title="Картууд"
+                    subtitle="Үл хөдлөхийн жагсаалтын мэдээлэл"
+                    defaultOpen={false}
+                  >
+                    <div className="space-y-4">
+                      {propertiesPage.items.map((item, i) => (
+                        <div
+                          key={item.id || i}
+                          className="rounded-xl border border-slate-200/90 bg-white/80 p-4 dark:border-slate-700 dark:bg-slate-900/40"
+                        >
+                          <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+                            <div>
+                              <label className="text-xs text-zinc-500">ID</label>
+                              <input
+                                type="number"
+                                className={scInput}
+                                value={item.id}
+                                onChange={(e) => {
+                                  const items = [...propertiesPage.items];
+                                  items[i] = {
+                                    ...items[i],
+                                    id: Number(e.target.value) || 0,
+                                  };
+                                  setPropertiesPage({ ...propertiesPage, items });
+                                }}
+                              />
+                            </div>
+                            <div className="sm:col-span-2">
+                              <label className="text-xs text-zinc-500">Нэр</label>
+                              <input
+                                className={scInput}
+                                value={item.name}
+                                onChange={(e) => {
+                                  const items = [...propertiesPage.items];
+                                  items[i] = { ...items[i], name: e.target.value };
+                                  setPropertiesPage({ ...propertiesPage, items });
+                                }}
+                              />
+                            </div>
+                            <div className="sm:col-span-2 lg:col-span-3">
+                              <ImageUploadField
+                                previewFit="cover"
+                                value={item.image}
+                                onChange={(next) => {
+                                  const items = [...propertiesPage.items];
+                                  items[i] = { ...items[i], image: next };
+                                  setPropertiesPage({ ...propertiesPage, items });
+                                }}
+                              />
+                            </div>
+                            <div>
+                              <label className="text-xs text-zinc-500">Ангилал</label>
+                              <input
+                                className={scInput}
+                                value={item.category}
+                                onChange={(e) => {
+                                  const items = [...propertiesPage.items];
+                                  items[i] = {
+                                    ...items[i],
+                                    category: e.target.value,
+                                  };
+                                  setPropertiesPage({ ...propertiesPage, items });
+                                }}
+                              />
+                            </div>
+                            <div>
+                              <label className="text-xs text-zinc-500">Badge</label>
+                              <input
+                                className={scInput}
+                                placeholder="Хоосон бол харуулахгүй"
+                                value={item.badge ?? ""}
+                                onChange={(e) => {
+                                  const items = [...propertiesPage.items];
+                                  items[i] = {
+                                    ...items[i],
+                                    badge: e.target.value.trim() || null,
+                                  };
+                                  setPropertiesPage({ ...propertiesPage, items });
+                                }}
+                              />
+                            </div>
+                            <div>
+                              <label className="text-xs text-zinc-500">Tag</label>
+                              <input
+                                className={scInput}
+                                value={item.tag}
+                                onChange={(e) => {
+                                  const items = [...propertiesPage.items];
+                                  items[i] = { ...items[i], tag: e.target.value };
+                                  setPropertiesPage({ ...propertiesPage, items });
+                                }}
+                              />
+                            </div>
+                            <div>
+                              <label className="text-xs text-zinc-500">Хэмжээ</label>
+                              <input
+                                className={scInput}
+                                value={item.size}
+                                onChange={(e) => {
+                                  const items = [...propertiesPage.items];
+                                  items[i] = { ...items[i], size: e.target.value };
+                                  setPropertiesPage({ ...propertiesPage, items });
+                                }}
+                              />
+                            </div>
+                            <div>
+                              <label className="text-xs text-zinc-500">Давхар</label>
+                              <input
+                                className={scInput}
+                                value={item.floor}
+                                onChange={(e) => {
+                                  const items = [...propertiesPage.items];
+                                  items[i] = { ...items[i], floor: e.target.value };
+                                  setPropertiesPage({ ...propertiesPage, items });
+                                }}
+                              />
+                            </div>
+                            <div>
+                              <label className="text-xs text-zinc-500">Паркинг</label>
+                              <input
+                                className={scInput}
+                                value={item.parking}
+                                onChange={(e) => {
+                                  const items = [...propertiesPage.items];
+                                  items[i] = {
+                                    ...items[i],
+                                    parking: e.target.value,
+                                  };
+                                  setPropertiesPage({ ...propertiesPage, items });
+                                }}
+                              />
+                            </div>
+                            <div>
+                              <label className="text-xs text-zinc-500">Үнэ</label>
+                              <input
+                                className={scInput}
+                                value={item.price}
+                                onChange={(e) => {
+                                  const items = [...propertiesPage.items];
+                                  items[i] = { ...items[i], price: e.target.value };
+                                  setPropertiesPage({ ...propertiesPage, items });
+                                }}
+                              />
+                            </div>
+                            <div className="sm:col-span-2 lg:col-span-3">
+                              <label className="text-xs text-zinc-500">Тайлбар</label>
+                              <textarea
+                                className={scTextarea("min-h-[80px]")}
+                                value={item.description}
+                                onChange={(e) => {
+                                  const items = [...propertiesPage.items];
+                                  items[i] = {
+                                    ...items[i],
+                                    description: e.target.value,
+                                  };
+                                  setPropertiesPage({ ...propertiesPage, items });
+                                }}
+                              />
+                            </div>
+                          </div>
+                          <div className="mt-3 flex justify-end">
+                            <DangerMini
+                              onClick={() =>
+                                setPropertiesPage({
+                                  ...propertiesPage,
+                                  items: propertiesPage.items.filter(
+                                    (_, j) => j !== i,
+                                  ),
+                                })
+                              }
+                            >
+                              Устгах
+                            </DangerMini>
+                          </div>
+                        </div>
+                      ))}
+                      <GhostButton
+                        onClick={() =>
+                          setPropertiesPage({
+                            ...propertiesPage,
+                            items: [
+                              ...propertiesPage.items,
+                              {
+                                id: Date.now(),
+                                name: "",
+                                image: "",
+                                category: "",
+                                badge: null,
+                                size: "",
+                                floor: "",
+                                parking: "",
+                                price: "",
+                                tag: "",
+                                description: "",
+                              },
+                            ],
+                          })
+                        }
+                      >
+                        + Карт нэмэх
+                      </GhostButton>
+                    </div>
+                  </EditorSection>
+                  <EditorSection id="properties-cta" title="Доод CTA">
+                    <div className="grid gap-4 sm:grid-cols-2">
+                      <div>
+                        <label className="text-xs font-semibold uppercase tracking-wide text-zinc-500">
+                          Холбоос
+                        </label>
+                        <input
+                          className={scInput}
+                          value={propertiesPage.cta.href}
+                          onChange={(e) =>
+                            setPropertiesPage({
+                              ...propertiesPage,
+                              cta: {
+                                ...propertiesPage.cta,
+                                href: e.target.value,
+                              },
+                            })
+                          }
+                        />
+                      </div>
+                      <div>
+                        <label className="text-xs font-semibold uppercase tracking-wide text-zinc-500">
+                          Текст
+                        </label>
+                        <input
+                          className={scInput}
+                          value={propertiesPage.cta.label}
+                          onChange={(e) =>
+                            setPropertiesPage({
+                              ...propertiesPage,
+                              cta: {
+                                ...propertiesPage.cta,
+                                label: e.target.value,
+                              },
+                            })
+                          }
+                        />
+                      </div>
+                    </div>
+                  </EditorSection>
+                  <PrimarySave
+                    disabled={saving}
+                    onClick={() => void save("properties-page")}
+                  >
+                    {saving ? "Хадгалж байна…" : "Хамтран ажиллах хадгалах"}
+                  </PrimarySave>
+                </EditorBody>
               ) : tab === "sales-page" ? (
                 <EditorBody
                   sectionJumpKey={tab}
@@ -1215,13 +1645,6 @@ export default function SiteContentPage() {
                     title="Багийн гишүүд"
                     defaultOpen={false}
                   >
-                    <p className="text-xs text-zinc-500 dark:text-zinc-400">
-                      Өнгө: Tailwind анги (жишээ нь{" "}
-                      <code className="rounded bg-zinc-100 px-1 dark:bg-zinc-800">
-                        bg-accent-500
-                      </code>
-                      ).
-                    </p>
                     <div className="space-y-4">
                       {teamPage.members.map((m, i) => (
                         <div
@@ -1275,24 +1698,6 @@ export default function SiteContentPage() {
                                   members[i] = {
                                     ...members[i],
                                     initials: e.target.value,
-                                  };
-                                  setTeamPage({ ...teamPage, members });
-                                }}
-                              />
-                            </div>
-                            <div className="sm:col-span-2 lg:col-span-3">
-                              <label className="text-xs text-zinc-500">
-                                Өнгө (Tailwind class)
-                              </label>
-                              <input
-                                className={scInput}
-                                value={m.color}
-                                placeholder="bg-accent-500"
-                                onChange={(e) => {
-                                  const members = [...teamPage.members];
-                                  members[i] = {
-                                    ...members[i],
-                                    color: e.target.value,
                                   };
                                   setTeamPage({ ...teamPage, members });
                                 }}

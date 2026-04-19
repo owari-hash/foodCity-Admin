@@ -15,8 +15,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Foodcity Admin",
-  description: "Manage Foodcity catalog and orders",
+  title: "BukhBat Admin",
+  description: "Manage BukhBat catalog and orders",
   icons: {
     icon: [{ url: `${ADMIN_BASE_PATH}/fclogo.png`, type: "image/png" }],
     apple: [{ url: `${ADMIN_BASE_PATH}/fclogo.png` }],

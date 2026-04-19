@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
-import { withClientAdminAuth } from "@/lib/adminClientAuth";
+import { ensureClientAuthorized, withClientAdminAuth } from "@/lib/adminClientAuth";
 import { getApiBaseUrl } from "@/lib/api";
 
 type OrderRow = {
@@ -24,6 +24,7 @@ export default function OrdersPage() {
     setError(null);
     try {
       const res = await fetch(`${base}/api/v1/admin/orders`, withClientAdminAuth());
+      if (!(await ensureClientAuthorized(res))) return;
       if (!res.ok) throw new Error(await res.text());
       const json = (await res.json()) as { data: OrderRow[] };
       setOrders(json.data);
@@ -46,6 +47,7 @@ export default function OrdersPage() {
           body: JSON.stringify({ status }),
         }),
       );
+      if (!(await ensureClientAuthorized(res))) return;
       if (!res.ok) throw new Error(await res.text());
       await load();
     } catch (e) {
