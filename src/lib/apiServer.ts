@@ -1,4 +1,4 @@
-import { getServerApiBaseUrl } from "@/lib/api";
+import { getServerApiBaseUrl, joinBackendRequestUrl } from "@/lib/api";
 import { getServerAdminAuthHeaders } from "@/lib/serverAdminAuth";
 
 export type AdminStats = {
@@ -40,16 +40,16 @@ const serverFetchInit: RequestInit = { cache: "no-store" };
 
 export async function apiGet<T>(path: string): Promise<T> {
   const auth = await getServerAdminAuthHeaders();
-  const base = getServerApiBaseUrl();
-  const res = await fetch(`${base}${path}`, { ...serverFetchInit, headers: auth });
+  const url = joinBackendRequestUrl(getServerApiBaseUrl(), path);
+  const res = await fetch(url, { ...serverFetchInit, headers: auth });
   if (!res.ok) throw new Error(await res.text());
   return res.json() as Promise<T>;
 }
 
 export async function apiPost<T>(path: string, body: unknown): Promise<T> {
   const auth = await getServerAdminAuthHeaders();
-  const base = getServerApiBaseUrl();
-  const res = await fetch(`${base}${path}`, {
+  const url = joinBackendRequestUrl(getServerApiBaseUrl(), path);
+  const res = await fetch(url, {
     ...serverFetchInit,
     method: "POST",
     headers: { "Content-Type": "application/json", ...auth },
@@ -61,8 +61,8 @@ export async function apiPost<T>(path: string, body: unknown): Promise<T> {
 
 export async function apiPatch<T>(path: string, body: unknown): Promise<T> {
   const auth = await getServerAdminAuthHeaders();
-  const base = getServerApiBaseUrl();
-  const res = await fetch(`${base}${path}`, {
+  const url = joinBackendRequestUrl(getServerApiBaseUrl(), path);
+  const res = await fetch(url, {
     ...serverFetchInit,
     method: "PATCH",
     headers: { "Content-Type": "application/json", ...auth },
@@ -74,8 +74,8 @@ export async function apiPatch<T>(path: string, body: unknown): Promise<T> {
 
 export async function apiDelete(path: string): Promise<void> {
   const auth = await getServerAdminAuthHeaders();
-  const base = getServerApiBaseUrl();
-  const res = await fetch(`${base}${path}`, {
+  const url = joinBackendRequestUrl(getServerApiBaseUrl(), path);
+  const res = await fetch(url, {
     ...serverFetchInit,
     method: "DELETE",
     headers: auth,

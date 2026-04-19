@@ -2,7 +2,7 @@
 
 import { useRef, useState } from "react";
 import { ensureClientAuthorized, withClientAdminAuth } from "@/lib/adminClientAuth";
-import { getApiBaseUrl, getPublicFrontOrigin } from "@/lib/api";
+import { getApiBaseUrl, getPublicFrontOrigin, getSocketBaseUrl, joinBackendRequestUrl } from "@/lib/api";
 import { ImageIcon, Loader2, Upload } from "lucide-react";
 
 function previewUrl(path: string): string {
@@ -10,7 +10,7 @@ function previewUrl(path: string): string {
   if (!p) return "";
   if (/^https?:\/\//i.test(p)) return p;
   if (p.startsWith("/upload/")) {
-    return `${getApiBaseUrl()}${p}`;
+    return `${getSocketBaseUrl()}${p}`;
   }
   if (p.startsWith("/")) {
     return `${getPublicFrontOrigin()}${p}`;
@@ -22,7 +22,7 @@ export async function uploadImageFile(file: File): Promise<string> {
   const fd = new FormData();
   fd.append("file", file);
   const res = await fetch(
-    `${getApiBaseUrl()}/api/v1/admin/upload`,
+    joinBackendRequestUrl(getApiBaseUrl(), "/api/v1/admin/upload"),
     withClientAdminAuth({
       method: "POST",
       body: fd,

@@ -1,44 +1,47 @@
-/** Default origin (no `/api` suffix). Paths append `/api/v1/…`. */
-const DEFAULT_API = "http://bukhbatllc.mn";
+/** Default matches a backend served over plain HTTP (no TLS on API). */
+const DEFAULT_API = "http://bukhbatllc.mn/api";
 
-/**
- * Normalizes API origin: trims slashes, optionally downgrades https→http,
- * strips a trailing `/api` so callers can use `${base}/api/v1/…` without doubling.
- */
-export function normalizeApiOrigin(raw: string): string {
+function normalizeApiBase(raw: string): string {
   let url = raw.trim().replace(/\/+$/, "");
-  if (process.env.NEXT_PUBLIC_API_ALLOW_HTTPS !== "1" && url.startsWith("https://")) {
+  if (process.env.NEXT_PUBLIC_API_ALLOW_HTTPS === "1") {
+    return url;
+  }
+  if (url.startsWith("https://")) {
     url = `http://${url.slice("https://".length)}`;
   }
-  if (url.endsWith("/api")) {
-    url = url.slice(0, -4).replace(/\/+$/, "");
-  }
-  // Common mistake: set API URL to the Next admin app (…/admin) instead of foodcity-back origin.
-  if (/\/admin$/i.test(url)) {
-    url = url.replace(/\/admin$/i, "").replace(/\/+$/, "");
-  }
-  return url;
+  return url.replace(/\/+$/, "");
 }
 
 /**
- * Base URL for foodcity-back (browser and server fallback). No trailing slash, no trailing `/api`.
- * By default, `https://` is rewritten to `http://` unless `NEXT_PUBLIC_API_ALLOW_HTTPS=1`.
+ * Base URL from env (same as before): may end with `/api` when the API is mounted there.
+ * Callers that hit `/api/v1/...` should use {@link joinBackendRequestUrl} to avoid `/api/api/v1`.
  */
 export function getApiBaseUrl(): string {
-  return normalizeApiOrigin(process.env.NEXT_PUBLIC_API_URL ?? DEFAULT_API);
+  return normalizeApiBase(process.env.NEXT_PUBLIC_API_URL ?? DEFAULT_API);
 }
 
 /**
- * Base URL for server-side fetches from the admin app (RSC, Route Handlers).
- * Prefer `API_INTERNAL_URL` or `SERVER_API_URL` on production when the public URL
- * is unreachable from the Node host (e.g. Docker network, loopback).
+ * Join base URL with a path that starts with `/api/v1/...`.
+ * If base already ends with `/api`, strips the duplicate `/api` prefix from the path.
+ */
+export function joinBackendRequestUrl(base: string, apiPath: string): string {
+  const b = base.replace(/\/+$/, "");
+  const p = apiPath.startsWith("/") ? apiPath : `/${apiPath}`;
+  if (b.endsWith("/api") && p.startsWith("/api/")) {
+    return `${b}${p.slice(4)}`;
+  }
+  return `${b}${p}`;
+}
+
+/**
+ * Server-side only: optional direct URL to foodcity-back (Docker / loopback).
+ * Does not read `API_URL` — that name is too generic on many hosts and breaks login.
  */
 export function getServerApiBaseUrl(): string {
-  const internal =
-    process.env.API_INTERNAL_URL?.trim() ||
-    process.env.SERVER_API_URL?.trim() ||
-    process.env.API_URL?.trim();
-  if (internal) return normalizeApiOrigin(internal);
+  const a = process.env.API_INTERNAL_URL?.trim();
+  const b = process.env.SERVER_API_URL?.trim();
+  if (a) return normalizeApiBase(a);
+  if (b) return normalizeApiBase(b);
   return getApiBaseUrl();
 }
 
@@ -58,5 +61,5 @@ export function getSocketBaseUrl(): string {
   if (u.endsWith("/api")) {
     u = u.slice(0, -4);
   }
-  return u.replace(/\/$/, "");
+  return u.replace(/\/+$/, "");
 }

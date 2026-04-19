@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useState } from "react";
 import { ensureClientAuthorized, withClientAdminAuth } from "@/lib/adminClientAuth";
-import { getApiBaseUrl } from "@/lib/api";
+import { getApiBaseUrl, joinBackendRequestUrl } from "@/lib/api";
 import ImageUploadField from "@/components/ImageUploadField";
 
 type Job = {
@@ -32,12 +32,13 @@ export default function JobsPage() {
   const [jobs, setJobs] = useState<Job[]>([]);
   const [form, setForm] = useState(empty);
   const [error, setError] = useState<string | null>(null);
-  const base = getApiBaseUrl();
-
   const load = useCallback(async () => {
     setError(null);
     try {
-      const res = await fetch(`${base}/api/v1/admin/jobs`, withClientAdminAuth());
+      const res = await fetch(
+        joinBackendRequestUrl(getApiBaseUrl(), "/api/v1/admin/jobs"),
+        withClientAdminAuth(),
+      );
       if (!(await ensureClientAuthorized(res))) return;
       if (!res.ok) throw new Error(await res.text());
       const json = (await res.json()) as { data: Job[] };
@@ -45,7 +46,7 @@ export default function JobsPage() {
     } catch (e) {
       setError(e instanceof Error ? e.message : "Алдаа");
     }
-  }, [base]);
+  }, []);
 
   useEffect(() => {
     void load();
@@ -56,7 +57,7 @@ export default function JobsPage() {
     setError(null);
     try {
       const res = await fetch(
-        `${base}/api/v1/admin/jobs`,
+        joinBackendRequestUrl(getApiBaseUrl(), "/api/v1/admin/jobs"),
         withClientAdminAuth({
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -80,7 +81,7 @@ export default function JobsPage() {
   async function toggleActive(job: Job) {
     try {
       const res = await fetch(
-        `${base}/api/v1/admin/jobs/${job.id}`,
+        joinBackendRequestUrl(getApiBaseUrl(), `/api/v1/admin/jobs/${job.id}`),
         withClientAdminAuth({
           method: "PATCH",
           headers: { "Content-Type": "application/json" },
@@ -99,7 +100,7 @@ export default function JobsPage() {
     setError(null);
     try {
       const res = await fetch(
-        `${base}/api/v1/admin/jobs/${id}`,
+        joinBackendRequestUrl(getApiBaseUrl(), `/api/v1/admin/jobs/${id}`),
         withClientAdminAuth({
           method: "PATCH",
           headers: { "Content-Type": "application/json" },
@@ -118,7 +119,7 @@ export default function JobsPage() {
     if (!confirm("Устгах уу?")) return;
     try {
       const res = await fetch(
-        `${base}/api/v1/admin/jobs/${id}`,
+        joinBackendRequestUrl(getApiBaseUrl(), `/api/v1/admin/jobs/${id}`),
         withClientAdminAuth({ method: "DELETE" }),
       );
       if (!(await ensureClientAuthorized(res))) return;

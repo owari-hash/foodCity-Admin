@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useState } from "react";
 import { ensureClientAuthorized, withClientAdminAuth } from "@/lib/adminClientAuth";
-import { getApiBaseUrl } from "@/lib/api";
+import { getApiBaseUrl, joinBackendRequestUrl } from "@/lib/api";
 import ImageUploadField from "@/components/ImageUploadField";
 
 type Ad = {
@@ -34,12 +34,13 @@ export default function SalesAdsPage() {
   const [ads, setAds] = useState<Ad[]>([]);
   const [form, setForm] = useState(empty);
   const [error, setError] = useState<string | null>(null);
-  const base = getApiBaseUrl();
-
   const load = useCallback(async () => {
     setError(null);
     try {
-      const res = await fetch(`${base}/api/v1/admin/sales-ads`, withClientAdminAuth());
+      const res = await fetch(
+        joinBackendRequestUrl(getApiBaseUrl(), "/api/v1/admin/sales-ads"),
+        withClientAdminAuth(),
+      );
       if (!(await ensureClientAuthorized(res))) return;
       if (!res.ok) throw new Error(await res.text());
       const json = (await res.json()) as { data: Ad[] };
@@ -47,7 +48,7 @@ export default function SalesAdsPage() {
     } catch (e) {
       setError(e instanceof Error ? e.message : "Алдаа");
     }
-  }, [base]);
+  }, []);
 
   useEffect(() => {
     void load();
@@ -58,7 +59,7 @@ export default function SalesAdsPage() {
     setError(null);
     try {
       const res = await fetch(
-        `${base}/api/v1/admin/sales-ads`,
+        joinBackendRequestUrl(getApiBaseUrl(), "/api/v1/admin/sales-ads"),
         withClientAdminAuth({
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -84,7 +85,7 @@ export default function SalesAdsPage() {
   async function toggleActive(ad: Ad) {
     try {
       const res = await fetch(
-        `${base}/api/v1/admin/sales-ads/${ad.id}`,
+        joinBackendRequestUrl(getApiBaseUrl(), `/api/v1/admin/sales-ads/${ad.id}`),
         withClientAdminAuth({
           method: "PATCH",
           headers: { "Content-Type": "application/json" },
@@ -103,7 +104,7 @@ export default function SalesAdsPage() {
     if (!confirm("Устгах уу?")) return;
     try {
       const res = await fetch(
-        `${base}/api/v1/admin/sales-ads/${id}`,
+        joinBackendRequestUrl(getApiBaseUrl(), `/api/v1/admin/sales-ads/${id}`),
         withClientAdminAuth({ method: "DELETE" }),
       );
       if (!(await ensureClientAuthorized(res))) return;

@@ -4,7 +4,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { ChevronLeft, Plus, Trash2 } from "lucide-react";
 import { io, type Socket } from "socket.io-client";
 import { ensureClientAuthorized, withClientAdminAuth } from "@/lib/adminClientAuth";
-import { getApiBaseUrl, getSocketBaseUrl } from "@/lib/api";
+import { getApiBaseUrl, getSocketBaseUrl, joinBackendRequestUrl } from "@/lib/api";
 
 type Conv = {
   id: string;
@@ -204,15 +204,16 @@ export default function ChatAdminPage() {
   const socketRef = useRef<Socket | null>(null);
   const selectedRef = useRef<Conv | null>(null);
   const joinedConvRef = useRef<string | null>(null);
-  const base = getApiBaseUrl();
-
   useEffect(() => {
     selectedRef.current = selected;
   }, [selected]);
 
   const loadConversations = useCallback(async () => {
     try {
-      const res = await fetch(`${base}/api/v1/admin/conversations`, withClientAdminAuth());
+      const res = await fetch(
+        joinBackendRequestUrl(getApiBaseUrl(), "/api/v1/admin/conversations"),
+        withClientAdminAuth(),
+      );
       if (!(await ensureClientAuthorized(res))) return;
       if (!res.ok) throw new Error(await res.text());
       const json = (await res.json()) as { data: Conv[] };
@@ -220,13 +221,13 @@ export default function ChatAdminPage() {
     } catch (e) {
       setError(e instanceof Error ? e.message : "Алдаа");
     }
-  }, [base]);
+  }, []);
 
   const loadMessages = useCallback(
     async (id: string) => {
       try {
         const res = await fetch(
-          `${base}/api/v1/admin/conversations/${id}/messages`,
+          joinBackendRequestUrl(getApiBaseUrl(), `/api/v1/admin/conversations/${id}/messages`),
           withClientAdminAuth(),
         );
         if (!(await ensureClientAuthorized(res))) return;
@@ -237,14 +238,14 @@ export default function ChatAdminPage() {
         setError(e instanceof Error ? e.message : "Алдаа");
       }
     },
-    [base],
+    [],
   );
 
   const loadBotConfig = useCallback(async () => {
     setConfigLoading(true);
     try {
       const res = await fetch(
-        `${base}/api/v1/admin/site-pages/chatbot`,
+        joinBackendRequestUrl(getApiBaseUrl(), "/api/v1/admin/site-pages/chatbot"),
         withClientAdminAuth(),
       );
       if (!(await ensureClientAuthorized(res))) return;
@@ -256,7 +257,7 @@ export default function ChatAdminPage() {
     } finally {
       setConfigLoading(false);
     }
-  }, [base]);
+  }, []);
 
   useEffect(() => {
     void loadConversations();
@@ -291,7 +292,7 @@ export default function ChatAdminPage() {
       socketRef.current = null;
       joinedConvRef.current = null;
     };
-  }, [base, loadConversations]);
+  }, [loadConversations]);
 
   useEffect(() => {
     const socket = socketRef.current;
@@ -331,7 +332,10 @@ export default function ChatAdminPage() {
     setError(null);
     try {
       const res = await fetch(
-        `${base}/api/v1/admin/conversations/${selected.id}/messages`,
+        joinBackendRequestUrl(
+          getApiBaseUrl(),
+          `/api/v1/admin/conversations/${selected.id}/messages`,
+        ),
         withClientAdminAuth({
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -355,7 +359,7 @@ export default function ChatAdminPage() {
     if (!selected) return;
     try {
       const res = await fetch(
-        `${base}/api/v1/admin/conversations/${selected.id}`,
+        joinBackendRequestUrl(getApiBaseUrl(), `/api/v1/admin/conversations/${selected.id}`),
         withClientAdminAuth({
           method: "PATCH",
           headers: { "Content-Type": "application/json" },
@@ -384,7 +388,7 @@ export default function ChatAdminPage() {
           .filter((n): n is ChatChoiceNode => Boolean(n)),
       };
       const res = await fetch(
-        `${base}/api/v1/admin/site-pages/chatbot`,
+        joinBackendRequestUrl(getApiBaseUrl(), "/api/v1/admin/site-pages/chatbot"),
         withClientAdminAuth({
           method: "PUT",
           headers: { "Content-Type": "application/json" },

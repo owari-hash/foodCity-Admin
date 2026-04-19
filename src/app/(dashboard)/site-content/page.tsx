@@ -6,7 +6,7 @@ import {
   ensureClientAuthorized,
   withClientAdminAuth,
 } from "@/lib/adminClientAuth";
-import { getApiBaseUrl } from "@/lib/api";
+import { getApiBaseUrl, joinBackendRequestUrl } from "@/lib/api";
 import {
   Briefcase,
   Building2,
@@ -283,12 +283,9 @@ function normalizeTeamPage(v: unknown): TeamPageState {
   };
 }
 
-async function fetchSections(
-  base: string,
-  pageId: string,
-): Promise<Record<string, unknown>> {
+async function fetchSections(pageId: string): Promise<Record<string, unknown>> {
   const res = await fetch(
-    `${base}/api/v1/admin/site-pages/${pageId}`,
+    joinBackendRequestUrl(getApiBaseUrl(), `/api/v1/admin/site-pages/${pageId}`),
     withClientAdminAuth(),
   );
   if (!(await ensureClientAuthorized(res))) return {};
@@ -360,7 +357,6 @@ const TABS = [
 type TabId = (typeof TABS)[number]["id"];
 
 export default function SiteContentPage() {
-  const base = getApiBaseUrl();
   const [tab, setTab] = useState<TabId>("home");
   const [error, setError] = useState<string | null>(null);
   const [saved, setSaved] = useState<string | null>(null);
@@ -384,15 +380,15 @@ export default function SiteContentPage() {
     setLoading(true);
     try {
       const [h, a, svc, c, pp, sp, jp, tm, f] = await Promise.all([
-        fetchSections(base, "home"),
-        fetchSections(base, "about"),
-        fetchSections(base, "services"),
-        fetchSections(base, "contact"),
-        fetchSections(base, "properties-page"),
-        fetchSections(base, "sales-page"),
-        fetchSections(base, "jobs-page"),
-        fetchSections(base, "team"),
-        fetchSections(base, "footer"),
+        fetchSections("home"),
+        fetchSections("about"),
+        fetchSections("services"),
+        fetchSections("contact"),
+        fetchSections("properties-page"),
+        fetchSections("sales-page"),
+        fetchSections("jobs-page"),
+        fetchSections("team"),
+        fetchSections("footer"),
       ]);
       setHome(normalizeHome(h));
       setAbout(normalizeAbout(a));
@@ -408,7 +404,7 @@ export default function SiteContentPage() {
     } finally {
       setLoading(false);
     }
-  }, [base]);
+  }, []);
 
   const debouncedSave = useDebounce(
     async (pageId: (typeof TABS)[number]["id"], sections: unknown) => {
@@ -418,7 +414,7 @@ export default function SiteContentPage() {
 
       try {
         const res = await fetch(
-          `${base}/api/v1/admin/site-pages/${pageId}`,
+          joinBackendRequestUrl(getApiBaseUrl(), `/api/v1/admin/site-pages/${pageId}`),
           withClientAdminAuth({
             method: "PUT",
             headers: { "Content-Type": "application/json" },
@@ -467,7 +463,7 @@ export default function SiteContentPage() {
                       : footer;
     try {
       const res = await fetch(
-        `${base}/api/v1/admin/site-pages/${pageId}`,
+        joinBackendRequestUrl(getApiBaseUrl(), `/api/v1/admin/site-pages/${pageId}`),
         withClientAdminAuth({
           method: "PUT",
           headers: { "Content-Type": "application/json" },

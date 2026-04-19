@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useState } from "react";
 import { ensureClientAuthorized, withClientAdminAuth } from "@/lib/adminClientAuth";
-import { getApiBaseUrl } from "@/lib/api";
+import { getApiBaseUrl, joinBackendRequestUrl } from "@/lib/api";
 
 type OrderRow = {
   id: string;
@@ -18,12 +18,13 @@ const statuses = ["pending", "confirmed", "preparing", "delivered", "cancelled"]
 export default function OrdersPage() {
   const [orders, setOrders] = useState<OrderRow[]>([]);
   const [error, setError] = useState<string | null>(null);
-  const base = getApiBaseUrl();
-
   const load = useCallback(async () => {
     setError(null);
     try {
-      const res = await fetch(`${base}/api/v1/admin/orders`, withClientAdminAuth());
+      const res = await fetch(
+        joinBackendRequestUrl(getApiBaseUrl(), "/api/v1/admin/orders"),
+        withClientAdminAuth(),
+      );
       if (!(await ensureClientAuthorized(res))) return;
       if (!res.ok) throw new Error(await res.text());
       const json = (await res.json()) as { data: OrderRow[] };
@@ -31,7 +32,7 @@ export default function OrdersPage() {
     } catch (e) {
       setError(e instanceof Error ? e.message : "Алдаа");
     }
-  }, [base]);
+  }, []);
 
   useEffect(() => {
     void load();
@@ -40,7 +41,7 @@ export default function OrdersPage() {
   async function updateStatus(id: string, status: string) {
     try {
       const res = await fetch(
-        `${base}/api/v1/admin/orders/${id}`,
+        joinBackendRequestUrl(getApiBaseUrl(), `/api/v1/admin/orders/${id}`),
         withClientAdminAuth({
           method: "PATCH",
           headers: { "Content-Type": "application/json" },
