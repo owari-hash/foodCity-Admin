@@ -13,23 +13,11 @@ export type AdminStats = {
 };
 
 export async function fetchAdminStats(): Promise<AdminStats | null> {
-  const base = getApiBaseUrl();
-  const auth = await getServerAdminAuthHeaders();
-  if (!("Authorization" in auth) || !(auth as { Authorization?: string }).Authorization) {
-    return null;
-  }
   try {
-    const res = await fetch(`${base}/api/v1/admin/stats`, {
-      next: { revalidate: 30 },
-      headers: auth,
-    });
-    if (!res.ok) return null;
-    const json: unknown = await res.json();
-    if (json && typeof json === "object" && "data" in json && json.data) {
-      return json.data as AdminStats;
-    }
-    return null;
-  } catch {
+    const res = await apiGet<{ data: AdminStats }>("/api/v1/admin/stats");
+    return res.data;
+  } catch (error) {
+    console.error("fetchAdminStats error:", error);
     return null;
   }
 }
