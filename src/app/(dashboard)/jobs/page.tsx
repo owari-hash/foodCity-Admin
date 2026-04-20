@@ -9,6 +9,7 @@ import {
 } from "@/lib/adminClientAuth";
 import { getApiBaseUrl, joinBackendRequestUrl } from "@/lib/api";
 import ImageUploadField from "@/components/ImageUploadField";
+import { useAdminLanguage } from "@/contexts/AdminLanguageContext";
 
 type Job = {
   id: string;
@@ -53,20 +54,22 @@ function buildJobBody(form: Omit<Job, "id">) {
 }
 
 export default function JobsPage() {
+  const { lang, t } = useAdminLanguage();
   const [jobs, setJobs] = useState<Job[]>([]);
   const [form, setForm] = useState(empty);
   const [error, setError] = useState<string | null>(null);
   const [dialog, setDialog] = useState<JobDialog | null>(null);
+
   const load = useCallback(async () => {
     setError(null);
     try {
       const res = await fetch(
-        joinBackendRequestUrl(getApiBaseUrl(), "/api/v1/admin/jobs"),
+        joinBackendRequestUrl(getApiBaseUrl(), `/api/v1/admin/jobs?lang=${lang}`),
         withClientAdminAuth(),
       );
       const gate = await ensureClientAuthorized(res);
       if (gate === "forbidden") {
-        setError(PERMISSION_DENIED_MN);
+        setError(t.siteContent.common.forbidden);
         return;
       }
       if (gate !== "ok") return;
@@ -74,9 +77,9 @@ export default function JobsPage() {
       const json = (await res.json()) as { data: Job[] };
       setJobs(json.data);
     } catch (e) {
-      setError(e instanceof Error ? e.message : "Алдаа");
+      setError(e instanceof Error ? e.message : t.common.error);
     }
-  }, []);
+  }, [lang, t]);
 
   useEffect(() => {
     void load();
@@ -127,12 +130,12 @@ export default function JobsPage() {
     e.preventDefault();
     if (!dialog) return;
     setError(null);
-    const payload = buildJobBody(form);
+    const payload = { ...buildJobBody(form), language: lang };
     try {
       const url =
         dialog.mode === "edit"
-          ? joinBackendRequestUrl(getApiBaseUrl(), `/api/v1/admin/jobs/${dialog.id}`)
-          : joinBackendRequestUrl(getApiBaseUrl(), "/api/v1/admin/jobs");
+          ? joinBackendRequestUrl(getApiBaseUrl(), `/api/v1/admin/jobs/${dialog.id}?lang=${lang}`)
+          : joinBackendRequestUrl(getApiBaseUrl(), `/api/v1/admin/jobs?lang=${lang}`);
       const res = await fetch(
         url,
         withClientAdminAuth({
@@ -143,7 +146,7 @@ export default function JobsPage() {
       );
       const gate = await ensureClientAuthorized(res);
       if (gate === "forbidden") {
-        setError(PERMISSION_DENIED_MN);
+        setError(t.siteContent.common.forbidden);
         return;
       }
       if (gate !== "ok") return;
@@ -151,14 +154,14 @@ export default function JobsPage() {
       closeDialog();
       await load();
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Алдаа");
+      setError(err instanceof Error ? err.message : t.common.error);
     }
   }
 
   async function toggleActive(job: Job) {
     try {
       const res = await fetch(
-        joinBackendRequestUrl(getApiBaseUrl(), `/api/v1/admin/jobs/${job.id}`),
+        joinBackendRequestUrl(getApiBaseUrl(), `/api/v1/admin/jobs/${job.id}?lang=${lang}`),
         withClientAdminAuth({
           method: "PATCH",
           headers: { "Content-Type": "application/json" },
@@ -167,34 +170,34 @@ export default function JobsPage() {
       );
       const gate = await ensureClientAuthorized(res);
       if (gate === "forbidden") {
-        setError(PERMISSION_DENIED_MN);
+        setError(t.siteContent.common.forbidden);
         return;
       }
       if (gate !== "ok") return;
       if (!res.ok) throw new Error(await res.text());
       await load();
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Алдаа");
+      setError(err instanceof Error ? err.message : t.common.error);
     }
   }
 
   async function remove(id: string) {
-    if (!confirm("Устгах уу?")) return;
+    if (!confirm(lang === "mn" ? "Устгах уу?" : "Are you sure you want to delete?")) return;
     try {
       const res = await fetch(
-        joinBackendRequestUrl(getApiBaseUrl(), `/api/v1/admin/jobs/${id}`),
+        joinBackendRequestUrl(getApiBaseUrl(), `/api/v1/admin/jobs/${id}?lang=${lang}`),
         withClientAdminAuth({ method: "DELETE" }),
       );
       const gate = await ensureClientAuthorized(res);
       if (gate === "forbidden") {
-        setError(PERMISSION_DENIED_MN);
+        setError(t.siteContent.common.forbidden);
         return;
       }
       if (gate !== "ok") return;
       if (!res.ok && res.status !== 204) throw new Error(await res.text());
       await load();
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Алдаа");
+      setError(err instanceof Error ? err.message : t.common.error);
     }
   }
 
@@ -208,7 +211,7 @@ export default function JobsPage() {
       >
         <button
           type="button"
-          aria-label="Хаах"
+          aria-label={t.common.cancel}
           className="absolute inset-0 bg-black/50 backdrop-blur-[1px]"
           onClick={closeDialog}
         />
@@ -222,7 +225,7 @@ export default function JobsPage() {
             id="job-dialog-title"
             className="mb-5 text-lg font-semibold text-zinc-900 dark:text-zinc-50"
           >
-            {dialog.mode === "edit" ? "Ажлын зар засах" : "Шинэ ажлын зар"}
+            {dialog.mode === "edit" ? (lang === "mn" ? "Ажлын зар засах" : "Edit Job Post") : (lang === "mn" ? "Шинэ ажлын зар" : "New Job Post")}
           </h2>
           <form onSubmit={saveJob} className="space-y-4">
             <div className="grid gap-4 lg:grid-cols-2">
@@ -230,14 +233,14 @@ export default function JobsPage() {
                 <div className="grid gap-3 sm:grid-cols-2">
                   <input
                     required
-                    placeholder="Албан тушаал / гарчиг"
+                    placeholder={t.siteContent.propertiesPage.fields.name}
                     value={form.title}
                     onChange={(e) => setForm({ ...form, title: e.target.value })}
                     className="rounded-lg border border-zinc-200 px-3 py-2.5 text-sm dark:border-zinc-700 dark:bg-zinc-900"
                   />
                   <input
                     required
-                    placeholder="Компани"
+                    placeholder={lang === "mn" ? "Компани" : "Company"}
                     value={form.company}
                     onChange={(e) => setForm({ ...form, company: e.target.value })}
                     className="rounded-lg border border-zinc-200 px-3 py-2.5 text-sm dark:border-zinc-700 dark:bg-zinc-900"
@@ -245,14 +248,14 @@ export default function JobsPage() {
                 </div>
                 <input
                   required
-                  placeholder="Байршил"
+                  placeholder={lang === "mn" ? "Байршил" : "Location"}
                   value={form.location}
                   onChange={(e) => setForm({ ...form, location: e.target.value })}
                   className="w-full rounded-lg border border-zinc-200 px-3 py-2.5 text-sm dark:border-zinc-700 dark:bg-zinc-900"
                 />
                 <textarea
                   required
-                  placeholder="Тайлбар"
+                  placeholder={t.siteContent.common.description}
                   rows={8}
                   value={form.description}
                   onChange={(e) => setForm({ ...form, description: e.target.value })}
@@ -262,21 +265,21 @@ export default function JobsPage() {
               <div className="space-y-4">
                 <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-1 xl:grid-cols-2">
                   <input
-                    placeholder="Цалин (сонголттой)"
+                    placeholder={t.siteContent.propertiesPage.fields.price}
                     value={form.salary}
                     onChange={(e) => setForm({ ...form, salary: e.target.value })}
                     className="rounded-lg border border-zinc-200 px-3 py-2.5 text-sm dark:border-zinc-700 dark:bg-zinc-900"
                   />
                   <input
                     type="email"
-                    placeholder="Имэйл холбоо барих"
+                    placeholder={t.siteContent.team.fields.email}
                     value={form.contactEmail}
                     onChange={(e) => setForm({ ...form, contactEmail: e.target.value })}
                     className="rounded-lg border border-zinc-200 px-3 py-2.5 text-sm dark:border-zinc-700 dark:bg-zinc-900"
                   />
                 </div>
                 <div>
-                  <p className="mb-2 text-xs font-medium text-zinc-600 dark:text-zinc-400">Зураг (сонголттой)</p>
+                  <p className="mb-2 text-xs font-medium text-zinc-600 dark:text-zinc-400">{t.siteContent.common.image}</p>
                   <ImageUploadField
                     previewFit="contain"
                     value={form.imageUrl ?? ""}
@@ -289,7 +292,7 @@ export default function JobsPage() {
                     checked={form.active}
                     onChange={(e) => setForm({ ...form, active: e.target.checked })}
                   />
-                  Идэвхтэй
+                  {lang === "mn" ? "Идэвхтэй" : "Active"}
                 </label>
               </div>
             </div>
@@ -299,13 +302,13 @@ export default function JobsPage() {
                 onClick={closeDialog}
                 className="rounded-lg border border-zinc-200 px-4 py-2 text-sm font-medium text-zinc-700 hover:bg-zinc-50 dark:border-zinc-600 dark:text-zinc-200 dark:hover:bg-zinc-800"
               >
-                Цуцлах
+                {t.common.cancel}
               </button>
               <button
                 type="submit"
                 className="rounded-lg bg-emerald-600 px-4 py-2 text-sm font-medium text-white hover:bg-emerald-700"
               >
-                {dialog.mode === "edit" ? "Хадгалах" : "Нэмэх"}
+                {dialog.mode === "edit" ? t.common.save : t.siteContent.common.add}
               </button>
             </div>
           </form>
@@ -323,13 +326,13 @@ export default function JobsPage() {
       )}
 
       <div className="flex flex-wrap items-center justify-between gap-3">
-        <p className="text-sm text-zinc-600 dark:text-zinc-400">Ажлын зарууд</p>
+        <p className="text-sm text-zinc-600 dark:text-zinc-400">{t.jobs.title}</p>
         <button
           type="button"
           onClick={openAdd}
           className="rounded-lg bg-emerald-600 px-4 py-2 text-sm font-medium text-white shadow-sm transition hover:bg-emerald-700"
         >
-          Ажлын зар нэмэх
+          {t.jobs.addJob}
         </button>
       </div>
 
@@ -357,12 +360,12 @@ export default function JobsPage() {
                   {(job.postedByDisplayName || job.lastEditedByDisplayName) && (
                     <p className="mt-2 text-xs text-zinc-500 dark:text-zinc-400">
                       {job.postedByDisplayName && (
-                        <span>Нийтлэгч: {job.postedByDisplayName}</span>
+                        <span>{lang === "mn" ? "Нийтлэгч" : "Posted by"}: {job.postedByDisplayName}</span>
                       )}
                       {job.postedByDisplayName && job.lastEditedByDisplayName ? " · " : null}
                       {job.lastEditedByDisplayName &&
                       job.lastEditedByUsername !== job.postedByUsername ? (
-                        <span>Сүүлд зассан: {job.lastEditedByDisplayName}</span>
+                        <span>{lang === "mn" ? "Сүүлд зассан" : "Last edited"}: {job.lastEditedByDisplayName}</span>
                       ) : null}
                     </p>
                   )}
@@ -374,21 +377,21 @@ export default function JobsPage() {
                   onClick={() => openEdit(job)}
                   className="rounded-lg border border-emerald-200 bg-emerald-50 px-2 py-1 text-xs font-medium text-emerald-800 dark:border-emerald-900 dark:bg-emerald-950 dark:text-emerald-200"
                 >
-                  Засах
+                  {t.common.edit}
                 </button>
                 <button
                   type="button"
                   onClick={() => toggleActive(job)}
-                  className="rounded-lg border border-zinc-200 px-2 py-1 text-xs dark:border-zinc-700"
+                  className="rounded-lg border border-zinc-200 px-2 py-1 text-xs dark:border-zinc-700 text-zinc-700 dark:text-zinc-300"
                 >
-                  {job.active ? "Идэвхгүй" : "Идэвхжүүлэх"}
+                  {job.active ? (lang === "mn" ? "Идэвхгүй" : "Inactive") : (lang === "mn" ? "Идэвхжүүлэх" : "Activate")}
                 </button>
                 <button
                   type="button"
                   onClick={() => remove(job.id)}
                   className="rounded-lg border border-red-200 px-2 py-1 text-xs text-red-700 dark:border-red-900 dark:text-red-400"
                 >
-                  Устгах
+                  {t.common.delete}
                 </button>
               </div>
             </div>

@@ -26,6 +26,7 @@ import {
   type AdminPermissionKey,
 } from "@/lib/adminClientAuth";
 import { ADMIN_BASE_PATH, pathnameWithoutBase } from "@/lib/adminBasePath";
+import { useAdminLanguage } from "@/contexts/AdminLanguageContext";
 
 type NavItem = {
   href: string;
@@ -34,30 +35,32 @@ type NavItem = {
   perm: AdminPermissionKey;
 };
 
-const navItems: NavItem[] = [
-  { href: "/dashboard", label: "Самбар", icon: LayoutDashboard, perm: "dashboard" },
-  { href: "/site-content", label: "Вэб агуулга", icon: FileEdit, perm: "site-content" },
-  { href: "/orders", label: "Захиалга", icon: ShoppingBag, perm: "orders" },
-  { href: "/sales-ads", label: "Борлуулалтын зар", icon: Megaphone, perm: "sales-ads" },
-  { href: "/jobs", label: "Ажлын зар", icon: Briefcase, perm: "jobs" },
-  { href: "/chat", label: "Чат", icon: MessageCircle, perm: "chat" },
-  { href: "/users", label: "Админ хэрэглэгчид", icon: Users, perm: "admin-users" },
-];
-
-const titles: Record<string, string> = {
-  "/dashboard": "Самбар",
-  "/site-content": "Вэб агуулга",
-  "/orders": "Захиалга",
-  "/sales-ads": "Борлуулалтын зар",
-  "/jobs": "Ажлын зар",
-  "/chat": "Шууд чат",
-  "/users": "Админ хэрэглэгчид",
-};
-
 export default function AdminShell({ children }: { children: React.ReactNode }) {
   const router = useRouter();
+  const { lang, t, toggle } = useAdminLanguage();
   const pathname = pathnameWithoutBase(usePathname());
-  const title = titles[pathname] ?? "Админ хуудас";
+
+  const navItems: NavItem[] = [
+    { href: "/dashboard", label: t.nav.dashboard, icon: LayoutDashboard, perm: "dashboard" },
+    { href: "/site-content", label: t.nav.siteContent, icon: FileEdit, perm: "site-content" },
+    { href: "/orders", label: t.nav.orders, icon: ShoppingBag, perm: "orders" },
+    { href: "/sales-ads", label: t.nav.salesAds, icon: Megaphone, perm: "sales-ads" },
+    { href: "/jobs", label: t.nav.jobs, icon: Briefcase, perm: "jobs" },
+    { href: "/chat", label: t.nav.chat, icon: MessageCircle, perm: "chat" },
+    { href: "/users", label: t.nav.users, icon: Users, perm: "admin-users" },
+  ];
+
+  const titles: Record<string, string> = {
+    "/dashboard": t.nav.dashboard,
+    "/site-content": t.nav.siteContent,
+    "/orders": t.nav.orders,
+    "/sales-ads": t.nav.salesAds,
+    "/jobs": t.nav.jobs,
+    "/chat": t.nav.chat,
+    "/users": t.nav.users,
+  };
+
+  const title = titles[pathname] ?? "Food City Admin";
   const [navOpen, setNavOpen] = useState(false);
   const [perms, setPerms] = useState<string[]>([]);
   const [who, setWho] = useState<string>("");
@@ -71,7 +74,7 @@ export default function AdminShell({ children }: { children: React.ReactNode }) 
     }
     if (readClientAdminToken()) {
       setPerms(["*"]);
-      setWho("Админ");
+      setWho(lang === "mn" ? "Админ" : "Admin");
     }
   }, []);
 
@@ -106,7 +109,7 @@ export default function AdminShell({ children }: { children: React.ReactNode }) 
         <button
           type="button"
           className="fixed inset-0 z-40 bg-black/50 backdrop-blur-[1px] lg:hidden"
-          aria-label="Цэс хаах"
+          aria-label={t.common.cancel}
           onClick={() => setNavOpen(false)}
         />
       )}
@@ -134,7 +137,7 @@ export default function AdminShell({ children }: { children: React.ReactNode }) 
           <button
             type="button"
             className="absolute right-2 top-1/2 z-10 flex h-10 w-10 shrink-0 -translate-y-1/2 items-center justify-center rounded-lg text-zinc-600 hover:bg-zinc-100 lg:hidden dark:text-zinc-400 dark:hover:bg-zinc-900"
-            aria-label="Цэс хаах"
+            aria-label={t.common.cancel}
             onClick={() => setNavOpen(false)}
           >
             <X className="h-5 w-5" aria-hidden />
@@ -167,7 +170,7 @@ export default function AdminShell({ children }: { children: React.ReactNode }) 
           <button
             type="button"
             className="flex h-11 w-11 shrink-0 items-center justify-center rounded-lg text-zinc-700 hover:bg-zinc-100 lg:hidden dark:text-zinc-300 dark:hover:bg-zinc-900"
-            aria-label="Цэс нээх"
+            aria-label={t.nav.openMenu || "Open menu"}
             onClick={() => setNavOpen(true)}
           >
             <Menu className="h-5 w-5" aria-hidden />
@@ -180,6 +183,13 @@ export default function AdminShell({ children }: { children: React.ReactNode }) 
               <p className="truncate text-xs text-zinc-500 dark:text-zinc-400">{who}</p>
             ) : null}
           </div>
+          <button
+            type="button"
+            onClick={toggle}
+            className="flex h-10 shrink-0 items-center justify-center rounded-lg px-2 text-sm font-bold text-zinc-600 hover:bg-zinc-100 dark:text-zinc-400 dark:hover:bg-zinc-900 uppercase"
+          >
+            {lang === "mn" ? "EN" : "MN"}
+          </button>
           <ThemeToggle />
           <button
             type="button"
@@ -187,7 +197,7 @@ export default function AdminShell({ children }: { children: React.ReactNode }) 
             className="flex h-10 shrink-0 items-center gap-1.5 rounded-lg px-2 text-sm text-zinc-600 hover:bg-zinc-100 dark:text-zinc-400 dark:hover:bg-zinc-900"
           >
             <LogOut className="h-4 w-4" aria-hidden />
-            <span className="hidden sm:inline">Гарах</span>
+            <span className="hidden sm:inline">{t.header.logout}</span>
           </button>
         </header>
         <main className="flex min-h-0 flex-1 overflow-auto p-4 pb-[max(1rem,env(safe-area-inset-bottom))] sm:p-6">

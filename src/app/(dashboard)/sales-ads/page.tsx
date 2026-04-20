@@ -9,6 +9,7 @@ import {
 } from "@/lib/adminClientAuth";
 import { getApiBaseUrl, joinBackendRequestUrl } from "@/lib/api";
 import ImageUploadField from "@/components/ImageUploadField";
+import { useAdminLanguage } from "@/contexts/AdminLanguageContext";
 
 type Ad = {
   id: string;
@@ -63,20 +64,22 @@ function buildSalesAdBody(form: AdForm) {
 }
 
 export default function SalesAdsPage() {
+  const { lang, t } = useAdminLanguage();
   const [ads, setAds] = useState<Ad[]>([]);
   const [form, setForm] = useState(empty);
   const [error, setError] = useState<string | null>(null);
   const [dialog, setDialog] = useState<SalesDialog | null>(null);
+
   const load = useCallback(async () => {
     setError(null);
     try {
       const res = await fetch(
-        joinBackendRequestUrl(getApiBaseUrl(), "/api/v1/admin/sales-ads"),
+        joinBackendRequestUrl(getApiBaseUrl(), `/api/v1/admin/sales-ads?lang=${lang}`),
         withClientAdminAuth(),
       );
       const gate = await ensureClientAuthorized(res);
       if (gate === "forbidden") {
-        setError(PERMISSION_DENIED_MN);
+        setError(t.siteContent.common.forbidden);
         return;
       }
       if (gate !== "ok") return;
@@ -84,9 +87,9 @@ export default function SalesAdsPage() {
       const json = (await res.json()) as { data: Ad[] };
       setAds(json.data);
     } catch (e) {
-      setError(e instanceof Error ? e.message : "Алдаа");
+      setError(e instanceof Error ? e.message : t.common.error);
     }
-  }, []);
+  }, [lang, t]);
 
   useEffect(() => {
     void load();
@@ -137,12 +140,12 @@ export default function SalesAdsPage() {
     e.preventDefault();
     if (!dialog) return;
     setError(null);
-    const payload = buildSalesAdBody(form);
+    const payload = { ...buildSalesAdBody(form), language: lang };
     try {
       const url =
         dialog.mode === "edit"
-          ? joinBackendRequestUrl(getApiBaseUrl(), `/api/v1/admin/sales-ads/${dialog.id}`)
-          : joinBackendRequestUrl(getApiBaseUrl(), "/api/v1/admin/sales-ads");
+          ? joinBackendRequestUrl(getApiBaseUrl(), `/api/v1/admin/sales-ads/${dialog.id}?lang=${lang}`)
+          : joinBackendRequestUrl(getApiBaseUrl(), `/api/v1/admin/sales-ads?lang=${lang}`);
       const res = await fetch(
         url,
         withClientAdminAuth({
@@ -153,7 +156,7 @@ export default function SalesAdsPage() {
       );
       const gate = await ensureClientAuthorized(res);
       if (gate === "forbidden") {
-        setError(PERMISSION_DENIED_MN);
+        setError(t.siteContent.common.forbidden);
         return;
       }
       if (gate !== "ok") return;
@@ -161,14 +164,14 @@ export default function SalesAdsPage() {
       closeDialog();
       await load();
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Алдаа");
+      setError(err instanceof Error ? err.message : t.common.error);
     }
   }
 
   async function toggleActive(ad: Ad) {
     try {
       const res = await fetch(
-        joinBackendRequestUrl(getApiBaseUrl(), `/api/v1/admin/sales-ads/${ad.id}`),
+        joinBackendRequestUrl(getApiBaseUrl(), `/api/v1/admin/sales-ads/${ad.id}?lang=${lang}`),
         withClientAdminAuth({
           method: "PATCH",
           headers: { "Content-Type": "application/json" },
@@ -177,34 +180,34 @@ export default function SalesAdsPage() {
       );
       const gate = await ensureClientAuthorized(res);
       if (gate === "forbidden") {
-        setError(PERMISSION_DENIED_MN);
+        setError(t.siteContent.common.forbidden);
         return;
       }
       if (gate !== "ok") return;
       if (!res.ok) throw new Error(await res.text());
       await load();
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Алдаа");
+      setError(err instanceof Error ? err.message : t.common.error);
     }
   }
 
   async function remove(id: string) {
-    if (!confirm("Устгах уу?")) return;
+    if (!confirm(lang === "mn" ? "Устгах уу?" : "Are you sure you want to delete?")) return;
     try {
       const res = await fetch(
-        joinBackendRequestUrl(getApiBaseUrl(), `/api/v1/admin/sales-ads/${id}`),
+        joinBackendRequestUrl(getApiBaseUrl(), `/api/v1/admin/sales-ads/${id}?lang=${lang}`),
         withClientAdminAuth({ method: "DELETE" }),
       );
       const gate = await ensureClientAuthorized(res);
       if (gate === "forbidden") {
-        setError(PERMISSION_DENIED_MN);
+        setError(t.siteContent.common.forbidden);
         return;
       }
       if (gate !== "ok") return;
       if (!res.ok && res.status !== 204) throw new Error(await res.text());
       await load();
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Алдаа");
+      setError(err instanceof Error ? err.message : t.common.error);
     }
   }
 
@@ -218,7 +221,7 @@ export default function SalesAdsPage() {
       >
         <button
           type="button"
-          aria-label="Хаах"
+          aria-label={t.common.cancel}
           className="absolute inset-0 bg-black/50 backdrop-blur-[1px]"
           onClick={closeDialog}
         />
@@ -232,27 +235,27 @@ export default function SalesAdsPage() {
             id="sales-ad-dialog-title"
             className="mb-5 text-lg font-semibold text-zinc-900 dark:text-zinc-50"
           >
-            {dialog.mode === "edit" ? "Зар засах" : "Шинэ зар"}
+            {dialog.mode === "edit" ? (lang === "mn" ? "Зар засах" : "Edit Sales Ad") : (lang === "mn" ? "Шинэ зар" : "New Sales Ad")}
           </h2>
           <form onSubmit={saveAd} className="space-y-4">
             <div className="grid gap-4 lg:grid-cols-2">
               <div className="space-y-4 lg:col-span-2">
                 <input
                   required
-                  placeholder="Гарчиг"
+                  placeholder={t.siteContent.common.title}
                   value={form.title}
                   onChange={(e) => setForm({ ...form, title: e.target.value })}
                   className="w-full rounded-lg border border-zinc-200 px-3 py-2.5 text-sm dark:border-zinc-700 dark:bg-zinc-900"
                 />
                 <input
-                  placeholder="Товч тайлбар"
+                  placeholder={t.siteContent.common.subtitle}
                   value={form.summary}
                   onChange={(e) => setForm({ ...form, summary: e.target.value })}
                   className="w-full rounded-lg border border-zinc-200 px-3 py-2.5 text-sm dark:border-zinc-700 dark:bg-zinc-900"
                 />
                 <textarea
                   required
-                  placeholder="Дэлгэрэнгүй (жагсаалт, эмхэтгэл зэргийг оруулж болно)"
+                  placeholder={t.siteContent.common.description}
                   rows={10}
                   value={form.body}
                   onChange={(e) => setForm({ ...form, body: e.target.value })}
@@ -261,14 +264,14 @@ export default function SalesAdsPage() {
               </div>
               <div className="space-y-4">
                 <div>
-                  <p className="mb-2 text-xs font-medium text-zinc-600 dark:text-zinc-400">Зураг</p>
+                  <p className="mb-2 text-xs font-medium text-zinc-600 dark:text-zinc-400">{t.siteContent.common.image}</p>
                   <ImageUploadField
                     value={form.imageUrl ?? ""}
                     onChange={(path) => setForm({ ...form, imageUrl: path })}
                   />
                 </div>
                 <input
-                  placeholder="Гадаад холбоос (сонголттой)"
+                  placeholder={lang === "mn" ? "Гадаад холбоос (сонголттой)" : "External URL (optional)"}
                   value={form.externalUrl}
                   onChange={(e) => setForm({ ...form, externalUrl: e.target.value })}
                   className="w-full rounded-lg border border-zinc-200 px-3 py-2.5 text-sm dark:border-zinc-700 dark:bg-zinc-900"
@@ -279,12 +282,12 @@ export default function SalesAdsPage() {
                     checked={form.active}
                     onChange={(e) => setForm({ ...form, active: e.target.checked })}
                   />
-                  Идэвхтэй
+                  {lang === "mn" ? "Идэвхтэй" : "Active"}
                 </label>
               </div>
               <div className="space-y-3">
                 <label className="block text-xs font-medium text-zinc-500">
-                  Эхлэх
+                  {lang === "mn" ? "Эхлэх" : "Starts"}
                   <input
                     type="datetime-local"
                     value={form.validFrom ?? ""}
@@ -293,7 +296,7 @@ export default function SalesAdsPage() {
                   />
                 </label>
                 <label className="block text-xs font-medium text-zinc-500">
-                  Дуусах
+                  {lang === "mn" ? "Дуусах" : "Ends"}
                   <input
                     type="datetime-local"
                     value={form.validTo ?? ""}
@@ -309,13 +312,13 @@ export default function SalesAdsPage() {
                 onClick={closeDialog}
                 className="rounded-lg border border-zinc-200 px-4 py-2 text-sm font-medium text-zinc-700 hover:bg-zinc-50 dark:border-zinc-600 dark:text-zinc-200 dark:hover:bg-zinc-800"
               >
-                Цуцлах
+                {t.common.cancel}
               </button>
               <button
                 type="submit"
                 className="rounded-lg bg-emerald-600 px-4 py-2 text-sm font-medium text-white hover:bg-emerald-700"
               >
-                {dialog.mode === "edit" ? "Хадгалах" : "Нэмэх"}
+                {dialog.mode === "edit" ? t.common.save : t.siteContent.common.add}
               </button>
             </div>
           </form>
@@ -333,13 +336,13 @@ export default function SalesAdsPage() {
       )}
 
       <div className="flex flex-wrap items-center justify-between gap-3">
-        <p className="text-sm text-zinc-600 dark:text-zinc-400">Борлуулалтын зарууд</p>
+        <p className="text-sm text-zinc-600 dark:text-zinc-400">{t.salesAds.title}</p>
         <button
           type="button"
           onClick={openAdd}
           className="rounded-lg bg-emerald-600 px-4 py-2 text-sm font-medium text-white shadow-sm transition hover:bg-emerald-700"
         >
-          Зар нэмэх
+          {t.salesAds.addAd}
         </button>
       </div>
 
@@ -363,11 +366,11 @@ export default function SalesAdsPage() {
                 {(ad.postedByDisplayName || ad.lastEditedByDisplayName) && (
                   <p className="mt-2 text-xs text-zinc-500 dark:text-zinc-400">
                     {ad.postedByDisplayName && (
-                      <span>Нийтлэгч: {ad.postedByDisplayName}</span>
+                      <span>{lang === "mn" ? "Нийтлэгч" : "Posted by"}: {ad.postedByDisplayName}</span>
                     )}
                     {ad.postedByDisplayName && ad.lastEditedByDisplayName ? " · " : null}
                     {ad.lastEditedByDisplayName && ad.lastEditedByUsername !== ad.postedByUsername ? (
-                      <span>Сүүлд зассан: {ad.lastEditedByDisplayName}</span>
+                       <span>{lang === "mn" ? "Сүүлд зассан" : "Last edited"}: {ad.lastEditedByDisplayName}</span>
                     ) : null}
                   </p>
                 )}
@@ -376,23 +379,23 @@ export default function SalesAdsPage() {
                 <button
                   type="button"
                   onClick={() => toggleActive(ad)}
-                  className="rounded-lg border border-zinc-200 px-2 py-1 text-xs dark:border-zinc-700"
+                  className="rounded-lg border border-zinc-200 px-2 py-1 text-xs dark:border-zinc-700 text-zinc-700 dark:text-zinc-300"
                 >
-                  {ad.active ? "Идэвхгүй болгох" : "Идэвхжүүлэх"}
+                  {ad.active ? (lang === "mn" ? "Идэвхгүй болгох" : "Deactivate") : (lang === "mn" ? "Идэвхжүүлэх" : "Activate")}
                 </button>
                 <button
                   type="button"
                   onClick={() => openEdit(ad)}
                   className="rounded-lg border border-emerald-200 bg-emerald-50 px-2 py-1 text-xs font-medium text-emerald-800 dark:border-emerald-900 dark:bg-emerald-950 dark:text-emerald-200"
                 >
-                  Засах
+                  {t.common.edit}
                 </button>
                 <button
                   type="button"
                   onClick={() => remove(ad.id)}
                   className="rounded-lg border border-red-200 px-2 py-1 text-xs text-red-700 dark:border-red-900 dark:text-red-400"
                 >
-                  Устгах
+                  {t.common.delete}
                 </button>
               </div>
             </div>

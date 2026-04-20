@@ -1,3 +1,4 @@
+import { cookies } from "next/headers";
 import { fetchAdminStats, apiGet } from "@/lib/apiServer";
 import Link from "next/link";
 import type { LucideIcon } from "lucide-react";
@@ -15,6 +16,7 @@ import {
   CheckCircle2,
   Clock3,
 } from "lucide-react";
+import { adminTranslations, AdminTranslations } from "@/lib/admin-translations";
 
 function StatCard({
   label,
@@ -89,12 +91,12 @@ function SectionCard({
   title,
   href,
   children,
-  actionLabel = "Бүгдийг харах",
+  actionLabel,
 }: {
   title: string;
   href: string;
   children: React.ReactNode;
-  actionLabel?: string;
+  actionLabel: string;
 }) {
   return (
     <div className="rounded-xl border border-zinc-200 bg-white shadow-sm dark:border-zinc-800 dark:bg-zinc-950">
@@ -113,30 +115,30 @@ function SectionCard({
   );
 }
 
-function StatusBadge({ status }: { status: string }) {
+function StatusBadge({ status, t }: { status: string; t: AdminTranslations }) {
   const statusConfig: Record<string, { label: string; icon: LucideIcon; className: string }> = {
     pending: {
-      label: "Хүлээгдэж буй",
+      label: t.orders.statuses.pending,
       icon: Clock3,
       className: "bg-amber-50 text-amber-700 dark:bg-amber-950/50 dark:text-amber-400",
     },
     confirmed: {
-      label: "Баталгаажсан",
+      label: t.orders.statuses.confirmed,
       icon: CheckCircle2,
       className: "bg-blue-50 text-blue-700 dark:bg-blue-950/50 dark:text-blue-400",
     },
     preparing: {
-      label: "Бэлтгэгдэж буй",
+      label: t.orders.statuses.preparing,
       icon: Package,
       className: "bg-violet-50 text-violet-700 dark:bg-violet-950/50 dark:text-violet-400",
     },
     delivered: {
-      label: "Хүргэгдсэн",
+      label: t.orders.statuses.delivered,
       icon: CheckCircle2,
       className: "bg-emerald-50 text-emerald-700 dark:bg-emerald-950/50 dark:text-emerald-400",
     },
     cancelled: {
-      label: "Цуцлагдсан",
+      label: t.orders.statuses.cancelled,
       icon: AlertCircle,
       className: "bg-rose-50 text-rose-700 dark:bg-rose-950/50 dark:text-rose-400",
     },
@@ -153,8 +155,8 @@ function StatusBadge({ status }: { status: string }) {
   );
 }
 
-function formatCurrency(amount: number): string {
-  return new Intl.NumberFormat("mn-MN", {
+function formatCurrency(amount: number, lang: string): string {
+  return new Intl.NumberFormat(lang === "mn" ? "mn-MN" : "en-US", {
     style: "currency",
     currency: "MNT",
     minimumFractionDigits: 0,
@@ -162,8 +164,8 @@ function formatCurrency(amount: number): string {
   }).format(amount);
 }
 
-function formatDate(date: string): string {
-  return new Date(date).toLocaleDateString("mn-MN", {
+function formatDate(date: string, lang: string): string {
+  return new Date(date).toLocaleDateString(lang === "mn" ? "mn-MN" : "en-US", {
     month: "short",
     day: "numeric",
     hour: "2-digit",
@@ -190,6 +192,10 @@ type Conversation = {
 };
 
 export default async function DashboardPage() {
+  const cookieStore = await cookies();
+  const lang = (cookieStore.get("admin-lang")?.value || "mn") as "mn" | "en";
+  const t = adminTranslations[lang];
+
   const statsResult = await fetchAdminStats();
   const stats = statsResult.data;
 
@@ -197,14 +203,14 @@ export default async function DashboardPage() {
   let recentConversations: Conversation[] = [];
 
   try {
-    const ordersRes = await apiGet<{ data: Order[] }>("/api/v1/admin/orders?limit=5");
+    const ordersRes = await apiGet<{ data: Order[] }>(`/api/v1/admin/orders?limit=5&lang=${lang}`);
     recentOrders = ordersRes.data.slice(0, 5);
   } catch {
     recentOrders = [];
   }
 
   try {
-    const convRes = await apiGet<{ data: Conversation[] }>("/api/v1/admin/conversations?limit=5");
+    const convRes = await apiGet<{ data: Conversation[] }>(`/api/v1/admin/conversations?limit=5&lang=${lang}`);
     recentConversations = convRes.data.slice(0, 5);
   } catch {
     recentConversations = [];
@@ -216,83 +222,82 @@ export default async function DashboardPage() {
         <div className="rounded-lg border border-amber-200 bg-amber-50 px-4 py-3 dark:border-amber-900 dark:bg-amber-950/30">
           <p className="text-sm text-amber-800 dark:text-amber-400">
             {statsResult.error === "unauthorized"
-              ? "Статистик ачаалагдсангүй. Серверийн нэвтрэх эрх хүчингүй байна — дахин нэвтэрнэ үү. Үргэлжилбэл: admin болон API дээрх ADMIN_JWT_SECRET ижил эсэх, серверээс API руу зөв хаяг (API_INTERNAL_URL) ашиглаж байгаа эсэхийг шалгана уу."
+              ? t.dashboard.alerts.unauthorized
               : statsResult.error === "forbidden"
-                ? "Самбарын статистик харах эрх танд байхгүй байна."
-                : "Статистик ачаалагдаагүй. API холболт болон backend статусыг шалгана уу."}
+                ? t.dashboard.alerts.forbidden
+                : t.dashboard.alerts.notLoaded}
           </p>
         </div>
       )}
 
       <section>
-        <h2 className="mb-4 text-lg font-semibold text-zinc-900 dark:text-zinc-50">Статистик</h2>
+        <h2 className="mb-4 text-lg font-semibold text-zinc-900 dark:text-zinc-50">{t.dashboard.stats.title}</h2>
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          
           <StatCard
-            label="Хүлээгдэж буй захиалга"
+            label={t.dashboard.stats.pendingOrders}
             value={stats ? String(stats.pendingOrders) : "—"}
             icon={Clock}
-            trend={stats ? `Нийт ${stats.totalOrders || 0} захиалга` : undefined}
+            trend={stats ? t.dashboard.stats.totalOrders(stats.totalOrders || 0) : undefined}
             color="amber"
           />
           <StatCard
-            label="Нээлттэй чат"
+            label={t.dashboard.stats.openChats}
             value={stats ? String(stats.openConversations ?? 0) : "—"}
             icon={MessageCircle}
-            trend={stats && stats.humanModeChats ? `${stats.humanModeChats} хүнтэй холбогдох хүсэлттэй` : undefined}
+            trend={stats && stats.humanModeChats ? t.dashboard.stats.humanRequests(stats.humanModeChats) : undefined}
             color="blue"
           />
           <StatCard
-            label="Идэвхтэй контент"
+            label={t.dashboard.stats.activeContent}
             value={stats ? String((stats.activeSalesAds || 0) + (stats.activeJobs || 0)) : "—"}
             icon={Megaphone}
-            trend={stats ? `${stats.activeSalesAds} зар, ${stats.activeJobs} ажлын байр` : undefined}
+            trend={stats ? t.dashboard.stats.contentDetail(stats.activeSalesAds, stats.activeJobs) : undefined}
             color="violet"
           />
         </div>
       </section>
 
       <section>
-        <h2 className="mb-4 text-lg font-semibold text-zinc-900 dark:text-zinc-50">Хурдан үйлдэл</h2>
+        <h2 className="mb-4 text-lg font-semibold text-zinc-900 dark:text-zinc-50">{t.dashboard.quickActions.title}</h2>
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
           <QuickAction
             href="/orders"
-            label="Захиалгууд"
-            description="Хүлээгдэж буй захиалгыг харах"
+            label={t.dashboard.quickActions.orders.label}
+            description={t.dashboard.quickActions.orders.desc}
             icon={ShoppingBag}
           />
           <QuickAction
             href="/chat"
-            label="Чат"
-            description="Харилцагчтай чатлах"
+            label={t.dashboard.quickActions.chat.label}
+            description={t.dashboard.quickActions.chat.desc}
             icon={MessageCircle}
           />
           <QuickAction
             href="/sales-ads"
-            label="Борлуулалтын зар"
-            description="Шинэ зар нэмэх"
+            label={t.dashboard.quickActions.sales.label}
+            description={t.dashboard.quickActions.sales.desc}
             icon={Plus}
           />
           <QuickAction
             href="/site-content"
-            label="Вэб агуулга"
-            description="Сайтын мэдээлэл засах"
+            label={t.dashboard.quickActions.content.label}
+            description={t.dashboard.quickActions.content.desc}
             icon={FileEdit}
           />
         </div>
       </section>
 
       <div className="grid gap-6 lg:grid-cols-2">
-        <SectionCard title="Сүүлийн захиалгууд" href="/orders">
+        <SectionCard title={t.dashboard.recentOrders.title} href="/orders" actionLabel={t.dashboard.recentOrders.viewAll}>
           {recentOrders.length === 0 ? (
             <p className="py-8 text-center text-sm text-zinc-500 dark:text-zinc-400">
-              Одоогоор захиалга байхгүй
+              {t.dashboard.recentOrders.empty}
             </p>
           ) : (
             <div className="space-y-3">
-              {recentOrders.map((order) => (
+              {recentOrders.map((order, i) => (
                 <div
-                  key={order._id}
+                  key={order._id || i}
                   className="flex items-center justify-between gap-4 rounded-lg border border-zinc-100 p-3 dark:border-zinc-800"
                 >
                   <div className="min-w-0 flex-1">
@@ -300,14 +305,14 @@ export default async function DashboardPage() {
                       <p className="truncate font-medium text-zinc-900 dark:text-zinc-50">
                         {order.customerName}
                       </p>
-                      <StatusBadge status={order.status} />
+                      <StatusBadge status={order.status} t={t} />
                     </div>
                     <p className="mt-1 text-xs text-zinc-500 dark:text-zinc-400">
-                      {formatDate(order.createdAt)} · {order.phone}
+                      {formatDate(order.createdAt, lang)} · {order.phone}
                     </p>
                   </div>
                   <p className="shrink-0 font-semibold text-zinc-900 dark:text-zinc-50">
-                    {formatCurrency(order.totalAmount)}
+                    {formatCurrency(order.totalAmount, lang)}
                   </p>
                 </div>
               ))}
@@ -315,32 +320,32 @@ export default async function DashboardPage() {
           )}
         </SectionCard>
 
-        <SectionCard title="Сүүлийн чатууд" href="/chat">
+        <SectionCard title={t.dashboard.recentChats.title} href="/chat" actionLabel={t.dashboard.recentOrders.viewAll}>
           {recentConversations.length === 0 ? (
             <p className="py-8 text-center text-sm text-zinc-500 dark:text-zinc-400">
-              Одоогоор идэвхтэй чат байхгүй
+              {t.dashboard.recentChats.empty}
             </p>
           ) : (
             <div className="space-y-3">
-              {recentConversations.map((conv) => (
+              {recentConversations.map((conv, i) => (
                 <div
-                  key={conv._id}
+                  key={conv._id || i}
                   className="flex items-center justify-between gap-4 rounded-lg border border-zinc-100 p-3 dark:border-zinc-800"
                 >
                   <div className="min-w-0 flex-1">
                     <div className="flex items-center gap-2">
                       <p className="truncate font-medium text-zinc-900 dark:text-zinc-50">
-                        {conv.displayName || `Зочин ${conv.guestId.slice(0, 8)}`}
+                        {conv.displayName || t.dashboard.recentChats.guest(conv.guestId.slice(0, 8))}
                       </p>
                       {conv.humanMode && (
                         <span className="inline-flex items-center gap-1 rounded-full bg-rose-50 px-2 py-0.5 text-xs font-medium text-rose-700 dark:bg-rose-950/50 dark:text-rose-400">
                           <Users className="h-3 w-3" />
-                          Хүн холбох
+                          {t.dashboard.recentChats.connectHuman}
                         </span>
                       )}
                     </div>
                     <p className="mt-1 text-xs text-zinc-500 dark:text-zinc-400">
-                      {formatDate(conv.updatedAt)} · {conv.status === "open" ? "Нээлттэй" : "Хаасан"}
+                      {formatDate(conv.updatedAt, lang)} · {conv.status === "open" ? t.dashboard.recentChats.open : t.dashboard.recentChats.closed}
                     </p>
                   </div>
                   <div

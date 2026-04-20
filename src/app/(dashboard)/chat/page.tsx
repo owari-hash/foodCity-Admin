@@ -5,10 +5,10 @@ import { Bot, ChevronLeft, MessageSquare, Plus, Trash2 } from "lucide-react";
 import { io, type Socket } from "socket.io-client";
 import {
   ensureClientAuthorized,
-  PERMISSION_DENIED_MN,
   withClientAdminAuth,
 } from "@/lib/adminClientAuth";
 import { getApiBaseUrl, getSocketBaseUrl, joinBackendRequestUrl } from "@/lib/api";
+import { useAdminLanguage } from "@/contexts/AdminLanguageContext";
 
 type Conv = {
   id: string;
@@ -140,6 +140,7 @@ function ChatChoiceEditor({
   onAddChild: (path: number[]) => void;
   onRemove: (path: number[]) => void;
 }) {
+  const { t } = useAdminLanguage();
   return (
     <div className="space-y-3">
       {nodes.map((node, idx) => {
@@ -154,14 +155,14 @@ function ChatChoiceEditor({
                 <input
                   value={node.label}
                   onChange={(e) => onChangeLabel(nodePath, e.target.value)}
-                  placeholder="Сонголтын текст (ж: Захиалга)"
+                  placeholder={t.chat.chatbot.actions.placeholderLabel}
                   className="w-full rounded-lg border border-zinc-200 px-3 py-2 text-sm dark:border-zinc-700 dark:bg-zinc-950"
                 />
                 <textarea
                   value={node.answer}
                   onChange={(e) => onChangeAnswer(nodePath, e.target.value)}
                   rows={2}
-                  placeholder="Хариу текст"
+                  placeholder={t.chat.chatbot.actions.placeholderAnswer}
                   className="w-full rounded-lg border border-zinc-200 px-3 py-2 text-sm dark:border-zinc-700 dark:bg-zinc-950"
                 />
               </div>
@@ -171,14 +172,14 @@ function ChatChoiceEditor({
                   onClick={() => onAddChild(nodePath)}
                   className="inline-flex items-center gap-1 rounded-lg border border-zinc-300 px-2.5 py-2 text-xs dark:border-zinc-600"
                 >
-                  <Plus className="h-3.5 w-3.5" /> Дэд сонголт
+                  <Plus className="h-3.5 w-3.5" /> {t.chat.chatbot.actions.addChild}
                 </button>
                 <button
                   type="button"
                   onClick={() => onRemove(nodePath)}
                   className="inline-flex items-center gap-1 rounded-lg border border-rose-300 px-2.5 py-2 text-xs text-rose-700 dark:border-rose-800 dark:text-rose-300"
                 >
-                  <Trash2 className="h-3.5 w-3.5" /> Устгах
+                  <Trash2 className="h-3.5 w-3.5" /> {t.siteContent.common.remove}
                 </button>
               </div>
             </div>
@@ -204,11 +205,21 @@ function ChatChoiceEditor({
 type ChatTab = "chats" | "chatbot";
 
 export default function ChatAdminPage() {
+  const { t } = useAdminLanguage();
   const [tab, setTab] = useState<ChatTab>("chats");
   const [conversations, setConversations] = useState<Conv[]>([]);
   const [selected, setSelected] = useState<Conv | null>(null);
   const [messages, setMessages] = useState<Msg[]>([]);
   const [input, setInput] = useState("");
+
+  const DEFAULT_CHATBOT_CONFIG: ChatbotConfig = {
+    startButtonLabel: t.chat.chatbot.fields.startButton,
+    welcomeMessage: t.chat.chatbot.fields.welcomeMessage,
+    fallbackBotReply: "",
+    restartLabel: t.chat.chatbot.fields.restartButton,
+    rootChoices: [],
+  };
+
   const [botConfig, setBotConfig] = useState<ChatbotConfig>(DEFAULT_CHATBOT_CONFIG);
   const [configLoading, setConfigLoading] = useState(false);
   const [configSaving, setConfigSaving] = useState(false);
@@ -229,7 +240,7 @@ export default function ChatAdminPage() {
       );
       const gate = await ensureClientAuthorized(res);
       if (gate === "forbidden") {
-        setError(PERMISSION_DENIED_MN);
+        setError(t.siteContent.common.forbidden);
         return;
       }
       if (gate !== "ok") return;
@@ -237,9 +248,9 @@ export default function ChatAdminPage() {
       const json = (await res.json()) as { data: Conv[] };
       setConversations(json.data);
     } catch (e) {
-      setError(e instanceof Error ? e.message : "Алдаа");
+      setError(e instanceof Error ? e.message : t.siteContent.common.error);
     }
-  }, []);
+  }, [t]);
 
   const loadMessages = useCallback(
     async (id: string) => {
@@ -250,7 +261,7 @@ export default function ChatAdminPage() {
         );
         const gate = await ensureClientAuthorized(res);
       if (gate === "forbidden") {
-        setError(PERMISSION_DENIED_MN);
+        setError(t.siteContent.common.forbidden);
         return;
       }
       if (gate !== "ok") return;
@@ -258,10 +269,10 @@ export default function ChatAdminPage() {
         const json = (await res.json()) as { data: Msg[] };
         setMessages(json.data);
       } catch (e) {
-        setError(e instanceof Error ? e.message : "Алдаа");
+        setError(e instanceof Error ? e.message : t.siteContent.common.error);
       }
     },
-    [],
+    [t],
   );
 
   const loadBotConfig = useCallback(async () => {
@@ -273,7 +284,7 @@ export default function ChatAdminPage() {
       );
       const gate = await ensureClientAuthorized(res);
       if (gate === "forbidden") {
-        setError(PERMISSION_DENIED_MN);
+        setError(t.siteContent.common.forbidden);
         return;
       }
       if (gate !== "ok") return;
@@ -281,11 +292,11 @@ export default function ChatAdminPage() {
       const json = (await res.json()) as { data?: { sections?: unknown } };
       setBotConfig(normalizeChatbotConfig(json.data?.sections));
     } catch (e) {
-      setError(e instanceof Error ? e.message : "Алдаа");
+      setError(e instanceof Error ? e.message : t.siteContent.common.error);
     } finally {
       setConfigLoading(false);
     }
-  }, []);
+  }, [t, normalizeChatbotConfig]);
 
   useEffect(() => {
     void loadConversations();
@@ -372,7 +383,7 @@ export default function ChatAdminPage() {
       );
       const gate = await ensureClientAuthorized(res);
       if (gate === "forbidden") {
-        setError(PERMISSION_DENIED_MN);
+        setError(t.siteContent.common.forbidden);
         return;
       }
       if (gate !== "ok") return;
@@ -384,7 +395,7 @@ export default function ChatAdminPage() {
       setInput("");
       void loadConversations();
     } catch (e) {
-      setError(e instanceof Error ? e.message : "Алдаа");
+      setError(e instanceof Error ? e.message : t.siteContent.common.error);
     }
   }
 
@@ -401,7 +412,7 @@ export default function ChatAdminPage() {
       );
       const gate = await ensureClientAuthorized(res);
       if (gate === "forbidden") {
-        setError(PERMISSION_DENIED_MN);
+        setError(t.siteContent.common.forbidden);
         return;
       }
       if (gate !== "ok") return;
@@ -410,7 +421,7 @@ export default function ChatAdminPage() {
       setSelected(json.data);
       void loadConversations();
     } catch (e) {
-      setError(e instanceof Error ? e.message : "Алдаа");
+      setError(e instanceof Error ? e.message : t.siteContent.common.error);
     }
   }
 
@@ -435,15 +446,15 @@ export default function ChatAdminPage() {
       );
       const gate = await ensureClientAuthorized(res);
       if (gate === "forbidden") {
-        setError(PERMISSION_DENIED_MN);
+        setError(t.siteContent.common.forbidden);
         return;
       }
       if (gate !== "ok") return;
       if (!res.ok) throw new Error(await res.text());
-      setConfigMsg("Чатботын сонголтууд хадгалагдлаа.");
+      setConfigMsg(t.chat.chatbot.status.success);
       setTimeout(() => setConfigMsg(null), 3000);
     } catch (e) {
-      setError(e instanceof Error ? e.message : "Алдаа");
+      setError(e instanceof Error ? e.message : t.siteContent.common.error);
     } finally {
       setConfigSaving(false);
     }
@@ -506,7 +517,7 @@ export default function ChatAdminPage() {
       <div
         className="flex flex-wrap gap-1 rounded-xl border border-zinc-200 bg-zinc-50/80 p-1 dark:border-zinc-800 dark:bg-zinc-900/50"
         role="tablist"
-        aria-label="Чат хэсэг"
+        aria-label={t.chat.title}
       >
         <button
           type="button"
@@ -520,7 +531,7 @@ export default function ChatAdminPage() {
           }`}
         >
           <MessageSquare className="h-4 w-4 shrink-0" aria-hidden />
-          Яриа
+          {t.chat.tabs.chats}
         </button>
         <button
           type="button"
@@ -534,7 +545,7 @@ export default function ChatAdminPage() {
           }`}
         >
           <Bot className="h-4 w-4 shrink-0" aria-hidden />
-          Чатбот
+          {t.chat.tabs.chatbot}
         </button>
       </div>
 
@@ -546,10 +557,10 @@ export default function ChatAdminPage() {
             <div className="flex flex-wrap items-center justify-between gap-2">
               <div>
                 <h2 className="text-base font-semibold text-zinc-900 dark:text-zinc-50">
-                  Чатботын сонголтууд
+                  {t.chat.chatbot.title}
                 </h2>
                 <p className="text-xs text-zinc-500">
-                  Сайтын чат дээрх хурдан сонголтууд, хариу текст — эндээс тохируулна.
+                  {t.chat.chatbot.description}
                 </p>
               </div>
               <button
@@ -558,7 +569,7 @@ export default function ChatAdminPage() {
                 disabled={configSaving || configLoading}
                 className="rounded-lg bg-emerald-600 px-4 py-2 text-sm font-medium text-white hover:bg-emerald-700 disabled:opacity-50"
               >
-                {configSaving ? "Хадгалж байна…" : "Хадгалах"}
+                {configSaving ? t.chat.chatbot.status.saving : t.common.save}
               </button>
             </div>
           </div>
@@ -570,7 +581,7 @@ export default function ChatAdminPage() {
                 onChange={(e) =>
                   setBotConfig((prev) => ({ ...prev, startButtonLabel: e.target.value }))
                 }
-                placeholder="Эхлэх товч (сонголттой)"
+                placeholder={t.chat.chatbot.fields.startButton}
                 className="rounded-lg border border-zinc-200 px-3 py-2 text-sm dark:border-zinc-700 dark:bg-zinc-900"
               />
               <input
@@ -578,7 +589,7 @@ export default function ChatAdminPage() {
                 onChange={(e) =>
                   setBotConfig((prev) => ({ ...prev, restartLabel: e.target.value }))
                 }
-                placeholder="Дахин эхлэх товч (сонголттой)"
+                placeholder={t.chat.chatbot.fields.restartButton}
                 className="rounded-lg border border-zinc-200 px-3 py-2 text-sm dark:border-zinc-700 dark:bg-zinc-900"
               />
               <button
@@ -586,7 +597,7 @@ export default function ChatAdminPage() {
                 onClick={() => addNode([])}
                 className="inline-flex items-center justify-center gap-2 rounded-lg border border-zinc-300 px-3 py-2 text-sm dark:border-zinc-600"
               >
-                <Plus className="h-4 w-4" /> Үндсэн сонголт нэмэх
+                <Plus className="h-4 w-4" /> {t.chat.chatbot.actions.addRoot}
               </button>
             </div>
 
@@ -596,13 +607,13 @@ export default function ChatAdminPage() {
                 setBotConfig((prev) => ({ ...prev, welcomeMessage: e.target.value }))
               }
               rows={2}
-              placeholder="Нээлтийн мэндчилгээ (сонголттой)"
+              placeholder={t.chat.chatbot.fields.welcomeMessage}
               className="mt-3 w-full rounded-lg border border-zinc-200 px-3 py-2 text-sm dark:border-zinc-700 dark:bg-zinc-900"
             />
 
             <label className="mt-3 block">
               <span className="mb-1 block text-xs font-medium text-zinc-600 dark:text-zinc-400">
-                Чөлөөт асуултын ерөнхий хариу
+                {t.chat.chatbot.fields.fallbackReply}
               </span>
               <textarea
                 value={botConfig.fallbackBotReply}
@@ -610,19 +621,19 @@ export default function ChatAdminPage() {
                   setBotConfig((prev) => ({ ...prev, fallbackBotReply: e.target.value }))
                 }
                 rows={3}
-                placeholder="Сонголтонд таарахгүй бичвэрт бот өгөх хариу (сонголттой). Хоосон бол эхний мэндчилгээг ашиглана."
+                placeholder={t.chat.chatbot.fields.fallbackHint}
                 className="w-full rounded-lg border border-zinc-200 px-3 py-2 text-sm dark:border-zinc-700 dark:bg-zinc-900"
               />
             </label>
 
             <div className="mt-4">
               {configLoading ? (
-                <p className="text-sm text-zinc-500">Тохиргоо ачаалж байна…</p>
+                <p className="text-sm text-zinc-500">{t.chat.chatbot.status.loading}</p>
               ) : (
                 <>
                   {botConfig.rootChoices.length === 0 && (
                     <p className="mb-3 text-sm text-zinc-500">
-                      Сонголт алга. «Үндсэн сонголт нэмэх» дээр дарж эхлүүлнэ үү.
+                      {t.chat.chatbot.actions.emptyChoices}
                     </p>
                   )}
                   <ChatChoiceEditor
@@ -652,7 +663,7 @@ export default function ChatAdminPage() {
           selected ? "hidden lg:block" : "max-h-[min(40vh,320px)]"
         }`}
       >
-        <p className="px-2 py-1 text-xs font-medium text-zinc-500">Яриа</p>
+        <p className="px-2 py-1 text-xs font-medium text-zinc-500">{t.chat.sidebar.listTitle}</p>
         {conversations.map((c) => (
           <button
             key={c.id}
@@ -665,15 +676,15 @@ export default function ChatAdminPage() {
             }`}
           >
             <div className="font-medium truncate">
-              {c.displayName || c.guestId.slice(0, 8)}
+               {c.displayName || (t.chat.thread.roles.user + " " + c.guestId.slice(0, 8))}
             </div>
             <div className="text-xs text-zinc-500">
-              {c.humanMode ? "Ажилтан" : "Бот"} · {c.status}
+              {c.humanMode ? t.chat.thread.roles.agent("") : t.chat.thread.roles.bot} · {c.status}
             </div>
           </button>
         ))}
         {conversations.length === 0 && (
-          <p className="px-2 text-sm text-zinc-500">Яриа алга</p>
+          <p className="px-2 text-sm text-zinc-500">{t.chat.sidebar.empty}</p>
         )}
       </div>
 
@@ -684,7 +695,7 @@ export default function ChatAdminPage() {
       >
         {!selected ? (
           <div className="flex flex-1 items-center justify-center p-6 text-center text-sm text-zinc-500">
-            Яриа сонгоно уу
+            {t.chat.sidebar.selectPrompt}
           </div>
         ) : (
           <>
@@ -692,7 +703,7 @@ export default function ChatAdminPage() {
               <button
                 type="button"
                 className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg text-zinc-600 hover:bg-zinc-100 lg:hidden dark:text-zinc-400 dark:hover:bg-zinc-900"
-                aria-label="Жагсаалт руу буцах"
+                aria-label={t.chat.thread.backToList}
                 onClick={() => setSelected(null)}
               >
                 <ChevronLeft className="h-5 w-5" aria-hidden />
@@ -705,7 +716,7 @@ export default function ChatAdminPage() {
                 onClick={() => setHumanMode(!selected.humanMode)}
                 className="min-h-9 shrink-0 rounded-lg border border-zinc-200 px-2 py-1.5 text-xs leading-tight dark:border-zinc-700 sm:max-w-none"
               >
-                {selected.humanMode ? "Бот руу буцаах" : "Ажилтан авах (бот унтраах)"}
+                {selected.humanMode ? t.chat.thread.backToBot : t.chat.thread.connectHuman}
               </button>
             </div>
             <div className="min-h-0 flex-1 space-y-2 overflow-y-auto px-3 py-3 sm:px-4">
@@ -727,8 +738,10 @@ export default function ChatAdminPage() {
                   >
                     <span className="mb-0.5 block text-[10px] uppercase opacity-70">
                       {m.role === "agent" && (m.agentDisplayName || m.agentUsername)
-                        ? `Ажилтан: ${m.agentDisplayName ?? m.agentUsername}`
-                        : m.role}
+                        ? t.chat.thread.roles.agent(m.agentDisplayName || m.agentUsername || "")
+                        : m.role === "user"
+                          ? t.chat.thread.roles.user
+                          : t.chat.thread.roles.bot}
                     </span>
                     {m.text}
                   </div>
@@ -740,7 +753,7 @@ export default function ChatAdminPage() {
                 value={input}
                 onChange={(e) => setInput(e.target.value)}
                 onKeyDown={(e) => e.key === "Enter" && void sendAgent()}
-                placeholder="Хариу бичих…"
+                placeholder={t.chat.thread.inputPlaceholder}
                 className="min-h-11 min-w-0 flex-1 rounded-lg border border-zinc-200 px-3 py-2 text-base sm:text-sm dark:border-zinc-700 dark:bg-zinc-900"
               />
               <button
@@ -748,7 +761,7 @@ export default function ChatAdminPage() {
                 onClick={() => void sendAgent()}
                 className="min-h-11 shrink-0 rounded-lg bg-emerald-600 px-4 py-2 text-sm font-medium text-white hover:bg-emerald-700"
               >
-                Илгээх
+                {t.chat.thread.send}
               </button>
             </div>
           </>

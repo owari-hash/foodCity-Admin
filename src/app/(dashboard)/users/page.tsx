@@ -2,12 +2,12 @@
 
 import { useCallback, useEffect, useState } from "react";
 import {
-  ADMIN_PERMISSION_KEYS,
   ensureClientAuthorized,
-  PERMISSION_DENIED_MN,
   withClientAdminAuth,
 } from "@/lib/adminClientAuth";
 import { getApiBaseUrl, joinBackendRequestUrl } from "@/lib/api";
+import { useAdminLanguage } from "@/contexts/AdminLanguageContext";
+import { ADMIN_PERMISSION_KEYS } from "@/lib/adminClientAuth";
 
 type AdminUserRow = {
   id: string;
@@ -17,17 +17,9 @@ type AdminUserRow = {
   active?: boolean;
 };
 
-const permLabels: Record<string, string> = {
-  dashboard: "Самбар",
-  orders: "Захиалга",
-  "sales-ads": "Борлуулалтын зар",
-  jobs: "Ажлын зар",
-  chat: "Чат",
-  "site-content": "Вэб агуулга",
-  "admin-users": "Админ хэрэглэгчид",
-};
-
 export default function AdminUsersPage() {
+  const { t } = useAdminLanguage();
+  const permLabels = t.users.permLabels as Record<string, string>;
   const [users, setUsers] = useState<AdminUserRow[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [busyId, setBusyId] = useState<string | null>(null);
@@ -47,7 +39,7 @@ export default function AdminUsersPage() {
       );
       const gate = await ensureClientAuthorized(res);
       if (gate === "forbidden") {
-        setError(PERMISSION_DENIED_MN);
+        setError(t.siteContent.common.forbidden);
         return;
       }
       if (gate !== "ok") return;
@@ -55,9 +47,9 @@ export default function AdminUsersPage() {
       const json = (await res.json()) as { data: AdminUserRow[] };
       setUsers(json.data);
     } catch (e) {
-      setError(e instanceof Error ? e.message : "Алдаа");
+      setError(e instanceof Error ? e.message : t.siteContent.common.error);
     }
-  }, []);
+  }, [t]);
 
   useEffect(() => {
     void load();
@@ -89,7 +81,7 @@ export default function AdminUsersPage() {
       );
       const gate = await ensureClientAuthorized(res);
       if (gate === "forbidden") {
-        setError(PERMISSION_DENIED_MN);
+        setError(t.siteContent.common.forbidden);
         return;
       }
       if (gate !== "ok") return;
@@ -101,7 +93,7 @@ export default function AdminUsersPage() {
       setNewPerms(["dashboard"]);
       await load();
     } catch (e) {
-      setError(e instanceof Error ? e.message : "Алдаа");
+      setError(e instanceof Error ? e.message : t.siteContent.common.error);
     } finally {
       setBusyId(null);
     }
@@ -124,14 +116,14 @@ export default function AdminUsersPage() {
       );
       const gate = await ensureClientAuthorized(res);
       if (gate === "forbidden") {
-        setError(PERMISSION_DENIED_MN);
+        setError(t.siteContent.common.forbidden);
         return;
       }
       if (gate !== "ok") return;
       if (!res.ok) throw new Error(await res.text());
       await load();
     } catch (e) {
-      setError(e instanceof Error ? e.message : "Алдаа");
+      setError(e instanceof Error ? e.message : t.siteContent.common.error);
     } finally {
       setBusyId(null);
     }
@@ -147,9 +139,9 @@ export default function AdminUsersPage() {
 
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
-          <p className="text-sm font-medium text-zinc-800 dark:text-zinc-100">Админ эрхүүд</p>
+          <p className="text-sm font-medium text-zinc-800 dark:text-zinc-100">{t.users.title}</p>
           <p className="text-xs text-zinc-500 dark:text-zinc-400">
-            Нэвтрэх нэр, нууц, харах цэсүүдийг тохируулна.
+            {t.users.description}
           </p>
         </div>
         <button
@@ -157,7 +149,7 @@ export default function AdminUsersPage() {
           onClick={() => setAddOpen(true)}
           className="rounded-lg bg-emerald-600 px-4 py-2 text-sm font-medium text-white shadow-sm transition hover:bg-emerald-700"
         >
-          Хэрэглэгч нэмэх
+          {t.users.addUser}
         </button>
       </div>
 
@@ -166,10 +158,10 @@ export default function AdminUsersPage() {
           onSubmit={(e) => void createUser(e)}
           className="space-y-4 rounded-xl border border-zinc-200 bg-white p-4 dark:border-zinc-700 dark:bg-zinc-950"
         >
-          <h2 className="text-sm font-semibold text-zinc-900 dark:text-zinc-50">Шинэ админ</h2>
+          <h2 className="text-sm font-semibold text-zinc-900 dark:text-zinc-50">{t.users.newUser}</h2>
           <div className="grid gap-3 sm:grid-cols-2">
             <label className="block text-xs font-medium text-zinc-600 dark:text-zinc-400">
-              Нэвтрэх нэр
+              {t.users.fields.username}
               <input
                 required
                 value={username}
@@ -178,7 +170,7 @@ export default function AdminUsersPage() {
               />
             </label>
             <label className="block text-xs font-medium text-zinc-600 dark:text-zinc-400">
-              Нэр (дэлгэцэнд)
+              {t.users.fields.displayName}
               <input
                 required
                 value={displayName}
@@ -187,7 +179,7 @@ export default function AdminUsersPage() {
               />
             </label>
             <label className="block text-xs font-medium text-zinc-600 dark:text-zinc-400 sm:col-span-2">
-              Нууц үг (хамгийн багадаа 6 тэмдэгт)
+              {t.users.fields.password}
               <input
                 required
                 type="password"
@@ -199,7 +191,7 @@ export default function AdminUsersPage() {
             </label>
           </div>
           <fieldset>
-            <legend className="text-xs font-medium text-zinc-600 dark:text-zinc-400">Эрхүүд</legend>
+            <legend className="text-xs font-medium text-zinc-600 dark:text-zinc-400">{t.users.fields.permissions}</legend>
             <div className="mt-2 flex flex-wrap gap-2">
               {ADMIN_PERMISSION_KEYS.map((key) => (
                 <label
@@ -222,14 +214,14 @@ export default function AdminUsersPage() {
               onClick={() => setAddOpen(false)}
               className="rounded-lg border border-zinc-300 px-4 py-2 text-sm dark:border-zinc-600"
             >
-              Цуцлах
+              {t.common.cancel}
             </button>
             <button
               type="submit"
               disabled={busyId === "new" || newPerms.length === 0}
               className="rounded-lg bg-emerald-600 px-4 py-2 text-sm font-medium text-white disabled:opacity-50"
             >
-              {busyId === "new" ? "Хадгалж байна…" : "Үүсгэх"}
+              {busyId === "new" ? t.common.saving : t.common.save}
             </button>
           </div>
         </form>
@@ -250,7 +242,7 @@ export default function AdminUsersPage() {
                 </p>
                 {u.active === false && (
                   <p className="mt-1 text-xs font-medium text-amber-700 dark:text-amber-400">
-                    Идэвхгүй
+                    {t.users.status.inactive}
                   </p>
                 )}
               </div>
@@ -261,7 +253,7 @@ export default function AdminUsersPage() {
                   onClick={() => void patchUser(u.id, { active: u.active !== false ? false : true })}
                   className="rounded-lg border border-zinc-200 px-2 py-1 text-xs dark:border-zinc-700"
                 >
-                  {u.active === false ? "Идэвхжүүлэх" : "Идэвхгүй болгох"}
+                  {u.active === false ? t.users.status.activate : t.users.status.deactivate}
                 </button>
               </div>
             </div>

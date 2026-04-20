@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
+import { useAdminLanguage } from "@/contexts/AdminLanguageContext";
 import { useDebounce } from "@/hooks/useDebounce";
 import {
   ensureClientAuthorized,
@@ -284,9 +285,9 @@ function normalizeTeamPage(v: unknown): TeamPageState {
   };
 }
 
-async function fetchSections(pageId: string): Promise<Record<string, unknown>> {
+async function fetchSections(pageId: string, lang: string): Promise<Record<string, unknown>> {
   const res = await fetch(
-    joinBackendRequestUrl(getApiBaseUrl(), `/api/v1/admin/site-pages/${pageId}`),
+    joinBackendRequestUrl(getApiBaseUrl(), `/api/v1/admin/site-pages/${pageId}?lang=${lang}`),
     withClientAdminAuth(),
   );
   const gate = await ensureClientAuthorized(res);
@@ -300,66 +301,71 @@ async function fetchSections(pageId: string): Promise<Record<string, unknown>> {
     : {};
 }
 
-const TABS = [
-  {
-    id: "home" as const,
-    label: "Нүүр",
-    hint: "Hero, слайд, статистик",
-    icon: Home,
-  },
-  {
-    id: "about" as const,
-    label: "Бидний тухай",
-    hint: "Танилцуулга, статистик",
-    icon: Building2,
-  },
-  {
-    id: "services" as const,
-    label: "Үйлчилгээ",
-    hint: "Давуу тал, тоонууд",
-    icon: Briefcase,
-  },
-  {
-    id: "contact" as const,
-    label: "Холбоо барих",
-    hint: "Хаяг, утас, кард",
-    icon: Phone,
-  },
-  {
-    id: "properties-page" as const,
-    label: "Хамтран ажиллах",
-    hint: "/properties — ангилал, картууд",
-    icon: Building2,
-  },
-  {
-    id: "sales-page" as const,
-    label: "Борлуулалт",
-    hint: "Зар мэдээ — борлуулалтын толгой",
-    icon: Megaphone,
-  },
-  {
-    id: "jobs-page" as const,
-    label: "Ажлын зар",
-    hint: "Зар мэдээ — жагсаалтын толгой",
-    icon: ClipboardList,
-  },
-  {
-    id: "team" as const,
-    label: "Мэдээ мэдээлэл",
-    hint: "Зар мэдээ — баг, CTA",
-    icon: Newspaper,
-  },
-  {
-    id: "footer" as const,
-    label: "Хөл",
-    hint: "Түншүүд, танилцуулга",
-    icon: LayoutGrid,
-  },
-];
+export function useTabs() {
+  const { t } = useAdminLanguage();
+  return [
+    {
+      id: "home" as const,
+      label: t.siteContent.tabs.home.label,
+      hint: t.siteContent.tabs.home.hint,
+      icon: Home,
+    },
+    {
+      id: "about" as const,
+      label: t.siteContent.tabs.about.label,
+      hint: t.siteContent.tabs.about.hint,
+      icon: Building2,
+    },
+    {
+      id: "services" as const,
+      label: t.siteContent.tabs.services.label,
+      hint: t.siteContent.tabs.services.hint,
+      icon: Briefcase,
+    },
+    {
+      id: "contact" as const,
+      label: t.siteContent.tabs.contact.label,
+      hint: t.siteContent.tabs.contact.hint,
+      icon: Phone,
+    },
+    {
+      id: "properties-page" as const,
+      label: t.siteContent.tabs.propertiesPage.label,
+      hint: t.siteContent.tabs.propertiesPage.hint,
+      icon: Building2,
+    },
+    {
+      id: "sales-page" as const,
+      label: t.siteContent.tabs.salesPage.label,
+      hint: t.siteContent.tabs.salesPage.hint,
+      icon: Megaphone,
+    },
+    {
+      id: "jobs-page" as const,
+      label: t.siteContent.tabs.jobsPage.label,
+      hint: t.siteContent.tabs.jobsPage.hint,
+      icon: ClipboardList,
+    },
+    {
+      id: "team" as const,
+      label: t.siteContent.tabs.team.label,
+      hint: t.siteContent.tabs.team.hint,
+      icon: Newspaper,
+    },
+    {
+      id: "footer" as const,
+      label: t.siteContent.tabs.footer.label,
+      hint: t.siteContent.tabs.footer.hint,
+      icon: LayoutGrid,
+    },
+  ];
+}
 
-type TabId = (typeof TABS)[number]["id"];
+type TabId = "home" | "about" | "services" | "contact" | "properties-page" | "sales-page" | "jobs-page" | "team" | "footer";
 
 export default function SiteContentPage() {
+  const { lang, t } = useAdminLanguage();
+  const TABS = useTabs();
   const [tab, setTab] = useState<TabId>("home");
   const [error, setError] = useState<string | null>(null);
   const [saved, setSaved] = useState<string | null>(null);
@@ -383,15 +389,15 @@ export default function SiteContentPage() {
     setLoading(true);
     try {
       const [h, a, svc, c, pp, sp, jp, tm, f] = await Promise.all([
-        fetchSections("home"),
-        fetchSections("about"),
-        fetchSections("services"),
-        fetchSections("contact"),
-        fetchSections("properties-page"),
-        fetchSections("sales-page"),
-        fetchSections("jobs-page"),
-        fetchSections("team"),
-        fetchSections("footer"),
+        fetchSections("home", lang),
+        fetchSections("about", lang),
+        fetchSections("services", lang),
+        fetchSections("contact", lang),
+        fetchSections("properties-page", lang),
+        fetchSections("sales-page", lang),
+        fetchSections("jobs-page", lang),
+        fetchSections("team", lang),
+        fetchSections("footer", lang),
       ]);
       setHome(normalizeHome(h));
       setAbout(normalizeAbout(a));
@@ -404,14 +410,14 @@ export default function SiteContentPage() {
       setFooter(normalizeFooter(f));
     } catch (e) {
       if (e instanceof Error && e.message === "FC_FORBIDDEN") {
-        setError(PERMISSION_DENIED_MN);
+        setError(t.siteContent.common.forbidden);
       } else {
-        setError(e instanceof Error ? e.message : "Алдаа");
+        setError(e instanceof Error ? e.message : t.siteContent.common.error);
       }
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [lang]);
 
   const debouncedSave = useDebounce(
     async (pageId: (typeof TABS)[number]["id"], sections: unknown) => {
@@ -421,7 +427,7 @@ export default function SiteContentPage() {
 
       try {
         const res = await fetch(
-          joinBackendRequestUrl(getApiBaseUrl(), `/api/v1/admin/site-pages/${pageId}`),
+          joinBackendRequestUrl(getApiBaseUrl(), `/api/v1/admin/site-pages/${pageId}?lang=${lang}`),
           withClientAdminAuth({
             method: "PUT",
             headers: { "Content-Type": "application/json" },
@@ -437,9 +443,9 @@ export default function SiteContentPage() {
         if (gate !== "ok") return;
         if (!res.ok) throw new Error(await res.text());
 
-        setSaved("Амжилттай хадгаллаа");
+        setSaved(t.siteContent.common.saveSuccess);
       } catch (e) {
-        setError(e instanceof Error ? e.message : "Алдаа");
+        setError(e instanceof Error ? e.message : t.siteContent.common.error);
       } finally {
         setSaving(false);
       }
@@ -475,7 +481,7 @@ export default function SiteContentPage() {
                       : footer;
     try {
       const res = await fetch(
-        joinBackendRequestUrl(getApiBaseUrl(), `/api/v1/admin/site-pages/${pageId}`),
+        joinBackendRequestUrl(getApiBaseUrl(), `/api/v1/admin/site-pages/${pageId}?lang=${lang}`),
         withClientAdminAuth({
           method: "PUT",
           headers: { "Content-Type": "application/json" },
@@ -484,7 +490,7 @@ export default function SiteContentPage() {
       );
       const gate = await ensureClientAuthorized(res);
       if (gate === "forbidden") {
-        setError(PERMISSION_DENIED_MN);
+        setError(t.siteContent.common.forbidden);
         return;
       }
       if (gate !== "ok") return;
@@ -496,10 +502,10 @@ export default function SiteContentPage() {
         console.warn("revalidate-front:", t);
       }
 
-      setSaved("Хадгалагдлаа. Сайт шинэчлэгдлээ.");
+      setSaved(t.siteContent.common.revalidated);
       setTimeout(() => setSaved(null), 4000);
     } catch (e) {
-      setError(e instanceof Error ? e.message : "Алдаа");
+      setError(e instanceof Error ? e.message : t.siteContent.common.error);
     } finally {
       setSaving(false);
     }
@@ -528,7 +534,7 @@ export default function SiteContentPage() {
           <EditorSurface>
             <header className="shrink-0 border-b border-slate-200/80 pb-4 dark:border-slate-800">
               <p className="text-[11px] font-bold uppercase tracking-[0.14em] text-indigo-600 dark:text-indigo-400">
-                Засварлаж буй хуудас
+                {t.siteContent.common.editingPage}
               </p>
               <h2 className="mt-1 text-xl font-bold tracking-tight text-slate-900 dark:text-slate-50">
                 {TABS.find((t) => t.id === tab)?.label ?? ""}
@@ -540,22 +546,22 @@ export default function SiteContentPage() {
             <div className="min-h-0 flex-1 overflow-y-auto overscroll-y-contain [scrollbar-gutter:stable]">
               {loading ? (
                 <p className="text-sm font-medium text-slate-500 dark:text-slate-400">
-                  Ачаалж байна…
+                  {t.common.loading}
                 </p>
               ) : tab === "home" ? (
                 <EditorBody
                   sectionJumpKey={tab}
                   sectionItems={[
-                    { id: "home-slides", label: "Слайд" },
-                    { id: "home-hero", label: "Hero текст" },
-                    { id: "home-desc", label: "Тайлбар" },
-                    { id: "home-stats", label: "Статистик" },
+                    { id: "home-slides", label: t.siteContent.home.sections.slides },
+                    { id: "home-hero", label: t.siteContent.home.sections.hero },
+                    { id: "home-desc", label: t.siteContent.home.sections.desc },
+                    { id: "home-stats", label: t.siteContent.home.sections.stats },
                   ]}
                 >
                   <EditorSection
                     id="home-slides"
-                    title="Слайдын зургууд"
-                    subtitle="Зураг оруулах"
+                    title={t.siteContent.home.fields.slideImages}
+                    subtitle={t.siteContent.home.fields.heroSubtitle}
                   >
                     <div className="space-y-3">
                       {home.hero.slideImages.map((path, i) => (
@@ -594,25 +600,25 @@ export default function SiteContentPage() {
                           })
                         }
                       >
-                        + Слайд нэмэх
+                        + {t.siteContent.home.fields.addSlide}
                       </GhostButton>
                     </div>
                   </EditorSection>
                   <EditorSection
                     id="home-hero"
-                    title="Hero текст"
-                    subtitle="Badge, гарчиг, товчнууд, слайдын aria нэр"
+                    title={t.siteContent.home.fields.heroTitle}
+                    subtitle={t.siteContent.home.fields.heroSubtitle}
                   >
                     <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
                       {(
                         [
-                          ["badge", "Badge"],
-                          ["titleLine1", "Гарчиг 1"],
-                          ["titleAccent", "Гарчиг онцлох"],
-                          ["titleLine2", "Гарчиг 2"],
-                          ["btn1", "Товч 1"],
-                          ["btn2", "Товч 2"],
-                          ["slideLabel", "Слайд aria нэр"],
+                          ["badge", t.siteContent.home.fields.badge],
+                          ["titleLine1", t.siteContent.home.fields.titleLine1],
+                          ["titleAccent", t.siteContent.home.fields.titleAccent],
+                          ["titleLine2", t.siteContent.home.fields.titleLine2],
+                          ["btn1", t.siteContent.home.fields.btn1],
+                          ["btn2", t.siteContent.home.fields.btn2],
+                          ["slideLabel", t.siteContent.home.fields.slideLabel],
                         ] as const
                       ).map(([key, lab]) => (
                         <div key={key}>
@@ -638,7 +644,7 @@ export default function SiteContentPage() {
                       ))}
                     </div>
                   </EditorSection>
-                  <EditorSection id="home-desc" title="Тайлбар">
+                  <EditorSection id="home-desc" title={t.siteContent.home.sections.desc}>
                     <textarea
                       className={scTextarea("min-h-[100px]")}
                       value={home.hero.desc}
@@ -652,7 +658,7 @@ export default function SiteContentPage() {
                   </EditorSection>
                   <EditorSection
                     id="home-stats"
-                    title="Статистик"
+                    title={t.siteContent.home.sections.stats}
                     defaultOpen={false}
                   >
                     <div className="space-y-3">
@@ -660,7 +666,7 @@ export default function SiteContentPage() {
                         <div key={i} className="flex flex-wrap gap-2">
                           <input
                             className={`${scInput} max-w-[140px]`}
-                            placeholder="Утга"
+                            placeholder={t.siteContent.common.placeholder}
                             value={row.value}
                             onChange={(e) => {
                               const stats = [...home.hero.stats];
@@ -673,7 +679,7 @@ export default function SiteContentPage() {
                           />
                           <input
                             className={`${scInput} min-w-[200px] flex-1`}
-                            placeholder="Шошго"
+                            placeholder={t.siteContent.common.label}
                             value={row.label}
                             onChange={(e) => {
                               const stats = [...home.hero.stats];
@@ -695,7 +701,7 @@ export default function SiteContentPage() {
                               });
                             }}
                           >
-                            Устгах
+                            {t.siteContent.common.remove}
                           </DangerMini>
                         </div>
                       ))}
@@ -713,7 +719,7 @@ export default function SiteContentPage() {
                           })
                         }
                       >
-                        + Мөр нэмэх
+                        + {t.siteContent.common.addRow}
                       </GhostButton>
                     </div>
                   </EditorSection>
@@ -721,34 +727,34 @@ export default function SiteContentPage() {
                     disabled={saving}
                     onClick={() => void save("home")}
                   >
-                    {saving ? "Хадгалж байна…" : "Нүүр хадгалах"}
+                    {saving ? t.common.saving : t.siteContent.common.saveTab(t.siteContent.tabs.home.label)}
                   </PrimarySave>
                 </EditorBody>
               ) : tab === "about" ? (
                 <EditorBody
                   sectionJumpKey={tab}
                   sectionItems={[
-                    { id: "about-fields", label: "Текст талбарууд" },
-                    { id: "about-image", label: "Зураг" },
-                    { id: "about-copy", label: "Параграф" },
-                    { id: "about-stats", label: "Статистик" },
+                    { id: "about-fields", label: t.siteContent.about.sections.fields },
+                    { id: "about-image", label: t.siteContent.about.sections.image },
+                    { id: "about-copy", label: t.siteContent.about.sections.copy },
+                    { id: "about-stats", label: t.siteContent.about.sections.stats },
                   ]}
                 >
                   <EditorSection
                     id="about-fields"
-                    title="Текст талбарууд"
-                    subtitle="Шошго, гарчиг, барилгын нэр, жилийн хайрцаг"
+                    title={t.siteContent.about.fields.title}
+                    subtitle={t.siteContent.about.fields.subtitle}
                   >
                     <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
                       {(
                         [
-                          ["sectionLabel", "Хэсгийн шошго"],
-                          ["h2Line1", "Гарчиг 1"],
-                          ["h2Accent", "Гарчиг онцлох"],
-                          ["imageBuildingName", "Барилгын нэр (зураг дээр)"],
-                          ["imageBuildingSubtitle", "Дэд гарчиг"],
-                          ["yearsBadgeValue", "Жилийн тоо (жижиг хайрцаг)"],
-                          ["yearsLabel", "Жилийн шошго"],
+                          ["sectionLabel", t.siteContent.about.fields.sectionLabel],
+                          ["h2Line1", t.siteContent.about.fields.h2Line1],
+                          ["h2Accent", t.siteContent.about.fields.h2Accent],
+                          ["imageBuildingName", t.siteContent.about.fields.imageBuildingName],
+                          ["imageBuildingSubtitle", t.siteContent.about.fields.imageBuildingSubtitle],
+                          ["yearsBadgeValue", t.siteContent.about.fields.yearsBadgeValue],
+                          ["yearsLabel", t.siteContent.about.fields.yearsLabel],
                         ] as const
                       ).map(([key, lab]) => (
                         <div key={key}>
@@ -771,8 +777,8 @@ export default function SiteContentPage() {
                   </EditorSection>
                   <EditorSection
                     id="about-image"
-                    title="Зураг"
-                    subtitle="About хэсгийн үндсэн зураг"
+                    title={t.siteContent.about.sections.image}
+                    subtitle={t.siteContent.home.fields.heroSubtitle}
                   >
                     <ImageUploadField
                       value={
@@ -787,11 +793,11 @@ export default function SiteContentPage() {
                       previewFit="cover"
                     />
                   </EditorSection>
-                  <EditorSection id="about-copy" title="Параграфууд">
+                  <EditorSection id="about-copy" title={t.siteContent.about.sections.copy}>
                     <div className="grid gap-4 lg:grid-cols-2">
                       <div>
                         <label className="text-xs font-semibold uppercase tracking-wide text-zinc-500">
-                          Параграф 1
+                          {t.siteContent.about.sections.copy} 1
                         </label>
                         <textarea
                           className={scTextarea("min-h-[100px]")}
@@ -806,7 +812,7 @@ export default function SiteContentPage() {
                       </div>
                       <div>
                         <label className="text-xs font-semibold uppercase tracking-wide text-zinc-500">
-                          Параграф 2
+                          {t.siteContent.about.sections.copy} 2
                         </label>
                         <textarea
                           className={scTextarea("min-h-[100px]")}
@@ -823,7 +829,7 @@ export default function SiteContentPage() {
                   </EditorSection>
                   <EditorSection
                     id="about-stats"
-                    title="Статистик"
+                    title={t.siteContent.about.sections.stats}
                     defaultOpen={false}
                   >
                     <div className="space-y-3">
@@ -882,7 +888,7 @@ export default function SiteContentPage() {
                           })
                         }
                       >
-                        + Мөр нэмэх
+                        + {t.siteContent.common.addRow}
                       </GhostButton>
                     </div>
                   </EditorSection>
@@ -890,29 +896,29 @@ export default function SiteContentPage() {
                     disabled={saving}
                     onClick={() => void save("about")}
                   >
-                    {saving ? "Хадгалж байна…" : "Бидний тухай хадгалах"}
+                    {saving ? t.common.saving : t.siteContent.common.saveTab(t.siteContent.tabs.about.label)}
                   </PrimarySave>
                 </EditorBody>
               ) : tab === "services" ? (
                 <EditorBody
                   sectionJumpKey={tab}
                   sectionItems={[
-                    { id: "svc-header", label: "Толгой" },
-                    { id: "svc-features", label: "Давуу тал" },
-                    { id: "svc-banner", label: "Баннер" },
+                    { id: "svc-header", label: t.siteContent.services.sections.header },
+                    { id: "svc-features", label: t.siteContent.services.sections.features },
+                    { id: "svc-banner", label: t.siteContent.services.sections.banner },
                   ]}
                 >
                   <EditorSection
                     id="svc-header"
-                    title="Толгой хэсэг"
-                    subtitle="Шошго, гарчиг, танилцуулга"
+                    title={t.siteContent.services.fields.title}
+                    subtitle={t.siteContent.services.fields.subtitle}
                   >
                     <div className="grid gap-4 lg:grid-cols-3">
                       {(
                         [
-                          ["badge", "Дээд шошго"],
-                          ["h2Line1", "Гарчиг (эхний хэсэг)"],
-                          ["h2Accent", "Гарчиг (онцлох өнгө)"],
+                          ["badge", t.siteContent.services.fields.badge],
+                          ["h2Line1", t.siteContent.services.fields.h2Line1],
+                          ["h2Accent", t.siteContent.services.fields.h2Accent],
                         ] as const
                       ).map(([key, lab]) => (
                         <div key={key}>
@@ -937,7 +943,7 @@ export default function SiteContentPage() {
                     </div>
                     <div>
                       <label className="text-xs font-semibold uppercase tracking-wide text-zinc-500">
-                        Танилцуулга
+                        {t.siteContent.services.fields.intro}
                       </label>
                       <textarea
                         className={scTextarea("min-h-[80px]")}
@@ -956,8 +962,8 @@ export default function SiteContentPage() {
                   </EditorSection>
                   <EditorSection
                     id="svc-features"
-                    title="Давуу талууд"
-                    subtitle="4 хүртэл"
+                    title={t.siteContent.services.sections.features}
+                    subtitle="max 4"
                     defaultOpen={false}
                   >
                     <div className="space-y-4">
@@ -968,7 +974,7 @@ export default function SiteContentPage() {
                         >
                           <input
                             className={scInput}
-                            placeholder="Гарчиг"
+                            placeholder={t.siteContent.common.title}
                             value={f.title}
                             onChange={(e) => {
                               const features = [...services.features];
@@ -981,7 +987,7 @@ export default function SiteContentPage() {
                           />
                           <textarea
                             className={`mt-2 ${scTextarea("min-h-[72px]")}`}
-                            placeholder="Тайлбар"
+                            placeholder={t.siteContent.common.description}
                             value={f.desc}
                             onChange={(e) => {
                               const features = [...services.features];
@@ -1003,7 +1009,7 @@ export default function SiteContentPage() {
                               })
                             }
                           >
-                            Устгах
+                            {t.siteContent.common.remove}
                           </DangerMini>
                         </div>
                       ))}
@@ -1018,14 +1024,14 @@ export default function SiteContentPage() {
                           })
                         }
                       >
-                        + Онцлол нэмэх
+                        + {t.siteContent.common.add}
                       </GhostButton>
                     </div>
                   </EditorSection>
                   <EditorSection
                     id="svc-banner"
-                    title="Доод баннер"
-                    subtitle="Тоо, дагалдах, шошго"
+                    title={t.siteContent.services.sections.banner}
+                    subtitle={t.siteContent.services.fields.subtitle}
                     defaultOpen={false}
                   >
                     <div className="space-y-3">
@@ -1033,7 +1039,7 @@ export default function SiteContentPage() {
                         <div key={i} className="flex flex-wrap gap-2">
                           <input
                             className={`${scInput} max-w-[100px]`}
-                            placeholder="Утга"
+                            placeholder={t.siteContent.common.placeholder}
                             value={row.value}
                             onChange={(e) => {
                               const banner = [...services.banner];
@@ -1046,7 +1052,7 @@ export default function SiteContentPage() {
                           />
                           <input
                             className={`${scInput} max-w-[80px]`}
-                            placeholder="Дагалдах"
+                            placeholder="Suffix"
                             value={row.suffix}
                             onChange={(e) => {
                               const banner = [...services.banner];
@@ -1059,7 +1065,7 @@ export default function SiteContentPage() {
                           />
                           <input
                             className={`${scInput} min-w-[180px] flex-1`}
-                            placeholder="Шошго"
+                            placeholder={t.siteContent.common.label}
                             value={row.label}
                             onChange={(e) => {
                               const banner = [...services.banner];
@@ -1080,7 +1086,7 @@ export default function SiteContentPage() {
                               })
                             }
                           >
-                            Устгах
+                            {t.siteContent.common.remove}
                           </DangerMini>
                         </div>
                       ))}
@@ -1103,29 +1109,29 @@ export default function SiteContentPage() {
                     disabled={saving}
                     onClick={() => void save("services")}
                   >
-                    {saving ? "Хадгалж байна…" : "Үйлчилгээ хадгалах"}
+                    {saving ? t.common.saving : t.siteContent.common.saveTab(t.siteContent.tabs.services.label)}
                   </PrimarySave>
                 </EditorBody>
               ) : tab === "contact" ? (
                 <EditorBody
                   sectionJumpKey={tab}
                   sectionItems={[
-                    { id: "contact-hero", label: "Толгой" },
-                    { id: "contact-items", label: "Мөрүүд" },
-                    { id: "contact-agent", label: "Менежер" },
-                    { id: "contact-form", label: "Форм" },
+                    { id: "contact-hero", label: t.siteContent.contact.sections.hero },
+                    { id: "contact-items", label: t.siteContent.contact.sections.items },
+                    { id: "contact-agent", label: t.siteContent.contact.sections.agent },
+                    { id: "contact-form", label: t.siteContent.contact.sections.form },
                   ]}
                 >
                   <EditorSection
                     id="contact-hero"
-                    title="Толгой хэсэг"
-                    subtitle="Шошго, гарчиг, танилцуулга"
+                    title={t.siteContent.contact.fields.heroTitle}
+                    subtitle={t.siteContent.contact.fields.heroSubtitle}
                   >
                     <div className="grid gap-4 sm:grid-cols-2">
                       {(
                         [
-                          ["badge", "Дээд шошго"],
-                          ["h2Accent", "Гол гарчиг (онцлох)"],
+                          ["badge", t.siteContent.contact.fields.badge],
+                          ["h2Accent", t.siteContent.contact.fields.h2Accent],
                         ] as const
                       ).map(([key, lab]) => (
                         <div key={key}>
@@ -1150,7 +1156,7 @@ export default function SiteContentPage() {
                     </div>
                     <div>
                       <label className="text-xs font-semibold uppercase tracking-wide text-zinc-500">
-                        Танилцуулга
+                        {t.siteContent.contact.fields.intro}
                       </label>
                       <textarea
                         className={scTextarea("min-h-[80px]")}
@@ -1166,7 +1172,7 @@ export default function SiteContentPage() {
                   </EditorSection>
                   <EditorSection
                     id="contact-items"
-                    title="Мэдээллийн мөрүүд"
+                    title={t.siteContent.contact.fields.infoItems}
                     defaultOpen={false}
                   >
                     <div className="space-y-3">
@@ -1174,7 +1180,7 @@ export default function SiteContentPage() {
                         <div key={i} className="flex flex-wrap gap-2">
                           <input
                             className={`${scInput} max-w-[160px]`}
-                            placeholder="Гарчиг"
+                            placeholder={t.siteContent.common.title}
                             value={row.title}
                             onChange={(e) => {
                               const items = [...contact.items];
@@ -1184,7 +1190,7 @@ export default function SiteContentPage() {
                           />
                           <input
                             className={`${scInput} min-w-[200px] flex-1`}
-                            placeholder="Утга"
+                            placeholder={t.siteContent.common.placeholder}
                             value={row.value}
                             onChange={(e) => {
                               const items = [...contact.items];
@@ -1200,7 +1206,7 @@ export default function SiteContentPage() {
                               })
                             }
                           >
-                            Устгах
+                            {t.siteContent.common.remove}
                           </DangerMini>
                         </div>
                       ))}
@@ -1212,23 +1218,23 @@ export default function SiteContentPage() {
                           })
                         }
                       >
-                        + Мөр нэмэх
+                        + {t.siteContent.common.addRow}
                       </GhostButton>
                     </div>
                   </EditorSection>
                   <EditorSection
                     id="contact-agent"
-                    title="Менежерийн кард"
+                    title={t.siteContent.contact.fields.agentTitle}
                     defaultOpen={false}
                   >
                     <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
                       {(
                         [
-                          ["initials", "Эхний үсэг"],
-                          ["name", "Нэр"],
-                          ["role", "Албан тушаал"],
-                          ["telHref", "Утас (ж: tel:+976…)"],
-                          ["telLabel", "Товчны текст"],
+                          ["initials", t.siteContent.contact.fields.initials],
+                          ["name", t.siteContent.contact.fields.name],
+                          ["role", t.siteContent.contact.fields.role],
+                          ["telHref", t.siteContent.contact.fields.telHref],
+                          ["telLabel", t.siteContent.contact.fields.telLabel],
                         ] as const
                       ).map(([key, lab]) => (
                         <div
@@ -1255,7 +1261,7 @@ export default function SiteContentPage() {
                       ))}
                     </div>
                   </EditorSection>
-                  <EditorSection id="contact-form" title="Формын гарчиг">
+                  <EditorSection id="contact-form" title={t.siteContent.contact.fields.formTitle}>
                     <input
                       className={scInput}
                       value={contact.formTitle}
@@ -1268,28 +1274,28 @@ export default function SiteContentPage() {
                     disabled={saving}
                     onClick={() => void save("contact")}
                   >
-                    {saving ? "Хадгалж байна…" : "Холбоо барих хадгалах"}
+                    {saving ? t.common.saving : t.siteContent.common.saveTab(t.siteContent.tabs.contact.label)}
                   </PrimarySave>
                 </EditorBody>
               ) : tab === "properties-page" ? (
                 <EditorBody
                   sectionJumpKey={tab}
                   sectionItems={[
-                    { id: "properties-header", label: "Толгой" },
-                    { id: "properties-categories", label: "Ангиллууд" },
-                    { id: "properties-items", label: "Картууд" },
-                    { id: "properties-cta", label: "Доод CTA" },
+                    { id: "properties-header", label: t.siteContent.propertiesPage.sections.header },
+                    { id: "properties-categories", label: t.siteContent.propertiesPage.sections.categories },
+                    { id: "properties-items", label: t.siteContent.propertiesPage.sections.items },
+                    { id: "properties-cta", label: t.siteContent.propertiesPage.sections.cta },
                   ]}
                 >
                   <EditorSection
                     id="properties-header"
-                    title="Толгой хэсэг"
-                    subtitle="Badge, гарчиг, танилцуулга"
+                    title={t.siteContent.propertiesPage.fields.headerTitle}
+                    subtitle={t.siteContent.propertiesPage.fields.headerSubtitle}
                   >
                     <div className="grid gap-4 sm:grid-cols-2">
                       <div>
                         <label className="text-xs font-semibold uppercase tracking-wide text-zinc-500">
-                          Badge
+                          {t.siteContent.propertiesPage.fields.headerBadge}
                         </label>
                         <input
                           className={scInput}
@@ -1307,7 +1313,7 @@ export default function SiteContentPage() {
                       </div>
                       <div>
                         <label className="text-xs font-semibold uppercase tracking-wide text-zinc-500">
-                          Гарчиг 1
+                          {t.siteContent.propertiesPage.fields.titleLine1}
                         </label>
                         <input
                           className={scInput}
@@ -1325,7 +1331,7 @@ export default function SiteContentPage() {
                       </div>
                       <div className="sm:col-span-2">
                         <label className="text-xs font-semibold uppercase tracking-wide text-zinc-500">
-                          Онцлох гарчиг
+                          {t.siteContent.propertiesPage.fields.titleAccent}
                         </label>
                         <input
                           className={scInput}
@@ -1343,7 +1349,7 @@ export default function SiteContentPage() {
                       </div>
                       <div className="sm:col-span-2">
                         <label className="text-xs font-semibold uppercase tracking-wide text-zinc-500">
-                          Танилцуулга
+                          {t.siteContent.propertiesPage.fields.intro}
                         </label>
                         <textarea
                           className={scTextarea("min-h-[90px]")}
@@ -1363,8 +1369,8 @@ export default function SiteContentPage() {
                   </EditorSection>
                   <EditorSection
                     id="properties-categories"
-                    title="Шүүлтүүр ангиллууд"
-                    subtitle="Эхний мөр нь ихэвчлэн Бүгд байх ёстой"
+                    title={t.siteContent.propertiesPage.fields.categoriesTitle}
+                    subtitle={t.siteContent.propertiesPage.fields.categoriesHint}
                     defaultOpen={false}
                   >
                     <div className="space-y-3">
@@ -1392,7 +1398,7 @@ export default function SiteContentPage() {
                               })
                             }
                           >
-                            Устгах
+                            {t.siteContent.common.remove}
                           </DangerMini>
                         </div>
                       ))}
@@ -1404,14 +1410,14 @@ export default function SiteContentPage() {
                           })
                         }
                       >
-                        + Ангилал нэмэх
+                        + {t.siteContent.common.add}
                       </GhostButton>
                     </div>
                   </EditorSection>
                   <EditorSection
                     id="properties-items"
-                    title="Картууд"
-                    subtitle="Үл хөдлөхийн жагсаалтын мэдээлэл"
+                    title={t.siteContent.propertiesPage.fields.itemsTitle}
+                    subtitle="Properties list"
                     defaultOpen={false}
                   >
                     <div className="space-y-4">
@@ -1423,7 +1429,7 @@ export default function SiteContentPage() {
                           <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
                             <div>
                               <label className="text-xs text-zinc-500">
-                                ID
+                                {t.siteContent.propertiesPage.fields.id}
                               </label>
                               <input
                                 type="number"
@@ -1444,7 +1450,7 @@ export default function SiteContentPage() {
                             </div>
                             <div className="sm:col-span-2">
                               <label className="text-xs text-zinc-500">
-                                Нэр
+                                {t.siteContent.propertiesPage.fields.name}
                               </label>
                               <input
                                 className={scInput}
@@ -1478,7 +1484,7 @@ export default function SiteContentPage() {
                             </div>
                             <div>
                               <label className="text-xs text-zinc-500">
-                                Ангилал
+                                {t.siteContent.propertiesPage.fields.category}
                               </label>
                               <input
                                 className={scInput}
@@ -1498,7 +1504,7 @@ export default function SiteContentPage() {
                             </div>
                             <div>
                               <label className="text-xs text-zinc-500">
-                                Badge
+                                {t.siteContent.propertiesPage.fields.itemBadge}
                               </label>
                               <input
                                 className={scInput}
@@ -1519,7 +1525,7 @@ export default function SiteContentPage() {
                             </div>
                             <div>
                               <label className="text-xs text-zinc-500">
-                                Tag
+                                {t.siteContent.propertiesPage.fields.tag}
                               </label>
                               <input
                                 className={scInput}
@@ -1539,7 +1545,7 @@ export default function SiteContentPage() {
                             </div>
                             <div>
                               <label className="text-xs text-zinc-500">
-                                Хэмжээ
+                                {t.siteContent.propertiesPage.fields.size}
                               </label>
                               <input
                                 className={scInput}
@@ -1559,7 +1565,7 @@ export default function SiteContentPage() {
                             </div>
                             <div>
                               <label className="text-xs text-zinc-500">
-                                Давхар
+                                {t.siteContent.propertiesPage.fields.floor}
                               </label>
                               <input
                                 className={scInput}
@@ -1579,7 +1585,7 @@ export default function SiteContentPage() {
                             </div>
                             <div>
                               <label className="text-xs text-zinc-500">
-                                Паркинг
+                                {t.siteContent.propertiesPage.fields.parking}
                               </label>
                               <input
                                 className={scInput}
@@ -1599,7 +1605,7 @@ export default function SiteContentPage() {
                             </div>
                             <div>
                               <label className="text-xs text-zinc-500">
-                                Үнэ
+                                {t.siteContent.propertiesPage.fields.price}
                               </label>
                               <input
                                 className={scInput}
@@ -1619,7 +1625,7 @@ export default function SiteContentPage() {
                             </div>
                             <div className="sm:col-span-2 lg:col-span-3">
                               <label className="text-xs text-zinc-500">
-                                Тайлбар
+                                {t.siteContent.propertiesPage.fields.description}
                               </label>
                               <textarea
                                 className={scTextarea("min-h-[80px]")}
@@ -1649,7 +1655,7 @@ export default function SiteContentPage() {
                                 })
                               }
                             >
-                              Устгах
+                              {t.siteContent.common.remove}
                             </DangerMini>
                           </div>
                         </div>
@@ -1677,15 +1683,15 @@ export default function SiteContentPage() {
                           })
                         }
                       >
-                        + Карт нэмэх
+                        + {t.siteContent.common.add}
                       </GhostButton>
                     </div>
                   </EditorSection>
-                  <EditorSection id="properties-cta" title="Доод CTA">
+                  <EditorSection id="properties-cta" title={t.siteContent.propertiesPage.sections.cta}>
                     <div className="grid gap-4 sm:grid-cols-2">
                       <div>
                         <label className="text-xs font-semibold uppercase tracking-wide text-zinc-500">
-                          Холбоос
+                          {t.siteContent.propertiesPage.fields.href}
                         </label>
                         <input
                           className={scInput}
@@ -1703,7 +1709,7 @@ export default function SiteContentPage() {
                       </div>
                       <div>
                         <label className="text-xs font-semibold uppercase tracking-wide text-zinc-500">
-                          Текст
+                          {t.siteContent.propertiesPage.fields.label}
                         </label>
                         <input
                           className={scInput}
@@ -1725,22 +1731,22 @@ export default function SiteContentPage() {
                     disabled={saving}
                     onClick={() => void save("properties-page")}
                   >
-                    {saving ? "Хадгалж байна…" : "Хамтран ажиллах хадгалах"}
+                    {saving ? t.common.saving : t.siteContent.common.saveTab(t.siteContent.tabs.propertiesPage.label)}
                   </PrimarySave>
                 </EditorBody>
               ) : tab === "sales-page" ? (
                 <EditorBody
                   sectionJumpKey={tab}
                   sectionItems={[
-                    { id: "sales-meta", label: "Шошго & гарчиг" },
-                    { id: "sales-intro", label: "Танилцуулга" },
+                    { id: "sales-meta", label: t.siteContent.salesPage.fields.title },
+                    { id: "sales-intro", label: t.siteContent.salesPage.fields.intro },
                   ]}
                 >
-                  <EditorSection id="sales-meta" title="Шошго болон гарчиг">
+                  <EditorSection id="sales-meta" title={t.siteContent.salesPage.fields.headerTitle}>
                     <div className="grid gap-4 lg:grid-cols-2">
                       <div>
                         <label className="text-xs font-semibold uppercase tracking-wide text-zinc-500">
-                          Дээд шошго
+                          {t.siteContent.salesPage.fields.eyebrow}
                         </label>
                         <input
                           className={scInput}
@@ -1758,7 +1764,7 @@ export default function SiteContentPage() {
                       </div>
                       <div>
                         <label className="text-xs font-semibold uppercase tracking-wide text-zinc-500">
-                          Гол гарчиг
+                          {t.siteContent.salesPage.fields.title}
                         </label>
                         <input
                           className={scInput}
@@ -1776,7 +1782,7 @@ export default function SiteContentPage() {
                       </div>
                     </div>
                   </EditorSection>
-                  <EditorSection id="sales-intro" title="Танилцуулга">
+                  <EditorSection id="sales-intro" title={t.siteContent.salesPage.fields.intro}>
                     <textarea
                       className={scTextarea("min-h-[100px]")}
                       value={salesPage.header.intro}
@@ -1795,18 +1801,18 @@ export default function SiteContentPage() {
                     disabled={saving}
                     onClick={() => void save("sales-page")}
                   >
-                    {saving ? "Хадгалж байна…" : "Борлуулалтын хуудас хадгалах"}
+                    {saving ? t.common.saving : t.siteContent.common.saveTab(t.siteContent.tabs.salesPage.label)}
                   </PrimarySave>
                 </EditorBody>
               ) : tab === "jobs-page" ? (
                 <EditorBody
                   sectionJumpKey={tab}
                   sectionItems={[
-                    { id: "jobs-header-title", label: "Гарчиг" },
-                    { id: "jobs-header-intro", label: "Тайлбар" },
+                    { id: "jobs-header-title", label: t.siteContent.jobsPage.fields.title },
+                    { id: "jobs-header-intro", label: t.siteContent.jobsPage.fields.intro },
                   ]}
                 >
-                  <EditorSection id="jobs-header-title" title="Хуудасны гарчиг">
+                  <EditorSection id="jobs-header-title" title={t.siteContent.jobsPage.fields.headerTitle}>
                     <input
                       className={scInput}
                       value={jobsPage.header.title}
@@ -1834,22 +1840,22 @@ export default function SiteContentPage() {
                     disabled={saving}
                     onClick={() => void save("jobs-page")}
                   >
-                    {saving ? "Хадгалж байна…" : "Ажлын зарын толгой хадгалах"}
+                    {saving ? t.common.saving : t.siteContent.common.saveTab(t.siteContent.tabs.jobsPage.label)}
                   </PrimarySave>
                 </EditorBody>
               ) : tab === "team" ? (
                 <EditorBody
                   sectionJumpKey={tab}
                   sectionItems={[
-                    { id: "team-header", label: "Толгой" },
-                    { id: "team-members", label: "Багийн гишүүд" },
-                    { id: "team-cta", label: "CTA" },
+                    { id: "team-header", label: t.siteContent.team.sections.header },
+                    { id: "team-members", label: t.siteContent.team.sections.members },
+                    { id: "team-cta", label: t.siteContent.team.sections.cta },
                   ]}
                 >
                   <EditorSection
                     id="team-header"
-                    title="Толгой хэсэг"
-                    subtitle="Шошго, гарчиг, танилцуулга (/team)"
+                    title={t.siteContent.team.fields.headerTitle}
+                    subtitle={t.siteContent.team.fields.headerSubtitle}
                   >
                     <div className="grid gap-4 sm:grid-cols-2">
                       <div className="sm:col-span-2">
@@ -2365,7 +2371,7 @@ export default function SiteContentPage() {
                     disabled={saving}
                     onClick={() => void save("footer")}
                   >
-                    {saving ? "Хадгалж байна…" : "Хөл хадгалах"}
+                    {saving ? t.common.saving : t.siteContent.common.saveTab(t.siteContent.tabs.footer.label)}
                   </PrimarySave>
                 </EditorBody>
               )}
