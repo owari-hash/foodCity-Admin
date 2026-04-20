@@ -1,7 +1,11 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
-import { ensureClientAuthorized, withClientAdminAuth } from "@/lib/adminClientAuth";
+import { useDebounce } from "@/hooks/useDebounce";
+import {
+  ensureClientAuthorized,
+  withClientAdminAuth,
+} from "@/lib/adminClientAuth";
 import { getApiBaseUrl } from "@/lib/api";
 import { mergeDeep } from "@/lib/mergeDeep";
 import {
@@ -191,7 +195,11 @@ export default function SiteContentPage() {
     () => mergeDeep(clone(defaultServicesSections), {}) as ServicesState,
   );
   const [propertiesPage, setPropertiesPage] = useState<PropertiesPageState>(
-    () => mergeDeep(clone(defaultPropertiesPageSections), {}) as PropertiesPageState,
+    () =>
+      mergeDeep(
+        clone(defaultPropertiesPageSections),
+        {},
+      ) as PropertiesPageState,
   );
   const [salesPage, setSalesPage] = useState<SalesPageState>(
     () => mergeDeep(clone(defaultSalesPageSections), {}) as SalesPageState,
@@ -225,7 +233,10 @@ export default function SiteContentPage() {
       );
       setContact(mergeDeep(clone(defaultContactSections), c) as ContactState);
       setPropertiesPage(
-        mergeDeep(clone(defaultPropertiesPageSections), pp) as PropertiesPageState,
+        mergeDeep(
+          clone(defaultPropertiesPageSections),
+          pp,
+        ) as PropertiesPageState,
       );
       setSalesPage(
         mergeDeep(clone(defaultSalesPageSections), sp) as SalesPageState,
@@ -243,6 +254,35 @@ export default function SiteContentPage() {
       setLoading(false);
     }
   }, [base]);
+
+  const debouncedSave = useDebounce(
+    async (pageId: (typeof TABS)[number]["id"], sections: any) => {
+      setError(null);
+      setSaved(null);
+      setSaving(true);
+
+      try {
+        const res = await fetch(
+          `${base}/api/v1/admin/site-pages/${pageId}`,
+          withClientAdminAuth({
+            method: "PUT",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ sections }),
+          }),
+        );
+
+        if (!(await ensureClientAuthorized(res))) return;
+        if (!res.ok) throw new Error(await res.text());
+
+        setSaved("Амжилттай хадгаллаа");
+      } catch (e) {
+        setError(e instanceof Error ? e.message : "Алдаа");
+      } finally {
+        setSaving(false);
+      }
+    },
+    500,
+  );
 
   useEffect(() => {
     void load();
@@ -263,13 +303,13 @@ export default function SiteContentPage() {
               ? contact
               : pageId === "properties-page"
                 ? propertiesPage
-              : pageId === "sales-page"
-                ? salesPage
-                : pageId === "jobs-page"
-                  ? jobsPage
-                  : pageId === "team"
-                    ? teamPage
-                    : footer;
+                : pageId === "sales-page"
+                  ? salesPage
+                  : pageId === "jobs-page"
+                    ? jobsPage
+                    : pageId === "team"
+                      ? teamPage
+                      : footer;
     try {
       const res = await fetch(
         `${base}/api/v1/admin/site-pages/${pageId}`,
@@ -414,12 +454,17 @@ export default function SiteContentPage() {
                           <input
                             className={scInput}
                             value={home.hero[key] as string}
-                            onChange={(e) =>
+                            onChange={(e) => {
+                              const newValue = e.target.value;
                               setHome({
                                 ...home,
-                                hero: { ...home.hero, [key]: e.target.value },
-                              })
-                            }
+                                hero: { ...home.hero, [key]: newValue },
+                              });
+                              debouncedSave("home", {
+                                ...home,
+                                hero: { ...home.hero, [key]: newValue },
+                              });
+                            }}
                           />
                         </div>
                       ))}
@@ -562,7 +607,9 @@ export default function SiteContentPage() {
                     subtitle="About хэсгийн үндсэн зураг"
                   >
                     <ImageUploadField
-                      value={about.main.imageUrl ?? "/images/baclground-image-1.jpg"}
+                      value={
+                        about.main.imageUrl ?? "/images/baclground-image-1.jpg"
+                      }
                       onChange={(path) =>
                         setAbout({
                           ...about,
@@ -1161,7 +1208,10 @@ export default function SiteContentPage() {
                             onChange={(e) => {
                               const categories = [...propertiesPage.categories];
                               categories[i] = e.target.value;
-                              setPropertiesPage({ ...propertiesPage, categories });
+                              setPropertiesPage({
+                                ...propertiesPage,
+                                categories,
+                              });
                             }}
                           />
                           <DangerMini
@@ -1204,7 +1254,9 @@ export default function SiteContentPage() {
                         >
                           <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
                             <div>
-                              <label className="text-xs text-zinc-500">ID</label>
+                              <label className="text-xs text-zinc-500">
+                                ID
+                              </label>
                               <input
                                 type="number"
                                 className={scInput}
@@ -1215,19 +1267,30 @@ export default function SiteContentPage() {
                                     ...items[i],
                                     id: Number(e.target.value) || 0,
                                   };
-                                  setPropertiesPage({ ...propertiesPage, items });
+                                  setPropertiesPage({
+                                    ...propertiesPage,
+                                    items,
+                                  });
                                 }}
                               />
                             </div>
                             <div className="sm:col-span-2">
-                              <label className="text-xs text-zinc-500">Нэр</label>
+                              <label className="text-xs text-zinc-500">
+                                Нэр
+                              </label>
                               <input
                                 className={scInput}
                                 value={item.name}
                                 onChange={(e) => {
                                   const items = [...propertiesPage.items];
-                                  items[i] = { ...items[i], name: e.target.value };
-                                  setPropertiesPage({ ...propertiesPage, items });
+                                  items[i] = {
+                                    ...items[i],
+                                    name: e.target.value,
+                                  };
+                                  setPropertiesPage({
+                                    ...propertiesPage,
+                                    items,
+                                  });
                                 }}
                               />
                             </div>
@@ -1238,12 +1301,17 @@ export default function SiteContentPage() {
                                 onChange={(next) => {
                                   const items = [...propertiesPage.items];
                                   items[i] = { ...items[i], image: next };
-                                  setPropertiesPage({ ...propertiesPage, items });
+                                  setPropertiesPage({
+                                    ...propertiesPage,
+                                    items,
+                                  });
                                 }}
                               />
                             </div>
                             <div>
-                              <label className="text-xs text-zinc-500">Ангилал</label>
+                              <label className="text-xs text-zinc-500">
+                                Ангилал
+                              </label>
                               <input
                                 className={scInput}
                                 value={item.category}
@@ -1253,12 +1321,17 @@ export default function SiteContentPage() {
                                     ...items[i],
                                     category: e.target.value,
                                   };
-                                  setPropertiesPage({ ...propertiesPage, items });
+                                  setPropertiesPage({
+                                    ...propertiesPage,
+                                    items,
+                                  });
                                 }}
                               />
                             </div>
                             <div>
-                              <label className="text-xs text-zinc-500">Badge</label>
+                              <label className="text-xs text-zinc-500">
+                                Badge
+                              </label>
                               <input
                                 className={scInput}
                                 placeholder="Хоосон бол харуулахгүй"
@@ -1269,48 +1342,77 @@ export default function SiteContentPage() {
                                     ...items[i],
                                     badge: e.target.value.trim() || null,
                                   };
-                                  setPropertiesPage({ ...propertiesPage, items });
+                                  setPropertiesPage({
+                                    ...propertiesPage,
+                                    items,
+                                  });
                                 }}
                               />
                             </div>
                             <div>
-                              <label className="text-xs text-zinc-500">Tag</label>
+                              <label className="text-xs text-zinc-500">
+                                Tag
+                              </label>
                               <input
                                 className={scInput}
                                 value={item.tag}
                                 onChange={(e) => {
                                   const items = [...propertiesPage.items];
-                                  items[i] = { ...items[i], tag: e.target.value };
-                                  setPropertiesPage({ ...propertiesPage, items });
+                                  items[i] = {
+                                    ...items[i],
+                                    tag: e.target.value,
+                                  };
+                                  setPropertiesPage({
+                                    ...propertiesPage,
+                                    items,
+                                  });
                                 }}
                               />
                             </div>
                             <div>
-                              <label className="text-xs text-zinc-500">Хэмжээ</label>
+                              <label className="text-xs text-zinc-500">
+                                Хэмжээ
+                              </label>
                               <input
                                 className={scInput}
                                 value={item.size}
                                 onChange={(e) => {
                                   const items = [...propertiesPage.items];
-                                  items[i] = { ...items[i], size: e.target.value };
-                                  setPropertiesPage({ ...propertiesPage, items });
+                                  items[i] = {
+                                    ...items[i],
+                                    size: e.target.value,
+                                  };
+                                  setPropertiesPage({
+                                    ...propertiesPage,
+                                    items,
+                                  });
                                 }}
                               />
                             </div>
                             <div>
-                              <label className="text-xs text-zinc-500">Давхар</label>
+                              <label className="text-xs text-zinc-500">
+                                Давхар
+                              </label>
                               <input
                                 className={scInput}
                                 value={item.floor}
                                 onChange={(e) => {
                                   const items = [...propertiesPage.items];
-                                  items[i] = { ...items[i], floor: e.target.value };
-                                  setPropertiesPage({ ...propertiesPage, items });
+                                  items[i] = {
+                                    ...items[i],
+                                    floor: e.target.value,
+                                  };
+                                  setPropertiesPage({
+                                    ...propertiesPage,
+                                    items,
+                                  });
                                 }}
                               />
                             </div>
                             <div>
-                              <label className="text-xs text-zinc-500">Паркинг</label>
+                              <label className="text-xs text-zinc-500">
+                                Паркинг
+                              </label>
                               <input
                                 className={scInput}
                                 value={item.parking}
@@ -1320,24 +1422,37 @@ export default function SiteContentPage() {
                                     ...items[i],
                                     parking: e.target.value,
                                   };
-                                  setPropertiesPage({ ...propertiesPage, items });
+                                  setPropertiesPage({
+                                    ...propertiesPage,
+                                    items,
+                                  });
                                 }}
                               />
                             </div>
                             <div>
-                              <label className="text-xs text-zinc-500">Үнэ</label>
+                              <label className="text-xs text-zinc-500">
+                                Үнэ
+                              </label>
                               <input
                                 className={scInput}
                                 value={item.price}
                                 onChange={(e) => {
                                   const items = [...propertiesPage.items];
-                                  items[i] = { ...items[i], price: e.target.value };
-                                  setPropertiesPage({ ...propertiesPage, items });
+                                  items[i] = {
+                                    ...items[i],
+                                    price: e.target.value,
+                                  };
+                                  setPropertiesPage({
+                                    ...propertiesPage,
+                                    items,
+                                  });
                                 }}
                               />
                             </div>
                             <div className="sm:col-span-2 lg:col-span-3">
-                              <label className="text-xs text-zinc-500">Тайлбар</label>
+                              <label className="text-xs text-zinc-500">
+                                Тайлбар
+                              </label>
                               <textarea
                                 className={scTextarea("min-h-[80px]")}
                                 value={item.description}
@@ -1347,7 +1462,10 @@ export default function SiteContentPage() {
                                     ...items[i],
                                     description: e.target.value,
                                   };
-                                  setPropertiesPage({ ...propertiesPage, items });
+                                  setPropertiesPage({
+                                    ...propertiesPage,
+                                    items,
+                                  });
                                 }}
                               />
                             </div>
