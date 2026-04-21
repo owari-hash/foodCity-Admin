@@ -1921,162 +1921,160 @@ export default function SiteContentPage() {
                           className="rounded-xl border border-slate-200/90 bg-white/80 p-4 dark:border-slate-700 dark:bg-slate-900/40"
                         >
                           <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+                            <DualInput
+                              label={lang === "mn" ? "Нэр" : "Name"}
+                              mnValue={m.name}
+                              enValue={teamPageEN.members[i]?.name ?? ""}
+                              onChangeMN={(v) => {
+                                const members = [...teamPage.members];
+                                members[i] = { ...members[i], name: v };
+                                setTeamPage({ ...teamPage, members });
+                              }}
+                              onChangeEN={(v) => {
+                                const membersEN = [...teamPageEN.members];
+                                if (!membersEN[i]) membersEN[i] = { ...m, name: "" };
+                                membersEN[i] = { ...membersEN[i], name: v };
+                                setTeamPageEN({ ...teamPageEN, members: membersEN });
+                              }}
+                            />
+                            <DualInput
+                              label={lang === "mn" ? "Албан тушаал" : "Role"}
+                              mnValue={m.role}
+                              enValue={teamPageEN.members[i]?.role ?? ""}
+                              onChangeMN={(v) => {
+                                const members = [...teamPage.members];
+                                members[i] = { ...members[i], role: v };
+                                setTeamPage({ ...teamPage, members });
+                              }}
+                              onChangeEN={(v) => {
+                                const membersEN = [...teamPageEN.members];
+                                if (!membersEN[i]) membersEN[i] = { ...m, role: "" };
+                                membersEN[i] = { ...membersEN[i], role: v };
+                                setTeamPageEN({ ...teamPageEN, members: membersEN });
+                              }}
+                            />
+                            <DualInput
+                              label={lang === "mn" ? "Эхний үсэг" : "Initials"}
+                              mnValue={m.initials}
+                              enValue={teamPageEN.members[i]?.initials ?? ""}
+                              onChangeMN={(v) => {
+                                const members = [...teamPage.members];
+                                members[i] = { ...members[i], initials: v };
+                                setTeamPage({ ...teamPage, members });
+                              }}
+                              onChangeEN={(v) => {
+                                const membersEN = [...teamPageEN.members];
+                                if (!membersEN[i]) membersEN[i] = { ...m, initials: "" };
+                                membersEN[i] = { ...membersEN[i], initials: v };
+                                setTeamPageEN({ ...teamPageEN, members: membersEN });
+                              }}
+                            />
                             <div>
-                              <label className="text-xs text-zinc-500">
-                                Нэр
-                              </label>
-                              <input
-                                className={scInput}
-                                value={m.name}
-                                onChange={(e) => {
-                                  const members = [...teamPage.members];
-                                  members[i] = {
-                                    ...members[i],
-                                    name: e.target.value,
-                                  };
-                                  setTeamPage({ ...teamPage, members });
-                                }}
-                              />
-                            </div>
-                            <div>
-                              <label className="text-xs text-zinc-500">
-                                Албан тушаал
-                              </label>
-                              <input
-                                className={scInput}
-                                value={m.role}
-                                onChange={(e) => {
-                                  const members = [...teamPage.members];
-                                  members[i] = {
-                                    ...members[i],
-                                    role: e.target.value,
-                                  };
-                                  setTeamPage({ ...teamPage, members });
-                                }}
-                              />
-                            </div>
-                            <div>
-                              <label className="text-xs text-zinc-500">
-                                Эхний үсэг
-                              </label>
-                              <input
-                                className={scInput}
-                                value={m.initials}
-                                onChange={(e) => {
-                                  const members = [...teamPage.members];
-                                  members[i] = {
-                                    ...members[i],
-                                    initials: e.target.value,
-                                  };
-                                  setTeamPage({ ...teamPage, members });
-                                }}
-                              />
-                            </div>
-                            <div>
-                              <label className="text-xs text-zinc-500">
-                                Утас
-                              </label>
+                              <label className="text-xs text-zinc-500">Утас</label>
                               <input
                                 className={scInput}
                                 value={m.phone}
                                 onChange={(e) => {
+                                  const v = e.target.value;
                                   const members = [...teamPage.members];
-                                  members[i] = {
-                                    ...members[i],
-                                    phone: e.target.value,
-                                  };
+                                  members[i] = { ...members[i], phone: v };
                                   setTeamPage({ ...teamPage, members });
+                                  const membersEN = [...teamPageEN.members];
+                                  if (membersEN[i]) {
+                                    membersEN[i] = { ...membersEN[i], phone: v };
+                                    setTeamPageEN({ ...teamPageEN, members: membersEN });
+                                  }
                                 }}
                               />
                             </div>
                             <div>
-                              <label className="text-xs text-zinc-500">
-                                Имэйл
-                              </label>
+                              <label className="text-xs text-zinc-500">Имэйл</label>
                               <input
                                 className={scInput}
                                 value={m.email}
                                 onChange={(e) => {
+                                  const v = e.target.value;
                                   const members = [...teamPage.members];
-                                  members[i] = {
-                                    ...members[i],
-                                    email: e.target.value,
-                                  };
+                                  members[i] = { ...members[i], email: v };
                                   setTeamPage({ ...teamPage, members });
+                                  const membersEN = [...teamPageEN.members];
+                                  if (membersEN[i]) {
+                                    membersEN[i] = { ...membersEN[i], email: v };
+                                    setTeamPageEN({ ...teamPageEN, members: membersEN });
+                                  }
                                 }}
                               />
                             </div>
                             <div>
-                              <label className="text-xs text-zinc-500">
-                                Төслүүд (тоо)
-                              </label>
+                              <label className="text-xs text-zinc-500">Төслүүд (тоо)</label>
                               <input
                                 type="number"
                                 className={scInput}
                                 value={m.projects}
                                 onChange={(e) => {
+                                  const v = Number(e.target.value) || 0;
                                   const members = [...teamPage.members];
-                                  members[i] = {
-                                    ...members[i],
-                                    projects: Number(e.target.value) || 0,
-                                  };
+                                  members[i] = { ...members[i], projects: v };
                                   setTeamPage({ ...teamPage, members });
+                                  const membersEN = [...teamPageEN.members];
+                                  if (membersEN[i]) {
+                                    membersEN[i] = { ...membersEN[i], projects: v };
+                                    setTeamPageEN({ ...teamPageEN, members: membersEN });
+                                  }
                                 }}
                               />
                             </div>
                             <div className="sm:col-span-2 lg:col-span-3">
-                              <label className="text-xs text-zinc-500">
-                                Тайлбар
-                              </label>
-                              <textarea
-                                className={scTextarea("min-h-[72px]")}
-                                value={m.bio}
-                                onChange={(e) => {
+                              <DualTextarea
+                                label={lang === "mn" ? "Тайлбар" : "Bio"}
+                                mnValue={m.bio}
+                                enValue={teamPageEN.members[i]?.bio ?? ""}
+                                onChangeMN={(v) => {
                                   const members = [...teamPage.members];
-                                  members[i] = {
-                                    ...members[i],
-                                    bio: e.target.value,
-                                  };
+                                  members[i] = { ...members[i], bio: v };
                                   setTeamPage({ ...teamPage, members });
+                                }}
+                                onChangeEN={(v) => {
+                                  const membersEN = [...teamPageEN.members];
+                                  if (!membersEN[i]) membersEN[i] = { ...m, bio: "" };
+                                  membersEN[i] = { ...membersEN[i], bio: v };
+                                  setTeamPageEN({ ...teamPageEN, members: membersEN });
                                 }}
                               />
                             </div>
                           </div>
                           <div className="mt-3 flex justify-end">
                             <DangerMini
-                              onClick={() =>
+                              onClick={() => {
                                 setTeamPage({
                                   ...teamPage,
-                                  members: teamPage.members.filter(
-                                    (_, j) => j !== i,
-                                  ),
-                                })
-                              }
+                                  members: teamPage.members.filter((_, j) => j !== i),
+                                });
+                                setTeamPageEN({
+                                  ...teamPageEN,
+                                  members: teamPageEN.members.filter((_, j) => j !== i),
+                                });
+                              }}
                             >
-                              Устгах
+                              {t.siteContent.common.remove}
                             </DangerMini>
                           </div>
                         </div>
                       ))}
                       <GhostButton
-                        onClick={() =>
+                        onClick={() => {
+                          const newMember = {
+                            name: "", role: "", initials: "", color: "bg-accent-500", phone: "", email: "", bio: "", projects: 0,
+                          };
                           setTeamPage({
                             ...teamPage,
-                            members: [
-                              ...teamPage.members,
-                              {
-                                name: "",
-                                role: "",
-                                initials: "",
-                                color: "bg-accent-500",
-                                phone: "",
-                                email: "",
-                                bio: "",
-                                projects: 0,
-                              },
-                            ],
-                          })
-                        }
+                            members: [...teamPage.members, newMember],
+                          });
+                          setTeamPageEN({
+                            ...teamPageEN,
+                            members: [...teamPageEN.members, newMember],
+                          });
+                        }}
                       >
                         + Гишүүн нэмэх
                       </GhostButton>
