@@ -10,13 +10,18 @@ import {
 import { getApiBaseUrl, joinBackendRequestUrl } from "@/lib/api";
 import ImageUploadField from "@/components/ImageUploadField";
 import { useAdminLanguage } from "@/contexts/AdminLanguageContext";
-import { DualInput, DualTextarea, scInput, scTextarea } from "../site-content/editorUi";
+import { DualInput, DualTextarea } from "../site-content/editorUi";
+
+type LangContent = {
+  title: string;
+  summary: string;
+  body: string;
+};
 
 type Ad = {
   id: string;
-  title: string;
-  summary?: string;
-  body: string;
+  mn: LangContent;
+  en: LangContent;
   imageUrl?: string;
   externalUrl?: string;
   active: boolean;
@@ -26,11 +31,6 @@ type Ad = {
   postedByUsername?: string;
   lastEditedByDisplayName?: string;
   lastEditedByUsername?: string;
-  
-  // Frontend-only merged fields
-  title_en: string;
-  summary_en: string;
-  body_en: string;
 };
 
 type AdForm = {
@@ -40,11 +40,11 @@ type AdForm = {
   summary_en: string;
   body_mn: string;
   body_en: string;
-  imageUrl?: string;
-  externalUrl?: string;
+  imageUrl: string;
+  externalUrl: string;
   active: boolean;
-  validFrom?: string;
-  validTo?: string;
+  validFrom: string;
+  validTo: string;
 };
 
 const empty: AdForm = {
@@ -71,17 +71,23 @@ function toDateTimeLocal(value?: string | null): string {
   return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
 }
 
-function buildSalesAdBody(form: AdForm, lang: "mn" | "en") {
+function buildPayload(form: AdForm) {
   return {
-    title: (lang === "mn" ? form.title_mn : form.title_en).trim(),
-    summary: (lang === "mn" ? form.summary_mn : form.summary_en ?? "").trim() || undefined,
-    body: (lang === "mn" ? form.body_mn : form.body_en).trim(),
-    imageUrl: form.imageUrl?.trim() || undefined,
-    externalUrl: form.externalUrl?.trim() || undefined,
+    mn: {
+      title: form.title_mn.trim(),
+      summary: form.summary_mn.trim(),
+      body: form.body_mn.trim(),
+    },
+    en: {
+      title: form.title_en.trim(),
+      summary: form.summary_en.trim(),
+      body: form.body_en.trim(),
+    },
+    imageUrl: form.imageUrl.trim() || undefined,
+    externalUrl: form.externalUrl.trim() || undefined,
     active: form.active,
-    validFrom: form.validFrom ? new Date(form.validFrom) : undefined,
-    validTo: form.validTo ? new Date(form.validTo) : undefined,
-    language: lang,
+    validFrom: form.validFrom ? new Date(form.validFrom).toISOString() : undefined,
+    validTo: form.validTo ? new Date(form.validTo).toISOString() : undefined,
   };
 }
 
@@ -95,34 +101,13 @@ export default function SalesAdsPage() {
   const load = useCallback(async () => {
     setError(null);
     try {
-      const [mnRes, enRes] = await Promise.all([
-        fetch(
-          joinBackendRequestUrl(getApiBaseUrl(), `/api/v1/admin/sales-ads?lang=mn`),
-          withClientAdminAuth(),
-        ),
-        fetch(
-          joinBackendRequestUrl(getApiBaseUrl(), `/api/v1/admin/sales-ads?lang=en`),
-          withClientAdminAuth(),
-        ),
-      ]);
-      
-      if (!mnRes.ok) throw new Error(await mnRes.text());
-      if (!enRes.ok) throw new Error(await enRes.text());
-      
-      const mnJson = (await mnRes.json()) as { data: Ad[] };
-      const enJson = (await enRes.json()) as { data: Ad[] };
-      
-      const merged = mnJson.data.map((mnAd) => {
-        const enAd = enJson.data.find((e) => e.id === mnAd.id);
-        return {
-          ...mnAd,
-          title_en: enAd?.title ?? "",
-          summary_en: enAd?.summary ?? "",
-          body_en: enAd?.body ?? "",
-        };
-      });
-      
-      setAds(merged);
+      const res = await fetch(
+        joinBackendRequestUrl(getApiBaseUrl(), `/api/v1/admin/sales-ads`),
+        withClientAdminAuth(),
+      );
+      if (!res.ok) throw new Error(await res.text());
+      const json = (await res.json()) as { data: Ad[] };
+      setAds(json.data ?? []);
     } catch (e) {
       setError(e instanceof Error ? e.message : t.common.error);
     }
@@ -156,12 +141,12 @@ export default function SalesAdsPage() {
 
   function openEdit(ad: Ad) {
     setForm({
-      title_mn: ad.title,
-      title_en: ad.title_en,
-      summary_mn: ad.summary ?? "",
-      summary_en: ad.summary_en,
-      body_mn: ad.body,
-      body_en: ad.body_en,
+      title_mn: ad.mn?.title ?? "",
+      title_en: ad.en?.title ?? "",
+      summary_mn: ad.mn?.summary ?? "",
+      summary_en: ad.en?.summary ?? "",
+      body_mn: ad.mn?.body ?? "",
+      body_en: ad.en?.body ?? "",
       imageUrl: ad.imageUrl ?? "",
       externalUrl: ad.externalUrl ?? "",
       active: ad.active,
@@ -180,35 +165,22 @@ export default function SalesAdsPage() {
     e.preventDefault();
     if (!dialog) return;
     setError(null);
-    
-    const payloadMN = buildSalesAdBody(form, "mn");
-    const payloadEN = buildSalesAdBody(form, "en");
-    
+
     try {
       const method = dialog.mode === "edit" ? "PATCH" : "POST";
       const baseUrl = joinBackendRequestUrl(getApiBaseUrl(), "/api/v1/admin/sales-ads");
-      
-      const resMN = await fetch(
-        dialog.mode === "edit" ? `${baseUrl}/${dialog.id}?lang=mn` : `${baseUrl}?lang=mn`,
+      const url = dialog.mode === "edit" ? `${baseUrl}/${dialog.id}` : baseUrl;
+
+      const res = await fetch(
+        url,
         withClientAdminAuth({
           method,
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(payloadMN),
+          body: JSON.stringify(buildPayload(form)),
         }),
       );
-      
-      if (!resMN.ok) throw new Error(await resMN.text());
-      
-      const resEN = await fetch(
-        dialog.mode === "edit" ? `${baseUrl}/${dialog.id}?lang=en` : `${baseUrl}?lang=en`,
-        withClientAdminAuth({
-          method,
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(payloadEN),
-        }),
-      );
-      
-      if (!resEN.ok) throw new Error(await resEN.text());
+
+      if (!res.ok) throw new Error(await res.text());
 
       closeDialog();
       await load();
@@ -220,7 +192,7 @@ export default function SalesAdsPage() {
   async function toggleActive(ad: Ad) {
     try {
       const res = await fetch(
-        joinBackendRequestUrl(getApiBaseUrl(), `/api/v1/admin/sales-ads/${ad.id}?lang=${lang}`),
+        joinBackendRequestUrl(getApiBaseUrl(), `/api/v1/admin/sales-ads/${ad.id}`),
         withClientAdminAuth({
           method: "PATCH",
           headers: { "Content-Type": "application/json" },
@@ -244,7 +216,7 @@ export default function SalesAdsPage() {
     if (!confirm(lang === "mn" ? "Устгах уу?" : "Are you sure you want to delete?")) return;
     try {
       const res = await fetch(
-        joinBackendRequestUrl(getApiBaseUrl(), `/api/v1/admin/sales-ads/${id}?lang=${lang}`),
+        joinBackendRequestUrl(getApiBaseUrl(), `/api/v1/admin/sales-ads/${id}`),
         withClientAdminAuth({ method: "DELETE" }),
       );
       const gate = await ensureClientAuthorized(res);
@@ -259,6 +231,10 @@ export default function SalesAdsPage() {
       setError(err instanceof Error ? err.message : t.common.error);
     }
   }
+
+  const currentTitle = (ad: Ad) => (lang === "mn" ? ad.mn?.title : ad.en?.title) || ad.mn?.title || ad.en?.title || "—";
+  const currentSummary = (ad: Ad) => (lang === "mn" ? ad.mn?.summary : ad.en?.summary) || "";
+  const currentBody = (ad: Ad) => (lang === "mn" ? ad.mn?.body : ad.en?.body) || "";
 
   const dialogModal =
     dialog &&
@@ -318,7 +294,7 @@ export default function SalesAdsPage() {
                 <div>
                   <p className="mb-2 text-xs font-medium text-zinc-600 dark:text-zinc-400">{t.siteContent.common.image}</p>
                   <ImageUploadField
-                    value={form.imageUrl ?? ""}
+                    value={form.imageUrl}
                     onChange={(path) => setForm({ ...form, imageUrl: path })}
                   />
                 </div>
@@ -342,7 +318,7 @@ export default function SalesAdsPage() {
                   {lang === "mn" ? "Эхлэх" : "Starts"}
                   <input
                     type="datetime-local"
-                    value={form.validFrom ?? ""}
+                    value={form.validFrom}
                     onChange={(e) => setForm({ ...form, validFrom: e.target.value })}
                     className="mt-1 w-full rounded-lg border border-zinc-200 px-3 py-2.5 text-sm dark:border-zinc-700 dark:bg-zinc-900"
                   />
@@ -351,7 +327,7 @@ export default function SalesAdsPage() {
                   {lang === "mn" ? "Дуусах" : "Ends"}
                   <input
                     type="datetime-local"
-                    value={form.validTo ?? ""}
+                    value={form.validTo}
                     onChange={(e) => setForm({ ...form, validTo: e.target.value })}
                     className="mt-1 w-full rounded-lg border border-zinc-200 px-3 py-2.5 text-sm dark:border-zinc-700 dark:bg-zinc-900"
                   />
@@ -408,12 +384,12 @@ export default function SalesAdsPage() {
           >
             <div className="flex flex-wrap items-start justify-between gap-2">
               <div>
-                <h3 className="font-semibold text-zinc-900 dark:text-zinc-50">{ad.title}</h3>
-                {ad.summary && (
-                  <p className="text-sm text-zinc-600 dark:text-zinc-400">{ad.summary}</p>
+                <h3 className="font-semibold text-zinc-900 dark:text-zinc-50">{currentTitle(ad)}</h3>
+                {currentSummary(ad) && (
+                  <p className="text-sm text-zinc-600 dark:text-zinc-400">{currentSummary(ad)}</p>
                 )}
                 <p className="mt-2 whitespace-pre-wrap text-sm text-zinc-700 dark:text-zinc-300">
-                  {ad.body}
+                  {currentBody(ad)}
                 </p>
                 {(ad.postedByDisplayName || ad.lastEditedByDisplayName) && (
                   <p className="mt-2 text-xs text-zinc-500 dark:text-zinc-400">

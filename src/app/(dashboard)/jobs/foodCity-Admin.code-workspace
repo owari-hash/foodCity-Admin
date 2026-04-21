@@ -1,0 +1,14 @@
+{
+	"folders": [
+		{
+			"path": "../../../.."
+		},
+		{
+			"path": "../../../../../foodCity"
+		},
+		{
+			"path": "../../../../../foodCity-backend"
+		}
+	],
+	"settings": {}
+}

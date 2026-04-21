@@ -12,13 +12,18 @@ import ImageUploadField from "@/components/ImageUploadField";
 import { useAdminLanguage } from "@/contexts/AdminLanguageContext";
 import { DualInput, DualTextarea } from "../site-content/editorUi";
 
-type Job = {
-  id: string;
+type LangContent = {
   title: string;
-  company: string;
   location: string;
   description: string;
-  salary?: string;
+  salary: string;
+};
+
+type Job = {
+  id: string;
+  mn: LangContent;
+  en: LangContent;
+  company: string;
   contactEmail?: string;
   imageUrl?: string;
   active: boolean;
@@ -26,15 +31,9 @@ type Job = {
   postedByUsername?: string;
   lastEditedByDisplayName?: string;
   lastEditedByUsername?: string;
-  
-  // Frontend-only merged fields
-  title_en: string;
-  location_en: string;
-  salary_en: string;
-  description_en: string;
 };
 
-type OmitJobId = {
+type JobForm = {
   title_mn: string;
   title_en: string;
   company: string;
@@ -44,12 +43,12 @@ type OmitJobId = {
   description_en: string;
   salary_mn: string;
   salary_en: string;
-  contactEmail?: string;
-  imageUrl?: string;
+  contactEmail: string;
+  imageUrl: string;
   active: boolean;
 };
 
-const empty: OmitJobId = {
+const empty: JobForm = {
   title_mn: "",
   title_en: "",
   company: "",
@@ -66,17 +65,24 @@ const empty: OmitJobId = {
 
 type JobDialog = { mode: "add" } | { mode: "edit"; id: string };
 
-function buildJobBody(form: OmitJobId, lang: "mn" | "en") {
+function buildPayload(form: JobForm) {
   return {
-    title: (lang === "mn" ? form.title_mn : form.title_en).trim(),
+    mn: {
+      title: form.title_mn.trim(),
+      location: form.location_mn.trim(),
+      description: form.description_mn.trim(),
+      salary: form.salary_mn.trim(),
+    },
+    en: {
+      title: form.title_en.trim(),
+      location: form.location_en.trim(),
+      description: form.description_en.trim(),
+      salary: form.salary_en.trim(),
+    },
     company: form.company.trim(),
-    location: (lang === "mn" ? form.location_mn : form.location_en).trim(),
-    description: (lang === "mn" ? form.description_mn : form.description_en).trim(),
-    salary: (lang === "mn" ? form.salary_mn : form.salary_en ?? "").trim() || undefined,
-    contactEmail: (form.contactEmail ?? "").trim() || undefined,
-    imageUrl: form.imageUrl?.trim() || undefined,
+    contactEmail: form.contactEmail.trim() || undefined,
+    imageUrl: form.imageUrl.trim() || undefined,
     active: form.active,
-    language: lang,
   };
 }
 
@@ -90,35 +96,13 @@ export default function JobsPage() {
   const load = useCallback(async () => {
     setError(null);
     try {
-      const [mnRes, enRes] = await Promise.all([
-        fetch(
-          joinBackendRequestUrl(getApiBaseUrl(), `/api/v1/admin/jobs?lang=mn`),
-          withClientAdminAuth(),
-        ),
-        fetch(
-          joinBackendRequestUrl(getApiBaseUrl(), `/api/v1/admin/jobs?lang=en`),
-          withClientAdminAuth(),
-        ),
-      ]);
-      
-      if (!mnRes.ok) throw new Error(await mnRes.text());
-      if (!enRes.ok) throw new Error(await enRes.text());
-      
-      const mnJson = (await mnRes.json()) as { data: Job[] };
-      const enJson = (await enRes.json()) as { data: Job[] };
-      
-      const merged = mnJson.data.map((mnJob) => {
-        const enJob = enJson.data.find((e) => e.id === mnJob.id);
-        return {
-          ...mnJob,
-          title_en: enJob?.title ?? "",
-          location_en: enJob?.location ?? "",
-          salary_en: enJob?.salary ?? "",
-          description_en: enJob?.description ?? "",
-        };
-      });
-      
-      setJobs(merged);
+      const res = await fetch(
+        joinBackendRequestUrl(getApiBaseUrl(), `/api/v1/admin/jobs`),
+        withClientAdminAuth(),
+      );
+      if (!res.ok) throw new Error(await res.text());
+      const json = (await res.json()) as { data: Job[] };
+      setJobs(json.data ?? []);
     } catch (e) {
       setError(e instanceof Error ? e.message : t.common.error);
     }
@@ -152,15 +136,15 @@ export default function JobsPage() {
 
   function openEdit(job: Job) {
     setForm({
-      title_mn: job.title,
-      title_en: job.title_en,
-      company: job.company,
-      location_mn: job.location,
-      location_en: job.location_en,
-      description_mn: job.description,
-      description_en: job.description_en,
-      salary_mn: job.salary ?? "",
-      salary_en: job.salary_en,
+      title_mn: job.mn?.title ?? "",
+      title_en: job.en?.title ?? "",
+      company: job.company ?? "",
+      location_mn: job.mn?.location ?? "",
+      location_en: job.en?.location ?? "",
+      description_mn: job.mn?.description ?? "",
+      description_en: job.en?.description ?? "",
+      salary_mn: job.mn?.salary ?? "",
+      salary_en: job.en?.salary ?? "",
       contactEmail: job.contactEmail ?? "",
       imageUrl: job.imageUrl ?? "",
       active: job.active,
@@ -177,33 +161,22 @@ export default function JobsPage() {
     e.preventDefault();
     if (!dialog) return;
     setError(null);
-    
-    const payloadMN = buildJobBody(form, "mn");
-    const payloadEN = buildJobBody(form, "en");
-    
+
     try {
       const method = dialog.mode === "edit" ? "PATCH" : "POST";
       const baseUrl = joinBackendRequestUrl(getApiBaseUrl(), "/api/v1/admin/jobs");
-      
-      const resMN = await fetch(
-        dialog.mode === "edit" ? `${baseUrl}/${dialog.id}?lang=mn` : `${baseUrl}?lang=mn`,
+      const url = dialog.mode === "edit" ? `${baseUrl}/${dialog.id}` : baseUrl;
+
+      const res = await fetch(
+        url,
         withClientAdminAuth({
           method,
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(payloadMN),
+          body: JSON.stringify(buildPayload(form)),
         }),
       );
-      if (!resMN.ok) throw new Error(await resMN.text());
-      
-      const resEN = await fetch(
-        dialog.mode === "edit" ? `${baseUrl}/${dialog.id}?lang=en` : `${baseUrl}?lang=en`,
-        withClientAdminAuth({
-          method,
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(payloadEN),
-        }),
-      );
-      if (!resEN.ok) throw new Error(await resEN.text());
+
+      if (!res.ok) throw new Error(await res.text());
 
       closeDialog();
       await load();
@@ -215,7 +188,7 @@ export default function JobsPage() {
   async function toggleActive(job: Job) {
     try {
       const res = await fetch(
-        joinBackendRequestUrl(getApiBaseUrl(), `/api/v1/admin/jobs/${job.id}?lang=${lang}`),
+        joinBackendRequestUrl(getApiBaseUrl(), `/api/v1/admin/jobs/${job.id}`),
         withClientAdminAuth({
           method: "PATCH",
           headers: { "Content-Type": "application/json" },
@@ -239,7 +212,7 @@ export default function JobsPage() {
     if (!confirm(lang === "mn" ? "Устгах уу?" : "Are you sure you want to delete?")) return;
     try {
       const res = await fetch(
-        joinBackendRequestUrl(getApiBaseUrl(), `/api/v1/admin/jobs/${id}?lang=${lang}`),
+        joinBackendRequestUrl(getApiBaseUrl(), `/api/v1/admin/jobs/${id}`),
         withClientAdminAuth({ method: "DELETE" }),
       );
       const gate = await ensureClientAuthorized(res);
@@ -254,6 +227,15 @@ export default function JobsPage() {
       setError(err instanceof Error ? err.message : t.common.error);
     }
   }
+
+  const currentTitle = (job: Job) =>
+    (lang === "mn" ? job.mn?.title : job.en?.title) || job.mn?.title || job.en?.title || "—";
+  const currentLocation = (job: Job) =>
+    (lang === "mn" ? job.mn?.location : job.en?.location) || "";
+  const currentSalary = (job: Job) =>
+    (lang === "mn" ? job.mn?.salary : job.en?.salary) || "";
+  const currentDescription = (job: Job) =>
+    (lang === "mn" ? job.mn?.description : job.en?.description) || "";
 
   const dialogModal =
     dialog &&
@@ -279,7 +261,9 @@ export default function JobsPage() {
             id="job-dialog-title"
             className="mb-5 text-lg font-semibold text-zinc-900 dark:text-zinc-50"
           >
-            {dialog.mode === "edit" ? (lang === "mn" ? "Ажлын зар засах" : "Edit Job Post") : (lang === "mn" ? "Шинэ ажлын зар" : "New Job Post")}
+            {dialog.mode === "edit"
+              ? lang === "mn" ? "Ажлын зар засах" : "Edit Job Post"
+              : lang === "mn" ? "Шинэ ажлын зар" : "New Job Post"}
           </h2>
           <form onSubmit={saveJob} className="space-y-6">
             <div className="grid gap-6 lg:grid-cols-2">
@@ -346,7 +330,7 @@ export default function JobsPage() {
                   <p className="mb-2 text-xs font-medium text-zinc-600 dark:text-zinc-400">{t.siteContent.common.image}</p>
                   <ImageUploadField
                     previewFit="contain"
-                    value={form.imageUrl ?? ""}
+                    value={form.imageUrl}
                     onChange={(path) => setForm({ ...form, imageUrl: path })}
                   />
                 </div>
@@ -411,15 +395,15 @@ export default function JobsPage() {
             <div className="flex flex-wrap items-start justify-between gap-4">
               <div className="min-w-0 flex-1 space-y-3">
                 <div>
-                  <h3 className="font-semibold text-zinc-900 dark:text-zinc-50">{job.title}</h3>
+                  <h3 className="font-semibold text-zinc-900 dark:text-zinc-50">{currentTitle(job)}</h3>
                   <p className="text-sm text-zinc-600 dark:text-zinc-400">
-                    {job.company} · {job.location}
+                    {job.company}{currentLocation(job) ? ` · ${currentLocation(job)}` : ""}
                   </p>
-                  {job.salary && (
-                    <p className="text-sm text-emerald-700 dark:text-emerald-400">{job.salary}</p>
+                  {currentSalary(job) && (
+                    <p className="text-sm text-emerald-700 dark:text-emerald-400">{currentSalary(job)}</p>
                   )}
                   <p className="mt-2 whitespace-pre-wrap text-sm text-zinc-700 dark:text-zinc-300">
-                    {job.description}
+                    {currentDescription(job)}
                   </p>
                   {(job.postedByDisplayName || job.lastEditedByDisplayName) && (
                     <p className="mt-2 text-xs text-zinc-500 dark:text-zinc-400">
@@ -448,7 +432,7 @@ export default function JobsPage() {
                   onClick={() => toggleActive(job)}
                   className="rounded-lg border border-zinc-200 px-2 py-1 text-xs dark:border-zinc-700 text-zinc-700 dark:text-zinc-300"
                 >
-                  {job.active ? (lang === "mn" ? "Идэвхгүй" : "Inactive") : (lang === "mn" ? "Идэвхжүүлэх" : "Activate")}
+                  {job.active ? (lang === "mn" ? "Идэвхгүй болгох" : "Deactivate") : (lang === "mn" ? "Идэвхжүүлэх" : "Activate")}
                 </button>
                 <button
                   type="button"
