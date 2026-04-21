@@ -740,41 +740,55 @@ export default function SiteContentPage() {
                   >
                     <div className="space-y-3">
                       {home.hero.stats.map((row, i) => (
-                        <div key={i} className="flex flex-wrap gap-2">
-                          <input
-                            className={`${scInput} max-w-[140px]`}
-                            placeholder={t.siteContent.common.placeholder}
-                            value={row.value}
-                            onChange={(e) => {
-                              const stats = [...home.hero.stats];
-                              stats[i] = { ...stats[i], value: e.target.value };
-                              setHome({
-                                ...home,
-                                hero: { ...home.hero, stats },
-                              });
-                            }}
-                          />
-                          <input
-                            className={`${scInput} min-w-[200px] flex-1`}
-                            placeholder={t.siteContent.common.label}
-                            value={row.label}
-                            onChange={(e) => {
-                              const stats = [...home.hero.stats];
-                              stats[i] = { ...stats[i], label: e.target.value };
-                              setHome({
-                                ...home,
-                                hero: { ...home.hero, stats },
-                              });
-                            }}
-                          />
+                        <div key={i} className="flex flex-wrap items-end gap-3 rounded-xl border border-slate-100 bg-slate-50/30 p-3 dark:border-slate-800/40 dark:bg-slate-900/20">
+                          <div className="space-y-1.5">
+                            <label className="text-[10px] font-bold uppercase tracking-wider text-slate-400">
+                              {lang === "mn" ? "Утга" : "Value"}
+                            </label>
+                            <input
+                              className={`${scInput} max-w-[120px]`}
+                              value={row.value}
+                              onChange={(e) => {
+                                const v = e.target.value;
+                                const s = [...home.hero.stats];
+                                s[i] = { ...s[i], value: v };
+                                setHome({ ...home, hero: { ...home.hero, stats: s } });
+                                
+                                const sEN = [...homeEN.hero.stats];
+                                if (sEN[i]) {
+                                  sEN[i] = { ...sEN[i], value: v };
+                                  setHomeEN({ ...homeEN, hero: { ...homeEN.hero, stats: sEN } });
+                                }
+                              }}
+                            />
+                          </div>
+                          <div className="flex-1">
+                            <DualInput
+                              label={lang === "mn" ? "Шошго" : "Label"}
+                              mnValue={row.label}
+                              enValue={homeEN.hero.stats[i]?.label ?? ""}
+                              onChangeMN={(v) => {
+                                const s = [...home.hero.stats];
+                                s[i] = { ...s[i], label: v };
+                                setHome({ ...home, hero: { ...home.hero, stats: s } });
+                              }}
+                              onChangeEN={(v) => {
+                                const s = [...homeEN.hero.stats];
+                                if (!s[i]) s[i] = { label: "", value: row.value };
+                                s[i] = { ...s[i], label: v };
+                                setHomeEN({ ...homeEN, hero: { ...homeEN.hero, stats: s } });
+                              }}
+                            />
+                          </div>
                           <DangerMini
                             onClick={() => {
-                              const stats = home.hero.stats.filter(
-                                (_, j) => j !== i,
-                              );
                               setHome({
                                 ...home,
-                                hero: { ...home.hero, stats },
+                                hero: { ...home.hero, stats: home.hero.stats.filter((_, j) => j !== i) },
+                              });
+                              setHomeEN({
+                                ...homeEN,
+                                hero: { ...homeEN.hero, stats: homeEN.hero.stats.filter((_, j) => j !== i) },
                               });
                             }}
                           >
@@ -783,18 +797,17 @@ export default function SiteContentPage() {
                         </div>
                       ))}
                       <GhostButton
-                        onClick={() =>
+                        onClick={() => {
+                          const newItem = { value: "", label: "" };
                           setHome({
                             ...home,
-                            hero: {
-                              ...home.hero,
-                              stats: [
-                                ...home.hero.stats,
-                                { value: "", label: "" },
-                              ],
-                            },
-                          })
-                        }
+                            hero: { ...home.hero, stats: [...home.hero.stats, newItem] },
+                          });
+                          setHomeEN({
+                            ...homeEN,
+                            hero: { ...homeEN.hero, stats: [...homeEN.hero.stats, newItem] },
+                          });
+                        }}
                       >
                         + {t.siteContent.common.addRow}
                       </GhostButton>
