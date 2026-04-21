@@ -10,6 +10,7 @@ import {
 import { getApiBaseUrl, joinBackendRequestUrl } from "@/lib/api";
 import ImageUploadField from "@/components/ImageUploadField";
 import { useAdminLanguage } from "@/contexts/AdminLanguageContext";
+import { DualInput, DualTextarea, scInput, scTextarea } from "../site-content/editorUi";
 
 type Ad = {
   id: string;
@@ -25,14 +26,34 @@ type Ad = {
   postedByUsername?: string;
   lastEditedByDisplayName?: string;
   lastEditedByUsername?: string;
+  
+  // Frontend-only merged fields
+  title_en: string;
+  summary_en: string;
+  body_en: string;
 };
 
-type AdForm = Omit<Ad, "id"> & { validFrom?: string; validTo?: string };
+type AdForm = {
+  title_mn: string;
+  title_en: string;
+  summary_mn: string;
+  summary_en: string;
+  body_mn: string;
+  body_en: string;
+  imageUrl?: string;
+  externalUrl?: string;
+  active: boolean;
+  validFrom?: string;
+  validTo?: string;
+};
 
 const empty: AdForm = {
-  title: "",
-  summary: "",
-  body: "",
+  title_mn: "",
+  title_en: "",
+  summary_mn: "",
+  summary_en: "",
+  body_mn: "",
+  body_en: "",
   imageUrl: "",
   externalUrl: "",
   active: true,
@@ -50,16 +71,17 @@ function toDateTimeLocal(value?: string | null): string {
   return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
 }
 
-function buildSalesAdBody(form: AdForm) {
+function buildSalesAdBody(form: AdForm, lang: "mn" | "en") {
   return {
-    title: form.title.trim(),
-    summary: (form.summary ?? "").trim() || undefined,
-    body: form.body.trim(),
+    title: (lang === "mn" ? form.title_mn : form.title_en).trim(),
+    summary: (lang === "mn" ? form.summary_mn : form.summary_en ?? "").trim() || undefined,
+    body: (lang === "mn" ? form.body_mn : form.body_en).trim(),
     imageUrl: form.imageUrl?.trim() || undefined,
     externalUrl: form.externalUrl?.trim() || undefined,
     active: form.active,
     validFrom: form.validFrom ? new Date(form.validFrom) : undefined,
     validTo: form.validTo ? new Date(form.validTo) : undefined,
+    language: lang,
   };
 }
 
@@ -73,23 +95,38 @@ export default function SalesAdsPage() {
   const load = useCallback(async () => {
     setError(null);
     try {
-      const res = await fetch(
-        joinBackendRequestUrl(getApiBaseUrl(), `/api/v1/admin/sales-ads?lang=${lang}`),
-        withClientAdminAuth(),
-      );
-      const gate = await ensureClientAuthorized(res);
-      if (gate === "forbidden") {
-        setError(t.siteContent.common.forbidden);
-        return;
-      }
-      if (gate !== "ok") return;
-      if (!res.ok) throw new Error(await res.text());
-      const json = (await res.json()) as { data: Ad[] };
-      setAds(json.data);
+      const [mnRes, enRes] = await Promise.all([
+        fetch(
+          joinBackendRequestUrl(getApiBaseUrl(), `/api/v1/admin/sales-ads?lang=mn`),
+          withClientAdminAuth(),
+        ),
+        fetch(
+          joinBackendRequestUrl(getApiBaseUrl(), `/api/v1/admin/sales-ads?lang=en`),
+          withClientAdminAuth(),
+        ),
+      ]);
+      
+      if (!mnRes.ok) throw new Error(await mnRes.text());
+      if (!enRes.ok) throw new Error(await enRes.text());
+      
+      const mnJson = (await mnRes.json()) as { data: Ad[] };
+      const enJson = (await enRes.json()) as { data: Ad[] };
+      
+      const merged = mnJson.data.map((mnAd) => {
+        const enAd = enJson.data.find((e) => e.id === mnAd.id);
+        return {
+          ...mnAd,
+          title_en: enAd?.title ?? "",
+          summary_en: enAd?.summary ?? "",
+          body_en: enAd?.body ?? "",
+        };
+      });
+      
+      setAds(merged);
     } catch (e) {
       setError(e instanceof Error ? e.message : t.common.error);
     }
-  }, [lang, t]);
+  }, [t.common.error]);
 
   useEffect(() => {
     void load();
@@ -119,9 +156,12 @@ export default function SalesAdsPage() {
 
   function openEdit(ad: Ad) {
     setForm({
-      title: ad.title,
-      summary: ad.summary ?? "",
-      body: ad.body,
+      title_mn: ad.title,
+      title_en: ad.title_en,
+      summary_mn: ad.summary ?? "",
+      summary_en: ad.summary_en,
+      body_mn: ad.body,
+      body_en: ad.body_en,
       imageUrl: ad.imageUrl ?? "",
       externalUrl: ad.externalUrl ?? "",
       active: ad.active,
@@ -140,27 +180,36 @@ export default function SalesAdsPage() {
     e.preventDefault();
     if (!dialog) return;
     setError(null);
-    const payload = { ...buildSalesAdBody(form), language: lang };
+    
+    const payloadMN = buildSalesAdBody(form, "mn");
+    const payloadEN = buildSalesAdBody(form, "en");
+    
     try {
-      const url =
-        dialog.mode === "edit"
-          ? joinBackendRequestUrl(getApiBaseUrl(), `/api/v1/admin/sales-ads/${dialog.id}?lang=${lang}`)
-          : joinBackendRequestUrl(getApiBaseUrl(), `/api/v1/admin/sales-ads?lang=${lang}`);
-      const res = await fetch(
-        url,
+      const method = dialog.mode === "edit" ? "PATCH" : "POST";
+      const baseUrl = joinBackendRequestUrl(getApiBaseUrl(), "/api/v1/admin/sales-ads");
+      
+      const resMN = await fetch(
+        dialog.mode === "edit" ? `${baseUrl}/${dialog.id}?lang=mn` : `${baseUrl}?lang=mn`,
         withClientAdminAuth({
-          method: dialog.mode === "edit" ? "PATCH" : "POST",
+          method,
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(payload),
+          body: JSON.stringify(payloadMN),
         }),
       );
-      const gate = await ensureClientAuthorized(res);
-      if (gate === "forbidden") {
-        setError(t.siteContent.common.forbidden);
-        return;
-      }
-      if (gate !== "ok") return;
-      if (!res.ok) throw new Error(await res.text());
+      
+      if (!resMN.ok) throw new Error(await resMN.text());
+      
+      const resEN = await fetch(
+        dialog.mode === "edit" ? `${baseUrl}/${dialog.id}?lang=en` : `${baseUrl}?lang=en`,
+        withClientAdminAuth({
+          method,
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payloadEN),
+        }),
+      );
+      
+      if (!resEN.ok) throw new Error(await resEN.text());
+
       closeDialog();
       await load();
     } catch (err) {
@@ -237,29 +286,32 @@ export default function SalesAdsPage() {
           >
             {dialog.mode === "edit" ? (lang === "mn" ? "Зар засах" : "Edit Sales Ad") : (lang === "mn" ? "Шинэ зар" : "New Sales Ad")}
           </h2>
-          <form onSubmit={saveAd} className="space-y-4">
-            <div className="grid gap-4 lg:grid-cols-2">
-              <div className="space-y-4 lg:col-span-2">
-                <input
+          <form onSubmit={saveAd} className="space-y-6">
+            <div className="grid gap-6 lg:grid-cols-2">
+              <div className="space-y-6 lg:col-span-2">
+                <DualInput
                   required
-                  placeholder={t.siteContent.common.title}
-                  value={form.title}
-                  onChange={(e) => setForm({ ...form, title: e.target.value })}
-                  className="w-full rounded-lg border border-zinc-200 px-3 py-2.5 text-sm dark:border-zinc-700 dark:bg-zinc-900"
+                  label={t.siteContent.common.title}
+                  mnValue={form.title_mn}
+                  enValue={form.title_en}
+                  onChangeMN={(v) => setForm({ ...form, title_mn: v })}
+                  onChangeEN={(v) => setForm({ ...form, title_en: v })}
                 />
-                <input
-                  placeholder={t.siteContent.common.subtitle}
-                  value={form.summary}
-                  onChange={(e) => setForm({ ...form, summary: e.target.value })}
-                  className="w-full rounded-lg border border-zinc-200 px-3 py-2.5 text-sm dark:border-zinc-700 dark:bg-zinc-900"
+                <DualInput
+                  label={t.siteContent.common.subtitle}
+                  mnValue={form.summary_mn}
+                  enValue={form.summary_en}
+                  onChangeMN={(v) => setForm({ ...form, summary_mn: v })}
+                  onChangeEN={(v) => setForm({ ...form, summary_en: v })}
                 />
-                <textarea
+                <DualTextarea
                   required
-                  placeholder={t.siteContent.common.description}
-                  rows={10}
-                  value={form.body}
-                  onChange={(e) => setForm({ ...form, body: e.target.value })}
-                  className="min-h-48 w-full rounded-lg border border-zinc-200 px-3 py-2.5 text-sm leading-relaxed dark:border-zinc-700 dark:bg-zinc-900"
+                  label={t.siteContent.common.description}
+                  rows={8}
+                  mnValue={form.body_mn}
+                  enValue={form.body_en}
+                  onChangeMN={(v) => setForm({ ...form, body_mn: v })}
+                  onChangeEN={(v) => setForm({ ...form, body_en: v })}
                 />
               </div>
               <div className="space-y-4">

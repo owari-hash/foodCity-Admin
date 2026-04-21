@@ -10,6 +10,7 @@ import {
 import { getApiBaseUrl, joinBackendRequestUrl } from "@/lib/api";
 import ImageUploadField from "@/components/ImageUploadField";
 import { useAdminLanguage } from "@/contexts/AdminLanguageContext";
+import { DualInput, DualTextarea } from "../site-content/editorUi";
 
 type Job = {
   id: string;
@@ -25,14 +26,39 @@ type Job = {
   postedByUsername?: string;
   lastEditedByDisplayName?: string;
   lastEditedByUsername?: string;
+  
+  // Frontend-only merged fields
+  title_en: string;
+  location_en: string;
+  salary_en: string;
+  description_en: string;
 };
 
-const empty: Omit<Job, "id"> = {
-  title: "",
+type OmitJobId = {
+  title_mn: string;
+  title_en: string;
+  company: string;
+  location_mn: string;
+  location_en: string;
+  description_mn: string;
+  description_en: string;
+  salary_mn: string;
+  salary_en: string;
+  contactEmail?: string;
+  imageUrl?: string;
+  active: boolean;
+};
+
+const empty: OmitJobId = {
+  title_mn: "",
+  title_en: "",
   company: "",
-  location: "",
-  description: "",
-  salary: "",
+  location_mn: "",
+  location_en: "",
+  description_mn: "",
+  description_en: "",
+  salary_mn: "",
+  salary_en: "",
   contactEmail: "",
   imageUrl: "",
   active: true,
@@ -40,16 +66,17 @@ const empty: Omit<Job, "id"> = {
 
 type JobDialog = { mode: "add" } | { mode: "edit"; id: string };
 
-function buildJobBody(form: Omit<Job, "id">) {
+function buildJobBody(form: OmitJobId, lang: "mn" | "en") {
   return {
-    title: form.title.trim(),
+    title: (lang === "mn" ? form.title_mn : form.title_en).trim(),
     company: form.company.trim(),
-    location: form.location.trim(),
-    description: form.description.trim(),
-    salary: (form.salary ?? "").trim() || undefined,
+    location: (lang === "mn" ? form.location_mn : form.location_en).trim(),
+    description: (lang === "mn" ? form.description_mn : form.description_en).trim(),
+    salary: (lang === "mn" ? form.salary_mn : form.salary_en ?? "").trim() || undefined,
     contactEmail: (form.contactEmail ?? "").trim() || undefined,
     imageUrl: form.imageUrl?.trim() || undefined,
     active: form.active,
+    language: lang,
   };
 }
 
@@ -63,23 +90,39 @@ export default function JobsPage() {
   const load = useCallback(async () => {
     setError(null);
     try {
-      const res = await fetch(
-        joinBackendRequestUrl(getApiBaseUrl(), `/api/v1/admin/jobs?lang=${lang}`),
-        withClientAdminAuth(),
-      );
-      const gate = await ensureClientAuthorized(res);
-      if (gate === "forbidden") {
-        setError(t.siteContent.common.forbidden);
-        return;
-      }
-      if (gate !== "ok") return;
-      if (!res.ok) throw new Error(await res.text());
-      const json = (await res.json()) as { data: Job[] };
-      setJobs(json.data);
+      const [mnRes, enRes] = await Promise.all([
+        fetch(
+          joinBackendRequestUrl(getApiBaseUrl(), `/api/v1/admin/jobs?lang=mn`),
+          withClientAdminAuth(),
+        ),
+        fetch(
+          joinBackendRequestUrl(getApiBaseUrl(), `/api/v1/admin/jobs?lang=en`),
+          withClientAdminAuth(),
+        ),
+      ]);
+      
+      if (!mnRes.ok) throw new Error(await mnRes.text());
+      if (!enRes.ok) throw new Error(await enRes.text());
+      
+      const mnJson = (await mnRes.json()) as { data: Job[] };
+      const enJson = (await enRes.json()) as { data: Job[] };
+      
+      const merged = mnJson.data.map((mnJob) => {
+        const enJob = enJson.data.find((e) => e.id === mnJob.id);
+        return {
+          ...mnJob,
+          title_en: enJob?.title ?? "",
+          location_en: enJob?.location ?? "",
+          salary_en: enJob?.salary ?? "",
+          description_en: enJob?.description ?? "",
+        };
+      });
+      
+      setJobs(merged);
     } catch (e) {
       setError(e instanceof Error ? e.message : t.common.error);
     }
-  }, [lang, t]);
+  }, [t.common.error]);
 
   useEffect(() => {
     void load();
@@ -109,11 +152,15 @@ export default function JobsPage() {
 
   function openEdit(job: Job) {
     setForm({
-      title: job.title,
+      title_mn: job.title,
+      title_en: job.title_en,
       company: job.company,
-      location: job.location,
-      description: job.description,
-      salary: job.salary ?? "",
+      location_mn: job.location,
+      location_en: job.location_en,
+      description_mn: job.description,
+      description_en: job.description_en,
+      salary_mn: job.salary ?? "",
+      salary_en: job.salary_en,
       contactEmail: job.contactEmail ?? "",
       imageUrl: job.imageUrl ?? "",
       active: job.active,
@@ -130,27 +177,34 @@ export default function JobsPage() {
     e.preventDefault();
     if (!dialog) return;
     setError(null);
-    const payload = { ...buildJobBody(form), language: lang };
+    
+    const payloadMN = buildJobBody(form, "mn");
+    const payloadEN = buildJobBody(form, "en");
+    
     try {
-      const url =
-        dialog.mode === "edit"
-          ? joinBackendRequestUrl(getApiBaseUrl(), `/api/v1/admin/jobs/${dialog.id}?lang=${lang}`)
-          : joinBackendRequestUrl(getApiBaseUrl(), `/api/v1/admin/jobs?lang=${lang}`);
-      const res = await fetch(
-        url,
+      const method = dialog.mode === "edit" ? "PATCH" : "POST";
+      const baseUrl = joinBackendRequestUrl(getApiBaseUrl(), "/api/v1/admin/jobs");
+      
+      const resMN = await fetch(
+        dialog.mode === "edit" ? `${baseUrl}/${dialog.id}?lang=mn` : `${baseUrl}?lang=mn`,
         withClientAdminAuth({
-          method: dialog.mode === "edit" ? "PATCH" : "POST",
+          method,
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(payload),
+          body: JSON.stringify(payloadMN),
         }),
       );
-      const gate = await ensureClientAuthorized(res);
-      if (gate === "forbidden") {
-        setError(t.siteContent.common.forbidden);
-        return;
-      }
-      if (gate !== "ok") return;
-      if (!res.ok) throw new Error(await res.text());
+      if (!resMN.ok) throw new Error(await resMN.text());
+      
+      const resEN = await fetch(
+        dialog.mode === "edit" ? `${baseUrl}/${dialog.id}?lang=en` : `${baseUrl}?lang=en`,
+        withClientAdminAuth({
+          method,
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payloadEN),
+        }),
+      );
+      if (!resEN.ok) throw new Error(await resEN.text());
+
       closeDialog();
       await load();
     } catch (err) {
@@ -227,55 +281,65 @@ export default function JobsPage() {
           >
             {dialog.mode === "edit" ? (lang === "mn" ? "Ажлын зар засах" : "Edit Job Post") : (lang === "mn" ? "Шинэ ажлын зар" : "New Job Post")}
           </h2>
-          <form onSubmit={saveJob} className="space-y-4">
-            <div className="grid gap-4 lg:grid-cols-2">
-              <div className="space-y-4 lg:col-span-2">
-                <div className="grid gap-3 sm:grid-cols-2">
-                  <input
+          <form onSubmit={saveJob} className="space-y-6">
+            <div className="grid gap-6 lg:grid-cols-2">
+              <div className="space-y-6 lg:col-span-2">
+                <DualInput
+                  required
+                  label={t.siteContent.propertiesPage.fields.name}
+                  mnValue={form.title_mn}
+                  enValue={form.title_en}
+                  onChangeMN={(v) => setForm({ ...form, title_mn: v })}
+                  onChangeEN={(v) => setForm({ ...form, title_en: v })}
+                />
+                <div className="grid gap-4 sm:grid-cols-2">
+                  <div className="space-y-1.5">
+                    <label className="text-[11px] font-bold uppercase tracking-[0.12em] text-slate-500">
+                      {lang === "mn" ? "Компани" : "Company"}
+                    </label>
+                    <input
+                      required
+                      value={form.company}
+                      onChange={(e) => setForm({ ...form, company: e.target.value })}
+                      className="w-full rounded-lg border border-zinc-200 px-3 py-2.5 text-sm dark:border-zinc-700 dark:bg-zinc-900"
+                    />
+                  </div>
+                  <DualInput
                     required
-                    placeholder={t.siteContent.propertiesPage.fields.name}
-                    value={form.title}
-                    onChange={(e) => setForm({ ...form, title: e.target.value })}
-                    className="rounded-lg border border-zinc-200 px-3 py-2.5 text-sm dark:border-zinc-700 dark:bg-zinc-900"
-                  />
-                  <input
-                    required
-                    placeholder={lang === "mn" ? "Компани" : "Company"}
-                    value={form.company}
-                    onChange={(e) => setForm({ ...form, company: e.target.value })}
-                    className="rounded-lg border border-zinc-200 px-3 py-2.5 text-sm dark:border-zinc-700 dark:bg-zinc-900"
+                    label={lang === "mn" ? "Байршил" : "Location"}
+                    mnValue={form.location_mn}
+                    enValue={form.location_en}
+                    onChangeMN={(v) => setForm({ ...form, location_mn: v })}
+                    onChangeEN={(v) => setForm({ ...form, location_en: v })}
                   />
                 </div>
-                <input
+                <DualTextarea
                   required
-                  placeholder={lang === "mn" ? "Байршил" : "Location"}
-                  value={form.location}
-                  onChange={(e) => setForm({ ...form, location: e.target.value })}
-                  className="w-full rounded-lg border border-zinc-200 px-3 py-2.5 text-sm dark:border-zinc-700 dark:bg-zinc-900"
-                />
-                <textarea
-                  required
-                  placeholder={t.siteContent.common.description}
+                  label={t.siteContent.common.description}
                   rows={8}
-                  value={form.description}
-                  onChange={(e) => setForm({ ...form, description: e.target.value })}
-                  className="min-h-40 w-full rounded-lg border border-zinc-200 px-3 py-2.5 text-sm leading-relaxed dark:border-zinc-700 dark:bg-zinc-900"
+                  mnValue={form.description_mn}
+                  enValue={form.description_en}
+                  onChangeMN={(v) => setForm({ ...form, description_mn: v })}
+                  onChangeEN={(v) => setForm({ ...form, description_en: v })}
+                />
+                <DualInput
+                  label={t.siteContent.propertiesPage.fields.price}
+                  mnValue={form.salary_mn}
+                  enValue={form.salary_en}
+                  onChangeMN={(v) => setForm({ ...form, salary_mn: v })}
+                  onChangeEN={(v) => setForm({ ...form, salary_en: v })}
                 />
               </div>
               <div className="space-y-4">
-                <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-1 xl:grid-cols-2">
-                  <input
-                    placeholder={t.siteContent.propertiesPage.fields.price}
-                    value={form.salary}
-                    onChange={(e) => setForm({ ...form, salary: e.target.value })}
-                    className="rounded-lg border border-zinc-200 px-3 py-2.5 text-sm dark:border-zinc-700 dark:bg-zinc-900"
-                  />
+                <div className="space-y-1.5">
+                  <label className="text-[11px] font-bold uppercase tracking-[0.12em] text-slate-500">
+                    {t.siteContent.team.fields.email}
+                  </label>
                   <input
                     type="email"
-                    placeholder={t.siteContent.team.fields.email}
                     value={form.contactEmail}
                     onChange={(e) => setForm({ ...form, contactEmail: e.target.value })}
-                    className="rounded-lg border border-zinc-200 px-3 py-2.5 text-sm dark:border-zinc-700 dark:bg-zinc-900"
+                    className="w-full rounded-lg border border-zinc-200 px-3 py-2.5 text-sm dark:border-zinc-700 dark:bg-zinc-900"
                   />
                 </div>
                 <div>

@@ -33,6 +33,8 @@ import {
   PrimarySave,
   scInput,
   scTextarea,
+  DualInput,
+  DualTextarea,
 } from "./editorUi";
 
 type HomeState = {
@@ -373,41 +375,85 @@ export default function SiteContentPage() {
   const [saving, setSaving] = useState(false);
 
   const [home, setHome] = useState<HomeState>(EMPTY_HOME);
+  const [homeEN, setHomeEN] = useState<HomeState>(EMPTY_HOME);
+
   const [about, setAbout] = useState<AboutState>(EMPTY_ABOUT);
+  const [aboutEN, setAboutEN] = useState<AboutState>(EMPTY_ABOUT);
+
   const [footer, setFooter] = useState<FooterState>(EMPTY_FOOTER);
+  const [footerEN, setFooterEN] = useState<FooterState>(EMPTY_FOOTER);
+
   const [contact, setContact] = useState<ContactState>(EMPTY_CONTACT);
+  const [contactEN, setContactEN] = useState<ContactState>(EMPTY_CONTACT);
+
   const [services, setServices] = useState<ServicesState>(EMPTY_SERVICES);
+  const [servicesEN, setServicesEN] = useState<ServicesState>(EMPTY_SERVICES);
+
   const [propertiesPage, setPropertiesPage] = useState<PropertiesPageState>(
     EMPTY_PROPERTIES_PAGE,
   );
+  const [propertiesPageEN, setPropertiesPageEN] = useState<PropertiesPageState>(
+    EMPTY_PROPERTIES_PAGE,
+  );
+
   const [salesPage, setSalesPage] = useState<SalesPageState>(EMPTY_SALES_PAGE);
+  const [salesPageEN, setSalesPageEN] = useState<SalesPageState>(EMPTY_SALES_PAGE);
+
   const [jobsPage, setJobsPage] = useState<JobsPageState>(EMPTY_JOBS_PAGE);
+  const [jobsPageEN, setJobsPageEN] = useState<JobsPageState>(EMPTY_JOBS_PAGE);
+
   const [teamPage, setTeamPage] = useState<TeamPageState>(EMPTY_TEAM_PAGE);
+  const [teamPageEN, setTeamPageEN] = useState<TeamPageState>(EMPTY_TEAM_PAGE);
 
   const load = useCallback(async () => {
     setError(null);
     setLoading(true);
     try {
-      const [h, a, svc, c, pp, sp, jp, tm, f] = await Promise.all([
-        fetchSections("home", lang),
-        fetchSections("about", lang),
-        fetchSections("services", lang),
-        fetchSections("contact", lang),
-        fetchSections("properties-page", lang),
-        fetchSections("sales-page", lang),
-        fetchSections("jobs-page", lang),
-        fetchSections("team", lang),
-        fetchSections("footer", lang),
+      const allPages = [
+        "home",
+        "about",
+        "services",
+        "contact",
+        "properties-page",
+        "sales-page",
+        "jobs-page",
+        "team",
+        "footer",
+      ];
+      const [mnResults, enResults] = await Promise.all([
+        Promise.all(allPages.map((p) => fetchSections(p, "mn"))),
+        Promise.all(allPages.map((p) => fetchSections(p, "en"))),
       ]);
-      setHome(normalizeHome(h));
-      setAbout(normalizeAbout(a));
-      setServices(normalizeServices(svc));
-      setContact(normalizeContact(c));
-      setPropertiesPage(normalizePropertiesPage(pp));
-      setSalesPage(normalizeSalesPage(sp));
-      setJobsPage(normalizeJobsPage(jp));
-      setTeamPage(normalizeTeamPage(tm));
-      setFooter(normalizeFooter(f));
+
+      const [hMN, aMN, svcMN, cMN, ppMN, spMN, jpMN, tmMN, fMN] = mnResults;
+      const [hEN, aEN, svcEN, cEN, ppEN, spEN, jpEN, tmEN, fEN] = enResults;
+
+      setHome(normalizeHome(hMN));
+      setHomeEN(normalizeHome(hEN));
+
+      setAbout(normalizeAbout(aMN));
+      setAboutEN(normalizeAbout(aEN));
+
+      setServices(normalizeServices(svcMN));
+      setServicesEN(normalizeServices(svcEN));
+
+      setContact(normalizeContact(cMN));
+      setContactEN(normalizeContact(cEN));
+
+      setPropertiesPage(normalizePropertiesPage(ppMN));
+      setPropertiesPageEN(normalizePropertiesPage(ppEN));
+
+      setSalesPage(normalizeSalesPage(spMN));
+      setSalesPageEN(normalizeSalesPage(spEN));
+
+      setJobsPage(normalizeJobsPage(jpMN));
+      setJobsPageEN(normalizeJobsPage(jpEN));
+
+      setTeamPage(normalizeTeamPage(tmMN));
+      setTeamPageEN(normalizeTeamPage(tmEN));
+
+      setFooter(normalizeFooter(fMN));
+      setFooterEN(normalizeFooter(fEN));
     } catch (e) {
       if (e instanceof Error && e.message === "FC_FORBIDDEN") {
         setError(t.siteContent.common.forbidden);
@@ -417,17 +463,20 @@ export default function SiteContentPage() {
     } finally {
       setLoading(false);
     }
-  }, [lang]);
+  }, [t.siteContent.common.error, t.siteContent.common.forbidden]);
 
   const debouncedSave = useDebounce(
-    async (pageId: (typeof TABS)[number]["id"], sections: unknown) => {
+    async (pageId: (typeof TABS)[number]["id"], sections: unknown, targetLang?: string) => {
       setError(null);
       setSaved(null);
       setSaving(true);
 
       try {
         const res = await fetch(
-          joinBackendRequestUrl(getApiBaseUrl(), `/api/v1/admin/site-pages/${pageId}?lang=${lang}`),
+          joinBackendRequestUrl(
+            getApiBaseUrl(),
+            `/api/v1/admin/site-pages/${pageId}?lang=${targetLang || lang}`,
+          ),
           withClientAdminAuth({
             method: "PUT",
             headers: { "Content-Type": "application/json" },
@@ -461,7 +510,7 @@ export default function SiteContentPage() {
     setError(null);
     setSaved(null);
     setSaving(true);
-    const sections =
+    const mnSections =
       pageId === "home"
         ? home
         : pageId === "about"
@@ -479,27 +528,50 @@ export default function SiteContentPage() {
                     : pageId === "team"
                       ? teamPage
                       : footer;
+
+    const enSections =
+      pageId === "home"
+        ? homeEN
+        : pageId === "about"
+          ? aboutEN
+          : pageId === "services"
+            ? servicesEN
+            : pageId === "contact"
+              ? contactEN
+              : pageId === "properties-page"
+                ? propertiesPageEN
+                : pageId === "sales-page"
+                  ? salesPageEN
+                  : pageId === "jobs-page"
+                    ? jobsPageEN
+                    : pageId === "team"
+                      ? teamPageEN
+                      : footerEN;
+
     try {
-      const res = await fetch(
-        joinBackendRequestUrl(getApiBaseUrl(), `/api/v1/admin/site-pages/${pageId}?lang=${lang}`),
-        withClientAdminAuth({
-          method: "PUT",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ sections }),
-        }),
-      );
-      const gate = await ensureClientAuthorized(res);
-      if (gate === "forbidden") {
-        setError(t.siteContent.common.forbidden);
-        return;
-      }
-      if (gate !== "ok") return;
-      if (!res.ok) throw new Error(await res.text());
+      await Promise.all([
+        fetch(
+          joinBackendRequestUrl(getApiBaseUrl(), `/api/v1/admin/site-pages/${pageId}?lang=mn`),
+          withClientAdminAuth({
+            method: "PUT",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ sections: mnSections }),
+          }),
+        ),
+        fetch(
+          joinBackendRequestUrl(getApiBaseUrl(), `/api/v1/admin/site-pages/${pageId}?lang=en`),
+          withClientAdminAuth({
+            method: "PUT",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ sections: enSections }),
+          }),
+        ),
+      ]);
 
       const rev = await fetch("/api/revalidate-front", { method: "POST" });
       if (!rev.ok) {
-        const t = await rev.text();
-        console.warn("revalidate-front:", t);
+        const t2 = await rev.text();
+        console.warn("revalidate-front:", t2);
       }
 
       setSaved(t.siteContent.common.revalidated);
@@ -609,7 +681,7 @@ export default function SiteContentPage() {
                     title={t.siteContent.home.fields.heroTitle}
                     subtitle={t.siteContent.home.fields.heroSubtitle}
                   >
-                    <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
+                    <div className="space-y-4">
                       {(
                         [
                           ["badge", t.siteContent.home.fields.badge],
@@ -621,37 +693,42 @@ export default function SiteContentPage() {
                           ["slideLabel", t.siteContent.home.fields.slideLabel],
                         ] as const
                       ).map(([key, lab]) => (
-                        <div key={key}>
-                          <label className="text-xs font-semibold uppercase tracking-wide text-zinc-500">
-                            {lab}
-                          </label>
-                          <input
-                            className={scInput}
-                            value={home.hero[key] as string}
-                            onChange={(e) => {
-                              const newValue = e.target.value;
-                              setHome({
-                                ...home,
-                                hero: { ...home.hero, [key]: newValue },
-                              });
-                              debouncedSave("home", {
-                                ...home,
-                                hero: { ...home.hero, [key]: newValue },
-                              });
-                            }}
-                          />
-                        </div>
+                        <DualInput
+                          key={key}
+                          label={lab}
+                          mnValue={home.hero[key] as string}
+                          enValue={homeEN.hero[key] as string}
+                          onChangeMN={(v) => {
+                            setHome({
+                              ...home,
+                              hero: { ...home.hero, [key]: v },
+                            });
+                          }}
+                          onChangeEN={(v) => {
+                            setHomeEN({
+                              ...homeEN,
+                              hero: { ...homeEN.hero, [key]: v },
+                            });
+                          }}
+                        />
                       ))}
                     </div>
                   </EditorSection>
                   <EditorSection id="home-desc" title={t.siteContent.home.sections.desc}>
-                    <textarea
-                      className={scTextarea("min-h-[100px]")}
-                      value={home.hero.desc}
-                      onChange={(e) =>
+                    <DualTextarea
+                      label={t.siteContent.home.sections.desc}
+                      mnValue={home.hero.desc}
+                      enValue={homeEN.hero.desc}
+                      onChangeMN={(v) =>
                         setHome({
                           ...home,
-                          hero: { ...home.hero, desc: e.target.value },
+                          hero: { ...home.hero, desc: v },
+                        })
+                      }
+                      onChangeEN={(v) =>
+                        setHomeEN({
+                          ...homeEN,
+                          hero: { ...homeEN.hero, desc: v },
                         })
                       }
                     />
@@ -745,7 +822,7 @@ export default function SiteContentPage() {
                     title={t.siteContent.about.fields.title}
                     subtitle={t.siteContent.about.fields.subtitle}
                   >
-                    <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
+                    <div className="space-y-4">
                       {(
                         [
                           ["sectionLabel", t.siteContent.about.fields.sectionLabel],
@@ -757,21 +834,24 @@ export default function SiteContentPage() {
                           ["yearsLabel", t.siteContent.about.fields.yearsLabel],
                         ] as const
                       ).map(([key, lab]) => (
-                        <div key={key}>
-                          <label className="text-xs font-semibold uppercase tracking-wide text-zinc-500">
-                            {lab}
-                          </label>
-                          <input
-                            className={scInput}
-                            value={about.main[key] as string}
-                            onChange={(e) =>
-                              setAbout({
-                                ...about,
-                                main: { ...about.main, [key]: e.target.value },
-                              })
-                            }
-                          />
-                        </div>
+                        <DualInput
+                          key={key}
+                          label={lab}
+                          mnValue={about.main[key] as string}
+                          enValue={aboutEN.main[key] as string}
+                          onChangeMN={(v) =>
+                            setAbout({
+                              ...about,
+                              main: { ...about.main, [key]: v },
+                            })
+                          }
+                          onChangeEN={(v) =>
+                            setAboutEN({
+                              ...aboutEN,
+                              main: { ...aboutEN.main, [key]: v },
+                            })
+                          }
+                        />
                       ))}
                     </div>
                   </EditorSection>
@@ -794,37 +874,21 @@ export default function SiteContentPage() {
                     />
                   </EditorSection>
                   <EditorSection id="about-copy" title={t.siteContent.about.sections.copy}>
-                    <div className="grid gap-4 lg:grid-cols-2">
-                      <div>
-                        <label className="text-xs font-semibold uppercase tracking-wide text-zinc-500">
-                          {t.siteContent.about.sections.copy} 1
-                        </label>
-                        <textarea
-                          className={scTextarea("min-h-[100px]")}
-                          value={about.main.p1}
-                          onChange={(e) =>
-                            setAbout({
-                              ...about,
-                              main: { ...about.main, p1: e.target.value },
-                            })
-                          }
-                        />
-                      </div>
-                      <div>
-                        <label className="text-xs font-semibold uppercase tracking-wide text-zinc-500">
-                          {t.siteContent.about.sections.copy} 2
-                        </label>
-                        <textarea
-                          className={scTextarea("min-h-[100px]")}
-                          value={about.main.p2}
-                          onChange={(e) =>
-                            setAbout({
-                              ...about,
-                              main: { ...about.main, p2: e.target.value },
-                            })
-                          }
-                        />
-                      </div>
+                    <div className="space-y-4">
+                      <DualTextarea
+                        label={`${t.siteContent.about.sections.copy} 1`}
+                        mnValue={about.main.p1}
+                        enValue={aboutEN.main.p1}
+                        onChangeMN={(v) => setAbout({ ...about, main: { ...about.main, p1: v } })}
+                        onChangeEN={(v) => setAboutEN({ ...aboutEN, main: { ...aboutEN.main, p1: v } })}
+                      />
+                      <DualTextarea
+                        label={`${t.siteContent.about.sections.copy} 2`}
+                        mnValue={about.main.p2}
+                        enValue={aboutEN.main.p2}
+                        onChangeMN={(v) => setAbout({ ...about, main: { ...about.main, p2: v } })}
+                        onChangeEN={(v) => setAboutEN({ ...aboutEN, main: { ...aboutEN.main, p2: v } })}
+                      />
                     </div>
                   </EditorSection>
                   <EditorSection
@@ -834,61 +898,76 @@ export default function SiteContentPage() {
                   >
                     <div className="space-y-3">
                       {about.main.stats.map((row, i) => (
-                        <div key={i} className="flex flex-wrap gap-2">
-                          <input
-                            className={`${scInput} max-w-[140px]`}
-                            value={row.value}
-                            onChange={(e) => {
-                              const stats = [...about.main.stats];
-                              stats[i] = { ...stats[i], value: e.target.value };
-                              setAbout({
-                                ...about,
-                                main: { ...about.main, stats },
-                              });
-                            }}
-                          />
-                          <input
-                            className={`${scInput} min-w-[200px] flex-1`}
-                            value={row.label}
-                            onChange={(e) => {
-                              const stats = [...about.main.stats];
-                              stats[i] = { ...stats[i], label: e.target.value };
-                              setAbout({
-                                ...about,
-                                main: { ...about.main, stats },
-                              });
-                            }}
-                          />
+                        <div key={i} className="flex flex-wrap items-end gap-3 rounded-xl border border-slate-100 bg-slate-50/30 p-3 dark:border-slate-800/40 dark:bg-slate-900/20">
+                          <div className="space-y-1.5">
+                            <label className="text-[10px] font-bold uppercase tracking-wider text-slate-400">
+                              {lang === "mn" ? "Утга" : "Value"}
+                            </label>
+                            <input
+                              className={`${scInput} max-w-[120px]`}
+                              value={row.value}
+                              onChange={(e) => {
+                                const v = e.target.value;
+                                const s = [...about.main.stats];
+                                s[i] = { ...s[i], value: v };
+                                setAbout({ ...about, main: { ...about.main, stats: s } });
+                                
+                                const sEN = [...aboutEN.main.stats];
+                                if (sEN[i]) {
+                                  sEN[i] = { ...sEN[i], value: v };
+                                  setAboutEN({ ...aboutEN, main: { ...aboutEN.main, stats: sEN } });
+                                }
+                              }}
+                            />
+                          </div>
+                          <div className="flex-1">
+                            <DualInput
+                              label={lang === "mn" ? "Шошго" : "Label"}
+                              mnValue={row.label}
+                              enValue={aboutEN.main.stats[i]?.label ?? ""}
+                              onChangeMN={(v) => {
+                                const s = [...about.main.stats];
+                                s[i] = { ...s[i], label: v };
+                                setAbout({ ...about, main: { ...about.main, stats: s } });
+                              }}
+                              onChangeEN={(v) => {
+                                const s = [...aboutEN.main.stats];
+                                if (!s[i]) s[i] = { label: "", value: row.value };
+                                s[i] = { ...s[i], label: v };
+                                setAboutEN({ ...aboutEN, main: { ...aboutEN.main, stats: s } });
+                              }}
+                            />
+                          </div>
                           <DangerMini
                             onClick={() => {
-                              const stats = about.main.stats.filter(
-                                (_, j) => j !== i,
-                              );
                               setAbout({
                                 ...about,
-                                main: { ...about.main, stats },
+                                main: { ...about.main, stats: about.main.stats.filter((_, j) => j !== i) },
+                              });
+                              setAboutEN({
+                                ...aboutEN,
+                                main: { ...aboutEN.main, stats: aboutEN.main.stats.filter((_, j) => j !== i) },
                               });
                             }}
                           >
-                            Устгах
+                            {t.siteContent.common.remove}
                           </DangerMini>
                         </div>
                       ))}
                       <GhostButton
-                        onClick={() =>
+                        onClick={() => {
+                          const newItem = { value: "", label: "" };
                           setAbout({
                             ...about,
-                            main: {
-                              ...about.main,
-                              stats: [
-                                ...about.main.stats,
-                                { value: "", label: "" },
-                              ],
-                            },
-                          })
-                        }
+                            main: { ...about.main, stats: [...about.main.stats, newItem] },
+                          });
+                          setAboutEN({
+                            ...aboutEN,
+                            main: { ...aboutEN.main, stats: [...aboutEN.main.stats, newItem] },
+                          });
+                        }}
                       >
-                        + {t.siteContent.common.addRow}
+                        + {lang === "mn" ? "Мөр нэмэх" : "Add Row"}
                       </GhostButton>
                     </div>
                   </EditorSection>
@@ -913,7 +992,7 @@ export default function SiteContentPage() {
                     title={t.siteContent.services.fields.title}
                     subtitle={t.siteContent.services.fields.subtitle}
                   >
-                    <div className="grid gap-4 lg:grid-cols-3">
+                    <div className="space-y-4">
                       {(
                         [
                           ["badge", t.siteContent.services.fields.badge],
@@ -921,40 +1000,41 @@ export default function SiteContentPage() {
                           ["h2Accent", t.siteContent.services.fields.h2Accent],
                         ] as const
                       ).map(([key, lab]) => (
-                        <div key={key}>
-                          <label className="text-xs font-semibold uppercase tracking-wide text-zinc-500">
-                            {lab}
-                          </label>
-                          <input
-                            className={scInput}
-                            value={services.header[key]}
-                            onChange={(e) =>
-                              setServices({
-                                ...services,
-                                header: {
-                                  ...services.header,
-                                  [key]: e.target.value,
-                                },
-                              })
-                            }
-                          />
-                        </div>
+                        <DualInput
+                          key={key}
+                          label={lab}
+                          mnValue={services.header[key]}
+                          enValue={servicesEN.header[key]}
+                          onChangeMN={(v) =>
+                            setServices({
+                              ...services,
+                              header: { ...services.header, [key]: v },
+                            })
+                          }
+                          onChangeEN={(v) =>
+                            setServicesEN({
+                              ...servicesEN,
+                              header: { ...servicesEN.header, [key]: v },
+                            })
+                          }
+                        />
                       ))}
                     </div>
-                    <div>
-                      <label className="text-xs font-semibold uppercase tracking-wide text-zinc-500">
-                        {t.siteContent.services.fields.intro}
-                      </label>
-                      <textarea
-                        className={scTextarea("min-h-[80px]")}
-                        value={services.header.intro}
-                        onChange={(e) =>
+                    <div className="mt-4">
+                      <DualTextarea
+                        label={t.siteContent.services.fields.intro}
+                        mnValue={services.header.intro}
+                        enValue={servicesEN.header.intro}
+                        onChangeMN={(v) =>
                           setServices({
                             ...services,
-                            header: {
-                              ...services.header,
-                              intro: e.target.value,
-                            },
+                            header: { ...services.header, intro: v },
+                          })
+                        }
+                        onChangeEN={(v) =>
+                          setServicesEN({
+                            ...servicesEN,
+                            header: { ...servicesEN.header, intro: v },
                           })
                         }
                       />
@@ -972,57 +1052,72 @@ export default function SiteContentPage() {
                           key={i}
                           className="rounded-xl border border-slate-200/90 bg-white/80 p-4 dark:border-slate-700 dark:bg-slate-900/40"
                         >
-                          <input
-                            className={scInput}
-                            placeholder={t.siteContent.common.title}
-                            value={f.title}
-                            onChange={(e) => {
-                              const features = [...services.features];
-                              features[i] = {
-                                ...features[i],
-                                title: e.target.value,
-                              };
-                              setServices({ ...services, features });
-                            }}
-                          />
-                          <textarea
-                            className={`mt-2 ${scTextarea("min-h-[72px]")}`}
-                            placeholder={t.siteContent.common.description}
-                            value={f.desc}
-                            onChange={(e) => {
-                              const features = [...services.features];
-                              features[i] = {
-                                ...features[i],
-                                desc: e.target.value,
-                              };
-                              setServices({ ...services, features });
-                            }}
-                          />
-                          <DangerMini
-                            className="mt-2"
-                            onClick={() =>
-                              setServices({
-                                ...services,
-                                features: services.features.filter(
-                                  (_, j) => j !== i,
-                                ),
-                              })
-                            }
-                          >
-                            {t.siteContent.common.remove}
-                          </DangerMini>
+                          <div className="flex items-center justify-between mb-2">
+                             <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400">Feature #{i+1}</span>
+                             <DangerMini
+                              onClick={() => {
+                                setServices({
+                                  ...services,
+                                  features: services.features.filter((_, j) => j !== i),
+                                });
+                                setServicesEN({
+                                  ...servicesEN,
+                                  features: servicesEN.features.filter((_, j) => j !== i),
+                                });
+                              }}
+                            >
+                              {t.siteContent.common.remove}
+                            </DangerMini>
+                          </div>
+                          <div className="space-y-4">
+                            <DualInput
+                              label={t.siteContent.common.title}
+                              mnValue={f.title}
+                              enValue={servicesEN.features[i]?.title ?? ""}
+                              onChangeMN={(v) => {
+                                const features = [...services.features];
+                                features[i] = { ...features[i], title: v };
+                                setServices({ ...services, features });
+                              }}
+                              onChangeEN={(v) => {
+                                const features = [...servicesEN.features];
+                                if (!features[i]) features[i] = { title: "", desc: "" };
+                                features[i] = { ...features[i], title: v };
+                                setServicesEN({ ...servicesEN, features });
+                              }}
+                            />
+                            <DualTextarea
+                              label={t.siteContent.common.description}
+                              mnValue={f.desc}
+                              enValue={servicesEN.features[i]?.desc ?? ""}
+                              onChangeMN={(v) => {
+                                const features = [...services.features];
+                                features[i] = { ...features[i], desc: v };
+                                setServices({ ...services, features });
+                              }}
+                              onChangeEN={(v) => {
+                                const features = [...servicesEN.features];
+                                if (!features[i]) features[i] = { title: "", desc: "" };
+                                features[i] = { ...features[i], desc: v };
+                                setServicesEN({ ...servicesEN, features });
+                              }}
+                              rows={2}
+                            />
+                          </div>
                         </div>
                       ))}
                       <GhostButton
-                        onClick={() =>
+                        onClick={() => {
+                          const newItem = { title: "", desc: "" };
                           setServices({
                             ...services,
-                            features: [
-                              ...services.features,
-                              { title: "", desc: "" },
-                            ],
-                          })
-                        }
+                            features: [...services.features, newItem],
+                          });
+                          setServicesEN({
+                             ...servicesEN,
+                             features: [...servicesEN.features, newItem],
+                          });
+                        }}
                       >
                         + {t.siteContent.common.add}
                       </GhostButton>
@@ -1036,72 +1131,92 @@ export default function SiteContentPage() {
                   >
                     <div className="space-y-3">
                       {services.banner.map((row, i) => (
-                        <div key={i} className="flex flex-wrap gap-2">
-                          <input
-                            className={`${scInput} max-w-[100px]`}
-                            placeholder={t.siteContent.common.placeholder}
-                            value={row.value}
-                            onChange={(e) => {
-                              const banner = [...services.banner];
-                              banner[i] = {
-                                ...banner[i],
-                                value: e.target.value,
-                              };
-                              setServices({ ...services, banner });
-                            }}
-                          />
-                          <input
-                            className={`${scInput} max-w-[80px]`}
-                            placeholder="Suffix"
-                            value={row.suffix}
-                            onChange={(e) => {
-                              const banner = [...services.banner];
-                              banner[i] = {
-                                ...banner[i],
-                                suffix: e.target.value,
-                              };
-                              setServices({ ...services, banner });
-                            }}
-                          />
-                          <input
-                            className={`${scInput} min-w-[180px] flex-1`}
-                            placeholder={t.siteContent.common.label}
-                            value={row.label}
-                            onChange={(e) => {
-                              const banner = [...services.banner];
-                              banner[i] = {
-                                ...banner[i],
-                                label: e.target.value,
-                              };
-                              setServices({ ...services, banner });
-                            }}
-                          />
+                        <div key={i} className="flex flex-wrap items-end gap-3 rounded-xl border border-slate-100 bg-slate-50/30 p-3 dark:border-slate-800/40 dark:bg-slate-900/20">
+                          <div className="space-y-1.5">
+                            <label className="text-[10px] font-bold uppercase tracking-wider text-slate-400">Value</label>
+                            <input
+                              className={`${scInput} max-w-[80px]`}
+                              value={row.value}
+                              onChange={(e) => {
+                                const v = e.target.value;
+                                const b = [...services.banner];
+                                b[i] = { ...b[i], value: v };
+                                setServices({ ...services, banner: b });
+                                const bEN = [...servicesEN.banner];
+                                if (bEN[i]) {
+                                  bEN[i] = { ...bEN[i], value: v };
+                                  setServicesEN({ ...servicesEN, banner: bEN });
+                                }
+                              }}
+                            />
+                          </div>
+                          <div className="space-y-1.5">
+                            <label className="text-[10px] font-bold uppercase tracking-wider text-slate-400">Suffix</label>
+                            <input
+                              className={`${scInput} max-w-[80px]`}
+                              placeholder="Suffix"
+                              value={row.suffix}
+                              onChange={(e) => {
+                                const v = e.target.value;
+                                const b = [...services.banner];
+                                b[i] = { ...b[i], suffix: v };
+                                setServices({ ...services, banner: b });
+                                const bEN = [...servicesEN.banner];
+                                if (bEN[i]) {
+                                  bEN[i] = { ...bEN[i], suffix: v };
+                                  setServicesEN({ ...servicesEN, banner: bEN });
+                                }
+                              }}
+                            />
+                          </div>
+                          <div className="flex-1">
+                            <DualInput
+                              label={t.siteContent.common.label}
+                              mnValue={row.label}
+                              enValue={servicesEN.banner[i]?.label ?? ""}
+                              onChangeMN={(v) => {
+                                const b = [...services.banner];
+                                b[i] = { ...b[i], label: v };
+                                setServices({ ...services, banner: b });
+                              }}
+                              onChangeEN={(v) => {
+                                const b = [...servicesEN.banner];
+                                if (!b[i]) b[i] = { value: row.value, suffix: row.suffix, label: "" };
+                                b[i] = { ...b[i], label: v };
+                                setServicesEN({ ...servicesEN, banner: b });
+                              }}
+                            />
+                          </div>
                           <DangerMini
-                            onClick={() =>
+                            onClick={() => {
                               setServices({
                                 ...services,
-                                banner: services.banner.filter(
-                                  (_, j) => j !== i,
-                                ),
-                              })
-                            }
+                                banner: services.banner.filter((_, j) => j !== i),
+                              });
+                              setServicesEN({
+                                ...servicesEN,
+                                banner: servicesEN.banner.filter((_, j) => j !== i),
+                              });
+                            }}
                           >
                             {t.siteContent.common.remove}
                           </DangerMini>
                         </div>
                       ))}
                       <GhostButton
-                        onClick={() =>
+                        onClick={() => {
+                          const newItem = { value: "", suffix: "", label: "" };
                           setServices({
                             ...services,
-                            banner: [
-                              ...services.banner,
-                              { value: "", suffix: "", label: "" },
-                            ],
-                          })
-                        }
+                            banner: [...services.banner, newItem],
+                          });
+                          setServicesEN({
+                            ...servicesEN,
+                            banner: [...servicesEN.banner, newItem],
+                          });
+                        }}
                       >
-                        + Баннер мөр нэмэх
+                        + {lang === "mn" ? "Баннер мөр нэмэх" : "Add Banner Row"}
                       </GhostButton>
                     </div>
                   </EditorSection>
@@ -1127,46 +1242,28 @@ export default function SiteContentPage() {
                     title={t.siteContent.contact.fields.heroTitle}
                     subtitle={t.siteContent.contact.fields.heroSubtitle}
                   >
-                    <div className="grid gap-4 sm:grid-cols-2">
+                    <div className="space-y-4">
                       {(
                         [
                           ["badge", t.siteContent.contact.fields.badge],
                           ["h2Accent", t.siteContent.contact.fields.h2Accent],
                         ] as const
                       ).map(([key, lab]) => (
-                        <div key={key}>
-                          <label className="text-xs font-semibold uppercase tracking-wide text-zinc-500">
-                            {lab}
-                          </label>
-                          <input
-                            className={scInput}
-                            value={contact.hero[key]}
-                            onChange={(e) =>
-                              setContact({
-                                ...contact,
-                                hero: {
-                                  ...contact.hero,
-                                  [key]: e.target.value,
-                                },
-                              })
-                            }
-                          />
-                        </div>
+                        <DualInput
+                          key={key}
+                          label={lab}
+                          mnValue={contact.hero[key]}
+                          enValue={contactEN.hero[key]}
+                          onChangeMN={(v) => setContact({ ...contact, hero: { ...contact.hero, [key]: v } })}
+                          onChangeEN={(v) => setContactEN({ ...contactEN, hero: { ...contactEN.hero, [key]: v } })}
+                        />
                       ))}
-                    </div>
-                    <div>
-                      <label className="text-xs font-semibold uppercase tracking-wide text-zinc-500">
-                        {t.siteContent.contact.fields.intro}
-                      </label>
-                      <textarea
-                        className={scTextarea("min-h-[80px]")}
-                        value={contact.hero.intro}
-                        onChange={(e) =>
-                          setContact({
-                            ...contact,
-                            hero: { ...contact.hero, intro: e.target.value },
-                          })
-                        }
+                      <DualTextarea
+                        label={t.siteContent.contact.fields.intro}
+                        mnValue={contact.hero.intro}
+                        enValue={contactEN.hero.intro}
+                        onChangeMN={(v) => setContact({ ...contact, hero: { ...contact.hero, intro: v } })}
+                        onChangeEN={(v) => setContactEN({ ...contactEN, hero: { ...contactEN.hero, intro: v } })}
                       />
                     </div>
                   </EditorSection>
@@ -1177,46 +1274,65 @@ export default function SiteContentPage() {
                   >
                     <div className="space-y-3">
                       {contact.items.map((row, i) => (
-                        <div key={i} className="flex flex-wrap gap-2">
-                          <input
-                            className={`${scInput} max-w-[160px]`}
-                            placeholder={t.siteContent.common.title}
-                            value={row.title}
-                            onChange={(e) => {
-                              const items = [...contact.items];
-                              items[i] = { ...items[i], title: e.target.value };
-                              setContact({ ...contact, items });
-                            }}
-                          />
-                          <input
-                            className={`${scInput} min-w-[200px] flex-1`}
-                            placeholder={t.siteContent.common.placeholder}
-                            value={row.value}
-                            onChange={(e) => {
-                              const items = [...contact.items];
-                              items[i] = { ...items[i], value: e.target.value };
-                              setContact({ ...contact, items });
-                            }}
-                          />
+                        <div key={i} className="flex flex-wrap items-end gap-3 rounded-xl border border-slate-100 bg-slate-50/30 p-3 dark:border-slate-800/40 dark:bg-slate-900/20">
+                          <div className="flex-1">
+                            <DualInput
+                              label={t.siteContent.common.title}
+                              mnValue={row.title}
+                              enValue={contactEN.items[i]?.title ?? ""}
+                              onChangeMN={(v) => {
+                                const items = [...contact.items];
+                                items[i] = { ...items[i], title: v };
+                                setContact({ ...contact, items });
+                              }}
+                              onChangeEN={(v) => {
+                                const items = [...contactEN.items];
+                                if (!items[i]) items[i] = { title: "", value: row.value };
+                                items[i] = { ...items[i], title: v };
+                                setContactEN({ ...contactEN, items });
+                              }}
+                            />
+                          </div>
+                          <div className="flex-1">
+                             <DualInput
+                              label={t.siteContent.common.placeholder}
+                              mnValue={row.value}
+                              enValue={contactEN.items[i]?.value ?? ""}
+                              onChangeMN={(v) => {
+                                const items = [...contact.items];
+                                items[i] = { ...items[i], value: v };
+                                setContact({ ...contact, items });
+                              }}
+                              onChangeEN={(v) => {
+                                const items = [...contactEN.items];
+                                if (!items[i]) items[i] = { title: row.title, value: "" };
+                                items[i] = { ...items[i], value: v };
+                                setContactEN({ ...contactEN, items });
+                              }}
+                            />
+                          </div>
                           <DangerMini
-                            onClick={() =>
+                            onClick={() => {
                               setContact({
                                 ...contact,
                                 items: contact.items.filter((_, j) => j !== i),
-                              })
-                            }
+                              });
+                              setContactEN({
+                                ...contactEN,
+                                items: contactEN.items.filter((_, j) => j !== i),
+                              });
+                            }}
                           >
                             {t.siteContent.common.remove}
                           </DangerMini>
                         </div>
                       ))}
                       <GhostButton
-                        onClick={() =>
-                          setContact({
-                            ...contact,
-                            items: [...contact.items, { title: "", value: "" }],
-                          })
-                        }
+                        onClick={() => {
+                          const newItem = { title: "", value: "" };
+                          setContact({ ...contact, items: [...contact.items, newItem] });
+                          setContactEN({ ...contactEN, items: [...contactEN.items, newItem] });
+                        }}
                       >
                         + {t.siteContent.common.addRow}
                       </GhostButton>
@@ -1227,49 +1343,69 @@ export default function SiteContentPage() {
                     title={t.siteContent.contact.fields.agentTitle}
                     defaultOpen={false}
                   >
-                    <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-                      {(
-                        [
-                          ["initials", t.siteContent.contact.fields.initials],
-                          ["name", t.siteContent.contact.fields.name],
-                          ["role", t.siteContent.contact.fields.role],
-                          ["telHref", t.siteContent.contact.fields.telHref],
-                          ["telLabel", t.siteContent.contact.fields.telLabel],
-                        ] as const
-                      ).map(([key, lab]) => (
-                        <div
-                          key={key}
-                          className={
-                            key === "role" ? "sm:col-span-2 lg:col-span-3" : ""
-                          }
-                        >
-                          <label className="text-xs text-zinc-500">{lab}</label>
+                    <div className="space-y-4">
+                      <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-2">
+                        <div className="space-y-1.5">
+                          <label className="text-[11px] font-bold uppercase tracking-[0.12em] text-slate-500">
+                            {t.siteContent.contact.fields.initials}
+                          </label>
                           <input
-                            className={scInput}
-                            value={contact.agent[key]}
-                            onChange={(e) =>
-                              setContact({
-                                ...contact,
-                                agent: {
-                                  ...contact.agent,
-                                  [key]: e.target.value,
-                                },
-                              })
-                            }
+                             className={scInput}
+                             value={contact.agent.initials}
+                             onChange={(e) => {
+                               const v = e.target.value;
+                               setContact({ ...contact, agent: { ...contact.agent, initials: v } });
+                               setContactEN({ ...contactEN, agent: { ...contactEN.agent, initials: v } });
+                             }}
                           />
                         </div>
-                      ))}
+                        <DualInput
+                          label={t.siteContent.contact.fields.name}
+                          mnValue={contact.agent.name}
+                          enValue={contactEN.agent.name}
+                          onChangeMN={(v) => setContact({ ...contact, agent: { ...contact.agent, name: v } })}
+                          onChangeEN={(v) => setContactEN({ ...contactEN, agent: { ...contactEN.agent, name: v } })}
+                        />
+                      </div>
+                      <DualInput
+                         label={t.siteContent.contact.fields.role}
+                         mnValue={contact.agent.role}
+                         enValue={contactEN.agent.role}
+                         onChangeMN={(v) => setContact({ ...contact, agent: { ...contact.agent, role: v } })}
+                         onChangeEN={(v) => setContactEN({ ...contactEN, agent: { ...contactEN.agent, role: v } })}
+                      />
+                      <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-2">
+                         <div className="space-y-1.5">
+                           <label className="text-[11px] font-bold uppercase tracking-[0.12em] text-slate-500">
+                             {t.siteContent.contact.fields.telHref}
+                           </label>
+                           <input
+                             className={scInput}
+                             value={contact.agent.telHref}
+                             onChange={(e) => {
+                               const v = e.target.value;
+                               setContact({ ...contact, agent: { ...contact.agent, telHref: v } });
+                               setContactEN({ ...contactEN, agent: { ...contactEN.agent, telHref: v } });
+                             }}
+                           />
+                         </div>
+                         <DualInput
+                           label={t.siteContent.contact.fields.telLabel}
+                           mnValue={contact.agent.telLabel}
+                           enValue={contactEN.agent.telLabel}
+                           onChangeMN={(v) => setContact({ ...contact, agent: { ...contact.agent, telLabel: v } })}
+                           onChangeEN={(v) => setContactEN({ ...contactEN, agent: { ...contactEN.agent, telLabel: v } })}
+                         />
+                      </div>
                     </div>
                   </EditorSection>
-                  <EditorSection id="contact-form" title={t.siteContent.contact.fields.formTitle}>
-                    <input
-                      className={scInput}
-                      value={contact.formTitle}
-                      onChange={(e) =>
-                        setContact({ ...contact, formTitle: e.target.value })
-                      }
+                    <DualInput
+                      label={t.siteContent.contact.fields.formTitle}
+                      mnValue={contact.formTitle}
+                      enValue={contactEN.formTitle}
+                      onChangeMN={(v) => setContact({ ...contact, formTitle: v })}
+                      onChangeEN={(v) => setContactEN({ ...contactEN, formTitle: v })}
                     />
-                  </EditorSection>
                   <PrimarySave
                     disabled={saving}
                     onClick={() => void save("contact")}
@@ -1292,79 +1428,37 @@ export default function SiteContentPage() {
                     title={t.siteContent.propertiesPage.fields.headerTitle}
                     subtitle={t.siteContent.propertiesPage.fields.headerSubtitle}
                   >
-                    <div className="grid gap-4 sm:grid-cols-2">
-                      <div>
-                        <label className="text-xs font-semibold uppercase tracking-wide text-zinc-500">
-                          {t.siteContent.propertiesPage.fields.headerBadge}
-                        </label>
-                        <input
-                          className={scInput}
-                          value={propertiesPage.header.badge}
-                          onChange={(e) =>
-                            setPropertiesPage({
-                              ...propertiesPage,
-                              header: {
-                                ...propertiesPage.header,
-                                badge: e.target.value,
-                              },
-                            })
-                          }
+                    <div className="space-y-4">
+                      <DualInput
+                        label={t.siteContent.propertiesPage.fields.headerBadge}
+                        mnValue={propertiesPage.header.badge}
+                        enValue={propertiesPageEN.header.badge}
+                        onChangeMN={(v) => setPropertiesPage({ ...propertiesPage, header: { ...propertiesPage.header, badge: v } })}
+                        onChangeEN={(v) => setPropertiesPageEN({ ...propertiesPageEN, header: { ...propertiesPageEN.header, badge: v } })}
+                      />
+                      <div className="grid gap-4 sm:grid-cols-2">
+                        <DualInput
+                          label={t.siteContent.propertiesPage.fields.titleLine1}
+                          mnValue={propertiesPage.header.titleLine1}
+                          enValue={propertiesPageEN.header.titleLine1}
+                          onChangeMN={(v) => setPropertiesPage({ ...propertiesPage, header: { ...propertiesPage.header, titleLine1: v } })}
+                          onChangeEN={(v) => setPropertiesPageEN({ ...propertiesPageEN, header: { ...propertiesPageEN.header, titleLine1: v } })}
+                        />
+                        <DualInput
+                          label={t.siteContent.propertiesPage.fields.titleAccent}
+                          mnValue={propertiesPage.header.titleAccent}
+                          enValue={propertiesPageEN.header.titleAccent}
+                          onChangeMN={(v) => setPropertiesPage({ ...propertiesPage, header: { ...propertiesPage.header, titleAccent: v } })}
+                          onChangeEN={(v) => setPropertiesPageEN({ ...propertiesPageEN, header: { ...propertiesPageEN.header, titleAccent: v } })}
                         />
                       </div>
-                      <div>
-                        <label className="text-xs font-semibold uppercase tracking-wide text-zinc-500">
-                          {t.siteContent.propertiesPage.fields.titleLine1}
-                        </label>
-                        <input
-                          className={scInput}
-                          value={propertiesPage.header.titleLine1}
-                          onChange={(e) =>
-                            setPropertiesPage({
-                              ...propertiesPage,
-                              header: {
-                                ...propertiesPage.header,
-                                titleLine1: e.target.value,
-                              },
-                            })
-                          }
-                        />
-                      </div>
-                      <div className="sm:col-span-2">
-                        <label className="text-xs font-semibold uppercase tracking-wide text-zinc-500">
-                          {t.siteContent.propertiesPage.fields.titleAccent}
-                        </label>
-                        <input
-                          className={scInput}
-                          value={propertiesPage.header.titleAccent}
-                          onChange={(e) =>
-                            setPropertiesPage({
-                              ...propertiesPage,
-                              header: {
-                                ...propertiesPage.header,
-                                titleAccent: e.target.value,
-                              },
-                            })
-                          }
-                        />
-                      </div>
-                      <div className="sm:col-span-2">
-                        <label className="text-xs font-semibold uppercase tracking-wide text-zinc-500">
-                          {t.siteContent.propertiesPage.fields.intro}
-                        </label>
-                        <textarea
-                          className={scTextarea("min-h-[90px]")}
-                          value={propertiesPage.header.intro}
-                          onChange={(e) =>
-                            setPropertiesPage({
-                              ...propertiesPage,
-                              header: {
-                                ...propertiesPage.header,
-                                intro: e.target.value,
-                              },
-                            })
-                          }
-                        />
-                      </div>
+                      <DualTextarea
+                        label={t.siteContent.propertiesPage.fields.intro}
+                        mnValue={propertiesPage.header.intro}
+                        enValue={propertiesPageEN.header.intro}
+                        onChangeMN={(v) => setPropertiesPage({ ...propertiesPage, header: { ...propertiesPage.header, intro: v } })}
+                        onChangeEN={(v) => setPropertiesPageEN({ ...propertiesPageEN, header: { ...propertiesPageEN.header, intro: v } })}
+                      />
                     </div>
                   </EditorSection>
                   <EditorSection
@@ -1375,40 +1469,45 @@ export default function SiteContentPage() {
                   >
                     <div className="space-y-3">
                       {propertiesPage.categories.map((row, i) => (
-                        <div key={i} className="flex flex-wrap gap-2">
-                          <input
-                            className={`${scInput} min-w-[220px] flex-1`}
-                            value={row}
-                            onChange={(e) => {
-                              const categories = [...propertiesPage.categories];
-                              categories[i] = e.target.value;
+                        <div key={i} className="flex flex-wrap items-end gap-3 rounded-xl border border-slate-100 bg-slate-50/30 p-3 dark:border-slate-800/40 dark:bg-slate-900/20">
+                          <div className="flex-1">
+                            <DualInput
+                              label={t.siteContent.propertiesPage.fields.categoriesTitle}
+                              mnValue={row}
+                              enValue={propertiesPageEN.categories[i] ?? ""}
+                              onChangeMN={(v) => {
+                                const c = [...propertiesPage.categories];
+                                c[i] = v;
+                                setPropertiesPage({ ...propertiesPage, categories: c });
+                              }}
+                              onChangeEN={(v) => {
+                                const c = [...propertiesPageEN.categories];
+                                c[i] = v;
+                                setPropertiesPageEN({ ...propertiesPageEN, categories: c });
+                              }}
+                            />
+                          </div>
+                          <DangerMini
+                            onClick={() => {
                               setPropertiesPage({
                                 ...propertiesPage,
-                                categories,
+                                categories: propertiesPage.categories.filter((_, j) => j !== i),
+                              });
+                              setPropertiesPageEN({
+                                ...propertiesPageEN,
+                                categories: propertiesPageEN.categories.filter((_, j) => j !== i),
                               });
                             }}
-                          />
-                          <DangerMini
-                            onClick={() =>
-                              setPropertiesPage({
-                                ...propertiesPage,
-                                categories: propertiesPage.categories.filter(
-                                  (_, j) => j !== i,
-                                ),
-                              })
-                            }
                           >
                             {t.siteContent.common.remove}
                           </DangerMini>
                         </div>
                       ))}
                       <GhostButton
-                        onClick={() =>
-                          setPropertiesPage({
-                            ...propertiesPage,
-                            categories: [...propertiesPage.categories, ""],
-                          })
-                        }
+                        onClick={() => {
+                          setPropertiesPage({ ...propertiesPage, categories: [...propertiesPage.categories, ""] });
+                          setPropertiesPageEN({ ...propertiesPageEN, categories: [...propertiesPageEN.categories, ""] });
+                        }}
                       >
                         + {t.siteContent.common.add}
                       </GhostButton>
@@ -1426,234 +1525,204 @@ export default function SiteContentPage() {
                           key={item.id || i}
                           className="rounded-xl border border-slate-200/90 bg-white/80 p-4 dark:border-slate-700 dark:bg-slate-900/40"
                         >
-                          <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-                            <div>
-                              <label className="text-xs text-zinc-500">
-                                {t.siteContent.propertiesPage.fields.id}
-                              </label>
-                              <input
-                                type="number"
-                                className={scInput}
-                                value={item.id}
-                                onChange={(e) => {
+                          <div className="grid gap-6 lg:grid-cols-2">
+                            <div className="space-y-4">
+                              <div className="space-y-1.5">
+                                <label className="text-[11px] font-bold uppercase tracking-[0.12em] text-slate-500">
+                                  {t.siteContent.propertiesPage.fields.id}
+                                </label>
+                                <input
+                                  type="number"
+                                  className={scInput}
+                                  value={item.id}
+                                  onChange={(e) => {
+                                    const v = Number(e.target.value) || 0;
+                                    const items = [...propertiesPage.items];
+                                    items[i] = { ...items[i], id: v };
+                                    setPropertiesPage({ ...propertiesPage, items });
+                                    const itemsEN = [...propertiesPageEN.items];
+                                    if (itemsEN[i]) {
+                                      itemsEN[i] = { ...itemsEN[i], id: v };
+                                      setPropertiesPageEN({ ...propertiesPageEN, items: itemsEN });
+                                    }
+                                  }}
+                                />
+                              </div>
+                              <DualInput
+                                label={t.siteContent.propertiesPage.fields.name}
+                                mnValue={item.name}
+                                enValue={propertiesPageEN.items[i]?.name ?? ""}
+                                onChangeMN={(v) => {
                                   const items = [...propertiesPage.items];
-                                  items[i] = {
-                                    ...items[i],
-                                    id: Number(e.target.value) || 0,
-                                  };
-                                  setPropertiesPage({
-                                    ...propertiesPage,
-                                    items,
-                                  });
+                                  items[i] = { ...items[i], name: v };
+                                  setPropertiesPage({ ...propertiesPage, items });
+                                }}
+                                onChangeEN={(v) => {
+                                  const items = [...propertiesPageEN.items];
+                                  if (!items[i]) items[i] = { ...item, name: "" };
+                                  items[i] = { ...items[i], name: v };
+                                  setPropertiesPageEN({ ...propertiesPageEN, items });
+                                }}
+                              />
+                              <DualInput
+                                label={t.siteContent.propertiesPage.fields.category}
+                                mnValue={item.category}
+                                enValue={propertiesPageEN.items[i]?.category ?? ""}
+                                onChangeMN={(v) => {
+                                  const items = [...propertiesPage.items];
+                                  items[i] = { ...items[i], category: v };
+                                  setPropertiesPage({ ...propertiesPage, items });
+                                }}
+                                onChangeEN={(v) => {
+                                  const items = [...propertiesPageEN.items];
+                                  if (!items[i]) items[i] = { ...item, category: "" };
+                                  items[i] = { ...items[i], category: v };
+                                  setPropertiesPageEN({ ...propertiesPageEN, items });
+                                }}
+                              />
+                              <DualInput
+                                label={t.siteContent.propertiesPage.fields.itemBadge}
+                                mnValue={item.badge ?? ""}
+                                enValue={propertiesPageEN.items[i]?.badge ?? ""}
+                                onChangeMN={(v) => {
+                                  const items = [...propertiesPage.items];
+                                  items[i] = { ...items[i], badge: v || null };
+                                  setPropertiesPage({ ...propertiesPage, items });
+                                }}
+                                onChangeEN={(v) => {
+                                  const items = [...propertiesPageEN.items];
+                                  if (!items[i]) items[i] = { ...item, badge: null };
+                                  items[i] = { ...items[i], badge: v || null };
+                                  setPropertiesPageEN({ ...propertiesPageEN, items });
                                 }}
                               />
                             </div>
-                            <div className="sm:col-span-2">
-                              <label className="text-xs text-zinc-500">
-                                {t.siteContent.propertiesPage.fields.name}
-                              </label>
-                              <input
-                                className={scInput}
-                                value={item.name}
-                                onChange={(e) => {
-                                  const items = [...propertiesPage.items];
-                                  items[i] = {
-                                    ...items[i],
-                                    name: e.target.value,
-                                  };
-                                  setPropertiesPage({
-                                    ...propertiesPage,
-                                    items,
-                                  });
-                                }}
-                              />
-                            </div>
-                            <div className="sm:col-span-2 lg:col-span-3">
+                            <div className="space-y-4">
                               <ImageUploadField
                                 previewFit="cover"
                                 value={item.image}
                                 onChange={(next) => {
                                   const items = [...propertiesPage.items];
                                   items[i] = { ...items[i], image: next };
-                                  setPropertiesPage({
-                                    ...propertiesPage,
-                                    items,
-                                  });
+                                  setPropertiesPage({ ...propertiesPage, items });
+                                  const itemsEN = [...propertiesPageEN.items];
+                                  if (itemsEN[i]) {
+                                    itemsEN[i] = { ...itemsEN[i], image: next };
+                                    setPropertiesPageEN({ ...propertiesPageEN, items: itemsEN });
+                                  }
                                 }}
                               />
+                              <div className="grid gap-3 sm:grid-cols-2">
+                                <DualInput
+                                  label={t.siteContent.propertiesPage.fields.tag}
+                                  mnValue={item.tag}
+                                  enValue={propertiesPageEN.items[i]?.tag ?? ""}
+                                  onChangeMN={(v) => {
+                                    const items = [...propertiesPage.items];
+                                    items[i] = { ...items[i], tag: v };
+                                    setPropertiesPage({ ...propertiesPage, items });
+                                  }}
+                                  onChangeEN={(v) => {
+                                    const items = [...propertiesPageEN.items];
+                                    if (!items[i]) items[i] = { ...item, tag: "" };
+                                    items[i] = { ...items[i], tag: v };
+                                    setPropertiesPageEN({ ...propertiesPageEN, items });
+                                  }}
+                                />
+                                <DualInput
+                                  label={t.siteContent.propertiesPage.fields.size}
+                                  mnValue={item.size}
+                                  enValue={propertiesPageEN.items[i]?.size ?? ""}
+                                  onChangeMN={(v) => {
+                                    const items = [...propertiesPage.items];
+                                    items[i] = { ...items[i], size: v };
+                                    setPropertiesPage({ ...propertiesPage, items });
+                                  }}
+                                  onChangeEN={(v) => {
+                                    const items = [...propertiesPageEN.items];
+                                    if (!items[i]) items[i] = { ...item, size: "" };
+                                    items[i] = { ...items[i], size: v };
+                                    setPropertiesPageEN({ ...propertiesPageEN, items });
+                                  }}
+                                />
+                              </div>
                             </div>
-                            <div>
-                              <label className="text-xs text-zinc-500">
-                                {t.siteContent.propertiesPage.fields.category}
-                              </label>
-                              <input
-                                className={scInput}
-                                value={item.category}
-                                onChange={(e) => {
-                                  const items = [...propertiesPage.items];
-                                  items[i] = {
-                                    ...items[i],
-                                    category: e.target.value,
-                                  };
-                                  setPropertiesPage({
-                                    ...propertiesPage,
-                                    items,
-                                  });
-                                }}
-                              />
-                            </div>
-                            <div>
-                              <label className="text-xs text-zinc-500">
-                                {t.siteContent.propertiesPage.fields.itemBadge}
-                              </label>
-                              <input
-                                className={scInput}
-                                placeholder="Хоосон бол харуулахгүй"
-                                value={item.badge ?? ""}
-                                onChange={(e) => {
-                                  const items = [...propertiesPage.items];
-                                  items[i] = {
-                                    ...items[i],
-                                    badge: e.target.value.trim() || null,
-                                  };
-                                  setPropertiesPage({
-                                    ...propertiesPage,
-                                    items,
-                                  });
-                                }}
-                              />
-                            </div>
-                            <div>
-                              <label className="text-xs text-zinc-500">
-                                {t.siteContent.propertiesPage.fields.tag}
-                              </label>
-                              <input
-                                className={scInput}
-                                value={item.tag}
-                                onChange={(e) => {
-                                  const items = [...propertiesPage.items];
-                                  items[i] = {
-                                    ...items[i],
-                                    tag: e.target.value,
-                                  };
-                                  setPropertiesPage({
-                                    ...propertiesPage,
-                                    items,
-                                  });
-                                }}
-                              />
-                            </div>
-                            <div>
-                              <label className="text-xs text-zinc-500">
-                                {t.siteContent.propertiesPage.fields.size}
-                              </label>
-                              <input
-                                className={scInput}
-                                value={item.size}
-                                onChange={(e) => {
-                                  const items = [...propertiesPage.items];
-                                  items[i] = {
-                                    ...items[i],
-                                    size: e.target.value,
-                                  };
-                                  setPropertiesPage({
-                                    ...propertiesPage,
-                                    items,
-                                  });
-                                }}
-                              />
-                            </div>
-                            <div>
-                              <label className="text-xs text-zinc-500">
-                                {t.siteContent.propertiesPage.fields.floor}
-                              </label>
-                              <input
-                                className={scInput}
-                                value={item.floor}
-                                onChange={(e) => {
-                                  const items = [...propertiesPage.items];
-                                  items[i] = {
-                                    ...items[i],
-                                    floor: e.target.value,
-                                  };
-                                  setPropertiesPage({
-                                    ...propertiesPage,
-                                    items,
-                                  });
-                                }}
-                              />
-                            </div>
-                            <div>
-                              <label className="text-xs text-zinc-500">
-                                {t.siteContent.propertiesPage.fields.parking}
-                              </label>
-                              <input
-                                className={scInput}
-                                value={item.parking}
-                                onChange={(e) => {
-                                  const items = [...propertiesPage.items];
-                                  items[i] = {
-                                    ...items[i],
-                                    parking: e.target.value,
-                                  };
-                                  setPropertiesPage({
-                                    ...propertiesPage,
-                                    items,
-                                  });
-                                }}
-                              />
-                            </div>
-                            <div>
-                              <label className="text-xs text-zinc-500">
-                                {t.siteContent.propertiesPage.fields.price}
-                              </label>
-                              <input
-                                className={scInput}
-                                value={item.price}
-                                onChange={(e) => {
-                                  const items = [...propertiesPage.items];
-                                  items[i] = {
-                                    ...items[i],
-                                    price: e.target.value,
-                                  };
-                                  setPropertiesPage({
-                                    ...propertiesPage,
-                                    items,
-                                  });
-                                }}
-                              />
-                            </div>
-                            <div className="sm:col-span-2 lg:col-span-3">
-                              <label className="text-xs text-zinc-500">
-                                {t.siteContent.propertiesPage.fields.description}
-                              </label>
-                              <textarea
-                                className={scTextarea("min-h-[80px]")}
-                                value={item.description}
-                                onChange={(e) => {
-                                  const items = [...propertiesPage.items];
-                                  items[i] = {
-                                    ...items[i],
-                                    description: e.target.value,
-                                  };
-                                  setPropertiesPage({
-                                    ...propertiesPage,
-                                    items,
-                                  });
-                                }}
-                              />
-                            </div>
+                          </div>
+                          <div className="mt-4 grid gap-4 lg:grid-cols-3">
+                            <DualInput
+                              label={t.siteContent.propertiesPage.fields.floor}
+                              mnValue={item.floor}
+                              enValue={propertiesPageEN.items[i]?.floor ?? ""}
+                              onChangeMN={(v) => {
+                                const items = [...propertiesPage.items];
+                                items[i] = { ...items[i], floor: v };
+                                setPropertiesPage({ ...propertiesPage, items });
+                              }}
+                              onChangeEN={(v) => {
+                                const items = [...propertiesPageEN.items];
+                                if (!items[i]) items[i] = { ...item, floor: "" };
+                                items[i] = { ...items[i], floor: v };
+                                setPropertiesPageEN({ ...propertiesPageEN, items });
+                              }}
+                            />
+                            <DualInput
+                              label={t.siteContent.propertiesPage.fields.parking}
+                              mnValue={item.parking}
+                              enValue={propertiesPageEN.items[i]?.parking ?? ""}
+                              onChangeMN={(v) => {
+                                const items = [...propertiesPage.items];
+                                items[i] = { ...items[i], parking: v };
+                                setPropertiesPage({ ...propertiesPage, items });
+                              }}
+                              onChangeEN={(v) => {
+                                const items = [...propertiesPageEN.items];
+                                if (!items[i]) items[i] = { ...item, parking: "" };
+                                items[i] = { ...items[i], parking: v };
+                                setPropertiesPageEN({ ...propertiesPageEN, items });
+                              }}
+                            />
+                            <DualInput
+                              label={t.siteContent.propertiesPage.fields.price}
+                              mnValue={item.price}
+                              enValue={propertiesPageEN.items[i]?.price ?? ""}
+                              onChangeMN={(v) => {
+                                const items = [...propertiesPage.items];
+                                items[i] = { ...items[i], price: v };
+                                setPropertiesPage({ ...propertiesPage, items });
+                              }}
+                              onChangeEN={(v) => {
+                                const items = [...propertiesPageEN.items];
+                                if (!items[i]) items[i] = { ...item, price: "" };
+                                items[i] = { ...items[i], price: v };
+                                setPropertiesPageEN({ ...propertiesPageEN, items });
+                              }}
+                            />
+                          </div>
+                          <div className="mt-4">
+                            <DualTextarea
+                              label={t.siteContent.propertiesPage.fields.description}
+                              mnValue={item.description}
+                              enValue={propertiesPageEN.items[i]?.description ?? ""}
+                              onChangeMN={(v) => {
+                                const items = [...propertiesPage.items];
+                                items[i] = { ...items[i], description: v };
+                                setPropertiesPage({ ...propertiesPage, items });
+                              }}
+                              onChangeEN={(v) => {
+                                const items = [...propertiesPageEN.items];
+                                if (!items[i]) items[i] = { ...item, description: "" };
+                                items[i] = { ...items[i], description: v };
+                                setPropertiesPageEN({ ...propertiesPageEN, items });
+                              }}
+                              rows={3}
+                            />
                           </div>
                           <div className="mt-3 flex justify-end">
                             <DangerMini
-                              onClick={() =>
-                                setPropertiesPage({
-                                  ...propertiesPage,
-                                  items: propertiesPage.items.filter(
-                                    (_, j) => j !== i,
-                                  ),
-                                })
-                              }
+                              onClick={() => {
+                                setPropertiesPage({ ...propertiesPage, items: propertiesPage.items.filter((_, j) => j !== i) });
+                                setPropertiesPageEN({ ...propertiesPageEN, items: propertiesPageEN.items.filter((_, j) => j !== i) });
+                              }}
                             >
                               {t.siteContent.common.remove}
                             </DangerMini>
@@ -1661,70 +1730,39 @@ export default function SiteContentPage() {
                         </div>
                       ))}
                       <GhostButton
-                        onClick={() =>
-                          setPropertiesPage({
-                            ...propertiesPage,
-                            items: [
-                              ...propertiesPage.items,
-                              {
-                                id: Date.now(),
-                                name: "",
-                                image: "",
-                                category: "",
-                                badge: null,
-                                size: "",
-                                floor: "",
-                                parking: "",
-                                price: "",
-                                tag: "",
-                                description: "",
-                              },
-                            ],
-                          })
-                        }
+                        onClick={() => {
+                          const newItem = { id: Date.now(), name: "", image: "", category: "", badge: null, size: "", floor: "", parking: "", price: "", tag: "", description: "" };
+                          setPropertiesPage({ ...propertiesPage, items: [...propertiesPage.items, newItem] });
+                          setPropertiesPageEN({ ...propertiesPageEN, items: [...propertiesPageEN.items, newItem] });
+                        }}
                       >
                         + {t.siteContent.common.add}
                       </GhostButton>
                     </div>
                   </EditorSection>
                   <EditorSection id="properties-cta" title={t.siteContent.propertiesPage.sections.cta}>
-                    <div className="grid gap-4 sm:grid-cols-2">
-                      <div>
-                        <label className="text-xs font-semibold uppercase tracking-wide text-zinc-500">
+                    <div className="space-y-4">
+                      <div className="space-y-1.5">
+                        <label className="text-[11px] font-bold uppercase tracking-[0.12em] text-slate-500">
                           {t.siteContent.propertiesPage.fields.href}
                         </label>
                         <input
                           className={scInput}
                           value={propertiesPage.cta.href}
-                          onChange={(e) =>
-                            setPropertiesPage({
-                              ...propertiesPage,
-                              cta: {
-                                ...propertiesPage.cta,
-                                href: e.target.value,
-                              },
-                            })
-                          }
+                          onChange={(e) => {
+                            const v = e.target.value;
+                            setPropertiesPage({ ...propertiesPage, cta: { ...propertiesPage.cta, href: v } });
+                            setPropertiesPageEN({ ...propertiesPageEN, cta: { ...propertiesPageEN.cta, href: v } });
+                          }}
                         />
                       </div>
-                      <div>
-                        <label className="text-xs font-semibold uppercase tracking-wide text-zinc-500">
-                          {t.siteContent.propertiesPage.fields.label}
-                        </label>
-                        <input
-                          className={scInput}
-                          value={propertiesPage.cta.label}
-                          onChange={(e) =>
-                            setPropertiesPage({
-                              ...propertiesPage,
-                              cta: {
-                                ...propertiesPage.cta,
-                                label: e.target.value,
-                              },
-                            })
-                          }
-                        />
-                      </div>
+                      <DualInput
+                        label={t.siteContent.propertiesPage.fields.label}
+                        mnValue={propertiesPage.cta.label}
+                        enValue={propertiesPageEN.cta.label}
+                        onChangeMN={(v) => setPropertiesPage({ ...propertiesPage, cta: { ...propertiesPage.cta, label: v } })}
+                        onChangeEN={(v) => setPropertiesPageEN({ ...propertiesPageEN, cta: { ...propertiesPageEN.cta, label: v } })}
+                      />
                     </div>
                   </EditorSection>
                   <PrimarySave
@@ -1743,58 +1781,32 @@ export default function SiteContentPage() {
                   ]}
                 >
                   <EditorSection id="sales-meta" title={t.siteContent.salesPage.fields.headerTitle}>
-                    <div className="grid gap-4 lg:grid-cols-2">
-                      <div>
-                        <label className="text-xs font-semibold uppercase tracking-wide text-zinc-500">
-                          {t.siteContent.salesPage.fields.eyebrow}
-                        </label>
-                        <input
-                          className={scInput}
-                          value={salesPage.header.eyebrow}
-                          onChange={(e) =>
-                            setSalesPage({
-                              ...salesPage,
-                              header: {
-                                ...salesPage.header,
-                                eyebrow: e.target.value,
-                              },
-                            })
-                          }
+                    <div className="space-y-4">
+                      <div className="grid gap-4 lg:grid-cols-2">
+                        <DualInput
+                          label={t.siteContent.salesPage.fields.eyebrow}
+                          mnValue={salesPage.header.eyebrow}
+                          enValue={salesPageEN.header.eyebrow}
+                          onChangeMN={(v) => setSalesPage({ ...salesPage, header: { ...salesPage.header, eyebrow: v } })}
+                          onChangeEN={(v) => setSalesPageEN({ ...salesPageEN, header: { ...salesPageEN.header, eyebrow: v } })}
                         />
-                      </div>
-                      <div>
-                        <label className="text-xs font-semibold uppercase tracking-wide text-zinc-500">
-                          {t.siteContent.salesPage.fields.title}
-                        </label>
-                        <input
-                          className={scInput}
-                          value={salesPage.header.title}
-                          onChange={(e) =>
-                            setSalesPage({
-                              ...salesPage,
-                              header: {
-                                ...salesPage.header,
-                                title: e.target.value,
-                              },
-                            })
-                          }
+                        <DualInput
+                          label={t.siteContent.salesPage.fields.title}
+                          mnValue={salesPage.header.title}
+                          enValue={salesPageEN.header.title}
+                          onChangeMN={(v) => setSalesPage({ ...salesPage, header: { ...salesPage.header, title: v } })}
+                          onChangeEN={(v) => setSalesPageEN({ ...salesPageEN, header: { ...salesPageEN.header, title: v } })}
                         />
                       </div>
                     </div>
                   </EditorSection>
                   <EditorSection id="sales-intro" title={t.siteContent.salesPage.fields.intro}>
-                    <textarea
-                      className={scTextarea("min-h-[100px]")}
-                      value={salesPage.header.intro}
-                      onChange={(e) =>
-                        setSalesPage({
-                          ...salesPage,
-                          header: {
-                            ...salesPage.header,
-                            intro: e.target.value,
-                          },
-                        })
-                      }
+                    <DualTextarea
+                      label={t.siteContent.salesPage.fields.intro}
+                      mnValue={salesPage.header.intro}
+                      enValue={salesPageEN.header.intro}
+                      onChangeMN={(v) => setSalesPage({ ...salesPage, header: { ...salesPage.header, intro: v } })}
+                      onChangeEN={(v) => setSalesPageEN({ ...salesPageEN, header: { ...salesPageEN.header, intro: v } })}
                     />
                   </EditorSection>
                   <PrimarySave
@@ -1813,27 +1825,21 @@ export default function SiteContentPage() {
                   ]}
                 >
                   <EditorSection id="jobs-header-title" title={t.siteContent.jobsPage.fields.headerTitle}>
-                    <input
-                      className={scInput}
-                      value={jobsPage.header.title}
-                      onChange={(e) =>
-                        setJobsPage({
-                          ...jobsPage,
-                          header: { ...jobsPage.header, title: e.target.value },
-                        })
-                      }
+                    <DualInput
+                      label={t.siteContent.jobsPage.fields.title}
+                      mnValue={jobsPage.header.title}
+                      enValue={jobsPageEN.header.title}
+                      onChangeMN={(v) => setJobsPage({ ...jobsPage, header: { ...jobsPage.header, title: v } })}
+                      onChangeEN={(v) => setJobsPageEN({ ...jobsPageEN, header: { ...jobsPageEN.header, title: v } })}
                     />
                   </EditorSection>
-                  <EditorSection id="jobs-header-intro" title="Дэд тайлбар">
-                    <textarea
-                      className={scTextarea("min-h-[80px]")}
-                      value={jobsPage.header.intro}
-                      onChange={(e) =>
-                        setJobsPage({
-                          ...jobsPage,
-                          header: { ...jobsPage.header, intro: e.target.value },
-                        })
-                      }
+                  <EditorSection id="jobs-header-intro" title={lang === "mn" ? "Дэд тайлбар" : "Intro"}>
+                    <DualTextarea
+                      label={t.siteContent.jobsPage.fields.intro}
+                      mnValue={jobsPage.header.intro}
+                      enValue={jobsPageEN.header.intro}
+                      onChangeMN={(v) => setJobsPage({ ...jobsPage, header: { ...jobsPage.header, intro: v } })}
+                      onChangeEN={(v) => setJobsPageEN({ ...jobsPageEN, header: { ...jobsPageEN.header, intro: v } })}
                     />
                   </EditorSection>
                   <PrimarySave
@@ -1857,79 +1863,37 @@ export default function SiteContentPage() {
                     title={t.siteContent.team.fields.headerTitle}
                     subtitle={t.siteContent.team.fields.headerSubtitle}
                   >
-                    <div className="grid gap-4 sm:grid-cols-2">
-                      <div className="sm:col-span-2">
-                        <label className="text-xs font-semibold uppercase tracking-wide text-zinc-500">
-                          Дээд шошго
-                        </label>
-                        <input
-                          className={scInput}
-                          value={teamPage.header.eyebrow}
-                          onChange={(e) =>
-                            setTeamPage({
-                              ...teamPage,
-                              header: {
-                                ...teamPage.header,
-                                eyebrow: e.target.value,
-                              },
-                            })
-                          }
+                    <div className="space-y-4">
+                      <DualInput
+                         label={lang === "mn" ? "Дээд шошго" : "Eyebrow"}
+                         mnValue={teamPage.header.eyebrow}
+                         enValue={teamPageEN.header.eyebrow}
+                         onChangeMN={(v) => setTeamPage({ ...teamPage, header: { ...teamPage.header, eyebrow: v } })}
+                         onChangeEN={(v) => setTeamPageEN({ ...teamPageEN, header: { ...teamPageEN.header, eyebrow: v } })}
+                      />
+                      <div className="grid gap-4 sm:grid-cols-2">
+                        <DualInput
+                          label={lang === "mn" ? "Гарчиг (эхний хэсэг)" : "Title (First Part)"}
+                          mnValue={teamPage.header.h2Line1}
+                          enValue={teamPageEN.header.h2Line1}
+                          onChangeMN={(v) => setTeamPage({ ...teamPage, header: { ...teamPage.header, h2Line1: v } })}
+                          onChangeEN={(v) => setTeamPageEN({ ...teamPageEN, header: { ...teamPageEN.header, h2Line1: v } })}
+                        />
+                        <DualInput
+                          label={lang === "mn" ? "Гарчиг (онцлох өнгө)" : "Title (Accent Color)"}
+                          mnValue={teamPage.header.h2Accent}
+                          enValue={teamPageEN.header.h2Accent}
+                          onChangeMN={(v) => setTeamPage({ ...teamPage, header: { ...teamPage.header, h2Accent: v } })}
+                          onChangeEN={(v) => setTeamPageEN({ ...teamPageEN, header: { ...teamPageEN.header, h2Accent: v } })}
                         />
                       </div>
-                      <div>
-                        <label className="text-xs font-semibold uppercase tracking-wide text-zinc-500">
-                          Гарчиг (эхний хэсэг)
-                        </label>
-                        <input
-                          className={scInput}
-                          value={teamPage.header.h2Line1}
-                          onChange={(e) =>
-                            setTeamPage({
-                              ...teamPage,
-                              header: {
-                                ...teamPage.header,
-                                h2Line1: e.target.value,
-                              },
-                            })
-                          }
-                        />
-                      </div>
-                      <div>
-                        <label className="text-xs font-semibold uppercase tracking-wide text-zinc-500">
-                          Гарчиг (онцлох өнгө)
-                        </label>
-                        <input
-                          className={scInput}
-                          value={teamPage.header.h2Accent}
-                          onChange={(e) =>
-                            setTeamPage({
-                              ...teamPage,
-                              header: {
-                                ...teamPage.header,
-                                h2Accent: e.target.value,
-                              },
-                            })
-                          }
-                        />
-                      </div>
-                      <div className="sm:col-span-2">
-                        <label className="text-xs font-semibold uppercase tracking-wide text-zinc-500">
-                          Танилцуулга
-                        </label>
-                        <textarea
-                          className={scTextarea("min-h-[80px]")}
-                          value={teamPage.header.intro}
-                          onChange={(e) =>
-                            setTeamPage({
-                              ...teamPage,
-                              header: {
-                                ...teamPage.header,
-                                intro: e.target.value,
-                              },
-                            })
-                          }
-                        />
-                      </div>
+                      <DualTextarea
+                         label={lang === "mn" ? "Танилцуулга" : "Intro"}
+                         mnValue={teamPage.header.intro}
+                         enValue={teamPageEN.header.intro}
+                         onChangeMN={(v) => setTeamPage({ ...teamPage, header: { ...teamPage.header, intro: v } })}
+                         onChangeEN={(v) => setTeamPageEN({ ...teamPageEN, header: { ...teamPageEN.header, intro: v } })}
+                      />
                     </div>
                   </EditorSection>
                   <EditorSection
@@ -2106,75 +2070,44 @@ export default function SiteContentPage() {
                     </div>
                   </EditorSection>
                   <EditorSection id="team-cta" title="Доод урилга (CTA)">
-                    <div className="grid gap-4 lg:grid-cols-2">
-                      <div className="lg:col-span-2">
-                        <label className="text-xs font-semibold uppercase tracking-wide text-zinc-500">
-                          Гарчиг
-                        </label>
-                        <input
-                          className={scInput}
-                          value={teamPage.cta.title}
-                          onChange={(e) =>
-                            setTeamPage({
-                              ...teamPage,
-                              cta: { ...teamPage.cta, title: e.target.value },
-                            })
-                          }
+                    <div className="space-y-4">
+                      <DualInput
+                        label={lang === "mn" ? "Гарчиг" : "Title"}
+                        mnValue={teamPage.cta.title}
+                        enValue={teamPageEN.cta.title}
+                        onChangeMN={(v) => setTeamPage({ ...teamPage, cta: { ...teamPage.cta, title: v } })}
+                        onChangeEN={(v) => setTeamPageEN({ ...teamPageEN, cta: { ...teamPageEN.cta, title: v } })}
+                      />
+                      <DualTextarea
+                        label={lang === "mn" ? "Дэд текст" : "Subtitle"}
+                        mnValue={teamPage.cta.subtitle}
+                        enValue={teamPageEN.cta.subtitle}
+                        onChangeMN={(v) => setTeamPage({ ...teamPage, cta: { ...teamPage.cta, subtitle: v } })}
+                        onChangeEN={(v) => setTeamPageEN({ ...teamPageEN, cta: { ...teamPageEN.cta, subtitle: v } })}
+                        rows={2}
+                      />
+                      <div className="grid gap-4 sm:grid-cols-2">
+                        <DualInput
+                          label={lang === "mn" ? "Товчны текст" : "Button Label"}
+                          mnValue={teamPage.cta.buttonLabel}
+                          enValue={teamPageEN.cta.buttonLabel}
+                          onChangeMN={(v) => setTeamPage({ ...teamPage, cta: { ...teamPage.cta, buttonLabel: v } })}
+                          onChangeEN={(v) => setTeamPageEN({ ...teamPageEN, cta: { ...teamPageEN.cta, buttonLabel: v } })}
                         />
-                      </div>
-                      <div className="lg:col-span-2">
-                        <label className="text-xs font-semibold uppercase tracking-wide text-zinc-500">
-                          Дэд текст
-                        </label>
-                        <textarea
-                          className={scTextarea("min-h-[60px]")}
-                          value={teamPage.cta.subtitle}
-                          onChange={(e) =>
-                            setTeamPage({
-                              ...teamPage,
-                              cta: {
-                                ...teamPage.cta,
-                                subtitle: e.target.value,
-                              },
-                            })
-                          }
-                        />
-                      </div>
-                      <div>
-                        <label className="text-xs font-semibold uppercase tracking-wide text-zinc-500">
-                          Товчны текст
-                        </label>
-                        <input
-                          className={scInput}
-                          value={teamPage.cta.buttonLabel}
-                          onChange={(e) =>
-                            setTeamPage({
-                              ...teamPage,
-                              cta: {
-                                ...teamPage.cta,
-                                buttonLabel: e.target.value,
-                              },
-                            })
-                          }
-                        />
-                      </div>
-                      <div>
-                        <label className="text-xs font-semibold uppercase tracking-wide text-zinc-500">
-                          Холбоос (ж: /contact)
-                        </label>
-                        <input
-                          className={scInput}
-                          value={teamPage.cta.buttonHref}
-                          onChange={(e) =>
-                            setTeamPage({
-                              ...teamPage,
-                              cta: {
-                                ...teamPage.cta,
-                                buttonHref: e.target.value,
-                              },
-                            })
-                          }
-                        />
+                        <div className="space-y-1.5">
+                          <label className="text-[11px] font-bold uppercase tracking-[0.12em] text-slate-500">
+                             {lang === "mn" ? "Холбоос (ж: /contact)" : "Href (e.g., /contact)"}
+                          </label>
+                          <input
+                            className={scInput}
+                            value={teamPage.cta.buttonHref}
+                            onChange={(e) => {
+                              const v = e.target.value;
+                              setTeamPage({ ...teamPage, cta: { ...teamPage.cta, buttonHref: v } });
+                              setTeamPageEN({ ...teamPageEN, cta: { ...teamPageEN.cta, buttonHref: v } });
+                            }}
+                          />
+                        </div>
                       </div>
                     </div>
                   </EditorSection>
@@ -2182,7 +2115,7 @@ export default function SiteContentPage() {
                     disabled={saving}
                     onClick={() => void save("team")}
                   >
-                    {saving ? "Хадгалж байна…" : "Мэдээ мэдээлэл хадгалах"}
+                    {saving ? t.common.saving : t.siteContent.common.saveTab(t.siteContent.tabs.team.label)}
                   </PrimarySave>
                 </EditorBody>
               ) : (
@@ -2198,40 +2131,22 @@ export default function SiteContentPage() {
                     title="Лого хэсэг & брэнд"
                     subtitle="Хөлийн түншүүдийн гарчиг болон брэндийн танилцуулга"
                   >
-                    <div className="grid gap-4 lg:grid-cols-2">
-                      <div>
-                        <label className="text-xs font-semibold uppercase tracking-wide text-zinc-500">
-                          Лого хэсгийн гарчиг
-                        </label>
-                        <input
-                          className={scInput}
-                          value={footer.partners.partnersLabel}
-                          onChange={(e) =>
-                            setFooter({
-                              ...footer,
-                              partners: {
-                                ...footer.partners,
-                                partnersLabel: e.target.value,
-                              },
-                            })
-                          }
-                        />
-                      </div>
-                      <div className="lg:col-span-2">
-                        <label className="text-xs font-semibold uppercase tracking-wide text-zinc-500">
-                          Танилцуулга (брэндийн текст)
-                        </label>
-                        <textarea
-                          className={scTextarea("min-h-[90px]")}
-                          value={footer.brand.desc}
-                          onChange={(e) =>
-                            setFooter({
-                              ...footer,
-                              brand: { desc: e.target.value },
-                            })
-                          }
-                        />
-                      </div>
+                    <div className="space-y-4">
+                      <DualInput
+                        label={lang === "mn" ? "Лого хэсгийн гарчиг" : "Logo Section Title"}
+                        mnValue={footer.partners.partnersLabel}
+                        enValue={footerEN.partners.partnersLabel}
+                        onChangeMN={(v) => setFooter({ ...footer, partners: { ...footer.partners, partnersLabel: v } })}
+                        onChangeEN={(v) => setFooterEN({ ...footerEN, partners: { ...footerEN.partners, partnersLabel: v } })}
+                      />
+                      <DualTextarea
+                         label={lang === "mn" ? "Танилцуулга (брэндийн текст)" : "Brand Intro Text"}
+                         mnValue={footer.brand.desc}
+                         enValue={footerEN.brand.desc}
+                         onChangeMN={(v) => setFooter({ ...footer, brand: { desc: v } })}
+                         onChangeEN={(v) => setFooterEN({ ...footerEN, brand: { desc: v } })}
+                         rows={3}
+                      />
                     </div>
                   </EditorSection>
                   <EditorSection
@@ -2247,23 +2162,21 @@ export default function SiteContentPage() {
                           className="rounded-lg border border-zinc-200 p-3 dark:border-zinc-700"
                         >
                           <div className="grid gap-2 sm:grid-cols-2">
-                            <div>
-                              <label className="text-xs text-zinc-500">
-                                Нэр
-                              </label>
-                              <input
-                                className={scInput}
-                                value={row.name}
-                                onChange={(e) => {
+                            <div className="flex-1">
+                              <DualInput
+                                label={lang === "mn" ? "Нэр" : "Name"}
+                                mnValue={row.name}
+                                enValue={footerEN.partners.items[i]?.name ?? ""}
+                                onChangeMN={(v) => {
                                   const items = [...footer.partners.items];
-                                  items[i] = {
-                                    ...items[i],
-                                    name: e.target.value,
-                                  };
-                                  setFooter({
-                                    ...footer,
-                                    partners: { ...footer.partners, items },
-                                  });
+                                  items[i] = { ...items[i], name: v };
+                                  setFooter({ ...footer, partners: { ...footer.partners, items } });
+                                }}
+                                onChangeEN={(v) => {
+                                  const items = [...footerEN.partners.items];
+                                  if (!items[i]) items[i] = { ...row, name: "" };
+                                  items[i] = { ...items[i], name: v };
+                                  setFooterEN({ ...footerEN, partners: { ...footerEN.partners, items } });
                                 }}
                               />
                             </div>
@@ -2274,54 +2187,54 @@ export default function SiteContentPage() {
                                 onChange={(next) => {
                                   const items = [...footer.partners.items];
                                   items[i] = { ...items[i], src: next };
-                                  setFooter({
-                                    ...footer,
-                                    partners: { ...footer.partners, items },
-                                  });
+                                  setFooter({ ...footer, partners: { ...footer.partners, items } });
+                                  const itemsEN = [...footerEN.partners.items];
+                                  if (itemsEN[i]) {
+                                    itemsEN[i] = { ...itemsEN[i], src: next };
+                                    setFooterEN({ ...footerEN, partners: { ...footerEN.partners, items: itemsEN } });
+                                  }
                                 }}
                               />
                             </div>
-                            <div>
-                              <label className="text-xs text-zinc-500">
-                                Өргөн
-                              </label>
-                              <input
-                                type="number"
-                                className={scInput}
-                                value={row.width}
-                                onChange={(e) => {
-                                  const items = [...footer.partners.items];
-                                  items[i] = {
-                                    ...items[i],
-                                    width: Number(e.target.value) || 0,
-                                  };
-                                  setFooter({
-                                    ...footer,
-                                    partners: { ...footer.partners, items },
-                                  });
-                                }}
-                              />
-                            </div>
-                            <div>
-                              <label className="text-xs text-zinc-500">
-                                Өндөр
-                              </label>
-                              <input
-                                type="number"
-                                className={scInput}
-                                value={row.height}
-                                onChange={(e) => {
-                                  const items = [...footer.partners.items];
-                                  items[i] = {
-                                    ...items[i],
-                                    height: Number(e.target.value) || 0,
-                                  };
-                                  setFooter({
-                                    ...footer,
-                                    partners: { ...footer.partners, items },
-                                  });
-                                }}
-                              />
+                            <div className="grid grid-cols-2 gap-3 sm:col-span-2">
+                              <div className="space-y-1.5">
+                                <label className="text-[11px] font-bold uppercase tracking-wider text-slate-400">Width</label>
+                                <input
+                                  type="number"
+                                  className={scInput}
+                                  value={row.width}
+                                  onChange={(next) => {
+                                    const v = Number(next.target.value) || 0;
+                                    const items = [...footer.partners.items];
+                                    items[i] = { ...items[i], width: v };
+                                    setFooter({ ...footer, partners: { ...footer.partners, items } });
+                                    const itemsEN = [...footerEN.partners.items];
+                                    if (itemsEN[i]) {
+                                      itemsEN[i] = { ...itemsEN[i], width: v };
+                                      setFooterEN({ ...footerEN, partners: { ...footerEN.partners, items: itemsEN } });
+                                    }
+                                  }}
+                                />
+                              </div>
+                              <div className="space-y-1.5">
+                                <label className="text-[11px] font-bold uppercase tracking-wider text-slate-400">Height</label>
+                                <input
+                                  type="number"
+                                  className={scInput}
+                                  value={row.height}
+                                  onChange={(next) => {
+                                    const v = Number(next.target.value) || 0;
+                                    const items = [...footer.partners.items];
+                                    items[i] = { ...items[i], height: v };
+                                    setFooter({ ...footer, partners: { ...footer.partners, items } });
+                                    const itemsEN = [...footerEN.partners.items];
+                                    if (itemsEN[i]) {
+                                      itemsEN[i] = { ...itemsEN[i], height: v };
+                                      setFooterEN({ ...footerEN, partners: { ...footerEN.partners, items: itemsEN } });
+                                    }
+                                  }}
+                                />
+                              </div>
                             </div>
                           </div>
                           <div className="mt-2 flex justify-end">
@@ -2345,25 +2258,13 @@ export default function SiteContentPage() {
                         </div>
                       ))}
                       <GhostButton
-                        onClick={() =>
-                          setFooter({
-                            ...footer,
-                            partners: {
-                              ...footer.partners,
-                              items: [
-                                ...footer.partners.items,
-                                {
-                                  name: "",
-                                  src: "/logos/ing.svg",
-                                  width: 100,
-                                  height: 36,
-                                },
-                              ],
-                            },
-                          })
-                        }
+                        onClick={() => {
+                          const newItem = { name: "", src: "", width: 100, height: 36 };
+                          setFooter({ ...footer, partners: { ...footer.partners, items: [...footer.partners.items, newItem] } });
+                          setFooterEN({ ...footerEN, partners: { ...footerEN.partners, items: [...footerEN.partners.items, newItem] } });
+                        }}
                       >
-                        + Түнш нэмэх
+                        + {lang === "mn" ? "Түнш нэмэх" : "Add Partner"}
                       </GhostButton>
                     </div>
                   </EditorSection>

@@ -431,6 +431,110 @@ export function DangerMini({
   );
 }
 
+export function DualInput({
+  label,
+  mnValue,
+  enValue,
+  onChangeMN,
+  onChangeEN,
+  required = false,
+}: {
+  label: string;
+  mnValue: string;
+  enValue: string;
+  onChangeMN: (val: string) => void;
+  onChangeEN: (val: string) => void;
+  required?: boolean;
+}) {
+  return (
+    <div className="space-y-1.5">
+      <label className="text-[11px] font-bold uppercase tracking-[0.12em] text-slate-500 dark:text-slate-400">
+        {label}
+      </label>
+      <div className="grid gap-3 sm:grid-cols-2">
+        <div className="group relative">
+          <input
+            required={required}
+            className={`${scInput} border-indigo-100/50 pr-8 dark:border-indigo-900/30`}
+            value={mnValue}
+            onChange={(e) => onChangeMN(e.target.value)}
+            placeholder="Монгол"
+          />
+          <span className="absolute right-3 top-1/2 -translate-y-1/2 select-none text-[10px] font-bold text-slate-300 dark:text-slate-700">
+            MN
+          </span>
+        </div>
+        <div className="group relative">
+          <input
+            required={required}
+            className={`${scInput} border-amber-100/50 pr-8 dark:border-amber-900/30`}
+            value={enValue}
+            onChange={(e) => onChangeEN(e.target.value)}
+            placeholder="English"
+          />
+          <span className="absolute right-3 top-1/2 -translate-y-1/2 select-none text-[10px] font-bold text-slate-300 dark:text-slate-700">
+            EN
+          </span>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+export function DualTextarea({
+  label,
+  mnValue,
+  enValue,
+  onChangeMN,
+  onChangeEN,
+  rows = 4,
+  required = false,
+}: {
+  label: string;
+  mnValue: string;
+  enValue: string;
+  onChangeMN: (val: string) => void;
+  onChangeEN: (val: string) => void;
+  rows?: number;
+  required?: boolean;
+}) {
+  return (
+    <div className="space-y-1.5">
+      <label className="text-[11px] font-bold uppercase tracking-[0.12em] text-slate-500 dark:text-slate-400">
+        {label}
+      </label>
+      <div className="grid gap-3 lg:grid-cols-2">
+        <div className="group relative">
+          <textarea
+            required={required}
+            rows={rows}
+            className={`${scTextarea()} border-indigo-100/50 pr-8 dark:border-indigo-900/30`}
+            value={mnValue}
+            onChange={(e) => onChangeMN(e.target.value)}
+            placeholder="Монгол"
+          />
+          <span className="absolute right-3 top-4 select-none text-[10px] font-bold text-slate-300 dark:text-slate-700">
+            MN
+          </span>
+        </div>
+        <div className="group relative">
+          <textarea
+            required={required}
+            rows={rows}
+            className={`${scTextarea()} border-amber-100/50 pr-8 dark:border-amber-900/30`}
+            value={enValue}
+            onChange={(e) => onChangeEN(e.target.value)}
+            placeholder="English"
+          />
+          <span className="absolute right-3 top-4 select-none text-[10px] font-bold text-slate-300 dark:text-slate-700">
+            EN
+          </span>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 export function ListRow({ children }: { children: React.ReactNode }) {
   return (
     <div className="flex flex-wrap items-end gap-2 rounded-xl border border-slate-100 bg-slate-50/80 p-3 dark:border-slate-800 dark:bg-slate-900/50">
