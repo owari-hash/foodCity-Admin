@@ -15,6 +15,7 @@ import {
   ClipboardList,
   Home,
   LayoutGrid,
+  FolderOpen,
   Megaphone,
   Newspaper,
   Phone,
@@ -132,6 +133,17 @@ type TeamPageState = {
   }[];
   cta: { title: string; subtitle: string; buttonLabel: string; buttonHref: string };
 };
+type ProjectsPageState = {
+  header: { badge: string; titleLine1: string; titleAccent: string; intro: string };
+  items: {
+    id: number;
+    name: string;
+    coverImage: string;
+    images: string[];
+    description: string;
+    category: string;
+  }[];
+};
 
 const EMPTY_HOME: HomeState = {
   hero: {
@@ -193,6 +205,10 @@ const EMPTY_TEAM_PAGE: TeamPageState = {
   header: { eyebrow: "", h2Line1: "", h2Accent: "", intro: "" },
   members: [],
   cta: { title: "", subtitle: "", buttonLabel: "", buttonHref: "" },
+};
+const EMPTY_PROJECTS_PAGE: ProjectsPageState = {
+  header: { badge: "", titleLine1: "", titleAccent: "", intro: "" },
+  items: [],
 };
 
 function asRecord(v: unknown): Record<string, unknown> {
@@ -286,6 +302,18 @@ function normalizeTeamPage(v: unknown): TeamPageState {
     cta: { ...EMPTY_TEAM_PAGE.cta, ...asRecord(root.cta) },
   };
 }
+function normalizeProjectsPage(v: unknown): ProjectsPageState {
+  const root = asRecord(v);
+  return {
+    header: { ...EMPTY_PROJECTS_PAGE.header, ...asRecord(root.header) },
+    items: Array.isArray(root.items)
+      ? (root.items as ProjectsPageState["items"]).map((item) => ({
+          ...item,
+          images: Array.isArray(item.images) ? item.images : [],
+        }))
+      : [],
+  };
+}
 
 async function fetchSections(pageId: string, lang: string): Promise<Record<string, unknown>> {
   const res = await fetch(
@@ -355,6 +383,12 @@ export function useTabs() {
       icon: Newspaper,
     },
     {
+      id: "projects-page" as const,
+      label: t.siteContent.tabs.projectsPage.label,
+      hint: t.siteContent.tabs.projectsPage.hint,
+      icon: FolderOpen,
+    },
+    {
       id: "footer" as const,
       label: t.siteContent.tabs.footer.label,
       hint: t.siteContent.tabs.footer.hint,
@@ -363,7 +397,7 @@ export function useTabs() {
   ];
 }
 
-type TabId = "home" | "about" | "services" | "contact" | "properties-page" | "sales-page" | "jobs-page" | "team" | "footer";
+type TabId = "home" | "about" | "services" | "contact" | "properties-page" | "sales-page" | "jobs-page" | "team" | "projects-page" | "footer";
 
 export default function SiteContentPage() {
   const { lang, t } = useAdminLanguage();
@@ -405,6 +439,9 @@ export default function SiteContentPage() {
   const [teamPage, setTeamPage] = useState<TeamPageState>(EMPTY_TEAM_PAGE);
   const [teamPageEN, setTeamPageEN] = useState<TeamPageState>(EMPTY_TEAM_PAGE);
 
+  const [projectsPage, setProjectsPage] = useState<ProjectsPageState>(EMPTY_PROJECTS_PAGE);
+  const [projectsPageEN, setProjectsPageEN] = useState<ProjectsPageState>(EMPTY_PROJECTS_PAGE);
+
   const load = useCallback(async () => {
     setError(null);
     setLoading(true);
@@ -418,6 +455,7 @@ export default function SiteContentPage() {
         "sales-page",
         "jobs-page",
         "team",
+        "projects-page",
         "footer",
       ];
       const [mnResults, enResults] = await Promise.all([
@@ -425,8 +463,8 @@ export default function SiteContentPage() {
         Promise.all(allPages.map((p) => fetchSections(p, "en"))),
       ]);
 
-      const [hMN, aMN, svcMN, cMN, ppMN, spMN, jpMN, tmMN, fMN] = mnResults;
-      const [hEN, aEN, svcEN, cEN, ppEN, spEN, jpEN, tmEN, fEN] = enResults;
+      const [hMN, aMN, svcMN, cMN, ppMN, spMN, jpMN, tmMN, pjMN, fMN] = mnResults;
+      const [hEN, aEN, svcEN, cEN, ppEN, spEN, jpEN, tmEN, pjEN, fEN] = enResults;
 
       setHome(normalizeHome(hMN));
       setHomeEN(normalizeHome(hEN));
@@ -451,6 +489,9 @@ export default function SiteContentPage() {
 
       setTeamPage(normalizeTeamPage(tmMN));
       setTeamPageEN(normalizeTeamPage(tmEN));
+
+      setProjectsPage(normalizeProjectsPage(pjMN));
+      setProjectsPageEN(normalizeProjectsPage(pjEN));
 
       setFooter(normalizeFooter(fMN));
       setFooterEN(normalizeFooter(fEN));
@@ -527,7 +568,9 @@ export default function SiteContentPage() {
                     ? jobsPage
                     : pageId === "team"
                       ? teamPage
-                      : footer;
+                      : pageId === "projects-page"
+                        ? projectsPage
+                        : footer;
 
     const enSections =
       pageId === "home"
@@ -546,7 +589,9 @@ export default function SiteContentPage() {
                     ? jobsPageEN
                     : pageId === "team"
                       ? teamPageEN
-                      : footerEN;
+                      : pageId === "projects-page"
+                        ? projectsPageEN
+                        : footerEN;
 
     try {
       await Promise.all([
@@ -2127,6 +2172,255 @@ export default function SiteContentPage() {
                     onClick={() => void save("team")}
                   >
                     {saving ? t.common.saving : t.siteContent.common.saveTab(t.siteContent.tabs.team.label)}
+                  </PrimarySave>
+                </EditorBody>
+              ) : tab === "projects-page" ? (
+                <EditorBody
+                  sectionJumpKey={tab}
+                  sectionItems={[
+                    { id: "projects-header", label: t.siteContent.projectsPage.sections.header },
+                    { id: "projects-items", label: t.siteContent.projectsPage.sections.items },
+                  ]}
+                >
+                  <EditorSection
+                    id="projects-header"
+                    title={t.siteContent.projectsPage.fields.headerTitle}
+                    subtitle={t.siteContent.projectsPage.fields.headerSubtitle}
+                  >
+                    <div className="space-y-4">
+                      <DualInput
+                        label={t.siteContent.projectsPage.fields.badge}
+                        mnValue={projectsPage.header.badge}
+                        enValue={projectsPageEN.header.badge}
+                        onChangeMN={(v) => setProjectsPage({ ...projectsPage, header: { ...projectsPage.header, badge: v } })}
+                        onChangeEN={(v) => setProjectsPageEN({ ...projectsPageEN, header: { ...projectsPageEN.header, badge: v } })}
+                      />
+                      <div className="grid gap-4 sm:grid-cols-2">
+                        <DualInput
+                          label={t.siteContent.projectsPage.fields.titleLine1}
+                          mnValue={projectsPage.header.titleLine1}
+                          enValue={projectsPageEN.header.titleLine1}
+                          onChangeMN={(v) => setProjectsPage({ ...projectsPage, header: { ...projectsPage.header, titleLine1: v } })}
+                          onChangeEN={(v) => setProjectsPageEN({ ...projectsPageEN, header: { ...projectsPageEN.header, titleLine1: v } })}
+                        />
+                        <DualInput
+                          label={t.siteContent.projectsPage.fields.titleAccent}
+                          mnValue={projectsPage.header.titleAccent}
+                          enValue={projectsPageEN.header.titleAccent}
+                          onChangeMN={(v) => setProjectsPage({ ...projectsPage, header: { ...projectsPage.header, titleAccent: v } })}
+                          onChangeEN={(v) => setProjectsPageEN({ ...projectsPageEN, header: { ...projectsPageEN.header, titleAccent: v } })}
+                        />
+                      </div>
+                      <DualTextarea
+                        label={t.siteContent.projectsPage.fields.intro}
+                        mnValue={projectsPage.header.intro}
+                        enValue={projectsPageEN.header.intro}
+                        onChangeMN={(v) => setProjectsPage({ ...projectsPage, header: { ...projectsPage.header, intro: v } })}
+                        onChangeEN={(v) => setProjectsPageEN({ ...projectsPageEN, header: { ...projectsPageEN.header, intro: v } })}
+                      />
+                    </div>
+                  </EditorSection>
+                  <EditorSection
+                    id="projects-items"
+                    title={t.siteContent.projectsPage.fields.itemsTitle}
+                    subtitle={t.siteContent.projectsPage.fields.headerSubtitle}
+                    defaultOpen={false}
+                  >
+                    <div className="space-y-4">
+                      {projectsPage.items.map((item, i) => (
+                        <div
+                          key={item.id || i}
+                          className="rounded-xl border border-slate-200/90 bg-white/80 p-4 dark:border-slate-700 dark:bg-slate-900/40"
+                        >
+                          <div className="space-y-4">
+                            <div className="grid gap-4 sm:grid-cols-2">
+                              <div className="space-y-1.5">
+                                <label className="text-[11px] font-bold uppercase tracking-[0.12em] text-slate-500 dark:text-slate-400">
+                                  {t.siteContent.projectsPage.fields.id}
+                                </label>
+                                <input
+                                  type="number"
+                                  className={scInput}
+                                  value={item.id}
+                                  onChange={(e) => {
+                                    const v = Number(e.target.value) || 0;
+                                    const items = [...projectsPage.items];
+                                    items[i] = { ...items[i], id: v };
+                                    setProjectsPage({ ...projectsPage, items });
+                                    const itemsEN = [...projectsPageEN.items];
+                                    if (itemsEN[i]) {
+                                      itemsEN[i] = { ...itemsEN[i], id: v };
+                                      setProjectsPageEN({ ...projectsPageEN, items: itemsEN });
+                                    }
+                                  }}
+                                />
+                              </div>
+                              <DualInput
+                                label={t.siteContent.projectsPage.fields.name}
+                                mnValue={item.name}
+                                enValue={projectsPageEN.items[i]?.name ?? ""}
+                                onChangeMN={(v) => {
+                                  const items = [...projectsPage.items];
+                                  items[i] = { ...items[i], name: v };
+                                  setProjectsPage({ ...projectsPage, items });
+                                }}
+                                onChangeEN={(v) => {
+                                  const items = [...projectsPageEN.items];
+                                  if (!items[i]) items[i] = { ...item, name: "" };
+                                  items[i] = { ...items[i], name: v };
+                                  setProjectsPageEN({ ...projectsPageEN, items });
+                                }}
+                              />
+                            </div>
+                            <DualInput
+                              label={t.siteContent.projectsPage.fields.category}
+                              mnValue={item.category}
+                              enValue={projectsPageEN.items[i]?.category ?? ""}
+                              onChangeMN={(v) => {
+                                const items = [...projectsPage.items];
+                                items[i] = { ...items[i], category: v };
+                                setProjectsPage({ ...projectsPage, items });
+                              }}
+                              onChangeEN={(v) => {
+                                const items = [...projectsPageEN.items];
+                                if (!items[i]) items[i] = { ...item, category: "" };
+                                items[i] = { ...items[i], category: v };
+                                setProjectsPageEN({ ...projectsPageEN, items });
+                              }}
+                            />
+                            <div className="space-y-1.5">
+                              <label className="text-[11px] font-bold uppercase tracking-[0.12em] text-slate-500 dark:text-slate-400">
+                                {t.siteContent.projectsPage.fields.coverImage}
+                              </label>
+                              <ImageUploadField
+                                value={item.coverImage}
+                                onChange={(v) => {
+                                  const items = [...projectsPage.items];
+                                  items[i] = { ...items[i], coverImage: v };
+                                  setProjectsPage({ ...projectsPage, items });
+                                  const itemsEN = [...projectsPageEN.items];
+                                  if (itemsEN[i]) {
+                                    itemsEN[i] = { ...itemsEN[i], coverImage: v };
+                                    setProjectsPageEN({ ...projectsPageEN, items: itemsEN });
+                                  }
+                                }}
+                              />
+                            </div>
+                            <DualTextarea
+                              label={t.siteContent.projectsPage.fields.description}
+                              mnValue={item.description}
+                              enValue={projectsPageEN.items[i]?.description ?? ""}
+                              onChangeMN={(v) => {
+                                const items = [...projectsPage.items];
+                                items[i] = { ...items[i], description: v };
+                                setProjectsPage({ ...projectsPage, items });
+                              }}
+                              onChangeEN={(v) => {
+                                const items = [...projectsPageEN.items];
+                                if (!items[i]) items[i] = { ...item, description: "" };
+                                items[i] = { ...items[i], description: v };
+                                setProjectsPageEN({ ...projectsPageEN, items });
+                              }}
+                              rows={2}
+                            />
+                            <div className="space-y-2">
+                              <label className="text-[11px] font-bold uppercase tracking-[0.12em] text-slate-500 dark:text-slate-400">
+                                {t.siteContent.projectsPage.fields.images}
+                              </label>
+                              {item.images.map((imgUrl, j) => (
+                                <div key={j} className="flex items-center gap-2">
+                                  <div className="flex-1">
+                                    <ImageUploadField
+                                      value={imgUrl}
+                                      onChange={(v) => {
+                                        const items = [...projectsPage.items];
+                                        const imgs = [...items[i].images];
+                                        imgs[j] = v;
+                                        items[i] = { ...items[i], images: imgs };
+                                        setProjectsPage({ ...projectsPage, items });
+                                        const itemsEN = [...projectsPageEN.items];
+                                        if (itemsEN[i]) {
+                                          const imgsEN = [...(itemsEN[i].images ?? [])];
+                                          imgsEN[j] = v;
+                                          itemsEN[i] = { ...itemsEN[i], images: imgsEN };
+                                          setProjectsPageEN({ ...projectsPageEN, items: itemsEN });
+                                        }
+                                      }}
+                                    />
+                                  </div>
+                                  <DangerMini
+                                    onClick={() => {
+                                      const items = [...projectsPage.items];
+                                      items[i] = { ...items[i], images: items[i].images.filter((_, k) => k !== j) };
+                                      setProjectsPage({ ...projectsPage, items });
+                                      const itemsEN = [...projectsPageEN.items];
+                                      if (itemsEN[i]) {
+                                        itemsEN[i] = { ...itemsEN[i], images: (itemsEN[i].images ?? []).filter((_, k) => k !== j) };
+                                        setProjectsPageEN({ ...projectsPageEN, items: itemsEN });
+                                      }
+                                    }}
+                                  >
+                                    {t.siteContent.common.remove}
+                                  </DangerMini>
+                                </div>
+                              ))}
+                              <GhostButton
+                                onClick={() => {
+                                  const items = [...projectsPage.items];
+                                  items[i] = { ...items[i], images: [...items[i].images, ""] };
+                                  setProjectsPage({ ...projectsPage, items });
+                                  const itemsEN = [...projectsPageEN.items];
+                                  if (itemsEN[i]) {
+                                    itemsEN[i] = { ...itemsEN[i], images: [...(itemsEN[i].images ?? []), ""] };
+                                    setProjectsPageEN({ ...projectsPageEN, items: itemsEN });
+                                  }
+                                }}
+                              >
+                                + {t.siteContent.projectsPage.fields.addImage}
+                              </GhostButton>
+                            </div>
+                          </div>
+                          <div className="mt-3 flex justify-end">
+                            <DangerMini
+                              onClick={() => {
+                                setProjectsPage({
+                                  ...projectsPage,
+                                  items: projectsPage.items.filter((_, j) => j !== i),
+                                });
+                                setProjectsPageEN({
+                                  ...projectsPageEN,
+                                  items: projectsPageEN.items.filter((_, j) => j !== i),
+                                });
+                              }}
+                            >
+                              {t.siteContent.common.remove}
+                            </DangerMini>
+                          </div>
+                        </div>
+                      ))}
+                      <GhostButton
+                        onClick={() => {
+                          const newItem = {
+                            id: projectsPage.items.length + 1,
+                            name: "",
+                            coverImage: "",
+                            images: [],
+                            description: "",
+                            category: "",
+                          };
+                          setProjectsPage({ ...projectsPage, items: [...projectsPage.items, newItem] });
+                          setProjectsPageEN({ ...projectsPageEN, items: [...projectsPageEN.items, { ...newItem }] });
+                        }}
+                      >
+                        + {lang === "mn" ? "Төсөл нэмэх" : "Add Project"}
+                      </GhostButton>
+                    </div>
+                  </EditorSection>
+                  <PrimarySave
+                    disabled={saving}
+                    onClick={() => void save("projects-page")}
+                  >
+                    {saving ? t.common.saving : t.siteContent.common.saveTab(t.siteContent.tabs.projectsPage.label)}
                   </PrimarySave>
                 </EditorBody>
               ) : (

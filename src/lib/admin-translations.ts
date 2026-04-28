@@ -39,6 +39,7 @@ export const adminTranslations = {
         salesPage: { label: "Борлуулалт", hint: "Зар мэдээ — борлуулалтын толгой" },
         jobsPage: { label: "Ажлын зар", hint: "Зар мэдээ — жагсаалтын толгой" },
         team: { label: "Мэдээ мэдээлэл", hint: "Зар мэдээ — баг, CTA" },
+        projectsPage: { label: "Төслүүд", hint: "/projects — төслийн зургийн цомог" },
         footer: { label: "Хөл", hint: "Түншүүд, танилцуулга" },
       },
       common: {
@@ -217,6 +218,28 @@ export const adminTranslations = {
           email: "Имэйл",
           phone: "Утас",
           projects: "Төслийн тоо",
+        },
+      },
+      projectsPage: {
+        sections: {
+          header: "Толгой",
+          items: "Төслүүд",
+        },
+        fields: {
+          headerTitle: "Толгой хэсэг",
+          headerSubtitle: "Badge, гарчиг, танилцуулга",
+          badge: "Badge",
+          titleLine1: "Гарчиг 1",
+          titleAccent: "Гарчиг онцлох",
+          intro: "Танилцуулга",
+          itemsTitle: "Төслийн жагсаалт",
+          id: "ID",
+          name: "Нэр",
+          coverImage: "Үндсэн зураг (cover)",
+          images: "Нэмэлт зургууд",
+          addImage: "Зураг нэмэх",
+          category: "Ангилал",
+          description: "Тайлбар",
         },
       },
       footer: {
@@ -410,6 +433,7 @@ export const adminTranslations = {
         salesPage: { label: "Sales Page", hint: "Announcements — sales header" },
         jobsPage: { label: "Jobs Page", hint: "Announcements — list header" },
         team: { label: "News Feed", hint: "Announcements — team, CTA" },
+        projectsPage: { label: "Projects", hint: "/projects — project gallery" },
         footer: { label: "Footer", hint: "Partners, introduction" },
       },
       common: {
@@ -588,6 +612,28 @@ export const adminTranslations = {
           email: "Email",
           phone: "Phone",
           projects: "Project Count",
+        },
+      },
+      projectsPage: {
+        sections: {
+          header: "Header",
+          items: "Projects",
+        },
+        fields: {
+          headerTitle: "Header Section",
+          headerSubtitle: "Badge, titles, intro",
+          badge: "Badge",
+          titleLine1: "Title Line 1",
+          titleAccent: "Title Accent",
+          intro: "Introduction",
+          itemsTitle: "Projects List",
+          id: "ID",
+          name: "Name",
+          coverImage: "Cover Image",
+          images: "Gallery Images",
+          addImage: "Add Image",
+          category: "Category",
+          description: "Description",
         },
       },
       footer: {
