@@ -6,7 +6,12 @@ import {
   PERMISSION_DENIED_MN,
   withClientAdminAuth,
 } from "@/lib/adminClientAuth";
-import { getApiBaseUrl, getPublicFrontOrigin, getSocketBaseUrl, joinBackendRequestUrl } from "@/lib/api";
+import {
+  getApiBaseUrl,
+  getPublicFrontOrigin,
+  getSocketBaseUrl,
+  joinBackendRequestUrl,
+} from "@/lib/api";
 import { ImageIcon, Loader2, Upload } from "lucide-react";
 
 /** Match backend `UPLOAD_MAX_MB` (default 15). Set `NEXT_PUBLIC_UPLOAD_MAX_MB` to keep UI in sync. */
@@ -14,19 +19,22 @@ const UPLOAD_MAX_MB =
   Number(process.env.NEXT_PUBLIC_UPLOAD_MAX_MB ?? "15") || 15;
 const UPLOAD_MAX_BYTES = Math.max(1, UPLOAD_MAX_MB) * 1024 * 1024;
 
-const MSG_IMAGE_TOO_LARGE =
-  "Зургийн хэмжээ хэтэрсэн. Жижигрүүлээд эсвэл бага хэмжээтэй зураг сонгоно уу.";
+const MSG_TOO_LARGE = `Файлын хэмжээ хэтэрсэн (хамгийн ихдээ ~${UPLOAD_MAX_MB} МБ). Жижигрүүлээд оролдоно уу.`;
+
+const VIDEO_EXTS = /\.(mp4|webm|mov|ogg|avi)(\?.*)?$/i;
+function isVideo(src: string) {
+  return VIDEO_EXTS.test(src);
+}
+
+const ACCEPT =
+  "image/jpeg,image/png,image/webp,image/gif,image/jpg,video/mp4,video/webm,video/quicktime,video/ogg,video/x-msvideo";
 
 function previewUrl(path: string): string {
   const p = path.trim();
   if (!p) return "";
   if (/^https?:\/\//i.test(p)) return p;
-  if (p.startsWith("/upload/")) {
-    return `${getSocketBaseUrl()}${p}`;
-  }
-  if (p.startsWith("/")) {
-    return `${getPublicFrontOrigin()}${p}`;
-  }
+  if (p.startsWith("/upload/")) return `${getSocketBaseUrl()}${p}`;
+  if (p.startsWith("/")) return `${getPublicFrontOrigin()}${p}`;
   return p;
 }
 
@@ -35,31 +43,22 @@ export async function uploadImageFile(file: File): Promise<string> {
   fd.append("file", file);
   const res = await fetch(
     joinBackendRequestUrl(getApiBaseUrl(), "/api/v1/admin/upload"),
-    withClientAdminAuth({
-      method: "POST",
-      body: fd,
-    }),
+    withClientAdminAuth({ method: "POST", body: fd }),
   );
   const gate = await ensureClientAuthorized(res);
-  if (gate === "forbidden") {
-    throw new Error(PERMISSION_DENIED_MN);
-  }
-  if (gate !== "ok") {
-    throw new Error("Unauthorized");
-  }
+  if (gate === "forbidden") throw new Error(PERMISSION_DENIED_MN);
+  if (gate !== "ok") throw new Error("Unauthorized");
   if (!res.ok) {
     const t = await res.text();
-    if (res.status === 413) {
-      throw new Error(MSG_IMAGE_TOO_LARGE);
-    }
+    if (res.status === 413) throw new Error(MSG_TOO_LARGE);
     try {
-      const j = JSON.parse(t) as { error?: { code?: string; message?: string } };
-      if (j?.error?.code === "FILE_TOO_LARGE") {
-        throw new Error(MSG_IMAGE_TOO_LARGE);
-      }
+      const j = JSON.parse(t) as {
+        error?: { code?: string; message?: string };
+      };
+      if (j?.error?.code === "FILE_TOO_LARGE") throw new Error(MSG_TOO_LARGE);
       if (j?.error?.message) throw new Error(j.error.message);
     } catch (e) {
-      if (e instanceof Error && e.message === MSG_IMAGE_TOO_LARGE) throw e;
+      if (e instanceof Error && e.message === MSG_TOO_LARGE) throw e;
     }
     throw new Error(t.slice(0, 200) || "Алдаа");
   }
@@ -72,14 +71,8 @@ export async function uploadImageFile(file: File): Promise<string> {
 type Props = {
   value: string;
   onChange: (path: string) => void;
-  /** Show remove row button (e.g. slide list) */
   showRemove?: boolean;
   onRemove?: () => void;
-  /**
-   * Both preserve aspect ratio (`object-contain`). `cover` allows a taller preview (slides);
-   * `contain` uses a smaller cap (logos, marks).
-   * @default "cover"
-   */
   previewFit?: "cover" | "contain";
 };
 
@@ -93,8 +86,8 @@ export default function ImageUploadField({
   const fileRef = useRef<HTMLInputElement>(null);
   const [busy, setBusy] = useState(false);
   const [err, setErr] = useState<string | null>(null);
-  /** Instant preview while upload runs; cleared once parent `value` matches uploaded path */
   const [blobUrl, setBlobUrl] = useState<string | null>(null);
+  const [blobIsVideo, setBlobIsVideo] = useState(false);
   const pendingPathRef = useRef<string | null>(null);
 
   useEffect(() => {
@@ -119,9 +112,7 @@ export default function ImageUploadField({
     if (!file) return;
     setErr(null);
     if (file.size > UPLOAD_MAX_BYTES) {
-      setErr(
-        `Зургийн хэмжээ хэтэрсэн (хамгийн ихдээ ~${UPLOAD_MAX_MB} МБ). Жижигрүүлээд оролдоно уу.`,
-      );
+      setErr(MSG_TOO_LARGE);
       return;
     }
     const local = URL.createObjectURL(file);
@@ -129,6 +120,7 @@ export default function ImageUploadField({
       if (prev) URL.revokeObjectURL(prev);
       return local;
     });
+    setBlobIsVideo(file.type.startsWith("video/"));
     setBusy(true);
     try {
       const path = await uploadImageFile(file);
@@ -137,14 +129,13 @@ export default function ImageUploadField({
     } catch (x) {
       const failedFetch =
         x instanceof TypeError && String(x.message).includes("fetch");
-      const msg = failedFetch
-        ? file.size > UPLOAD_MAX_BYTES
-          ? MSG_IMAGE_TOO_LARGE
-          : "Сүлжээний алдаа эсвэл зургийн хэмжээ хэтэрсэн байж магадгүй. Дахин оролдоно уу."
-        : x instanceof Error
-          ? x.message
-          : "Алдаа";
-      setErr(msg);
+      setErr(
+        failedFetch
+          ? "Сүлжээний алдаа эсвэл файлын хэмжээ хэтэрсэн байж магадгүй. Дахин оролдоно уу."
+          : x instanceof Error
+            ? x.message
+            : "Алдаа",
+      );
       setBlobUrl((prev) => {
         if (prev) URL.revokeObjectURL(prev);
         return null;
@@ -157,36 +148,52 @@ export default function ImageUploadField({
 
   const remoteSrc = previewUrl(value);
   const src = blobUrl ?? remoteSrc;
+  const showVideo = src && (blobUrl ? blobIsVideo : isVideo(src));
+
+  const previewClass =
+    previewFit === "contain"
+      ? "h-auto max-h-[min(50vh,280px)] w-full max-w-full object-contain object-center"
+      : "h-auto max-h-[min(85vh,1200px)] w-full max-w-full object-contain object-center";
 
   return (
     <div className="overflow-hidden rounded-2xl border border-zinc-200/90 bg-white shadow-sm dark:border-zinc-700/90 dark:bg-zinc-950">
       <div
         className={`flex w-full items-center justify-center overflow-hidden bg-linear-to-b from-zinc-50 to-zinc-100/90 p-3 dark:from-zinc-900 dark:to-zinc-950 sm:p-4 ${
-          previewFit === "contain" ? "min-h-[140px] sm:min-h-[160px]" : "min-h-[180px] sm:min-h-[220px]"
+          previewFit === "contain"
+            ? "min-h-[140px] sm:min-h-[160px]"
+            : "min-h-[180px] sm:min-h-[220px]"
         }`}
       >
         {src ? (
-          // eslint-disable-next-line @next/next/no-img-element -- dynamic CMS URLs
-          <img
-            key={blobUrl ?? (value || "empty")}
-            src={src}
-            alt=""
-            decoding="async"
-            fetchPriority={blobUrl ? "high" : "auto"}
-            className={
-              previewFit === "contain"
-                ? "h-auto max-h-[min(50vh,280px)] w-full max-w-full object-contain object-center"
-                : "h-auto max-h-[min(85vh,1200px)] w-full max-w-full object-contain object-center"
-            }
-          />
+          showVideo ? (
+            <video
+              key={blobUrl ?? (value || "empty")}
+              src={src}
+              muted
+              loop
+              autoPlay
+              playsInline
+              className={previewClass}
+            />
+          ) : (
+            // eslint-disable-next-line @next/next/no-img-element -- dynamic CMS URLs
+            <img
+              key={blobUrl ?? (value || "empty")}
+              src={src}
+              alt=""
+              decoding="async"
+              fetchPriority={blobUrl ? "high" : "auto"}
+              className={previewClass}
+            />
+          )
         ) : (
-          <div
-            className="flex w-full flex-col items-center justify-center gap-2 px-6 py-12 text-center text-zinc-400 dark:text-zinc-500"
-          >
+          <div className="flex w-full flex-col items-center justify-center gap-2 px-6 py-12 text-center text-zinc-400 dark:text-zinc-500">
             <div className="rounded-full bg-zinc-200/80 p-4 dark:bg-zinc-800/80">
               <ImageIcon className="h-10 w-10 sm:h-12 sm:w-12" aria-hidden />
             </div>
-            <p className="text-xs font-medium text-zinc-500 dark:text-zinc-400">Зураг оруулна уу</p>
+            <p className="text-xs font-medium text-zinc-500 dark:text-zinc-400">
+              Зураг эсвэл видео оруулна уу
+            </p>
           </div>
         )}
       </div>
@@ -195,7 +202,7 @@ export default function ImageUploadField({
         <input
           ref={fileRef}
           type="file"
-          accept="image/*"
+          accept={ACCEPT}
           className="hidden"
           onChange={onPick}
         />
@@ -210,7 +217,7 @@ export default function ImageUploadField({
           ) : (
             <Upload className="h-4 w-4 shrink-0" aria-hidden />
           )}
-          Зураг оруулах
+          {busy ? "Байршуулж байна..." : "Зураг / Видео оруулах"}
         </button>
         {showRemove && onRemove && (
           <button
