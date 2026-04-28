@@ -15,11 +15,13 @@ import {
 import { ImageIcon, Loader2, Upload } from "lucide-react";
 
 /** Image limit — match backend. Override with NEXT_PUBLIC_UPLOAD_MAX_MB. */
-const IMAGE_MAX_MB = Number(process.env.NEXT_PUBLIC_UPLOAD_MAX_MB ?? "15") || 15;
+const IMAGE_MAX_MB =
+  Number(process.env.NEXT_PUBLIC_UPLOAD_MAX_MB ?? "15") || 15;
 const IMAGE_MAX_BYTES = Math.max(1, IMAGE_MAX_MB) * 1024 * 1024;
 
 /** Video limit — videos are large. Override with NEXT_PUBLIC_UPLOAD_VIDEO_MAX_MB. */
-const VIDEO_MAX_MB = Number(process.env.NEXT_PUBLIC_UPLOAD_VIDEO_MAX_MB ?? "200") || 200;
+const VIDEO_MAX_MB =
+  Number(process.env.NEXT_PUBLIC_UPLOAD_VIDEO_MAX_MB ?? "200") || 200;
 const VIDEO_MAX_BYTES = Math.max(1, VIDEO_MAX_MB) * 1024 * 1024;
 
 const VIDEO_EXTS = /\.(mp4|webm|mov|ogg|avi)(\?.*)?$/i;
@@ -54,17 +56,21 @@ export async function uploadImageFile(file: File): Promise<string> {
   if (gate !== "ok") throw new Error("Unauthorized");
   if (!res.ok) {
     const t = await res.text();
-    const isVid = file.type.startsWith("video/");
-    const msgTooLarge = isVid ? MSG_VIDEO_TOO_LARGE : MSG_IMAGE_TOO_LARGE;
-    if (res.status === 413) throw new Error(msgTooLarge);
+    if (res.status === 413)
+      throw new Error(
+        "Файл хэтэрхий том байна. Серверийн хязгаараас хэтэрсэн — жижиг хэмжээтэй файл сонгоно уу.",
+      );
     try {
       const j = JSON.parse(t) as {
         error?: { code?: string; message?: string };
       };
-      if (j?.error?.code === "FILE_TOO_LARGE") throw new Error(msgTooLarge);
+      if (j?.error?.code === "FILE_TOO_LARGE")
+        throw new Error(
+          "Файл хэтэрхий том байна. Серверийн хязгаараас хэтэрсэн — жижиг хэмжээтэй файл сонгоно уу.",
+        );
       if (j?.error?.message) throw new Error(j.error.message);
     } catch (e) {
-      if (e instanceof Error && (e.message === MSG_IMAGE_TOO_LARGE || e.message === MSG_VIDEO_TOO_LARGE)) throw e;
+      if (e instanceof Error && e.message.startsWith("Файл хэтэрхий")) throw e;
     }
     throw new Error(t.slice(0, 200) || "Алдаа");
   }

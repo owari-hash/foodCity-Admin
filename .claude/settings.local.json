@@ -1,0 +1,7 @@
+{
+  "permissions": {
+    "allow": [
+      "PowerShell($out = & node \"d:\\\\zolbayar\\\\haltuur\\\\fc\\\\foodCity-backend\\\\node_modules\\\\typescript\\\\bin\\\\tsc\" --noEmit --project \"d:\\\\zolbayar\\\\haltuur\\\\fc\\\\foodCity-backend\\\\tsconfig.json\" 2>&1; $out | Select-Object -First 30; Write-Host \"Exit: $LASTEXITCODE\")"
+    ]
+  }
+}
