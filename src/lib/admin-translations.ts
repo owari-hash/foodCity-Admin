@@ -103,6 +103,7 @@ export const adminTranslations = {
         sections: {
           header: "Толгой",
           features: "Давуу тал",
+          slides: "Слайд зургууд / видео",
           banner: "Баннер",
         },
         fields: {
@@ -114,6 +115,9 @@ export const adminTranslations = {
           intro: "Танилцуулга",
           featureTitle: "Давуу талын гарчиг",
           featureDesc: "Давуу талын тайлбар",
+          slidesTitle: "Слайд зургууд / видео",
+          slidesHint: "Үйлчилгээний хуудсанд том слайдер хэлбэрээр харагдана",
+          addSlide: "Слайд нэмэх",
         },
       },
       contact: {
@@ -497,6 +501,7 @@ export const adminTranslations = {
         sections: {
           header: "Header",
           features: "Features",
+          slides: "Slides (Images / Videos)",
           banner: "Banner",
         },
         fields: {
@@ -508,6 +513,9 @@ export const adminTranslations = {
           intro: "Introduction",
           featureTitle: "Feature Title",
           featureDesc: "Feature Description",
+          slidesTitle: "Slides (Images / Videos)",
+          slidesHint: "Displayed as a large slider on the services page",
+          addSlide: "Add Slide",
         },
       },
       contact: {

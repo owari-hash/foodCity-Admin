@@ -93,6 +93,7 @@ type ServicesState = {
   header: { badge: string; h2Line1: string; h2Accent: string; intro: string };
   features: { title: string; desc: string }[];
   banner: { value: string; suffix: string; label: string }[];
+  slides: string[];
 };
 type PropertiesPageState = {
   header: {
@@ -188,6 +189,7 @@ const EMPTY_SERVICES: ServicesState = {
   header: { badge: "", h2Line1: "", h2Accent: "", intro: "" },
   features: [],
   banner: [],
+  slides: [],
 };
 const EMPTY_PROPERTIES_PAGE: PropertiesPageState = {
   header: { badge: "", titleLine1: "", titleAccent: "", intro: "" },
@@ -271,6 +273,7 @@ function normalizeServices(v: unknown): ServicesState {
     banner: Array.isArray(root.banner)
       ? (root.banner as { value: string; suffix: string; label: string }[])
       : [],
+    slides: Array.isArray(root.slides) ? (root.slides as string[]) : [],
   };
 }
 function normalizePropertiesPage(v: unknown): PropertiesPageState {
@@ -1042,6 +1045,7 @@ export default function SiteContentPage() {
                   sectionItems={[
                     { id: "svc-header", label: t.siteContent.services.sections.header },
                     { id: "svc-features", label: t.siteContent.services.sections.features },
+                    { id: "svc-slides", label: t.siteContent.services.sections.slides },
                     { id: "svc-banner", label: t.siteContent.services.sections.banner },
                   ]}
                 >
@@ -1178,6 +1182,41 @@ export default function SiteContentPage() {
                         }}
                       >
                         + {t.siteContent.common.add}
+                      </GhostButton>
+                    </div>
+                  </EditorSection>
+                  <EditorSection
+                    id="svc-slides"
+                    title={t.siteContent.services.fields.slidesTitle}
+                    subtitle={t.siteContent.services.fields.slidesHint}
+                  >
+                    <div className="space-y-3">
+                      {(services.slides.length === 0 ? [""] : services.slides).map((url, i) => (
+                        <ImageUploadField
+                          key={i}
+                          value={url}
+                          onChange={(v) => {
+                            const slides = services.slides.length === 0 ? [""] : [...services.slides];
+                            slides[i] = v;
+                            setServices({ ...services, slides });
+                            const slidesEN = servicesEN.slides.length === 0 ? [""] : [...servicesEN.slides];
+                            slidesEN[i] = v;
+                            setServicesEN({ ...servicesEN, slides: slidesEN });
+                          }}
+                          showRemove={services.slides.length > 0}
+                          onRemove={() => {
+                            setServices({ ...services, slides: services.slides.filter((_, j) => j !== i) });
+                            setServicesEN({ ...servicesEN, slides: servicesEN.slides.filter((_, j) => j !== i) });
+                          }}
+                        />
+                      ))}
+                      <GhostButton
+                        onClick={() => {
+                          setServices({ ...services, slides: [...services.slides, ""] });
+                          setServicesEN({ ...servicesEN, slides: [...servicesEN.slides, ""] });
+                        }}
+                      >
+                        + {t.siteContent.services.fields.addSlide}
                       </GhostButton>
                     </div>
                   </EditorSection>
