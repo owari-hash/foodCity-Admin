@@ -14,12 +14,13 @@ import {
 } from "@/lib/api";
 import { ImageIcon, Loader2, Upload } from "lucide-react";
 
-/** Match backend `UPLOAD_MAX_MB` (default 15). Set `NEXT_PUBLIC_UPLOAD_MAX_MB` to keep UI in sync. */
-const UPLOAD_MAX_MB =
-  Number(process.env.NEXT_PUBLIC_UPLOAD_MAX_MB ?? "15") || 15;
-const UPLOAD_MAX_BYTES = Math.max(1, UPLOAD_MAX_MB) * 1024 * 1024;
+/** Image limit — match backend. Override with NEXT_PUBLIC_UPLOAD_MAX_MB. */
+const IMAGE_MAX_MB = Number(process.env.NEXT_PUBLIC_UPLOAD_MAX_MB ?? "15") || 15;
+const IMAGE_MAX_BYTES = Math.max(1, IMAGE_MAX_MB) * 1024 * 1024;
 
-const MSG_TOO_LARGE = `Файлын хэмжээ хэтэрсэн (хамгийн ихдээ ~${UPLOAD_MAX_MB} МБ). Жижигрүүлээд оролдоно уу.`;
+/** Video limit — videos are large. Override with NEXT_PUBLIC_UPLOAD_VIDEO_MAX_MB. */
+const VIDEO_MAX_MB = Number(process.env.NEXT_PUBLIC_UPLOAD_VIDEO_MAX_MB ?? "200") || 200;
+const VIDEO_MAX_BYTES = Math.max(1, VIDEO_MAX_MB) * 1024 * 1024;
 
 const VIDEO_EXTS = /\.(mp4|webm|mov|ogg|avi)(\?.*)?$/i;
 function isVideo(src: string) {
@@ -38,6 +39,9 @@ function previewUrl(path: string): string {
   return p;
 }
 
+const MSG_IMAGE_TOO_LARGE = `Зургийн хэмжээ хэтэрсэн (хамгийн ихдээ ~${IMAGE_MAX_MB} МБ). Жижигрүүлээд оролдоно уу.`;
+const MSG_VIDEO_TOO_LARGE = `Видеоны хэмжээ хэтэрсэн (хамгийн ихдээ ~${VIDEO_MAX_MB} МБ). Бага хэмжээтэй файл сонгоно уу.`;
+
 export async function uploadImageFile(file: File): Promise<string> {
   const fd = new FormData();
   fd.append("file", file);
@@ -50,15 +54,17 @@ export async function uploadImageFile(file: File): Promise<string> {
   if (gate !== "ok") throw new Error("Unauthorized");
   if (!res.ok) {
     const t = await res.text();
-    if (res.status === 413) throw new Error(MSG_TOO_LARGE);
+    const isVid = file.type.startsWith("video/");
+    const msgTooLarge = isVid ? MSG_VIDEO_TOO_LARGE : MSG_IMAGE_TOO_LARGE;
+    if (res.status === 413) throw new Error(msgTooLarge);
     try {
       const j = JSON.parse(t) as {
         error?: { code?: string; message?: string };
       };
-      if (j?.error?.code === "FILE_TOO_LARGE") throw new Error(MSG_TOO_LARGE);
+      if (j?.error?.code === "FILE_TOO_LARGE") throw new Error(msgTooLarge);
       if (j?.error?.message) throw new Error(j.error.message);
     } catch (e) {
-      if (e instanceof Error && e.message === MSG_TOO_LARGE) throw e;
+      if (e instanceof Error && (e.message === MSG_IMAGE_TOO_LARGE || e.message === MSG_VIDEO_TOO_LARGE)) throw e;
     }
     throw new Error(t.slice(0, 200) || "Алдаа");
   }
@@ -111,8 +117,10 @@ export default function ImageUploadField({
     e.target.value = "";
     if (!file) return;
     setErr(null);
-    if (file.size > UPLOAD_MAX_BYTES) {
-      setErr(MSG_TOO_LARGE);
+    const isVid = file.type.startsWith("video/");
+    const maxBytes = isVid ? VIDEO_MAX_BYTES : IMAGE_MAX_BYTES;
+    if (file.size > maxBytes) {
+      setErr(isVid ? MSG_VIDEO_TOO_LARGE : MSG_IMAGE_TOO_LARGE);
       return;
     }
     const local = URL.createObjectURL(file);
