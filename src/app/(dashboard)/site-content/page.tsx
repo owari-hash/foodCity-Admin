@@ -91,7 +91,7 @@ type ContactState = {
 };
 type ServicesState = {
   header: { badge: string; h2Line1: string; h2Accent: string; intro: string };
-  features: { title: string; desc: string }[];
+  features: { title: string; desc: string; image: string; images: string[] }[];
   banner: { value: string; suffix: string; label: string }[];
   slides: string[];
 };
@@ -269,7 +269,14 @@ function normalizeServices(v: unknown): ServicesState {
   const root = asRecord(v);
   return {
     header: { ...EMPTY_SERVICES.header, ...asRecord(root.header) },
-    features: Array.isArray(root.features) ? (root.features as { title: string; desc: string }[]) : [],
+    features: Array.isArray(root.features)
+      ? (root.features as Record<string, unknown>[]).map((f) => ({
+          title: typeof f.title === "string" ? f.title : "",
+          desc: typeof f.desc === "string" ? f.desc : "",
+          image: typeof f.image === "string" ? f.image : "",
+          images: Array.isArray(f.images) ? (f.images as string[]) : [],
+        }))
+      : [],
     banner: Array.isArray(root.banner)
       ? (root.banner as { value: string; suffix: string; label: string }[])
       : [],
@@ -1143,7 +1150,7 @@ export default function SiteContentPage() {
                               }}
                               onChangeEN={(v) => {
                                 const features = [...servicesEN.features];
-                                if (!features[i]) features[i] = { title: "", desc: "" };
+                                if (!features[i]) features[i] = { title: "", desc: "", image: "", images: [] };
                                 features[i] = { ...features[i], title: v };
                                 setServicesEN({ ...servicesEN, features });
                               }}
@@ -1159,18 +1166,83 @@ export default function SiteContentPage() {
                               }}
                               onChangeEN={(v) => {
                                 const features = [...servicesEN.features];
-                                if (!features[i]) features[i] = { title: "", desc: "" };
+                                if (!features[i]) features[i] = { title: "", desc: "", image: "", images: [] };
                                 features[i] = { ...features[i], desc: v };
                                 setServicesEN({ ...servicesEN, features });
                               }}
                               rows={2}
                             />
+                            <div>
+                              <p className="text-[10px] font-bold uppercase tracking-wider text-slate-400 mb-2">Cover зураг / видео</p>
+                              <ImageUploadField
+                                value={f.image}
+                                onChange={(v) => {
+                                  const features = [...services.features];
+                                  features[i] = { ...features[i], image: v };
+                                  setServices({ ...services, features });
+                                  const featuresEN = [...servicesEN.features];
+                                  if (!featuresEN[i]) featuresEN[i] = { title: "", desc: "", image: "", images: [] };
+                                  featuresEN[i] = { ...featuresEN[i], image: v };
+                                  setServicesEN({ ...servicesEN, features: featuresEN });
+                                }}
+                                previewFit="contain"
+                              />
+                            </div>
+                            <div>
+                              <p className="text-[10px] font-bold uppercase tracking-wider text-slate-400 mb-2">Галерей зургууд / видео</p>
+                              <div className="space-y-2">
+                                {f.images.map((img, j) => (
+                                  <ImageUploadField
+                                    key={j}
+                                    value={img}
+                                    onChange={(v) => {
+                                      const features = [...services.features];
+                                      const imgs = [...features[i].images];
+                                      imgs[j] = v;
+                                      features[i] = { ...features[i], images: imgs };
+                                      setServices({ ...services, features });
+                                      const featuresEN = [...servicesEN.features];
+                                      if (!featuresEN[i]) featuresEN[i] = { title: "", desc: "", image: "", images: [] };
+                                      const imgsEN = [...featuresEN[i].images];
+                                      imgsEN[j] = v;
+                                      featuresEN[i] = { ...featuresEN[i], images: imgsEN };
+                                      setServicesEN({ ...servicesEN, features: featuresEN });
+                                    }}
+                                    showRemove
+                                    onRemove={() => {
+                                      const features = [...services.features];
+                                      features[i] = { ...features[i], images: features[i].images.filter((_, k) => k !== j) };
+                                      setServices({ ...services, features });
+                                      const featuresEN = [...servicesEN.features];
+                                      if (featuresEN[i]) {
+                                        featuresEN[i] = { ...featuresEN[i], images: featuresEN[i].images.filter((_, k) => k !== j) };
+                                        setServicesEN({ ...servicesEN, features: featuresEN });
+                                      }
+                                    }}
+                                    previewFit="contain"
+                                  />
+                                ))}
+                                <GhostButton
+                                  onClick={() => {
+                                    const features = [...services.features];
+                                    features[i] = { ...features[i], images: [...features[i].images, ""] };
+                                    setServices({ ...services, features });
+                                    const featuresEN = [...servicesEN.features];
+                                    if (!featuresEN[i]) featuresEN[i] = { title: "", desc: "", image: "", images: [] };
+                                    featuresEN[i] = { ...featuresEN[i], images: [...featuresEN[i].images, ""] };
+                                    setServicesEN({ ...servicesEN, features: featuresEN });
+                                  }}
+                                >
+                                  + Галерей зураг нэмэх
+                                </GhostButton>
+                              </div>
+                            </div>
                           </div>
                         </div>
                       ))}
                       <GhostButton
                         onClick={() => {
-                          const newItem = { title: "", desc: "" };
+                          const newItem = { title: "", desc: "", image: "", images: [] };
                           setServices({
                             ...services,
                             features: [...services.features, newItem],
