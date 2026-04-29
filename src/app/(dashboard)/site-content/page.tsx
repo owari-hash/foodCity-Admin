@@ -88,7 +88,7 @@ type ContactState = {
     telLabel: string;
   };
   formTitle: string;
-  links: { type: string; href: string }[];
+  links: { type: string; href: string; title: string }[];
 };
 type ServicesState = {
   header: { badge: string; h2Line1: string; h2Accent: string; intro: string };
@@ -270,6 +270,7 @@ function normalizeContact(v: unknown): ContactState {
       ? (root.links as Record<string, unknown>[]).map((l) => ({
           type: typeof l.type === "string" ? l.type : "",
           href: typeof l.href === "string" ? l.href : "",
+          title: typeof l.title === "string" ? l.title : "",
         }))
       : [],
   };
@@ -1599,62 +1600,81 @@ export default function SiteContentPage() {
                   >
                     <div className="space-y-3">
                       {contact.links.map((link, i) => (
-                        <div key={i} className="flex flex-wrap items-end gap-3 rounded-xl border border-slate-100 bg-slate-50/30 p-3 dark:border-slate-800/40 dark:bg-slate-900/20">
-                          <div className="space-y-1.5 w-44">
-                            <label className="text-[11px] font-bold uppercase tracking-[0.12em] text-slate-500">Платформ</label>
-                            <select
-                              className={scInput}
-                              value={link.type}
-                              onChange={(e) => {
-                                const links = [...contact.links];
-                                links[i] = { ...links[i], type: e.target.value };
-                                setContact({ ...contact, links });
-                                const linksEN = [...contactEN.links];
-                                if (linksEN[i]) linksEN[i] = { ...linksEN[i], type: e.target.value };
-                                setContactEN({ ...contactEN, links: linksEN });
+                        <div key={i} className="rounded-xl border border-slate-100 bg-slate-50/30 p-3 dark:border-slate-800/40 dark:bg-slate-900/20 space-y-3">
+                          <div className="flex flex-wrap items-end gap-3">
+                            <div className="space-y-1.5 w-44">
+                              <label className="text-[11px] font-bold uppercase tracking-[0.12em] text-slate-500">Платформ</label>
+                              <select
+                                className={scInput}
+                                value={link.type}
+                                onChange={(e) => {
+                                  const links = [...contact.links];
+                                  links[i] = { ...links[i], type: e.target.value };
+                                  setContact({ ...contact, links });
+                                  const linksEN = [...contactEN.links];
+                                  if (linksEN[i]) linksEN[i] = { ...linksEN[i], type: e.target.value };
+                                  setContactEN({ ...contactEN, links: linksEN });
+                                }}
+                              >
+                                <option value="">— сонгох —</option>
+                                <option value="facebook">Facebook</option>
+                                <option value="instagram">Instagram</option>
+                                <option value="twitter">Twitter / X</option>
+                                <option value="youtube">YouTube</option>
+                                <option value="linkedin">LinkedIn</option>
+                                <option value="tiktok">TikTok</option>
+                                <option value="telegram">Telegram</option>
+                                <option value="whatsapp">WhatsApp</option>
+                                <option value="google">Google Maps / Business</option>
+                                <option value="website">Вебсайт</option>
+                              </select>
+                            </div>
+                            <div className="flex-1 space-y-1.5">
+                              <label className="text-[11px] font-bold uppercase tracking-[0.12em] text-slate-500">Холбоос (URL)</label>
+                              <input
+                                className={scInput}
+                                placeholder="https://..."
+                                value={link.href}
+                                onChange={(e) => {
+                                  const links = [...contact.links];
+                                  links[i] = { ...links[i], href: e.target.value };
+                                  setContact({ ...contact, links });
+                                  const linksEN = [...contactEN.links];
+                                  if (linksEN[i]) linksEN[i] = { ...linksEN[i], href: e.target.value };
+                                  setContactEN({ ...contactEN, links: linksEN });
+                                }}
+                              />
+                            </div>
+                            <DangerMini
+                              onClick={() => {
+                                setContact({ ...contact, links: contact.links.filter((_, j) => j !== i) });
+                                setContactEN({ ...contactEN, links: contactEN.links.filter((_, j) => j !== i) });
                               }}
                             >
-                              <option value="">— сонгох —</option>
-                              <option value="facebook">Facebook</option>
-                              <option value="instagram">Instagram</option>
-                              <option value="twitter">Twitter / X</option>
-                              <option value="youtube">YouTube</option>
-                              <option value="linkedin">LinkedIn</option>
-                              <option value="tiktok">TikTok</option>
-                              <option value="telegram">Telegram</option>
-                              <option value="whatsapp">WhatsApp</option>
-                              <option value="website">Вебсайт</option>
-                            </select>
+                              {t.siteContent.common.remove}
+                            </DangerMini>
                           </div>
-                          <div className="flex-1 space-y-1.5">
-                            <label className="text-[11px] font-bold uppercase tracking-[0.12em] text-slate-500">Холбоос (URL)</label>
+                          <div className="space-y-1.5">
+                            <label className="text-[11px] font-bold uppercase tracking-[0.12em] text-slate-500">Гарчиг</label>
                             <input
                               className={scInput}
-                              placeholder="https://..."
-                              value={link.href}
+                              placeholder="жишээ: Манай Facebook хуудас"
+                              value={link.title}
                               onChange={(e) => {
                                 const links = [...contact.links];
-                                links[i] = { ...links[i], href: e.target.value };
+                                links[i] = { ...links[i], title: e.target.value };
                                 setContact({ ...contact, links });
                                 const linksEN = [...contactEN.links];
-                                if (linksEN[i]) linksEN[i] = { ...linksEN[i], href: e.target.value };
+                                if (linksEN[i]) linksEN[i] = { ...linksEN[i], title: e.target.value };
                                 setContactEN({ ...contactEN, links: linksEN });
                               }}
                             />
                           </div>
-                          <DangerMini
-                            onClick={() => {
-                              setContact({ ...contact, links: contact.links.filter((_, j) => j !== i) });
-                              setContactEN({ ...contactEN, links: contactEN.links.filter((_, j) => j !== i) });
-                            }}
-                          >
-                            {t.siteContent.common.remove}
-                          </DangerMini>
                         </div>
                       ))}
                       <GhostButton
                         onClick={() => {
-                          const newLink = { type: "facebook", href: "" };
+                          const newLink = { type: "facebook", href: "", title: "" };
                           setContact({ ...contact, links: [...contact.links, newLink] });
                           setContactEN({ ...contactEN, links: [...contactEN.links, newLink] });
                         }}
