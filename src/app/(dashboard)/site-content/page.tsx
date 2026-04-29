@@ -107,6 +107,7 @@ type PropertiesPageState = {
     id: number;
     name: string;
     image: string;
+    images: string[];
     category: string;
     badge: string | null;
     size: string;
@@ -289,7 +290,20 @@ function normalizePropertiesPage(v: unknown): PropertiesPageState {
     header: { ...EMPTY_PROPERTIES_PAGE.header, ...asRecord(root.header) },
     categories: Array.isArray(root.categories) ? (root.categories as string[]) : [],
     items: Array.isArray(root.items)
-      ? (root.items as PropertiesPageState["items"])
+      ? (root.items as Record<string, unknown>[]).map((item) => ({
+          id: typeof item.id === "number" ? item.id : 0,
+          name: typeof item.name === "string" ? item.name : "",
+          image: typeof item.image === "string" ? item.image : "",
+          images: Array.isArray(item.images) ? (item.images as string[]) : [],
+          category: typeof item.category === "string" ? item.category : "",
+          badge: typeof item.badge === "string" ? item.badge : null,
+          size: typeof item.size === "string" ? item.size : "",
+          floor: typeof item.floor === "string" ? item.floor : "",
+          parking: typeof item.parking === "string" ? item.parking : "",
+          price: typeof item.price === "string" ? item.price : "",
+          tag: typeof item.tag === "string" ? item.tag : "",
+          description: typeof item.description === "string" ? item.description : "",
+        }))
       : [],
     cta: { ...EMPTY_PROPERTIES_PAGE.cta, ...asRecord(root.cta) },
   };
@@ -1886,6 +1900,63 @@ export default function SiteContentPage() {
                               rows={3}
                             />
                           </div>
+                          <div className="mt-4 space-y-2">
+                            <label className="text-[11px] font-bold uppercase tracking-[0.12em] text-slate-500">
+                              Галерей зургууд / видео
+                            </label>
+                            {item.images.map((img, gi) => (
+                              <div key={gi} className="flex items-center gap-2">
+                                <div className="flex-1">
+                                  <ImageUploadField
+                                    previewFit="cover"
+                                    value={img}
+                                    onChange={(next) => {
+                                      const items = [...propertiesPage.items];
+                                      const imgs = [...items[i].images];
+                                      imgs[gi] = next;
+                                      items[i] = { ...items[i], images: imgs };
+                                      setPropertiesPage({ ...propertiesPage, items });
+                                      const itemsEN = [...propertiesPageEN.items];
+                                      if (itemsEN[i]) {
+                                        const imgsEN = [...(itemsEN[i].images ?? [])];
+                                        imgsEN[gi] = next;
+                                        itemsEN[i] = { ...itemsEN[i], images: imgsEN };
+                                        setPropertiesPageEN({ ...propertiesPageEN, items: itemsEN });
+                                      }
+                                    }}
+                                  />
+                                </div>
+                                <DangerMini
+                                  onClick={() => {
+                                    const items = [...propertiesPage.items];
+                                    items[i] = { ...items[i], images: items[i].images.filter((_, j) => j !== gi) };
+                                    setPropertiesPage({ ...propertiesPage, items });
+                                    const itemsEN = [...propertiesPageEN.items];
+                                    if (itemsEN[i]) {
+                                      itemsEN[i] = { ...itemsEN[i], images: (itemsEN[i].images ?? []).filter((_, j) => j !== gi) };
+                                      setPropertiesPageEN({ ...propertiesPageEN, items: itemsEN });
+                                    }
+                                  }}
+                                >
+                                  {t.siteContent.common.remove}
+                                </DangerMini>
+                              </div>
+                            ))}
+                            <GhostButton
+                              onClick={() => {
+                                const items = [...propertiesPage.items];
+                                items[i] = { ...items[i], images: [...items[i].images, ""] };
+                                setPropertiesPage({ ...propertiesPage, items });
+                                const itemsEN = [...propertiesPageEN.items];
+                                if (itemsEN[i]) {
+                                  itemsEN[i] = { ...itemsEN[i], images: [...(itemsEN[i].images ?? []), ""] };
+                                  setPropertiesPageEN({ ...propertiesPageEN, items: itemsEN });
+                                }
+                              }}
+                            >
+                              + Зураг нэмэх
+                            </GhostButton>
+                          </div>
                           <div className="mt-3 flex justify-end">
                             <DangerMini
                               onClick={() => {
@@ -1900,7 +1971,7 @@ export default function SiteContentPage() {
                       ))}
                       <GhostButton
                         onClick={() => {
-                          const newItem = { id: Date.now(), name: "", image: "", category: "", badge: null, size: "", floor: "", parking: "", price: "", tag: "", description: "" };
+                          const newItem = { id: Date.now(), name: "", image: "", images: [], category: "", badge: null, size: "", floor: "", parking: "", price: "", tag: "", description: "" };
                           setPropertiesPage({ ...propertiesPage, items: [...propertiesPage.items, newItem] });
                           setPropertiesPageEN({ ...propertiesPageEN, items: [...propertiesPageEN.items, newItem] });
                         }}

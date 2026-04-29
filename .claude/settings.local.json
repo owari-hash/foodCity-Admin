@@ -2,10 +2,12 @@
   "permissions": {
     "allow": [
       "PowerShell($out = & node \"d:\\\\zolbayar\\\\haltuur\\\\fc\\\\foodCity-backend\\\\node_modules\\\\typescript\\\\bin\\\\tsc\" --noEmit --project \"d:\\\\zolbayar\\\\haltuur\\\\fc\\\\foodCity-backend\\\\tsconfig.json\" 2>&1; $out | Select-Object -First 30; Write-Host \"Exit: $LASTEXITCODE\")",
-      "PowerShell($out = & node \"d:\\\\zolbayar\\\\haltuur\\\\fc\\\\foodCity\\\\node_modules\\\\typescript\\\\bin\\\\tsc\" --noEmit --project \"d:\\\\zolbayar\\\\haltuur\\\\fc\\\\foodCity\\\\tsconfig.json\" 2>&1; $out | Select-Object -First 20; Write-Host \"Exit: $LASTEXITCODE\")"
+      "PowerShell($out = & node \"d:\\\\zolbayar\\\\haltuur\\\\fc\\\\foodCity\\\\node_modules\\\\typescript\\\\bin\\\\tsc\" --noEmit --project \"d:\\\\zolbayar\\\\haltuur\\\\fc\\\\foodCity\\\\tsconfig.json\" 2>&1; $out | Select-Object -First 20; Write-Host \"Exit: $LASTEXITCODE\")",
+      "Bash(xargs grep *)"
     ],
     "additionalDirectories": [
-      "d:\\zolbayar\\haltuur\\fc\\foodCity\\src\\lib"
+      "d:\\zolbayar\\haltuur\\fc\\foodCity\\src\\lib",
+      "d:\\zolbayar\\haltuur\\fc\\foodCity\\src\\components"
     ]
   }
 }
