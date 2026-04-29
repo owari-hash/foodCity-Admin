@@ -88,6 +88,7 @@ type ContactState = {
     telLabel: string;
   };
   formTitle: string;
+  links: { type: string; href: string }[];
 };
 type ServicesState = {
   header: { badge: string; h2Line1: string; h2Accent: string; intro: string };
@@ -185,6 +186,7 @@ const EMPTY_CONTACT: ContactState = {
   items: [],
   agent: { initials: "", name: "", role: "", telHref: "", telLabel: "" },
   formTitle: "",
+  links: [],
 };
 const EMPTY_SERVICES: ServicesState = {
   header: { badge: "", h2Line1: "", h2Accent: "", intro: "" },
@@ -264,6 +266,12 @@ function normalizeContact(v: unknown): ContactState {
     items: Array.isArray(root.items) ? (root.items as { title: string; value: string }[]) : [],
     agent: { ...EMPTY_CONTACT.agent, ...asRecord(root.agent) },
     formTitle: typeof root.formTitle === "string" ? root.formTitle : "",
+    links: Array.isArray(root.links)
+      ? (root.links as Record<string, unknown>[]).map((l) => ({
+          type: typeof l.type === "string" ? l.type : "",
+          href: typeof l.href === "string" ? l.href : "",
+        }))
+      : [],
   };
 }
 function normalizeServices(v: unknown): ServicesState {
@@ -1417,6 +1425,7 @@ export default function SiteContentPage() {
                     { id: "contact-hero", label: t.siteContent.contact.sections.hero },
                     { id: "contact-items", label: t.siteContent.contact.sections.items },
                     { id: "contact-agent", label: t.siteContent.contact.sections.agent },
+                    { id: "contact-links", label: "Холбоосууд" },
                     { id: "contact-form", label: t.siteContent.contact.sections.form },
                   ]}
                 >
@@ -1580,6 +1589,78 @@ export default function SiteContentPage() {
                            onChangeEN={(v) => setContactEN({ ...contactEN, agent: { ...contactEN.agent, telLabel: v } })}
                          />
                       </div>
+                    </div>
+                  </EditorSection>
+                  <EditorSection
+                    id="contact-links"
+                    title="Холбоосууд"
+                    subtitle="Facebook, вебсайт болон бусад сошиал холбоосууд"
+                    defaultOpen={false}
+                  >
+                    <div className="space-y-3">
+                      {contact.links.map((link, i) => (
+                        <div key={i} className="flex flex-wrap items-end gap-3 rounded-xl border border-slate-100 bg-slate-50/30 p-3 dark:border-slate-800/40 dark:bg-slate-900/20">
+                          <div className="space-y-1.5 w-44">
+                            <label className="text-[11px] font-bold uppercase tracking-[0.12em] text-slate-500">Платформ</label>
+                            <select
+                              className={scInput}
+                              value={link.type}
+                              onChange={(e) => {
+                                const links = [...contact.links];
+                                links[i] = { ...links[i], type: e.target.value };
+                                setContact({ ...contact, links });
+                                const linksEN = [...contactEN.links];
+                                if (linksEN[i]) linksEN[i] = { ...linksEN[i], type: e.target.value };
+                                setContactEN({ ...contactEN, links: linksEN });
+                              }}
+                            >
+                              <option value="">— сонгох —</option>
+                              <option value="facebook">Facebook</option>
+                              <option value="instagram">Instagram</option>
+                              <option value="twitter">Twitter / X</option>
+                              <option value="youtube">YouTube</option>
+                              <option value="linkedin">LinkedIn</option>
+                              <option value="tiktok">TikTok</option>
+                              <option value="telegram">Telegram</option>
+                              <option value="whatsapp">WhatsApp</option>
+                              <option value="website">Вебсайт</option>
+                            </select>
+                          </div>
+                          <div className="flex-1 space-y-1.5">
+                            <label className="text-[11px] font-bold uppercase tracking-[0.12em] text-slate-500">Холбоос (URL)</label>
+                            <input
+                              className={scInput}
+                              placeholder="https://..."
+                              value={link.href}
+                              onChange={(e) => {
+                                const links = [...contact.links];
+                                links[i] = { ...links[i], href: e.target.value };
+                                setContact({ ...contact, links });
+                                const linksEN = [...contactEN.links];
+                                if (linksEN[i]) linksEN[i] = { ...linksEN[i], href: e.target.value };
+                                setContactEN({ ...contactEN, links: linksEN });
+                              }}
+                            />
+                          </div>
+                          <DangerMini
+                            onClick={() => {
+                              setContact({ ...contact, links: contact.links.filter((_, j) => j !== i) });
+                              setContactEN({ ...contactEN, links: contactEN.links.filter((_, j) => j !== i) });
+                            }}
+                          >
+                            {t.siteContent.common.remove}
+                          </DangerMini>
+                        </div>
+                      ))}
+                      <GhostButton
+                        onClick={() => {
+                          const newLink = { type: "facebook", href: "" };
+                          setContact({ ...contact, links: [...contact.links, newLink] });
+                          setContactEN({ ...contactEN, links: [...contactEN.links, newLink] });
+                        }}
+                      >
+                        + Холбоос нэмэх
+                      </GhostButton>
                     </div>
                   </EditorSection>
                     <DualInput
