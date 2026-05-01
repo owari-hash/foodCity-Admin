@@ -92,7 +92,7 @@ type ContactState = {
 };
 type ServicesState = {
   header: { badge: string; h2Line1: string; h2Accent: string; intro: string };
-  features: { title: string; desc: string; image: string; images: string[] }[];
+  features: { title: string; desc: string; image: string; images: string[]; date?: string }[];
   banner: { value: string; suffix: string; label: string }[];
   slides: string[];
 };
@@ -285,6 +285,7 @@ function normalizeServices(v: unknown): ServicesState {
           desc: typeof f.desc === "string" ? f.desc : "",
           image: typeof f.image === "string" ? f.image : "",
           images: Array.isArray(f.images) ? (f.images as string[]) : [],
+          date: typeof f.date === "string" ? f.date : undefined,
         }))
       : [],
     banner: Array.isArray(root.banner)
@@ -1162,6 +1163,22 @@ export default function SiteContentPage() {
                           </div>
                           <div className="space-y-4">
                             <DualInput
+                              label="Огноо (заавал биш)"
+                              mnValue={f.date ?? ""}
+                              enValue={servicesEN.features[i]?.date ?? ""}
+                              onChangeMN={(v) => {
+                                const features = [...services.features];
+                                features[i] = { ...features[i], date: v };
+                                setServices({ ...services, features });
+                              }}
+                              onChangeEN={(v) => {
+                                const features = [...servicesEN.features];
+                                if (!features[i]) features[i] = { title: "", desc: "", image: "", images: [], date: "" };
+                                features[i] = { ...features[i], date: v };
+                                setServicesEN({ ...servicesEN, features });
+                              }}
+                            />
+                            <DualInput
                               label={t.siteContent.common.title}
                               mnValue={f.title}
                               enValue={servicesEN.features[i]?.title ?? ""}
@@ -1264,7 +1281,7 @@ export default function SiteContentPage() {
                       ))}
                       <GhostButton
                         onClick={() => {
-                          const newItem = { title: "", desc: "", image: "", images: [] };
+                          const newItem = { title: "", desc: "", image: "", images: [], date: "" };
                           setServices({
                             ...services,
                             features: [...services.features, newItem],
