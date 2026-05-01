@@ -1135,7 +1135,6 @@ export default function SiteContentPage() {
                   <EditorSection
                     id="svc-features"
                     title={t.siteContent.services.sections.features}
-                    subtitle="max 4"
                     defaultOpen={false}
                   >
                     <div className="space-y-4">
