@@ -90,11 +90,8 @@ type ContactState = {
   formTitle: string;
   links: { type: string; href: string; title: string }[];
 };
-type ServicesState = {
-  header: { badge: string; h2Line1: string; h2Accent: string; intro: string };
-  features: { title: string; desc: string; image: string; images: string[]; date?: string }[];
-  banner: { value: string; suffix: string; label: string }[];
-  slides: string[];
+type GalleryState = {
+  features: { title: string; desc: string; image: string; images: string[]; videoUrl?: string; date?: string }[];
 };
 type PropertiesPageState = {
   header: {
@@ -188,11 +185,8 @@ const EMPTY_CONTACT: ContactState = {
   formTitle: "",
   links: [],
 };
-const EMPTY_SERVICES: ServicesState = {
-  header: { badge: "", h2Line1: "", h2Accent: "", intro: "" },
+const EMPTY_GALLERY: GalleryState = {
   features: [],
-  banner: [],
-  slides: [],
 };
 const EMPTY_PROPERTIES_PAGE: PropertiesPageState = {
   header: { badge: "", titleLine1: "", titleAccent: "", intro: "" },
@@ -275,23 +269,19 @@ function normalizeContact(v: unknown): ContactState {
       : [],
   };
 }
-function normalizeServices(v: unknown): ServicesState {
+function normalizeGallery(v: unknown): GalleryState {
   const root = asRecord(v);
   return {
-    header: { ...EMPTY_SERVICES.header, ...asRecord(root.header) },
     features: Array.isArray(root.features)
       ? (root.features as Record<string, unknown>[]).map((f) => ({
-          title: typeof f.title === "string" ? f.title : "",
-          desc: typeof f.desc === "string" ? f.desc : "",
-          image: typeof f.image === "string" ? f.image : "",
+          title: String(f.title || ""),
+          desc: String(f.desc || ""),
+          image: String(f.image || ""),
           images: Array.isArray(f.images) ? (f.images as string[]) : [],
-          date: typeof f.date === "string" ? f.date : undefined,
+          videoUrl: f.videoUrl ? String(f.videoUrl) : undefined,
+          date: f.date ? String(f.date) : undefined,
         }))
       : [],
-    banner: Array.isArray(root.banner)
-      ? (root.banner as { value: string; suffix: string; label: string }[])
-      : [],
-    slides: Array.isArray(root.slides) ? (root.slides as string[]) : [],
   };
 }
 function normalizePropertiesPage(v: unknown): PropertiesPageState {
@@ -381,7 +371,7 @@ export function useTabs() {
       icon: Building2,
     },
     {
-      id: "services" as const,
+      id: "gallery" as const,
       label: t.siteContent.tabs.services.label,
       hint: t.siteContent.tabs.services.hint,
       icon: Briefcase,
@@ -431,7 +421,7 @@ export function useTabs() {
   ];
 }
 
-type TabId = "home" | "about" | "services" | "contact" | "properties-page" | "sales-page" | "jobs-page" | "team" | "projects-page" | "footer";
+type TabId = "home" | "about" | "gallery" | "contact" | "properties-page" | "sales-page" | "jobs-page" | "team" | "projects-page" | "footer";
 
 export default function SiteContentPage() {
   const { lang, t } = useAdminLanguage();
@@ -454,8 +444,8 @@ export default function SiteContentPage() {
   const [contact, setContact] = useState<ContactState>(EMPTY_CONTACT);
   const [contactEN, setContactEN] = useState<ContactState>(EMPTY_CONTACT);
 
-  const [services, setServices] = useState<ServicesState>(EMPTY_SERVICES);
-  const [servicesEN, setServicesEN] = useState<ServicesState>(EMPTY_SERVICES);
+  const [gallery, setGallery] = useState<GalleryState>(EMPTY_GALLERY);
+  const [galleryEN, setGalleryEN] = useState<GalleryState>(EMPTY_GALLERY);
 
   const [propertiesPage, setPropertiesPage] = useState<PropertiesPageState>(
     EMPTY_PROPERTIES_PAGE,
@@ -483,7 +473,7 @@ export default function SiteContentPage() {
       const allPages = [
         "home",
         "about",
-        "services",
+        "gallery",
         "contact",
         "properties-page",
         "sales-page",
@@ -506,8 +496,8 @@ export default function SiteContentPage() {
       setAbout(normalizeAbout(aMN));
       setAboutEN(normalizeAbout(aEN));
 
-      setServices(normalizeServices(svcMN));
-      setServicesEN(normalizeServices(svcEN));
+      setGallery(normalizeGallery(svcMN));
+      setGalleryEN(normalizeGallery(svcEN));
 
       setContact(normalizeContact(cMN));
       setContactEN(normalizeContact(cEN));
@@ -590,8 +580,8 @@ export default function SiteContentPage() {
         ? home
         : pageId === "about"
           ? about
-          : pageId === "services"
-            ? services
+          : pageId === "gallery"
+            ? gallery
             : pageId === "contact"
               ? contact
               : pageId === "properties-page"
@@ -611,8 +601,8 @@ export default function SiteContentPage() {
         ? homeEN
         : pageId === "about"
           ? aboutEN
-          : pageId === "services"
-            ? servicesEN
+          : pageId === "gallery"
+            ? galleryEN
             : pageId === "contact"
               ? contactEN
               : pageId === "properties-page"
@@ -1070,163 +1060,124 @@ export default function SiteContentPage() {
                     {saving ? t.common.saving : t.siteContent.common.saveTab(t.siteContent.tabs.about.label)}
                   </PrimarySave>
                 </EditorBody>
-              ) : tab === "services" ? (
+              ) : tab === "gallery" ? (
                 <EditorBody
                   sectionJumpKey={tab}
                   sectionItems={[
-                    { id: "svc-header", label: t.siteContent.services.sections.header },
-                    { id: "svc-features", label: t.siteContent.services.sections.features },
-                    { id: "svc-slides", label: t.siteContent.services.sections.slides },
-                    { id: "svc-banner", label: t.siteContent.services.sections.banner },
+                    { id: "svc-features", label: t.siteContent.gallery.sections.features },
                   ]}
                 >
                   <EditorSection
-                    id="svc-header"
-                    title={t.siteContent.services.fields.title}
-                    subtitle={t.siteContent.services.fields.subtitle}
-                  >
-                    <div className="space-y-4">
-                      {(
-                        [
-                          ["badge", t.siteContent.services.fields.badge],
-                          ["h2Line1", t.siteContent.services.fields.h2Line1],
-                          ["h2Accent", t.siteContent.services.fields.h2Accent],
-                        ] as const
-                      ).map(([key, lab]) => (
-                        <DualInput
-                          key={key}
-                          label={lab}
-                          mnValue={services.header[key]}
-                          enValue={servicesEN.header[key]}
-                          onChangeMN={(v) =>
-                            setServices({
-                              ...services,
-                              header: { ...services.header, [key]: v },
-                            })
-                          }
-                          onChangeEN={(v) =>
-                            setServicesEN({
-                              ...servicesEN,
-                              header: { ...servicesEN.header, [key]: v },
-                            })
-                          }
-                        />
-                      ))}
-                    </div>
-                    <div className="mt-4">
-                      <DualTextarea
-                        label={t.siteContent.services.fields.intro}
-                        mnValue={services.header.intro}
-                        enValue={servicesEN.header.intro}
-                        onChangeMN={(v) =>
-                          setServices({
-                            ...services,
-                            header: { ...services.header, intro: v },
-                          })
-                        }
-                        onChangeEN={(v) =>
-                          setServicesEN({
-                            ...servicesEN,
-                            header: { ...servicesEN.header, intro: v },
-                          })
-                        }
-                      />
-                    </div>
-                  </EditorSection>
-                  <EditorSection
                     id="svc-features"
-                    title={t.siteContent.services.sections.features}
-                    defaultOpen={false}
+                    title={t.siteContent.gallery.sections.features}
+                    defaultOpen={true}
                   >
                     <div className="space-y-4">
-                      {services.features.map((f, i) => (
+                      {gallery.features.map((f, i) => (
                         <div
                           key={i}
                           className="rounded-xl border border-slate-200/90 bg-white/80 p-4 dark:border-slate-700 dark:bg-slate-900/40"
                         >
                           <div className="flex items-center justify-between mb-2">
-                             <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400">Feature #{i+1}</span>
+                             <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400">Post #{i+1}</span>
                              <DangerMini
-                              onClick={() => {
-                                setServices({
-                                  ...services,
-                                  features: services.features.filter((_, j) => j !== i),
-                                });
-                                setServicesEN({
-                                  ...servicesEN,
-                                  features: servicesEN.features.filter((_, j) => j !== i),
-                                });
-                              }}
-                            >
-                              {t.siteContent.common.remove}
-                            </DangerMini>
+                               onClick={() => {
+                                 setGallery({
+                                   ...gallery,
+                                   features: gallery.features.filter((_, j) => j !== i),
+                                 });
+                                 setGalleryEN({
+                                   ...galleryEN,
+                                   features: galleryEN.features.filter((_, j) => j !== i),
+                                 });
+                               }}
+                             >
+                               {t.siteContent.common.remove}
+                             </DangerMini>
                           </div>
                           <div className="space-y-4">
                             <DualInput
                               label="Огноо (заавал биш)"
                               mnValue={f.date ?? ""}
-                              enValue={servicesEN.features[i]?.date ?? ""}
+                              enValue={galleryEN.features[i]?.date ?? ""}
                               onChangeMN={(v) => {
-                                const features = [...services.features];
+                                const features = [...gallery.features];
                                 features[i] = { ...features[i], date: v };
-                                setServices({ ...services, features });
+                                setGallery({ ...gallery, features });
                               }}
                               onChangeEN={(v) => {
-                                const features = [...servicesEN.features];
+                                const features = [...galleryEN.features];
                                 if (!features[i]) features[i] = { title: "", desc: "", image: "", images: [], date: "" };
                                 features[i] = { ...features[i], date: v };
-                                setServicesEN({ ...servicesEN, features });
+                                setGalleryEN({ ...galleryEN, features });
                               }}
                             />
+
                             <DualInput
-                              label={t.siteContent.common.title}
+                              label={t.siteContent.gallery.fields.featureTitle}
                               mnValue={f.title}
-                              enValue={servicesEN.features[i]?.title ?? ""}
+                              enValue={galleryEN.features[i]?.title ?? ""}
                               onChangeMN={(v) => {
-                                const features = [...services.features];
+                                const features = [...gallery.features];
                                 features[i] = { ...features[i], title: v };
-                                setServices({ ...services, features });
+                                setGallery({ ...gallery, features });
                               }}
                               onChangeEN={(v) => {
-                                const features = [...servicesEN.features];
+                                const features = [...galleryEN.features];
                                 if (!features[i]) features[i] = { title: "", desc: "", image: "", images: [] };
                                 features[i] = { ...features[i], title: v };
-                                setServicesEN({ ...servicesEN, features });
+                                setGalleryEN({ ...galleryEN, features });
                               }}
                             />
                             <DualTextarea
-                              label={t.siteContent.common.description}
+                              label={t.siteContent.gallery.fields.featureDesc}
                               mnValue={f.desc}
-                              enValue={servicesEN.features[i]?.desc ?? ""}
+                              enValue={galleryEN.features[i]?.desc ?? ""}
                               onChangeMN={(v) => {
-                                const features = [...services.features];
+                                const features = [...gallery.features];
                                 features[i] = { ...features[i], desc: v };
-                                setServices({ ...services, features });
+                                setGallery({ ...gallery, features });
                               }}
                               onChangeEN={(v) => {
-                                const features = [...servicesEN.features];
+                                const features = [...galleryEN.features];
                                 if (!features[i]) features[i] = { title: "", desc: "", image: "", images: [] };
                                 features[i] = { ...features[i], desc: v };
-                                setServicesEN({ ...servicesEN, features });
+                                setGalleryEN({ ...galleryEN, features });
                               }}
                               rows={2}
                             />
                             <div>
-                              <p className="text-[10px] font-bold uppercase tracking-wider text-slate-400 mb-2">Cover зураг / видео</p>
+                              <p className="text-[10px] font-bold uppercase tracking-wider text-slate-400 mb-2">Cover зураг</p>
                               <ImageUploadField
                                 value={f.image}
                                 onChange={(v) => {
-                                  const features = [...services.features];
+                                  const features = [...gallery.features];
                                   features[i] = { ...features[i], image: v };
-                                  setServices({ ...services, features });
-                                  const featuresEN = [...servicesEN.features];
+                                  setGallery({ ...gallery, features });
+                                  const featuresEN = [...galleryEN.features];
                                   if (!featuresEN[i]) featuresEN[i] = { title: "", desc: "", image: "", images: [] };
                                   featuresEN[i] = { ...featuresEN[i], image: v };
-                                  setServicesEN({ ...servicesEN, features: featuresEN });
+                                  setGalleryEN({ ...galleryEN, features: featuresEN });
                                 }}
                                 previewFit="contain"
                               />
                             </div>
+                            <DualInput
+                              label="Youtube / Vimeo видео холбоос (заавал биш)"
+                              mnValue={f.videoUrl ?? ""}
+                              enValue={galleryEN.features[i]?.videoUrl ?? ""}
+                              onChangeMN={(v) => {
+                                const features = [...gallery.features];
+                                features[i] = { ...features[i], videoUrl: v };
+                                setGallery({ ...gallery, features });
+                              }}
+                              onChangeEN={(v) => {
+                                const features = [...galleryEN.features];
+                                if (!features[i]) features[i] = { title: "", desc: "", image: "", images: [], videoUrl: "" };
+                                features[i] = { ...features[i], videoUrl: v };
+                                setGalleryEN({ ...galleryEN, features });
+                              }}
+                            />
                             <div>
                               <p className="text-[10px] font-bold uppercase tracking-wider text-slate-400 mb-2">Галерей зургууд / видео</p>
                               <div className="space-y-2">
@@ -1235,27 +1186,27 @@ export default function SiteContentPage() {
                                     key={j}
                                     value={img}
                                     onChange={(v) => {
-                                      const features = [...services.features];
+                                      const features = [...gallery.features];
                                       const imgs = [...features[i].images];
                                       imgs[j] = v;
                                       features[i] = { ...features[i], images: imgs };
-                                      setServices({ ...services, features });
-                                      const featuresEN = [...servicesEN.features];
+                                      setGallery({ ...gallery, features });
+                                      const featuresEN = [...galleryEN.features];
                                       if (!featuresEN[i]) featuresEN[i] = { title: "", desc: "", image: "", images: [] };
                                       const imgsEN = [...featuresEN[i].images];
                                       imgsEN[j] = v;
                                       featuresEN[i] = { ...featuresEN[i], images: imgsEN };
-                                      setServicesEN({ ...servicesEN, features: featuresEN });
+                                      setGalleryEN({ ...galleryEN, features: featuresEN });
                                     }}
                                     showRemove
                                     onRemove={() => {
-                                      const features = [...services.features];
+                                      const features = [...gallery.features];
                                       features[i] = { ...features[i], images: features[i].images.filter((_, k) => k !== j) };
-                                      setServices({ ...services, features });
-                                      const featuresEN = [...servicesEN.features];
+                                      setGallery({ ...gallery, features });
+                                      const featuresEN = [...galleryEN.features];
                                       if (featuresEN[i]) {
                                         featuresEN[i] = { ...featuresEN[i], images: featuresEN[i].images.filter((_, k) => k !== j) };
-                                        setServicesEN({ ...servicesEN, features: featuresEN });
+                                        setGalleryEN({ ...galleryEN, features: featuresEN });
                                       }
                                     }}
                                     previewFit="contain"
@@ -1263,16 +1214,16 @@ export default function SiteContentPage() {
                                 ))}
                                 <GhostButton
                                   onClick={() => {
-                                    const features = [...services.features];
+                                    const features = [...gallery.features];
                                     features[i] = { ...features[i], images: [...features[i].images, ""] };
-                                    setServices({ ...services, features });
-                                    const featuresEN = [...servicesEN.features];
+                                    setGallery({ ...gallery, features });
+                                    const featuresEN = [...galleryEN.features];
                                     if (!featuresEN[i]) featuresEN[i] = { title: "", desc: "", image: "", images: [] };
                                     featuresEN[i] = { ...featuresEN[i], images: [...featuresEN[i].images, ""] };
-                                    setServicesEN({ ...servicesEN, features: featuresEN });
+                                    setGalleryEN({ ...galleryEN, features: featuresEN });
                                   }}
                                 >
-                                  + Галерей зураг нэмэх
+                                  + Зургийн сан нэмэх
                                 </GhostButton>
                               </div>
                             </div>
@@ -1281,156 +1232,24 @@ export default function SiteContentPage() {
                       ))}
                       <GhostButton
                         onClick={() => {
-                          const newItem = { title: "", desc: "", image: "", images: [], date: "" };
-                          setServices({
-                            ...services,
-                            features: [...services.features, newItem],
+                          const newItem = { title: "", desc: "", image: "", images: [], videoUrl: "", date: "" };
+                          setGallery({
+                            ...gallery,
+                            features: [...gallery.features, newItem],
                           });
-                          setServicesEN({
-                             ...servicesEN,
-                             features: [...servicesEN.features, newItem],
-                          });
-                        }}
-                      >
-                        + {t.siteContent.common.add}
-                      </GhostButton>
-                    </div>
-                  </EditorSection>
-                  <EditorSection
-                    id="svc-slides"
-                    title={t.siteContent.services.fields.slidesTitle}
-                    subtitle={t.siteContent.services.fields.slidesHint}
-                  >
-                    <div className="space-y-3">
-                      {(services.slides.length === 0 ? [""] : services.slides).map((url, i) => (
-                        <ImageUploadField
-                          key={i}
-                          value={url}
-                          onChange={(v) => {
-                            const slides = services.slides.length === 0 ? [""] : [...services.slides];
-                            slides[i] = v;
-                            setServices({ ...services, slides });
-                            const slidesEN = servicesEN.slides.length === 0 ? [""] : [...servicesEN.slides];
-                            slidesEN[i] = v;
-                            setServicesEN({ ...servicesEN, slides: slidesEN });
-                          }}
-                          showRemove={services.slides.length > 0}
-                          onRemove={() => {
-                            setServices({ ...services, slides: services.slides.filter((_, j) => j !== i) });
-                            setServicesEN({ ...servicesEN, slides: servicesEN.slides.filter((_, j) => j !== i) });
-                          }}
-                        />
-                      ))}
-                      <GhostButton
-                        onClick={() => {
-                          setServices({ ...services, slides: [...services.slides, ""] });
-                          setServicesEN({ ...servicesEN, slides: [...servicesEN.slides, ""] });
-                        }}
-                      >
-                        + {t.siteContent.services.fields.addSlide}
-                      </GhostButton>
-                    </div>
-                  </EditorSection>
-                  <EditorSection
-                    id="svc-banner"
-                    title={t.siteContent.services.sections.banner}
-                    subtitle={t.siteContent.services.fields.subtitle}
-                    defaultOpen={false}
-                  >
-                    <div className="space-y-3">
-                      {services.banner.map((row, i) => (
-                        <div key={i} className="flex flex-wrap items-end gap-3 rounded-xl border border-slate-100 bg-slate-50/30 p-3 dark:border-slate-800/40 dark:bg-slate-900/20">
-                          <div className="space-y-1.5">
-                            <label className="text-[10px] font-bold uppercase tracking-wider text-slate-400">Value</label>
-                            <input
-                              className={`${scInput} max-w-[80px]`}
-                              value={row.value}
-                              onChange={(e) => {
-                                const v = e.target.value;
-                                const b = [...services.banner];
-                                b[i] = { ...b[i], value: v };
-                                setServices({ ...services, banner: b });
-                                const bEN = [...servicesEN.banner];
-                                if (bEN[i]) {
-                                  bEN[i] = { ...bEN[i], value: v };
-                                  setServicesEN({ ...servicesEN, banner: bEN });
-                                }
-                              }}
-                            />
-                          </div>
-                          <div className="space-y-1.5">
-                            <label className="text-[10px] font-bold uppercase tracking-wider text-slate-400">Suffix</label>
-                            <input
-                              className={`${scInput} max-w-[80px]`}
-                              placeholder="Suffix"
-                              value={row.suffix}
-                              onChange={(e) => {
-                                const v = e.target.value;
-                                const b = [...services.banner];
-                                b[i] = { ...b[i], suffix: v };
-                                setServices({ ...services, banner: b });
-                                const bEN = [...servicesEN.banner];
-                                if (bEN[i]) {
-                                  bEN[i] = { ...bEN[i], suffix: v };
-                                  setServicesEN({ ...servicesEN, banner: bEN });
-                                }
-                              }}
-                            />
-                          </div>
-                          <div className="flex-1">
-                            <DualInput
-                              label={t.siteContent.common.label}
-                              mnValue={row.label}
-                              enValue={servicesEN.banner[i]?.label ?? ""}
-                              onChangeMN={(v) => {
-                                const b = [...services.banner];
-                                b[i] = { ...b[i], label: v };
-                                setServices({ ...services, banner: b });
-                              }}
-                              onChangeEN={(v) => {
-                                const b = [...servicesEN.banner];
-                                if (!b[i]) b[i] = { value: row.value, suffix: row.suffix, label: "" };
-                                b[i] = { ...b[i], label: v };
-                                setServicesEN({ ...servicesEN, banner: b });
-                              }}
-                            />
-                          </div>
-                          <DangerMini
-                            onClick={() => {
-                              setServices({
-                                ...services,
-                                banner: services.banner.filter((_, j) => j !== i),
-                              });
-                              setServicesEN({
-                                ...servicesEN,
-                                banner: servicesEN.banner.filter((_, j) => j !== i),
-                              });
-                            }}
-                          >
-                            {t.siteContent.common.remove}
-                          </DangerMini>
-                        </div>
-                      ))}
-                      <GhostButton
-                        onClick={() => {
-                          const newItem = { value: "", suffix: "", label: "" };
-                          setServices({
-                            ...services,
-                            banner: [...services.banner, newItem],
-                          });
-                          setServicesEN({
-                            ...servicesEN,
-                            banner: [...servicesEN.banner, newItem],
+                          setGalleryEN({
+                            ...galleryEN,
+                            features: [...galleryEN.features, newItem],
                           });
                         }}
                       >
-                        + {lang === "mn" ? "Баннер мөр нэмэх" : "Add Banner Row"}
+                        + Пост нэмэх
                       </GhostButton>
                     </div>
                   </EditorSection>
                   <PrimarySave
                     disabled={saving}
-                    onClick={() => void save("services")}
+                    onClick={() => void save("gallery")}
                   >
                     {saving ? t.common.saving : t.siteContent.common.saveTab(t.siteContent.tabs.services.label)}
                   </PrimarySave>

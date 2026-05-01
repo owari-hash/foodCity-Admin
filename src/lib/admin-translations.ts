@@ -99,25 +99,13 @@ export const adminTranslations = {
           yearsLabel: "Жилийн шошго",
         },
       },
-      services: {
+      gallery: {
         sections: {
-          header: "Толгой",
           features: "Галлерей пост",
-          slides: "Том слайд (фото / видео)",
-          banner: "Баннер",
         },
         fields: {
-          title: "Толгой хэсэг",
-          subtitle: "Шошго, гарчиг, танилцуулга",
-          badge: "Дээд шошго",
-          h2Line1: "Гарчиг (эхний хэсэг)",
-          h2Accent: "Гарчиг (онцлох өнгө)",
-          intro: "Танилцуулга",
           featureTitle: "Пост гарчиг",
           featureDesc: "Пост тайлбар",
-          slidesTitle: "Том слайд (фото / видео)",
-          slidesHint: "Галлерей хуудсанд том слайдер хэлбэрээр харагдана",
-          addSlide: "Слайд нэмэх",
         },
       },
       contact: {
@@ -497,25 +485,13 @@ export const adminTranslations = {
           yearsLabel: "Years Label",
         },
       },
-      services: {
+      gallery: {
         sections: {
-          header: "Header",
           features: "Gallery Posts",
-          slides: "Main Slider (Images / Videos)",
-          banner: "Banner",
         },
         fields: {
-          title: "Header Section",
-          subtitle: "Badge, title, intro",
-          badge: "Top Badge",
-          h2Line1: "Title (First Part)",
-          h2Accent: "Title (Accent Color)",
-          intro: "Introduction",
           featureTitle: "Post Title",
           featureDesc: "Post Description",
-          slidesTitle: "Main Slider (Images / Videos)",
-          slidesHint: "Displayed as a large slider on the gallery page",
-          addSlide: "Add Slide",
         },
       },
       contact: {
