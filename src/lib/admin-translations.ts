@@ -33,7 +33,7 @@ export const adminTranslations = {
       tabs: {
         home: { label: "Нүүр", hint: "Hero, слайд, статистик" },
         about: { label: "Бидний тухай", hint: "Танилцуулга, статистик" },
-        services: { label: "Үйлчилгээ", hint: "Давуу тал, тоонууд" },
+        services: { label: "Галлерей", hint: "Хийсэн ажлын түүх, фото & видео" },
         contact: { label: "Холбоо барих", hint: "Хаяг, утас, кард" },
         propertiesPage: { label: "Хамтран ажиллах", hint: "/properties — ангилал, картууд" },
         salesPage: { label: "Борлуулалт", hint: "Зар мэдээ — борлуулалтын толгой" },
@@ -102,8 +102,8 @@ export const adminTranslations = {
       services: {
         sections: {
           header: "Толгой",
-          features: "Давуу тал",
-          slides: "Слайд зургууд / видео",
+          features: "Галлерей пост",
+          slides: "Том слайд (фото / видео)",
           banner: "Баннер",
         },
         fields: {
@@ -113,10 +113,10 @@ export const adminTranslations = {
           h2Line1: "Гарчиг (эхний хэсэг)",
           h2Accent: "Гарчиг (онцлох өнгө)",
           intro: "Танилцуулга",
-          featureTitle: "Давуу талын гарчиг",
-          featureDesc: "Давуу талын тайлбар",
-          slidesTitle: "Слайд зургууд / видео",
-          slidesHint: "Үйлчилгээний хуудсанд том слайдер хэлбэрээр харагдана",
+          featureTitle: "Пост гарчиг",
+          featureDesc: "Пост тайлбар",
+          slidesTitle: "Том слайд (фото / видео)",
+          slidesHint: "Галлерей хуудсанд том слайдер хэлбэрээр харагдана",
           addSlide: "Слайд нэмэх",
         },
       },
@@ -431,7 +431,7 @@ export const adminTranslations = {
       tabs: {
         home: { label: "Home", hint: "Hero, slides, stats" },
         about: { label: "About Us", hint: "Intro, statistics" },
-        services: { label: "Services", hint: "Advantages, numbers" },
+        services: { label: "Gallery", hint: "Work history, photo & video" },
         contact: { label: "Contact", hint: "Address, phone, cards" },
         propertiesPage: { label: "Properties", hint: "/properties — categories, cards" },
         salesPage: { label: "Sales Page", hint: "Announcements — sales header" },
@@ -500,8 +500,8 @@ export const adminTranslations = {
       services: {
         sections: {
           header: "Header",
-          features: "Features",
-          slides: "Slides (Images / Videos)",
+          features: "Gallery Posts",
+          slides: "Main Slider (Images / Videos)",
           banner: "Banner",
         },
         fields: {
@@ -511,10 +511,10 @@ export const adminTranslations = {
           h2Line1: "Title (First Part)",
           h2Accent: "Title (Accent Color)",
           intro: "Introduction",
-          featureTitle: "Feature Title",
-          featureDesc: "Feature Description",
-          slidesTitle: "Slides (Images / Videos)",
-          slidesHint: "Displayed as a large slider on the services page",
+          featureTitle: "Post Title",
+          featureDesc: "Post Description",
+          slidesTitle: "Main Slider (Images / Videos)",
+          slidesHint: "Displayed as a large slider on the gallery page",
           addSlide: "Add Slide",
         },
       },
