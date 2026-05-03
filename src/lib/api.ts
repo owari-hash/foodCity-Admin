@@ -1,15 +1,8 @@
 /** Default matches a backend served over plain HTTP (no TLS on API). */
-const DEFAULT_API = "http://bukhbatllc.mn/api";
+const DEFAULT_API = "https://bukhbatllc.mn/api";
 
 function normalizeApiBase(raw: string): string {
-  let url = raw.trim().replace(/\/+$/, "");
-  if (process.env.NEXT_PUBLIC_API_ALLOW_HTTPS === "1") {
-    return url;
-  }
-  if (url.startsWith("https://")) {
-    url = `http://${url.slice("https://".length)}`;
-  }
-  return url.replace(/\/+$/, "");
+  return raw.trim().replace(/\/+$/, "");
 }
 
 /**
