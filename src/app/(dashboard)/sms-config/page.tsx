@@ -33,7 +33,6 @@ interface ContactSubmission {
 interface SMSConfig {
   _id?: string;
   adminPhoneNumbers: string[];
-  updatedBy?: string;
 }
 
 const translations = {
@@ -93,12 +92,11 @@ export default function SMSConfigPage() {
       const configUrl = joinBackendRequestUrl(getApiBaseUrl(), "/api/v1/admin/sms-config");
       const subUrl = joinBackendRequestUrl(getApiBaseUrl(), "/api/v1/contact/submissions");
       
-      const [configRes, subRes] = await Promise.all([
-        fetch(configUrl, withClientAdminAuth()),
-        fetch(subUrl, withClientAdminAuth()),
-      ]);
+      // Config is now OPEN (no auth headers)
+      const configRes = await fetch(configUrl);
+      // Submissions still need auth
+      const subRes = await fetch(subUrl, withClientAdminAuth());
       
-      await ensureClientAuthorized(configRes);
       await ensureClientAuthorized(subRes);
       
       if (!configRes.ok || !subRes.ok) throw new Error("Data sync failed");
@@ -123,17 +121,13 @@ export default function SMSConfigPage() {
     const profile = readClientAdminProfile();
     const url = joinBackendRequestUrl(getApiBaseUrl(), "/api/v1/admin/sms-config");
     
+    // Config PUT is now OPEN (no auth headers)
     const res = await fetch(url, {
       method: "PUT",
-      headers: { 
-        "Content-Type": "application/json", 
-        ...withClientAdminAuth().headers 
-      },
+      headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ ...newConfig, updatedBy: profile?.displayName || "admin" }),
     });
     
-    const gate = await ensureClientAuthorized(res);
-    if (gate !== "ok") throw new Error("Authorization failed");
     if (!res.ok) throw new Error("Update failed");
     return res;
   };
@@ -152,7 +146,7 @@ export default function SMSConfigPage() {
       setSuccess(t.saved);
       setTimeout(() => setSuccess(null), 2000);
     } catch (e) {
-      setError("Failed to add phone number");
+      setError("Failed to add phone number.");
     }
   };
 
@@ -164,17 +158,18 @@ export default function SMSConfigPage() {
       setSuccess(t.saved);
       setTimeout(() => setSuccess(null), 2000);
     } catch (e) {
-      setError("Failed to remove phone number");
+      setError("Failed to remove phone number.");
     }
   };
 
   const handleStatusChange = async (id: string, newStatus: string) => {
     try {
-      const res = await fetch(joinBackendRequestUrl(getApiBaseUrl(), `/api/v1/contact/submissions/${id}/status`), {
+      const res = await fetch(joinBackendRequestUrl(getApiBaseUrl(), `/api/v1/contact/submissions/${id}/status`), withClientAdminAuth({
         method: "PATCH",
-        headers: { "Content-Type": "application/json", ...withClientAdminAuth().headers },
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ status: newStatus }),
-      });
+      }));
+      await ensureClientAuthorized(res);
       if (!res.ok) throw new Error();
       setSubmissions(submissions.map(s => s._id === id ? { ...s, status: newStatus as any } : s));
       if (selectedSubmission?._id === id) setSelectedSubmission({ ...selectedSubmission, status: newStatus as any });
