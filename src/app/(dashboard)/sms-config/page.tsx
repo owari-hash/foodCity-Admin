@@ -9,7 +9,7 @@ import {
 import { getApiBaseUrl, joinBackendRequestUrl } from "@/lib/api";
 import { useAdminLanguage } from "@/contexts/AdminLanguageContext";
 import { 
-  Phone, Trash2, Plus, CheckCircle2, AlertCircle, Save, 
+  Phone, Trash2, Plus, CheckCircle2, Save, 
   User, Mail, Clock, Inbox, ChevronRight, Search, Filter 
 } from "lucide-react";
 
@@ -43,10 +43,9 @@ const translations = {
     description: "Хэрэглэгчийн санал хүсэлтийн удирдлага",
     adminPhones: "Мэдэгдэл хүлээн авах",
     template: "SMS загвар",
-    templateDesc: "{name}, {phone}, {email}, {subject} ашиглана уу",
     noSubmissions: "Одоогоор санал хүсэлт ирээгүй байна",
     details: "Дэлгэрэнгүй мэдээлэл",
-    save: "Тохиргоо хадгалах",
+    save: "Хадгалах",
     loading: "Уншиж байна...",
     saved: "Амжилттай хадгалагдлаа",
     placeholderPhone: "+976...",
@@ -61,7 +60,6 @@ const translations = {
     description: "Manage customer feedback & SMS alerts",
     adminPhones: "Alert Recipients",
     template: "SMS Template",
-    templateDesc: "Use {name}, {phone}, {email}, {subject}",
     noSubmissions: "No submissions found",
     details: "Submission Details",
     save: "Save Configuration",
@@ -80,7 +78,11 @@ export default function SMSConfigPage() {
   const { lang } = useAdminLanguage();
   const t = translations[lang as keyof typeof translations] || translations.en;
   
-  const [config, setConfig] = useState<SMSConfig | null>(null);
+  const [config, setConfig] = useState<SMSConfig>({
+    adminPhoneNumbers: [],
+    notificationSettings: { sendOnContactSubmission: true },
+    templates: { contactSubmission: "" }
+  });
   const [newPhone, setNewPhone] = useState("");
   const [saving, setSaving] = useState(false);
   const [submissions, setSubmissions] = useState<ContactSubmission[]>([]);
@@ -103,8 +105,8 @@ export default function SMSConfigPage() {
       if (!configRes.ok || !subRes.ok) throw new Error("Data sync failed");
       const configJson = await configRes.json();
       const subJson = await subRes.json();
-      setConfig(configJson.config);
-      setSubmissions(subJson.submissions);
+      if (configJson.config) setConfig(configJson.config);
+      setSubmissions(subJson.submissions || []);
     } catch (e) {
       setError(e instanceof Error ? e.message : "Connection error");
     } finally {
@@ -117,7 +119,6 @@ export default function SMSConfigPage() {
   }, [loadData]);
 
   const handleSave = async () => {
-    if (!config) return;
     setSaving(true);
     setError(null);
     setSuccess(null);
@@ -139,9 +140,10 @@ export default function SMSConfigPage() {
   };
 
   const handleAddPhone = () => {
-    if (!newPhone.trim() || !config) return;
-    if (config.adminPhoneNumbers.includes(newPhone.trim())) return;
-    setConfig({ ...config, adminPhoneNumbers: [...config.adminPhoneNumbers, newPhone.trim()] });
+    const phone = newPhone.trim();
+    if (!phone) return;
+    if (config.adminPhoneNumbers.includes(phone)) return;
+    setConfig({ ...config, adminPhoneNumbers: [...config.adminPhoneNumbers, phone] });
     setNewPhone("");
   };
 
@@ -171,7 +173,7 @@ export default function SMSConfigPage() {
   if (loading) return (
     <div className="flex h-[80vh] items-center justify-center">
       <div className="flex flex-col items-center gap-4">
-        <div className="h-10 w-10 animate-spin rounded-full border-2 border-zinc-200 border-t-emerald-600"></div>
+        <div className="h-10 w-10 animate-spin rounded-full border-2 border-zinc-200 border-t-zinc-800"></div>
         <p className="text-sm text-zinc-400 font-medium">{t.loading}</p>
       </div>
     </div>
@@ -179,7 +181,6 @@ export default function SMSConfigPage() {
 
   return (
     <div className="mx-auto flex flex-col gap-6 p-4 md:p-8 lg:p-0 max-w-7xl">
-      {/* Top Header */}
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between border-b border-zinc-100 pb-8">
         <div>
           <h1 className="text-3xl font-semibold tracking-tight text-zinc-900">{t.title}</h1>
@@ -187,42 +188,41 @@ export default function SMSConfigPage() {
         </div>
         <div className="flex items-center gap-3">
           {success && (
-            <div className="flex items-center gap-2 rounded-full bg-emerald-50 px-4 py-2 text-sm text-emerald-700 animate-in fade-in slide-in-from-right-4">
+            <div className="flex items-center gap-2 rounded-full bg-emerald-50 px-4 py-2 text-sm text-emerald-700">
               <CheckCircle2 className="h-4 w-4" />
               <span>{success}</span>
             </div>
           )}
           <button 
-            onClick={handleSave} 
+            type="button"
+            onClick={() => handleSave()} 
             disabled={saving} 
-            className="group relative inline-flex items-center gap-2 overflow-hidden rounded-full bg-emerald-600 px-8 py-3 text-sm font-semibold text-white shadow-lg transition-all hover:bg-emerald-700 hover:shadow-emerald-200 active:scale-95 disabled:opacity-50"
+            className="group relative inline-flex items-center gap-2 rounded-full bg-emerald-600 px-8 py-3 text-sm font-semibold text-white shadow-lg transition-all hover:bg-emerald-700 active:scale-95 disabled:opacity-50"
           >
-            <Save className={`h-4 w-4 transition-transform ${saving ? "animate-spin" : "group-hover:scale-110"}`} />
+            <Save className={`h-4 w-4 ${saving ? "animate-spin" : ""}`} />
             <span>{saving ? "..." : t.save}</span>
           </button>
         </div>
       </div>
 
       <div className="grid grid-cols-1 gap-10 lg:grid-cols-12">
-        {/* Left Sidebar: Configuration */}
         <aside className="space-y-8 lg:col-span-4">
-          <div className="group rounded-3xl border border-zinc-100 bg-white p-8 shadow-sm transition-all hover:shadow-md">
-            <div className="mb-6 flex items-center justify-between">
-              <div className="flex items-center gap-3">
-                <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-emerald-50 text-emerald-600 transition-colors group-hover:bg-emerald-100">
-                  <Phone className="h-5 w-5" />
-                </div>
-                <h3 className="text-lg font-semibold text-zinc-900">{t.adminPhones}</h3>
+          <div className="rounded-3xl border border-zinc-100 bg-white p-8 shadow-sm">
+            <div className="mb-6 flex items-center gap-3">
+              <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-emerald-50 text-emerald-600">
+                <Phone className="h-5 w-5" />
               </div>
+              <h3 className="text-lg font-semibold text-zinc-900">{t.adminPhones}</h3>
             </div>
             
             <div className="space-y-3">
-              {config?.adminPhoneNumbers.map((phone, idx) => (
-                <div key={idx} className="group/item flex items-center justify-between rounded-2xl border border-zinc-50 bg-zinc-50/50 p-4 transition-all hover:border-emerald-100 hover:bg-white">
+              {config.adminPhoneNumbers.map((phone, idx) => (
+                <div key={idx} className="group flex items-center justify-between rounded-2xl border border-zinc-50 bg-zinc-50/50 p-4 transition-all hover:bg-white hover:border-emerald-100">
                   <span className="font-mono text-sm font-medium text-zinc-600">{phone}</span>
                   <button 
-                    onClick={() => setConfig({...config!, adminPhoneNumbers: config!.adminPhoneNumbers.filter((_, i) => i !== idx)})} 
-                    className="rounded-xl p-2 text-zinc-300 opacity-0 transition-all hover:bg-red-50 hover:text-red-600 group-hover/item:opacity-100"
+                    type="button"
+                    onClick={() => setConfig({...config, adminPhoneNumbers: config.adminPhoneNumbers.filter((_, i) => i !== idx)})} 
+                    className="rounded-xl p-2 text-zinc-300 hover:text-red-600 hover:bg-red-50"
                   >
                     <Trash2 className="h-4 w-4" />
                   </button>
@@ -236,11 +236,12 @@ export default function SMSConfigPage() {
                   onChange={e => setNewPhone(e.target.value)}
                   onKeyDown={e => e.key === 'Enter' && handleAddPhone()}
                   placeholder={t.placeholderPhone}
-                  className="w-full rounded-2xl border border-zinc-100 bg-zinc-50 px-5 py-3 text-sm outline-none transition-all focus:bg-white focus:ring-2 focus:ring-emerald-500/10"
+                  className="w-full rounded-2xl border border-zinc-100 bg-zinc-50 px-5 py-3 text-sm outline-none focus:bg-white focus:ring-2 focus:ring-emerald-500/10"
                 />
                 <button 
+                  type="button"
                   onClick={handleAddPhone} 
-                  className="flex h-12 w-12 items-center justify-center rounded-2xl bg-zinc-900 text-white transition-transform active:scale-90"
+                  className="flex h-12 w-12 items-center justify-center rounded-2xl bg-zinc-900 text-white active:scale-90"
                 >
                   <Plus className="h-5 w-5" />
                 </button>
@@ -248,35 +249,34 @@ export default function SMSConfigPage() {
             </div>
           </div>
 
-          <div className="group rounded-3xl border border-zinc-100 bg-white p-8 shadow-sm transition-all hover:shadow-md">
+          <div className="rounded-3xl border border-zinc-100 bg-white p-8 shadow-sm">
             <div className="mb-6 flex items-center gap-3">
-              <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-amber-50 text-amber-600 transition-colors group-hover:bg-amber-100">
+              <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-amber-50 text-amber-600">
                 <Mail className="h-5 w-5" />
               </div>
               <h3 className="text-lg font-semibold text-zinc-900">{t.template}</h3>
             </div>
             <textarea
-              value={config?.templates.contactSubmission}
-              onChange={e => setConfig({...config!, templates: { contactSubmission: e.target.value }})}
+              value={config.templates.contactSubmission}
+              onChange={e => setConfig({...config, templates: { contactSubmission: e.target.value }})}
               rows={6}
               placeholder="SMS Template..."
-              className="w-full rounded-2xl border border-zinc-100 bg-zinc-50 p-5 text-sm leading-relaxed outline-none transition-all focus:bg-white focus:ring-2 focus:ring-emerald-500/10"
+              className="w-full rounded-2xl border border-zinc-100 bg-zinc-50 p-5 text-sm leading-relaxed outline-none focus:bg-white focus:ring-2 focus:ring-emerald-500/10"
             />
           </div>
         </aside>
 
-        {/* Main Content: Submissions CRM */}
         <main className="space-y-6 lg:col-span-8">
-          {/* Submissions List Header */}
           <div className="flex flex-col gap-6 sm:flex-row sm:items-center sm:justify-between">
             <div className="flex items-center gap-2 overflow-x-auto pb-2 sm:pb-0 no-scrollbar">
               {(["all", "new", "read", "responded"] as const).map(s => (
                 <button
                   key={s}
+                  type="button"
                   onClick={() => setFilterStatus(s)}
                   className={`whitespace-nowrap rounded-full px-5 py-2 text-sm font-semibold transition-all ${
                     filterStatus === s 
-                      ? "bg-zinc-900 text-white shadow-lg shadow-zinc-200" 
+                      ? "bg-zinc-900 text-white" 
                       : "bg-zinc-100 text-zinc-500 hover:bg-zinc-200"
                   }`}
                 >
@@ -295,33 +295,31 @@ export default function SMSConfigPage() {
                 placeholder={t.searchPlaceholder}
                 value={searchQuery}
                 onChange={e => setSearchQuery(e.target.value)}
-                className="w-full rounded-2xl border border-zinc-100 bg-white py-2.5 pl-11 pr-4 text-sm outline-none transition-all focus:ring-2 focus:ring-emerald-500/10"
+                className="w-full rounded-2xl border border-zinc-100 bg-white py-2.5 pl-11 pr-4 text-sm outline-none focus:ring-2 focus:ring-emerald-500/10"
               />
             </div>
           </div>
 
           <div className="grid grid-cols-1 overflow-hidden rounded-[32px] border border-zinc-100 bg-white shadow-xl lg:grid-cols-2 lg:h-[700px]">
-            {/* List Pane */}
             <div className="border-r border-zinc-50 flex flex-col">
               <div className="flex-1 overflow-y-auto no-scrollbar">
                 {filtered.length === 0 ? (
-                  <div className="flex h-full flex-col items-center justify-center p-12 text-center">
-                    <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-zinc-50">
-                      <Inbox className="h-8 w-8 text-zinc-200" />
-                    </div>
-                    <p className="text-sm font-medium text-zinc-400">{t.noSubmissions}</p>
+                  <div className="flex h-full flex-col items-center justify-center p-12 text-center text-zinc-400">
+                    <Inbox className="h-8 w-8 mb-4 opacity-20" />
+                    <p className="text-sm font-medium">{t.noSubmissions}</p>
                   </div>
                 ) : (
                   filtered.map(s => (
                     <button
                       key={s._id}
+                      type="button"
                       onClick={() => setSelectedSubmission(s)}
-                      className={`group flex w-full flex-col border-b border-zinc-50 p-6 text-left transition-all hover:bg-zinc-50/50 ${
-                        selectedSubmission?._id === s._id ? "bg-emerald-50/30 border-r-4 border-r-emerald-500" : ""
+                      className={`group flex w-full flex-col border-b border-zinc-50 p-6 text-left transition-all ${
+                        selectedSubmission?._id === s._id ? "bg-emerald-50/30 border-r-4 border-r-emerald-500" : "hover:bg-zinc-50/50"
                       }`}
                     >
                       <div className="mb-2 flex items-center justify-between">
-                        <span className={`h-2.5 w-2.5 rounded-full ${
+                        <span className={`h-2 w-2 rounded-full ${
                           s.status === "new" ? "bg-blue-500 shadow-lg shadow-blue-200" : 
                           s.status === "read" ? "bg-amber-400" : "bg-emerald-500"
                         }`} />
@@ -338,13 +336,12 @@ export default function SMSConfigPage() {
               </div>
             </div>
 
-            {/* Details Pane */}
             <div className="hidden flex-col bg-zinc-50/30 lg:flex">
               {selectedSubmission ? (
                 <div className="flex flex-col h-full p-10">
                   <div className="mb-10 flex items-center justify-between">
-                    <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-white shadow-sm">
-                      <User className="h-6 w-6 text-zinc-400" />
+                    <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-white shadow-sm text-zinc-400">
+                      <User className="h-6 w-6" />
                     </div>
                     <select
                       value={selectedSubmission.status}
@@ -390,9 +387,7 @@ export default function SMSConfigPage() {
                 </div>
               ) : (
                 <div className="flex h-full flex-col items-center justify-center p-20 text-center opacity-30">
-                  <div className="mb-6 flex h-24 w-24 items-center justify-center rounded-[32px] bg-white shadow-xl">
-                    <Filter className="h-10 w-10 text-zinc-300" />
-                  </div>
+                  <Filter className="h-10 w-10 text-zinc-300 mb-6" />
                   <p className="text-lg font-semibold text-zinc-400">Select a submission to view details</p>
                 </div>
               )}
