@@ -197,16 +197,15 @@ export default function SMSConfigPage() {
 
       <div className="flex items-center justify-between border-b border-zinc-100 pb-6">
         <div>
-          <h1 className="text-2xl font-medium text-zinc-900">{t.title}</h1>
-          <p className="text-sm text-zinc-500">{t.description}</p>
+          <h1 className="text-xl font-medium text-zinc-900">{t.title}</h1>
+          <p className="text-xs text-zinc-500">{t.description}</p>
         </div>
         <button 
           onClick={handleSave} 
           disabled={saving} 
-          className="flex items-center gap-2 rounded-lg bg-zinc-900 px-6 py-2.5 text-sm font-medium text-white transition-all hover:bg-zinc-800 disabled:opacity-50"
+          className="rounded-lg bg-emerald-600 px-6 py-2 text-sm font-medium text-white transition-all hover:bg-emerald-700 disabled:opacity-50"
         >
-          <Save className="h-4 w-4" />
-          <span>{saving ? "..." : t.save}</span>
+          {saving ? "..." : t.save}
         </button>
       </div>
 
@@ -214,7 +213,7 @@ export default function SMSConfigPage() {
         {/* Left: Configuration */}
         <div className="space-y-6 lg:col-span-4">
           <section className="space-y-4 rounded-xl border border-zinc-100 bg-zinc-50/30 p-5">
-            <h2 className="text-sm font-medium text-zinc-900">{t.adminPhones}</h2>
+            <div className="text-[11px] text-zinc-400">{t.adminPhones}</div>
             <div className="space-y-2">
               {config?.adminPhoneNumbers.map((phone, idx) => (
                 <div key={idx} className="flex items-center justify-between rounded-lg bg-white p-2.5 border border-zinc-100">
@@ -231,11 +230,11 @@ export default function SMSConfigPage() {
                   onChange={e => setNewPhone(e.target.value)}
                   onKeyDown={e => e.key === 'Enter' && handleAddPhone()}
                   placeholder={t.placeholderPhone}
-                  className="w-full rounded-lg border border-zinc-200 bg-white px-3 py-2 text-sm outline-none focus:border-zinc-400 transition-colors"
+                  className="w-full rounded-lg border border-zinc-200 bg-white px-3 py-2 text-sm outline-none focus:border-zinc-400"
                 />
                 <button 
                   onClick={handleAddPhone} 
-                  className="rounded-lg bg-zinc-100 px-3 py-2 text-zinc-600 hover:bg-zinc-200"
+                  className="rounded-lg bg-zinc-100 px-3 py-2 text-zinc-500 hover:bg-zinc-200"
                 >
                   <Plus className="h-4 w-4" />
                 </button>
@@ -243,15 +242,17 @@ export default function SMSConfigPage() {
             </div>
           </section>
 
-          <section className="space-y-4 rounded-xl border border-zinc-100 bg-zinc-50/30 p-5">
-            <h2 className="text-sm font-medium text-zinc-900">{t.template}</h2>
+          <section className="space-y-3 rounded-xl border border-zinc-100 bg-zinc-50/30 p-5">
             <textarea
               value={config?.templates.contactSubmission}
               onChange={e => setConfig({...config!, templates: { contactSubmission: e.target.value }})}
-              rows={4}
-              className="w-full rounded-lg border border-zinc-200 bg-white p-3 text-sm outline-none focus:border-zinc-400 transition-colors"
+              rows={5}
+              placeholder="SMS Template"
+              className="w-full rounded-lg border border-zinc-200 bg-white p-3 text-sm outline-none focus:border-zinc-400"
             />
-            <p className="text-[11px] text-zinc-400">{t.templateDesc}</p>
+            <div className="text-[10px] text-zinc-400 leading-relaxed">
+              {t.templateDesc}
+            </div>
           </section>
         </div>
 
