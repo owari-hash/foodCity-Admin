@@ -33,9 +33,6 @@ interface ContactSubmission {
 interface SMSConfig {
   _id?: string;
   adminPhoneNumbers: string[];
-  notificationSettings: {
-    sendOnContactSubmission: boolean;
-  };
   updatedBy?: string;
 }
 
@@ -79,8 +76,7 @@ export default function SMSConfigPage() {
   const t = translations[lang as keyof typeof translations] || translations.en;
   
   const [config, setConfig] = useState<SMSConfig>({
-    adminPhoneNumbers: [],
-    notificationSettings: { sendOnContactSubmission: true }
+    adminPhoneNumbers: []
   });
   const [newPhone, setNewPhone] = useState("");
   const [submissions, setSubmissions] = useState<ContactSubmission[]>([]);
@@ -196,19 +192,19 @@ export default function SMSConfigPage() {
     );
 
   if (loading) return (
-    <div className="flex h-[80vh] items-center justify-center">
+    <div className="flex h-[80vh] items-center justify-center bg-white">
       <div className="flex flex-col items-center gap-4 text-slate-400">
-        <div className="h-10 w-10 animate-spin rounded-full border-2 border-slate-200 border-t-indigo-600"></div>
+        <div className="h-10 w-10 animate-spin rounded-full border-2 border-slate-100 border-t-slate-800"></div>
         <p className="text-sm">{t.loading}</p>
       </div>
     </div>
   );
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 bg-white min-h-screen">
       <header className="mb-8">
-        <h1 className="text-2xl font-semibold tracking-tight text-slate-900 dark:text-slate-50">{t.title}</h1>
-        <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">{t.description}</p>
+        <h1 className="text-2xl font-bold tracking-tight text-slate-900">{t.title}</h1>
+        <p className="mt-1 text-sm text-slate-500">{t.description}</p>
       </header>
 
       <EditorAlerts error={error} saved={success} />
@@ -223,12 +219,12 @@ export default function SMSConfigPage() {
                   <ListRow key={idx}>
                     <div className="flex flex-1 items-center gap-2">
                       <Phone className="h-4 w-4 text-slate-400" />
-                      <span className="text-sm font-medium text-slate-700 dark:text-slate-300">{phone}</span>
+                      <span className="text-sm font-medium text-slate-800">{phone}</span>
                     </div>
                     <button 
                       type="button"
                       onClick={() => handleDeletePhone(idx)} 
-                      className="rounded-lg p-1.5 text-slate-400 hover:bg-rose-50 hover:text-rose-600 transition-colors"
+                      className="rounded-lg p-1.5 text-slate-300 hover:text-red-500 hover:bg-red-50 transition-colors"
                     >
                       <Trash2 className="h-4 w-4" />
                     </button>
@@ -242,12 +238,12 @@ export default function SMSConfigPage() {
                     onChange={e => setNewPhone(e.target.value)}
                     onKeyDown={e => e.key === 'Enter' && handleAddPhone()}
                     placeholder={t.placeholderPhone}
-                    className="flex-1 rounded-xl border border-slate-200 bg-white px-4 py-2 text-sm outline-none transition-all focus:border-indigo-400 focus:ring-2 focus:ring-indigo-500/10 dark:border-slate-700 dark:bg-slate-900"
+                    className="flex-1 rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm outline-none transition-all focus:border-slate-400 focus:ring-2 focus:ring-slate-500/5"
                   />
                   <button 
                     type="button"
                     onClick={handleAddPhone} 
-                    className="flex h-10 w-10 items-center justify-center rounded-xl bg-indigo-600 text-white shadow-lg active:scale-95 transition-transform"
+                    className="flex h-10 w-10 items-center justify-center rounded-xl bg-slate-900 text-white shadow-md active:scale-95 transition-transform"
                   >
                     <Plus className="h-5 w-5" />
                   </button>
@@ -259,17 +255,17 @@ export default function SMSConfigPage() {
           {/* Submissions Section */}
           <div className="lg:col-span-8">
             <Panel title={t.all}>
-              <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between mb-4">
-                <div className="flex items-center gap-2 overflow-x-auto pb-2 sm:pb-0 no-scrollbar">
+              <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between mb-6">
+                <div className="flex items-center gap-1 bg-slate-100 p-1 rounded-xl">
                   {(["all", "new", "read", "responded"] as const).map(s => (
                     <button
                       key={s}
                       type="button"
                       onClick={() => setFilterStatus(s)}
-                      className={`whitespace-nowrap rounded-lg px-4 py-1.5 text-xs font-semibold transition-all ${
+                      className={`whitespace-nowrap rounded-lg px-4 py-1.5 text-[11px] font-bold transition-all ${
                         filterStatus === s 
-                          ? "bg-slate-900 text-white" 
-                          : "bg-slate-100 text-slate-500 hover:bg-slate-200"
+                          ? "bg-white text-slate-900 shadow-sm" 
+                          : "text-slate-500 hover:text-slate-700"
                       }`}
                     >
                       {t[s as keyof typeof t]}
@@ -284,18 +280,18 @@ export default function SMSConfigPage() {
                     placeholder={t.searchPlaceholder}
                     value={searchQuery}
                     onChange={e => setSearchQuery(e.target.value)}
-                    className="w-full rounded-xl border border-slate-100 bg-slate-50 py-2 pl-9 pr-4 text-xs outline-none focus:bg-white focus:ring-2 focus:ring-indigo-500/10"
+                    className="w-full rounded-xl border border-slate-200 bg-white py-2 pl-9 pr-4 text-xs outline-none transition-all focus:border-slate-400"
                   />
                 </div>
               </div>
 
-              <div className="grid grid-cols-1 overflow-hidden rounded-xl border border-slate-200 lg:grid-cols-2 lg:h-[600px]">
+              <div className="grid grid-cols-1 overflow-hidden rounded-2xl border border-slate-200 lg:grid-cols-2 lg:h-[600px] bg-white">
                 {/* List */}
-                <div className="border-r border-slate-100 flex flex-col bg-slate-50/30">
+                <div className="border-r border-slate-100 flex flex-col">
                   <div className="flex-1 overflow-y-auto no-scrollbar divide-y divide-slate-100">
                     {filtered.length === 0 ? (
                       <div className="flex h-full flex-col items-center justify-center p-12 text-center text-slate-400">
-                        <Inbox className="h-8 w-8 mb-4 opacity-20" />
+                        <Inbox className="h-8 w-8 mb-4 opacity-10" />
                         <p className="text-xs font-medium">{t.noSubmissions}</p>
                       </div>
                     ) : (
@@ -305,19 +301,19 @@ export default function SMSConfigPage() {
                           type="button"
                           onClick={() => setSelectedSubmission(s)}
                           className={`group flex w-full flex-col p-5 text-left transition-all ${
-                            selectedSubmission?._id === s._id ? "bg-white shadow-[inset_4px_0_0_#4f46e5]" : "hover:bg-white/60"
+                            selectedSubmission?._id === s._id ? "bg-slate-50 shadow-[inset_4px_0_0_#0f172a]" : "hover:bg-slate-50/50"
                           }`}
                         >
                           <div className="mb-2 flex items-center justify-between">
                             <span className={`h-2 w-2 rounded-full ${
-                              s.status === "new" ? "bg-blue-500 shadow-lg shadow-blue-200" : 
+                              s.status === "new" ? "bg-blue-500" : 
                               s.status === "read" ? "bg-amber-400" : "bg-emerald-500"
                             }`} />
                             <span className="text-[10px] font-bold text-slate-400">{new Date(s.createdAt).toLocaleDateString()}</span>
                           </div>
                           <div className="flex items-center justify-between gap-4">
-                            <span className="flex-1 truncate text-sm font-semibold text-slate-900">{s.name || s.phone}</span>
-                            <ChevronRight className={`h-4 w-4 text-slate-300 transition-transform ${selectedSubmission?._id === s._id ? "translate-x-1 text-indigo-500" : "group-hover:translate-x-1"}`} />
+                            <span className="flex-1 truncate text-sm font-bold text-slate-900">{s.name || s.phone}</span>
+                            <ChevronRight className={`h-4 w-4 text-slate-300 transition-transform ${selectedSubmission?._id === s._id ? "translate-x-1 text-slate-900" : "group-hover:translate-x-1"}`} />
                           </div>
                           <span className="mt-1 truncate text-xs text-slate-500">{s.message.substring(0, 80)}...</span>
                         </button>
@@ -327,17 +323,17 @@ export default function SMSConfigPage() {
                 </div>
 
                 {/* Details */}
-                <div className="hidden flex-col bg-white lg:flex">
+                <div className="hidden flex-col bg-slate-50/20 lg:flex">
                   {selectedSubmission ? (
                     <div className="flex flex-col h-full p-8 overflow-y-auto">
                       <div className="mb-8 flex items-center justify-between">
-                        <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-slate-50 text-slate-400">
+                        <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-white shadow-sm border border-slate-100 text-slate-400">
                           <User className="h-5 w-5" />
                         </div>
                         <select
                           value={selectedSubmission.status}
                           onChange={e => handleStatusChange(selectedSubmission._id, e.target.value)}
-                          className="rounded-lg border border-slate-100 bg-white px-4 py-1.5 text-[11px] font-bold text-slate-700 shadow-sm outline-none transition-all hover:border-indigo-200"
+                          className="rounded-lg border border-slate-200 bg-white px-4 py-1.5 text-[11px] font-bold text-slate-700 shadow-sm outline-none transition-all hover:border-slate-400"
                         >
                           <option value="new">{t.new}</option>
                           <option value="read">{t.read}</option>
@@ -347,39 +343,39 @@ export default function SMSConfigPage() {
 
                       <div className="space-y-6">
                         <div>
-                          <h2 className="text-xl font-bold text-slate-900">{selectedSubmission.name || "Anonymous"}</h2>
-                          <div className="mt-3 flex flex-wrap gap-2">
-                            <div className="flex items-center gap-2 rounded-lg bg-slate-50 px-3 py-1.5 text-xs font-medium text-slate-600 border border-slate-100">
-                              <Phone className="h-3.5 w-3.5 text-indigo-500" />
+                          <h2 className="text-xl font-extrabold text-slate-900">{selectedSubmission.name || "Anonymous"}</h2>
+                          <div className="mt-4 flex flex-wrap gap-2">
+                            <div className="flex items-center gap-2 rounded-lg bg-white px-3 py-1.5 text-xs font-bold text-slate-600 border border-slate-100 shadow-sm">
+                              <Phone className="h-3.5 w-3.5 text-slate-400" />
                               {selectedSubmission.phone}
                             </div>
                             {selectedSubmission.email && (
-                              <div className="flex items-center gap-2 rounded-lg bg-slate-50 px-3 py-1.5 text-xs font-medium text-slate-600 border border-slate-100">
-                                <Mail className="h-3.5 w-3.5 text-blue-500" />
+                              <div className="flex items-center gap-2 rounded-lg bg-white px-3 py-1.5 text-xs font-bold text-slate-600 border border-slate-100 shadow-sm">
+                                <Mail className="h-3.5 w-3.5 text-slate-400" />
                                 {selectedSubmission.email}
                               </div>
                             )}
                           </div>
                         </div>
 
-                        <div className="rounded-2xl border border-slate-100 bg-slate-50/50 p-6">
-                          <div className="mb-4 flex items-center justify-between">
-                            <span className="text-[10px] font-bold uppercase tracking-widest text-slate-400">Message</span>
+                        <div className="rounded-2xl border border-slate-200 bg-white p-8 shadow-sm">
+                          <div className="mb-6 flex items-center justify-between border-b border-slate-50 pb-4">
+                            <span className="text-[10px] font-black uppercase tracking-widest text-slate-400">Submission</span>
                             <div className="flex items-center gap-1.5 text-[10px] font-bold text-slate-300">
                               <Clock className="h-3.5 w-3.5" />
                               {new Date(selectedSubmission.createdAt).toLocaleString()}
                             </div>
                           </div>
-                          <p className="text-sm leading-relaxed text-slate-700 whitespace-pre-wrap">
+                          <p className="text-sm leading-relaxed text-slate-800 whitespace-pre-wrap font-medium">
                             {selectedSubmission.message}
                           </p>
                         </div>
                       </div>
                     </div>
                   ) : (
-                    <div className="flex h-full flex-col items-center justify-center p-12 text-center opacity-30">
-                      <Filter className="h-8 w-8 text-slate-300 mb-4" />
-                      <p className="text-sm font-semibold text-slate-400">Select to view</p>
+                    <div className="flex h-full flex-col items-center justify-center p-12 text-center opacity-20">
+                      <Filter className="h-8 w-8 text-slate-900 mb-4" />
+                      <p className="text-sm font-bold text-slate-900">Select to view</p>
                     </div>
                   )}
                 </div>
