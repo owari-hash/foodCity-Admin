@@ -9,17 +9,13 @@ import {
 import { getApiBaseUrl, joinBackendRequestUrl } from "@/lib/api";
 import { useAdminLanguage } from "@/contexts/AdminLanguageContext";
 import { 
-  Phone, Trash2, Plus, CheckCircle2, 
-  User, Mail, Clock, Inbox, ChevronRight, Search, Filter 
+  Phone, Trash2, Plus, Inbox, ChevronRight, Search, Filter, User, Mail, Clock 
 } from "lucide-react";
 import { 
   EditorSurface, 
   Panel, 
-  DualTextarea, 
-  PrimarySave, 
   EditorAlerts,
-  ListRow,
-  SubCard
+  ListRow
 } from "../site-content/editorUi";
 
 interface ContactSubmission {
@@ -40,10 +36,6 @@ interface SMSConfig {
   notificationSettings: {
     sendOnContactSubmission: boolean;
   };
-  templates: {
-    mn: string;
-    en: string;
-  };
   updatedBy?: string;
 }
 
@@ -52,7 +44,6 @@ const translations = {
     title: "Мессеж болон санал",
     description: "Хэрэглэгчийн санал хүсэлтийн удирдлага",
     adminPhones: "Мэдэгдэл хүлээн авах дугаарууд",
-    template: "SMS загвар",
     noSubmissions: "Одоогоор санал хүсэлт ирээгүй байна",
     details: "Дэлгэрэнгүй мэдээлэл",
     save: "Хадгалах",
@@ -69,7 +60,6 @@ const translations = {
     title: "Messages & Feedback",
     description: "Manage customer feedback & SMS alerts",
     adminPhones: "Alert Recipients",
-    template: "SMS Template",
     noSubmissions: "No submissions found",
     details: "Submission Details",
     save: "Save Config",
@@ -90,11 +80,9 @@ export default function SMSConfigPage() {
   
   const [config, setConfig] = useState<SMSConfig>({
     adminPhoneNumbers: [],
-    notificationSettings: { sendOnContactSubmission: true },
-    templates: { mn: "", en: "" }
+    notificationSettings: { sendOnContactSubmission: true }
   });
   const [newPhone, setNewPhone] = useState("");
-  const [saving, setSaving] = useState(false);
   const [submissions, setSubmissions] = useState<ContactSubmission[]>([]);
   const [selectedSubmission, setSelectedSubmission] = useState<ContactSubmission | null>(null);
   const [filterStatus, setFilterStatus] = useState<"all" | "new" | "read" | "responded">("all");
@@ -106,15 +94,22 @@ export default function SMSConfigPage() {
   const loadData = useCallback(async () => {
     setLoading(true);
     try {
+      const configUrl = joinBackendRequestUrl(getApiBaseUrl(), "/api/v1/admin/sms-config");
+      const subUrl = joinBackendRequestUrl(getApiBaseUrl(), "/api/v1/contact/submissions");
+      
       const [configRes, subRes] = await Promise.all([
-        fetch(joinBackendRequestUrl(getApiBaseUrl(), "/api/v1/admin/sms-config"), withClientAdminAuth()),
-        fetch(joinBackendRequestUrl(getApiBaseUrl(), "/api/v1/contact/submissions"), withClientAdminAuth()),
+        fetch(configUrl, withClientAdminAuth()),
+        fetch(subUrl, withClientAdminAuth()),
       ]);
+      
       await ensureClientAuthorized(configRes);
       await ensureClientAuthorized(subRes);
+      
       if (!configRes.ok || !subRes.ok) throw new Error("Data sync failed");
+      
       const configJson = await configRes.json();
       const subJson = await subRes.json();
+      
       if (configJson.config) setConfig(configJson.config);
       setSubmissions(subJson.submissions || []);
     } catch (e) {
@@ -130,28 +125,21 @@ export default function SMSConfigPage() {
 
   const apiPutConfig = async (newConfig: SMSConfig) => {
     const profile = readClientAdminProfile();
-    const res = await fetch(joinBackendRequestUrl(getApiBaseUrl(), "/api/v1/admin/sms-config"), {
+    const url = joinBackendRequestUrl(getApiBaseUrl(), "/api/v1/admin/sms-config");
+    
+    const res = await fetch(url, {
       method: "PUT",
-      headers: { "Content-Type": "application/json", ...withClientAdminAuth().headers },
+      headers: { 
+        "Content-Type": "application/json", 
+        ...withClientAdminAuth().headers 
+      },
       body: JSON.stringify({ ...newConfig, updatedBy: profile?.displayName || "admin" }),
     });
+    
+    const gate = await ensureClientAuthorized(res);
+    if (gate !== "ok") throw new Error("Authorization failed");
     if (!res.ok) throw new Error("Update failed");
     return res;
-  };
-
-  const handleSave = async () => {
-    setSaving(true);
-    setError(null);
-    setSuccess(null);
-    try {
-      await apiPutConfig(config);
-      setSuccess(t.saved);
-      setTimeout(() => setSuccess(null), 3000);
-    } catch (e) {
-      setError("Failed to save configuration");
-    } finally {
-      setSaving(false);
-    }
   };
 
   const handleAddPhone = async () => {
@@ -165,6 +153,8 @@ export default function SMSConfigPage() {
     
     try {
       await apiPutConfig(updated);
+      setSuccess(t.saved);
+      setTimeout(() => setSuccess(null), 2000);
     } catch (e) {
       setError("Failed to add phone number");
     }
@@ -175,6 +165,8 @@ export default function SMSConfigPage() {
     setConfig(updated);
     try {
       await apiPutConfig(updated);
+      setSuccess(t.saved);
+      setTimeout(() => setSuccess(null), 2000);
     } catch (e) {
       setError("Failed to remove phone number");
     }
@@ -205,7 +197,7 @@ export default function SMSConfigPage() {
 
   if (loading) return (
     <div className="flex h-[80vh] items-center justify-center">
-      <div className="flex flex-col items-center gap-4 text-slate-400 font-medium">
+      <div className="flex flex-col items-center gap-4 text-slate-400">
         <div className="h-10 w-10 animate-spin rounded-full border-2 border-slate-200 border-t-indigo-600"></div>
         <p className="text-sm">{t.loading}</p>
       </div>
@@ -255,27 +247,13 @@ export default function SMSConfigPage() {
                   <button 
                     type="button"
                     onClick={handleAddPhone} 
-                    className="flex h-10 w-10 items-center justify-center rounded-xl bg-indigo-600 text-white shadow-lg shadow-indigo-600/20 active:scale-95 transition-transform"
+                    className="flex h-10 w-10 items-center justify-center rounded-xl bg-indigo-600 text-white shadow-lg active:scale-95 transition-transform"
                   >
                     <Plus className="h-5 w-5" />
                   </button>
                 </div>
               </div>
             </Panel>
-
-            <Panel title={t.template}>
-              <DualTextarea
-                label=""
-                mnValue={config.templates.mn}
-                enValue={config.templates.en}
-                onChangeMN={v => setConfig({...config, templates: { ...config.templates, mn: v }})}
-                onChangeEN={v => setConfig({...config, templates: { ...config.templates, en: v }})}
-              />
-            </Panel>
-            
-            <PrimarySave onClick={handleSave} disabled={saving}>
-              {saving ? "..." : t.save}
-            </PrimarySave>
           </div>
 
           {/* Submissions Section */}
@@ -306,7 +284,7 @@ export default function SMSConfigPage() {
                     placeholder={t.searchPlaceholder}
                     value={searchQuery}
                     onChange={e => setSearchQuery(e.target.value)}
-                    className="w-full rounded-xl border border-slate-100 bg-slate-50 py-2 pl-9 pr-4 text-xs outline-none transition-all focus:bg-white focus:ring-2 focus:ring-indigo-500/10"
+                    className="w-full rounded-xl border border-slate-100 bg-slate-50 py-2 pl-9 pr-4 text-xs outline-none focus:bg-white focus:ring-2 focus:ring-indigo-500/10"
                   />
                 </div>
               </div>
