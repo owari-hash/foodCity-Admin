@@ -47,7 +47,9 @@ type HomeState = {
     titleLine2: string;
     desc: string;
     btn1: string;
+    btn1Href: string;
     btn2: string;
+    btn2Href: string;
     stats: { value: string; label: string }[];
     slideLabel: string;
   };
@@ -154,7 +156,9 @@ const EMPTY_HOME: HomeState = {
     titleLine2: "",
     desc: "",
     btn1: "",
+    btn1Href: "",
     btn2: "",
+    btn2Href: "",
     stats: [],
     slideLabel: "",
   },
@@ -716,6 +720,12 @@ export default function SiteContentPage() {
                               ...home,
                               hero: { ...home.hero, slideImages },
                             });
+                            const slideImagesEN = [...homeEN.hero.slideImages];
+                            slideImagesEN[i] = next;
+                            setHomeEN({
+                              ...homeEN,
+                              hero: { ...homeEN.hero, slideImages: slideImagesEN },
+                            });
                           }}
                           showRemove
                           onRemove={() => {
@@ -726,20 +736,34 @@ export default function SiteContentPage() {
                               ...home,
                               hero: { ...home.hero, slideImages },
                             });
+                            const slideImagesEN = homeEN.hero.slideImages.filter(
+                              (_, j) => j !== i,
+                            );
+                            setHomeEN({
+                              ...homeEN,
+                              hero: { ...homeEN.hero, slideImages: slideImagesEN },
+                            });
                           }}
                         />
                       ))}
                       <GhostButton
                         className="font-medium"
-                        onClick={() =>
+                        onClick={() => {
                           setHome({
                             ...home,
                             hero: {
                               ...home.hero,
                               slideImages: [...home.hero.slideImages, ""],
                             },
-                          })
-                        }
+                          });
+                          setHomeEN({
+                            ...homeEN,
+                            hero: {
+                              ...homeEN.hero,
+                              slideImages: [...homeEN.hero.slideImages, ""],
+                            },
+                          });
+                        }}
                       >
                         + {t.siteContent.home.fields.addSlide}
                       </GhostButton>
@@ -758,7 +782,9 @@ export default function SiteContentPage() {
                           ["titleAccent", t.siteContent.home.fields.titleAccent],
                           ["titleLine2", t.siteContent.home.fields.titleLine2],
                           ["btn1", t.siteContent.home.fields.btn1],
+                          ["btn1Href", t.siteContent.home.fields.btn1Href],
                           ["btn2", t.siteContent.home.fields.btn2],
+                          ["btn2Href", t.siteContent.home.fields.btn2Href],
                           ["slideLabel", t.siteContent.home.fields.slideLabel],
                         ] as const
                       ).map(([key, lab]) => (
@@ -946,12 +972,16 @@ export default function SiteContentPage() {
                       value={
                         about.main.imageUrl ?? "/images/baclground-image-1.jpg"
                       }
-                      onChange={(path) =>
+                      onChange={(path) => {
                         setAbout({
                           ...about,
                           main: { ...about.main, imageUrl: path },
-                        })
-                      }
+                        });
+                        setAboutEN({
+                          ...aboutEN,
+                          main: { ...aboutEN.main, imageUrl: path },
+                        });
+                      }}
                       previewFit="cover"
                     />
                   </EditorSection>
@@ -2456,13 +2486,15 @@ export default function SiteContentPage() {
                                         imgs[j] = v;
                                         items[i] = { ...items[i], images: imgs };
                                         setProjectsPage({ ...projectsPage, items });
+                                        
                                         const itemsEN = [...projectsPageEN.items];
-                                        if (itemsEN[i]) {
-                                          const imgsEN = [...(itemsEN[i].images ?? [])];
-                                          imgsEN[j] = v;
-                                          itemsEN[i] = { ...itemsEN[i], images: imgsEN };
-                                          setProjectsPageEN({ ...projectsPageEN, items: itemsEN });
+                                        if (!itemsEN[i]) {
+                                          itemsEN[i] = { ...items[i] };
                                         }
+                                        const imgsEN = [...(itemsEN[i].images ?? [])];
+                                        imgsEN[j] = v;
+                                        itemsEN[i] = { ...itemsEN[i], images: imgsEN };
+                                        setProjectsPageEN({ ...projectsPageEN, items: itemsEN });
                                       }}
                                     />
                                   </div>
