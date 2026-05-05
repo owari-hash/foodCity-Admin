@@ -16,6 +16,8 @@ import {
   Menu,
   X,
   Users,
+  MessageSquare,
+  Settings,
 } from "lucide-react";
 import { ThemeToggle } from "@/components/theme-toggle";
 import {
@@ -47,6 +49,8 @@ export default function AdminShell({ children }: { children: React.ReactNode }) 
     { href: "/sales-ads", label: t.nav.salesAds, icon: Megaphone, perm: "sales-ads" },
     { href: "/jobs", label: t.nav.jobs, icon: Briefcase, perm: "jobs" },
     { href: "/chat", label: t.nav.chat, icon: MessageCircle, perm: "chat" },
+    { href: "/contact-submissions", label: lang === "mn" ? "Холбоо барих" : "Contact Submissions", icon: MessageSquare, perm: "dashboard" },
+    { href: "/sms-config", label: lang === "mn" ? "SMS Тохиргоо" : "SMS Configuration", icon: Settings, perm: "dashboard" },
     { href: "/users", label: t.nav.users, icon: Users, perm: "admin-users" },
   ];
 
@@ -57,6 +61,8 @@ export default function AdminShell({ children }: { children: React.ReactNode }) 
     "/sales-ads": t.nav.salesAds,
     "/jobs": t.nav.jobs,
     "/chat": t.nav.chat,
+    "/contact-submissions": lang === "mn" ? "Холбоо барих" : "Contact Submissions",
+    "/sms-config": lang === "mn" ? "SMS Тохиргоо" : "SMS Configuration",
     "/users": t.nav.users,
   };
 
