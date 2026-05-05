@@ -677,7 +677,16 @@ export default function ChatAdminPage() {
           >
             <div className="flex items-center justify-between gap-2">
               <div className="font-medium truncate flex-1">
-                {c.displayName || (t.chat.thread.roles.user + " " + c.guestId.slice(0, 8))}
+                {c.displayName || (
+                  <>
+                    {t.chat.thread.roles.user}
+                    {c.updatedAt && (
+                      <span className="ml-1.5 opacity-60 font-normal">
+                        · {new Date(c.updatedAt).toLocaleDateString([], { month: '2-digit', day: '2-digit' })} {new Date(c.updatedAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                      </span>
+                    )}
+                  </>
+                )}
               </div>
               {c.updatedAt && (
                 <div className="shrink-0 text-[10px] text-zinc-400">
