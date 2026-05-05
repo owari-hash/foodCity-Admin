@@ -788,16 +788,16 @@ export default function SiteContentPage() {
                     <button
                       type="button"
                       onClick={() => {
-                        if (tab === "home") setHome((prev) => ({ ...prev, hidden: !prev.hidden }));
-                        if (tab === "about") setAbout((prev) => ({ ...prev, hidden: !prev.hidden }));
-                        if (tab === "gallery") setGallery((prev) => ({ ...prev, hidden: !prev.hidden }));
-                        if (tab === "contact") setContact((prev) => ({ ...prev, hidden: !prev.hidden }));
-                        if (tab === "properties-page") setPropertiesPage((prev) => ({ ...prev, hidden: !prev.hidden }));
-                        if (tab === "sales-page") setSalesPage((prev) => ({ ...prev, hidden: !prev.hidden }));
-                        if (tab === "jobs-page") setJobsPage((prev) => ({ ...prev, hidden: !prev.hidden }));
-                        if (tab === "team") setTeamPage((prev) => ({ ...prev, hidden: !prev.hidden }));
-                        if (tab === "projects-page") setProjectsPage((prev) => ({ ...prev, hidden: !prev.hidden }));
-                        if (tab === "footer") setFooter((prev) => ({ ...prev, hidden: !prev.hidden }));
+                        if (tab === "home") { const next = !home.hidden; setHome((prev) => ({ ...prev, hidden: next })); setHomeEN((prev) => ({ ...prev, hidden: next })); }
+                        if (tab === "about") { const next = !about.hidden; setAbout((prev) => ({ ...prev, hidden: next })); setAboutEN((prev) => ({ ...prev, hidden: next })); }
+                        if (tab === "gallery") { const next = !gallery.hidden; setGallery((prev) => ({ ...prev, hidden: next })); setGalleryEN((prev) => ({ ...prev, hidden: next })); }
+                        if (tab === "contact") { const next = !contact.hidden; setContact((prev) => ({ ...prev, hidden: next })); setContactEN((prev) => ({ ...prev, hidden: next })); }
+                        if (tab === "properties-page") { const next = !propertiesPage.hidden; setPropertiesPage((prev) => ({ ...prev, hidden: next })); setPropertiesPageEN((prev) => ({ ...prev, hidden: next })); }
+                        if (tab === "sales-page") { const next = !salesPage.hidden; setSalesPage((prev) => ({ ...prev, hidden: next })); setSalesPageEN((prev) => ({ ...prev, hidden: next })); }
+                        if (tab === "jobs-page") { const next = !jobsPage.hidden; setJobsPage((prev) => ({ ...prev, hidden: next })); setJobsPageEN((prev) => ({ ...prev, hidden: next })); }
+                        if (tab === "team") { const next = !teamPage.hidden; setTeamPage((prev) => ({ ...prev, hidden: next })); setTeamPageEN((prev) => ({ ...prev, hidden: next })); }
+                        if (tab === "projects-page") { const next = !projectsPage.hidden; setProjectsPage((prev) => ({ ...prev, hidden: next })); setProjectsPageEN((prev) => ({ ...prev, hidden: next })); }
+                        if (tab === "footer") { const next = !footer.hidden; setFooter((prev) => ({ ...prev, hidden: next })); setFooterEN((prev) => ({ ...prev, hidden: next })); }
                       }}
                       className={`relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-hidden ${
                         (() => {
