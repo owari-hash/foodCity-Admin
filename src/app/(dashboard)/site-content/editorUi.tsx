@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import type { LucideIcon } from "lucide-react";
-import { ChevronDown, Bold, Italic, AlignLeft, AlignCenter, AlignRight, AlignJustify } from "lucide-react";
+import { ChevronDown, Bold, Italic, AlignLeft, AlignCenter, AlignRight, AlignJustify, Eraser } from "lucide-react";
 import { useAdminLanguage } from "@/contexts/AdminLanguageContext";
 
 /** Shared form styles for the site-content editor (distinct from rest of admin). */
@@ -414,13 +414,13 @@ export function GhostButton({
 export function FormattingToolbar({
   onAction,
 }: {
-  onAction: (tag: string, align?: string) => void;
+  onAction: (action: string, value?: string) => void;
 }) {
   return (
     <div className="flex items-center gap-1 p-1 bg-slate-50 border-b border-slate-100 dark:bg-slate-900/50 dark:border-slate-800">
       <button
         type="button"
-        onClick={() => onAction("b")}
+        onMouseDown={(e) => { e.preventDefault(); onAction("bold"); }}
         className="p-1 hover:bg-slate-200 rounded text-slate-600 dark:text-slate-400 dark:hover:bg-slate-800"
         title="Bold"
       >
@@ -428,7 +428,7 @@ export function FormattingToolbar({
       </button>
       <button
         type="button"
-        onClick={() => onAction("i")}
+        onMouseDown={(e) => { e.preventDefault(); onAction("italic"); }}
         className="p-1 hover:bg-slate-200 rounded text-slate-600 dark:text-slate-400 dark:hover:bg-slate-800"
         title="Italic"
       >
@@ -437,7 +437,7 @@ export function FormattingToolbar({
       <div className="w-px h-3 bg-slate-200 mx-1 dark:bg-slate-700" />
       <button
         type="button"
-        onClick={() => onAction("p", "left")}
+        onMouseDown={(e) => { e.preventDefault(); onAction("justifyLeft"); }}
         className="p-1 hover:bg-slate-200 rounded text-slate-600 dark:text-slate-400 dark:hover:bg-slate-800"
         title="Align Left"
       >
@@ -445,7 +445,7 @@ export function FormattingToolbar({
       </button>
       <button
         type="button"
-        onClick={() => onAction("p", "center")}
+        onMouseDown={(e) => { e.preventDefault(); onAction("justifyCenter"); }}
         className="p-1 hover:bg-slate-200 rounded text-slate-600 dark:text-slate-400 dark:hover:bg-slate-800"
         title="Align Center"
       >
@@ -453,7 +453,7 @@ export function FormattingToolbar({
       </button>
       <button
         type="button"
-        onClick={() => onAction("p", "right")}
+        onMouseDown={(e) => { e.preventDefault(); onAction("justifyRight"); }}
         className="p-1 hover:bg-slate-200 rounded text-slate-600 dark:text-slate-400 dark:hover:bg-slate-800"
         title="Align Right"
       >
@@ -461,12 +461,60 @@ export function FormattingToolbar({
       </button>
       <button
         type="button"
-        onClick={() => onAction("p", "justify")}
+        onMouseDown={(e) => { e.preventDefault(); onAction("justifyFull"); }}
         className="p-1 hover:bg-slate-200 rounded text-slate-600 dark:text-slate-400 dark:hover:bg-slate-800"
         title="Justify"
       >
         <AlignJustify className="w-3.5 h-3.5" />
       </button>
+      <div className="w-px h-3 bg-slate-200 mx-1 dark:bg-slate-700" />
+      <button
+        type="button"
+        onMouseDown={(e) => { e.preventDefault(); onAction("removeFormat"); }}
+        className="p-1 hover:bg-slate-200 rounded text-slate-600 dark:text-slate-400 dark:hover:bg-slate-800"
+        title="Clear Formatting"
+      >
+        <Eraser className="w-3.5 h-3.5" />
+      </button>
+    </div>
+  );
+}
+
+export function VisualEditor({
+  value,
+  onChange,
+  placeholder,
+  multiline = false,
+}: {
+  value: string;
+  onChange: (val: string) => void;
+  placeholder?: string;
+  multiline?: boolean;
+}) {
+  const handleAction = (action: string, val?: string) => {
+    document.execCommand(action, false, val);
+  };
+
+  return (
+    <div className="flex flex-col h-full">
+      <FormattingToolbar onAction={handleAction} />
+      <div
+        contentEditable
+        suppressContentEditableWarning
+        className={`w-full bg-transparent px-3.5 py-2.5 text-sm text-slate-900 focus:outline-none dark:text-slate-100 ${multiline ? "min-h-[100px] overflow-y-auto" : "whitespace-nowrap overflow-x-auto"}`}
+        onBlur={(e) => onChange(e.currentTarget.innerHTML)}
+        dangerouslySetInnerHTML={{ __html: value }}
+        onKeyDown={(e) => {
+          if (!multiline && e.key === "Enter") {
+            e.preventDefault();
+          }
+        }}
+      />
+      {!value && placeholder && (
+        <span className="pointer-events-none absolute left-3.5 top-[38px] text-sm text-slate-400 opacity-50">
+          {placeholder}
+        </span>
+      )}
     </div>
   );
 }
@@ -506,17 +554,6 @@ export function DualInput({
   onChangeEN: (val: string) => void;
   required?: boolean;
 }) {
-  const handleAction = (lang: "mn" | "en", tag: string, align?: string) => {
-    const setter = lang === "mn" ? onChangeMN : onChangeEN;
-    const current = lang === "mn" ? mnValue : enValue;
-    
-    if (tag === "p") {
-      setter(`<p align="${align}">${current}</p>`);
-    } else {
-      setter(`<${tag}>${current}</${tag}>`);
-    }
-  };
-
   return (
     <div className="space-y-1.5">
       <label className="text-[11px] font-bold uppercase tracking-[0.12em] text-slate-500 dark:text-slate-400">
@@ -524,27 +561,13 @@ export function DualInput({
       </label>
       <div className="grid gap-3 sm:grid-cols-2">
         <div className="group relative overflow-hidden rounded-xl border border-indigo-100/50 bg-white dark:border-indigo-900/30 dark:bg-slate-950">
-          <FormattingToolbar onAction={(tag, align) => handleAction("mn", tag, align)} />
-          <input
-            required={required}
-            className="w-full bg-transparent px-3.5 py-2.5 pr-8 text-sm text-slate-900 focus:outline-none dark:text-slate-100"
-            value={mnValue}
-            onChange={(e) => onChangeMN(e.target.value)}
-            placeholder="Монгол"
-          />
+          <VisualEditor value={mnValue} onChange={onChangeMN} placeholder="Монгол" />
           <span className="absolute right-3 top-[38px] select-none text-[10px] font-bold text-slate-300 dark:text-slate-700">
             MN
           </span>
         </div>
         <div className="group relative overflow-hidden rounded-xl border border-amber-100/50 bg-white dark:border-amber-900/30 dark:bg-slate-950">
-          <FormattingToolbar onAction={(tag, align) => handleAction("en", tag, align)} />
-          <input
-            required={required}
-            className="w-full bg-transparent px-3.5 py-2.5 pr-8 text-sm text-slate-900 focus:outline-none dark:text-slate-100"
-            value={enValue}
-            onChange={(e) => onChangeEN(e.target.value)}
-            placeholder="English"
-          />
+          <VisualEditor value={enValue} onChange={onChangeEN} placeholder="English" />
           <span className="absolute right-3 top-[38px] select-none text-[10px] font-bold text-slate-300 dark:text-slate-700">
             EN
           </span>
@@ -571,17 +594,6 @@ export function DualTextarea({
   rows?: number;
   required?: boolean;
 }) {
-  const handleAction = (lang: "mn" | "en", tag: string, align?: string) => {
-    const setter = lang === "mn" ? onChangeMN : onChangeEN;
-    const current = lang === "mn" ? mnValue : enValue;
-    
-    if (tag === "p") {
-      setter(`<p align="${align}">${current}</p>`);
-    } else {
-      setter(`<${tag}>${current}</${tag}>`);
-    }
-  };
-
   return (
     <div className="space-y-1.5">
       <label className="text-[11px] font-bold uppercase tracking-[0.12em] text-slate-500 dark:text-slate-400">
@@ -589,29 +601,13 @@ export function DualTextarea({
       </label>
       <div className="grid gap-3 lg:grid-cols-2">
         <div className="group relative overflow-hidden rounded-xl border border-indigo-100/50 bg-white dark:border-indigo-900/30 dark:bg-slate-950">
-          <FormattingToolbar onAction={(tag, align) => handleAction("mn", tag, align)} />
-          <textarea
-            required={required}
-            rows={rows}
-            className="w-full bg-transparent px-3.5 py-2.5 pr-8 text-sm text-slate-900 focus:outline-none dark:text-slate-100 resize-y"
-            value={mnValue}
-            onChange={(e) => onChangeMN(e.target.value)}
-            placeholder="Монгол"
-          />
+          <VisualEditor value={mnValue} onChange={onChangeMN} placeholder="Монгол" multiline />
           <span className="absolute right-3 top-[38px] select-none text-[10px] font-bold text-slate-300 dark:text-slate-700">
             MN
           </span>
         </div>
         <div className="group relative overflow-hidden rounded-xl border border-amber-100/50 bg-white dark:border-amber-900/30 dark:bg-slate-950">
-          <FormattingToolbar onAction={(tag, align) => handleAction("en", tag, align)} />
-          <textarea
-            required={required}
-            rows={rows}
-            className="w-full bg-transparent px-3.5 py-2.5 pr-8 text-sm text-slate-900 focus:outline-none dark:text-slate-100 resize-y"
-            value={enValue}
-            onChange={(e) => onChangeEN(e.target.value)}
-            placeholder="English"
-          />
+          <VisualEditor value={enValue} onChange={onChangeEN} placeholder="English" multiline />
           <span className="absolute right-3 top-[38px] select-none text-[10px] font-bold text-slate-300 dark:text-slate-700">
             EN
           </span>
