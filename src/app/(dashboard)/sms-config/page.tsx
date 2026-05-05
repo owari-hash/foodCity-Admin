@@ -8,7 +8,10 @@ import {
 } from "@/lib/adminClientAuth";
 import { getApiBaseUrl, joinBackendRequestUrl } from "@/lib/api";
 import { useAdminLanguage } from "@/contexts/AdminLanguageContext";
-import { Phone, Trash2, Plus, CheckCircle2, AlertCircle, Save, MessageSquare, Clock, User, Mail, FileText } from "lucide-react";
+import { 
+  Phone, Trash2, Plus, CheckCircle2, AlertCircle, Save, 
+  User, Mail, Clock, Inbox, ChevronRight, Search, Filter 
+} from "lucide-react";
 
 interface ContactSubmission {
   _id: string;
@@ -37,45 +40,39 @@ interface SMSConfig {
 const translations = {
   mn: {
     title: "Мессеж болон санал",
-    description: "Хэрэглэгчдийн санал хүсэлт",
-    adminPhones: "Мэдэгдэл хүлээн авах дугаарууд",
-    adminPhonesDesc: "Шинэ санал ирэхэд SMS очих дугаарууд",
-    addPhone: "Нэмэх",
+    description: "Хэрэглэгчийн санал хүсэлтийн удирдлага",
+    adminPhones: "Мэдэгдэл хүлээн авах",
     template: "SMS загвар",
-    templateDesc: "Загвар: {name}, {phone}, {email}, {subject}",
-    submissions: "Санал хүсэлтийн жагсаалт",
+    templateDesc: "{name}, {phone}, {email}, {subject} ашиглана уу",
     noSubmissions: "Одоогоор санал хүсэлт ирээгүй байна",
-    details: "Дэлгэрэнгүй",
-    status: "Төлөв",
-    save: "Хадгалах",
+    details: "Дэлгэрэнгүй мэдээлэл",
+    save: "Тохиргоо хадгалах",
     loading: "Уншиж байна...",
     saved: "Амжилттай хадгалагдлаа",
     placeholderPhone: "+976...",
-    all: "Бүгд",
+    all: "Бүх санал",
     new: "Шинэ",
     read: "Уншсан",
     responded: "Хариулсан",
+    searchPlaceholder: "Хайх...",
   },
   en: {
     title: "Messages & Feedback",
-    description: "User submissions",
-    adminPhones: "Notification Numbers",
-    adminPhonesDesc: "Phone numbers for SMS alerts",
-    addPhone: "Add",
+    description: "Manage customer feedback & SMS alerts",
+    adminPhones: "Alert Recipients",
     template: "SMS Template",
-    templateDesc: "Placeholders: {name}, {phone}, {email}, {subject}",
-    submissions: "Submissions List",
+    templateDesc: "Use {name}, {phone}, {email}, {subject}",
     noSubmissions: "No submissions found",
-    details: "Details",
-    status: "Status",
-    save: "Save Config",
-    loading: "Loading...",
-    saved: "Saved successfully",
+    details: "Submission Details",
+    save: "Save Configuration",
+    loading: "Loading content...",
+    saved: "Successfully updated",
     placeholderPhone: "+976...",
-    all: "All",
+    all: "All Messages",
     new: "New",
     read: "Read",
     responded: "Responded",
+    searchPlaceholder: "Search submissions...",
   },
 };
 
@@ -89,13 +86,13 @@ export default function SMSConfigPage() {
   const [submissions, setSubmissions] = useState<ContactSubmission[]>([]);
   const [selectedSubmission, setSelectedSubmission] = useState<ContactSubmission | null>(null);
   const [filterStatus, setFilterStatus] = useState<"all" | "new" | "read" | "responded">("all");
+  const [searchQuery, setSearchQuery] = useState("");
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
 
   const loadData = useCallback(async () => {
     setLoading(true);
-    setError(null);
     try {
       const [configRes, subRes] = await Promise.all([
         fetch(joinBackendRequestUrl(getApiBaseUrl(), "/api/v1/admin/sms-config"), withClientAdminAuth()),
@@ -103,13 +100,13 @@ export default function SMSConfigPage() {
       ]);
       await ensureClientAuthorized(configRes);
       await ensureClientAuthorized(subRes);
-      if (!configRes.ok || !subRes.ok) throw new Error("Failed to load data");
+      if (!configRes.ok || !subRes.ok) throw new Error("Data sync failed");
       const configJson = await configRes.json();
       const subJson = await subRes.json();
       setConfig(configJson.config);
       setSubmissions(subJson.submissions);
     } catch (e) {
-      setError(e instanceof Error ? e.message : "Error loading data");
+      setError(e instanceof Error ? e.message : "Connection error");
     } finally {
       setLoading(false);
     }
@@ -118,19 +115,6 @@ export default function SMSConfigPage() {
   useEffect(() => {
     void loadData();
   }, [loadData]);
-
-  const handleAddPhone = () => {
-    if (!newPhone.trim() || !config) return;
-    if (config.adminPhoneNumbers.includes(newPhone.trim())) {
-      setError("Phone number already exists");
-      return;
-    }
-    setConfig({
-      ...config,
-      adminPhoneNumbers: [...config.adminPhoneNumbers, newPhone.trim()]
-    });
-    setNewPhone("");
-  };
 
   const handleSave = async () => {
     if (!config) return;
@@ -144,14 +128,21 @@ export default function SMSConfigPage() {
         headers: { "Content-Type": "application/json", ...withClientAdminAuth().headers },
         body: JSON.stringify({ ...config, updatedBy: profile?.displayName || "admin" }),
       });
-      if (!res.ok) throw new Error("Failed to save");
+      if (!res.ok) throw new Error("Update failed");
       setSuccess(t.saved);
-      setTimeout(() => setSuccess(null), 3000);
+      setTimeout(() => setSuccess(null), 4000);
     } catch (e) {
-      setError("Failed to save");
+      setError("Failed to sync configuration");
     } finally {
       setSaving(false);
     }
+  };
+
+  const handleAddPhone = () => {
+    if (!newPhone.trim() || !config) return;
+    if (config.adminPhoneNumbers.includes(newPhone.trim())) return;
+    setConfig({ ...config, adminPhoneNumbers: [...config.adminPhoneNumbers, newPhone.trim()] });
+    setNewPhone("");
   };
 
   const handleStatusChange = async (id: string, newStatus: string) => {
@@ -165,191 +156,255 @@ export default function SMSConfigPage() {
       setSubmissions(submissions.map(s => s._id === id ? { ...s, status: newStatus as any } : s));
       if (selectedSubmission?._id === id) setSelectedSubmission({ ...selectedSubmission, status: newStatus as any });
     } catch (e) {
-      setError("Failed to update status");
+      setError("Status update failed");
     }
   };
 
-  const filtered = filterStatus === "all" ? submissions : submissions.filter(s => s.status === filterStatus);
+  const filtered = submissions
+    .filter(s => filterStatus === "all" || s.status === filterStatus)
+    .filter(s => 
+      s.name?.toLowerCase().includes(searchQuery.toLowerCase()) || 
+      s.phone.includes(searchQuery) || 
+      s.message.toLowerCase().includes(searchQuery.toLowerCase())
+    );
 
   if (loading) return (
-    <div className="flex h-[60vh] items-center justify-center">
-      <div className="h-8 w-8 animate-spin rounded-full border-2 border-zinc-200 border-t-zinc-800"></div>
+    <div className="flex h-[80vh] items-center justify-center">
+      <div className="flex flex-col items-center gap-4">
+        <div className="h-10 w-10 animate-spin rounded-full border-2 border-zinc-200 border-t-emerald-600"></div>
+        <p className="text-sm text-zinc-400 font-medium">{t.loading}</p>
+      </div>
     </div>
   );
 
   return (
-    <div className="mx-auto max-w-6xl space-y-8">
-      {/* Alerts */}
-      <div className="fixed right-8 top-24 z-50 flex w-72 flex-col gap-2">
-        {error && (
-          <div className="flex gap-3 rounded-xl border border-zinc-200 bg-white p-4 shadow-sm">
-            <AlertCircle className="h-5 w-5 text-zinc-500" />
-            <p className="text-sm text-zinc-600">{error}</p>
-          </div>
-        )}
-        {success && (
-          <div className="flex gap-3 rounded-xl border border-zinc-200 bg-white p-4 shadow-sm">
-            <CheckCircle2 className="h-5 w-5 text-zinc-800" />
-            <p className="text-sm text-zinc-800">{success}</p>
-          </div>
-        )}
-      </div>
-
-      <div className="flex items-center justify-between border-b border-zinc-100 pb-6">
+    <div className="mx-auto flex flex-col gap-6 p-4 md:p-8 lg:p-0 max-w-7xl">
+      {/* Top Header */}
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between border-b border-zinc-100 pb-8">
         <div>
-          <h1 className="text-xl font-medium text-zinc-900">{t.title}</h1>
-          <p className="text-xs text-zinc-500">{t.description}</p>
+          <h1 className="text-3xl font-semibold tracking-tight text-zinc-900">{t.title}</h1>
+          <p className="mt-1 text-zinc-500">{t.description}</p>
         </div>
-        <button 
-          onClick={handleSave} 
-          disabled={saving} 
-          className="rounded-lg bg-emerald-600 px-6 py-2 text-sm font-medium text-white transition-all hover:bg-emerald-700 disabled:opacity-50"
-        >
-          {saving ? "..." : t.save}
-        </button>
+        <div className="flex items-center gap-3">
+          {success && (
+            <div className="flex items-center gap-2 rounded-full bg-emerald-50 px-4 py-2 text-sm text-emerald-700 animate-in fade-in slide-in-from-right-4">
+              <CheckCircle2 className="h-4 w-4" />
+              <span>{success}</span>
+            </div>
+          )}
+          <button 
+            onClick={handleSave} 
+            disabled={saving} 
+            className="group relative inline-flex items-center gap-2 overflow-hidden rounded-full bg-emerald-600 px-8 py-3 text-sm font-semibold text-white shadow-lg transition-all hover:bg-emerald-700 hover:shadow-emerald-200 active:scale-95 disabled:opacity-50"
+          >
+            <Save className={`h-4 w-4 transition-transform ${saving ? "animate-spin" : "group-hover:scale-110"}`} />
+            <span>{saving ? "..." : t.save}</span>
+          </button>
+        </div>
       </div>
 
-      <div className="grid grid-cols-1 gap-8 lg:grid-cols-12">
-        {/* Left: Configuration */}
-        <div className="space-y-6 lg:col-span-4">
-          <section className="space-y-4 rounded-xl border border-zinc-100 bg-zinc-50/30 p-5">
-            <div className="text-[11px] text-zinc-400">{t.adminPhones}</div>
-            <div className="space-y-2">
+      <div className="grid grid-cols-1 gap-10 lg:grid-cols-12">
+        {/* Left Sidebar: Configuration */}
+        <aside className="space-y-8 lg:col-span-4">
+          <div className="group rounded-3xl border border-zinc-100 bg-white p-8 shadow-sm transition-all hover:shadow-md">
+            <div className="mb-6 flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-emerald-50 text-emerald-600 transition-colors group-hover:bg-emerald-100">
+                  <Phone className="h-5 w-5" />
+                </div>
+                <h3 className="text-lg font-semibold text-zinc-900">{t.adminPhones}</h3>
+              </div>
+            </div>
+            
+            <div className="space-y-3">
               {config?.adminPhoneNumbers.map((phone, idx) => (
-                <div key={idx} className="flex items-center justify-between rounded-lg bg-white p-2.5 border border-zinc-100">
-                  <span className="text-sm text-zinc-600">{phone}</span>
-                  <button onClick={() => setConfig({...config!, adminPhoneNumbers: config!.adminPhoneNumbers.filter((_, i) => i !== idx)})} className="text-zinc-400 hover:text-zinc-600">
+                <div key={idx} className="group/item flex items-center justify-between rounded-2xl border border-zinc-50 bg-zinc-50/50 p-4 transition-all hover:border-emerald-100 hover:bg-white">
+                  <span className="font-mono text-sm font-medium text-zinc-600">{phone}</span>
+                  <button 
+                    onClick={() => setConfig({...config!, adminPhoneNumbers: config!.adminPhoneNumbers.filter((_, i) => i !== idx)})} 
+                    className="rounded-xl p-2 text-zinc-300 opacity-0 transition-all hover:bg-red-50 hover:text-red-600 group-hover/item:opacity-100"
+                  >
                     <Trash2 className="h-4 w-4" />
                   </button>
                 </div>
               ))}
-              <div className="flex gap-2">
+              
+              <div className="mt-4 flex gap-2">
                 <input
                   type="tel"
                   value={newPhone}
                   onChange={e => setNewPhone(e.target.value)}
                   onKeyDown={e => e.key === 'Enter' && handleAddPhone()}
                   placeholder={t.placeholderPhone}
-                  className="w-full rounded-lg border border-zinc-200 bg-white px-3 py-2 text-sm outline-none focus:border-zinc-400"
+                  className="w-full rounded-2xl border border-zinc-100 bg-zinc-50 px-5 py-3 text-sm outline-none transition-all focus:bg-white focus:ring-2 focus:ring-emerald-500/10"
                 />
                 <button 
                   onClick={handleAddPhone} 
-                  className="rounded-lg bg-zinc-100 px-3 py-2 text-zinc-500 hover:bg-zinc-200"
+                  className="flex h-12 w-12 items-center justify-center rounded-2xl bg-zinc-900 text-white transition-transform active:scale-90"
                 >
-                  <Plus className="h-4 w-4" />
+                  <Plus className="h-5 w-5" />
                 </button>
               </div>
             </div>
-          </section>
+          </div>
 
-          <section className="space-y-3 rounded-xl border border-zinc-100 bg-zinc-50/30 p-5">
+          <div className="group rounded-3xl border border-zinc-100 bg-white p-8 shadow-sm transition-all hover:shadow-md">
+            <div className="mb-6 flex items-center gap-3">
+              <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-amber-50 text-amber-600 transition-colors group-hover:bg-amber-100">
+                <Mail className="h-5 w-5" />
+              </div>
+              <h3 className="text-lg font-semibold text-zinc-900">{t.template}</h3>
+            </div>
             <textarea
               value={config?.templates.contactSubmission}
               onChange={e => setConfig({...config!, templates: { contactSubmission: e.target.value }})}
-              rows={5}
-              placeholder="SMS Template"
-              className="w-full rounded-lg border border-zinc-200 bg-white p-3 text-sm outline-none focus:border-zinc-400"
+              rows={6}
+              placeholder="SMS Template..."
+              className="w-full rounded-2xl border border-zinc-100 bg-zinc-50 p-5 text-sm leading-relaxed outline-none transition-all focus:bg-white focus:ring-2 focus:ring-emerald-500/10"
             />
-            <div className="text-[10px] text-zinc-400 leading-relaxed">
-              {t.templateDesc}
-            </div>
-          </section>
-        </div>
+          </div>
+        </aside>
 
-        {/* Right: Submissions List */}
-        <div className="space-y-6 lg:col-span-8">
-          <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-            <div className="flex flex-wrap gap-2">
+        {/* Main Content: Submissions CRM */}
+        <main className="space-y-6 lg:col-span-8">
+          {/* Submissions List Header */}
+          <div className="flex flex-col gap-6 sm:flex-row sm:items-center sm:justify-between">
+            <div className="flex items-center gap-2 overflow-x-auto pb-2 sm:pb-0 no-scrollbar">
               {(["all", "new", "read", "responded"] as const).map(s => (
                 <button
                   key={s}
                   onClick={() => setFilterStatus(s)}
-                  className={`rounded-full px-4 py-1.5 text-xs transition-all ${filterStatus === s ? "bg-zinc-900 text-white" : "bg-zinc-100 text-zinc-500 hover:bg-zinc-200"}`}
+                  className={`whitespace-nowrap rounded-full px-5 py-2 text-sm font-semibold transition-all ${
+                    filterStatus === s 
+                      ? "bg-zinc-900 text-white shadow-lg shadow-zinc-200" 
+                      : "bg-zinc-100 text-zinc-500 hover:bg-zinc-200"
+                  }`}
                 >
-                  {t[s as keyof typeof t]} ({s === "all" ? submissions.length : submissions.filter(x => x.status === s).length})
+                  {t[s as keyof typeof t]}
+                  <span className={`ml-2 text-xs opacity-60`}>
+                    {s === "all" ? submissions.length : submissions.filter(x => x.status === s).length}
+                  </span>
                 </button>
               ))}
             </div>
+            
+            <div className="relative flex-1 sm:max-w-xs">
+              <Search className="absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-zinc-400" />
+              <input
+                type="text"
+                placeholder={t.searchPlaceholder}
+                value={searchQuery}
+                onChange={e => setSearchQuery(e.target.value)}
+                className="w-full rounded-2xl border border-zinc-100 bg-white py-2.5 pl-11 pr-4 text-sm outline-none transition-all focus:ring-2 focus:ring-emerald-500/10"
+              />
+            </div>
           </div>
 
-          <div className="grid grid-cols-1 gap-6 xl:grid-cols-2">
-            <div className="rounded-xl border border-zinc-100 bg-white">
-              <div className="max-h-[500px] overflow-y-auto divide-y divide-zinc-50">
+          <div className="grid grid-cols-1 overflow-hidden rounded-[32px] border border-zinc-100 bg-white shadow-xl lg:grid-cols-2 lg:h-[700px]">
+            {/* List Pane */}
+            <div className="border-r border-zinc-50 flex flex-col">
+              <div className="flex-1 overflow-y-auto no-scrollbar">
                 {filtered.length === 0 ? (
-                  <div className="p-10 text-center text-xs text-zinc-400">{t.noSubmissions}</div>
+                  <div className="flex h-full flex-col items-center justify-center p-12 text-center">
+                    <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-zinc-50">
+                      <Inbox className="h-8 w-8 text-zinc-200" />
+                    </div>
+                    <p className="text-sm font-medium text-zinc-400">{t.noSubmissions}</p>
+                  </div>
                 ) : (
                   filtered.map(s => (
                     <button
                       key={s._id}
                       onClick={() => setSelectedSubmission(s)}
-                      className={`flex w-full flex-col p-4 text-left transition-colors hover:bg-zinc-50 ${selectedSubmission?._id === s._id ? "bg-zinc-50" : ""}`}
+                      className={`group flex w-full flex-col border-b border-zinc-50 p-6 text-left transition-all hover:bg-zinc-50/50 ${
+                        selectedSubmission?._id === s._id ? "bg-emerald-50/30 border-r-4 border-r-emerald-500" : ""
+                      }`}
                     >
-                      <div className="mb-1 flex items-center justify-between">
-                        <span className="text-sm font-medium text-zinc-900">{s.name || s.phone}</span>
-                        <span className={`text-[10px] ${s.status === "new" ? "text-blue-500" : s.status === "read" ? "text-amber-500" : "text-emerald-500"}`}>
-                          {t[s.status as keyof typeof t]}
-                        </span>
+                      <div className="mb-2 flex items-center justify-between">
+                        <span className={`h-2.5 w-2.5 rounded-full ${
+                          s.status === "new" ? "bg-blue-500 shadow-lg shadow-blue-200" : 
+                          s.status === "read" ? "bg-amber-400" : "bg-emerald-500"
+                        }`} />
+                        <span className="text-[10px] font-bold text-zinc-400">{new Date(s.createdAt).toLocaleDateString()}</span>
                       </div>
-                      <span className="truncate text-xs text-zinc-500">{s.subject || s.message.substring(0, 50)}</span>
-                      <span className="mt-2 text-[10px] text-zinc-400">{new Date(s.createdAt).toLocaleDateString()}</span>
+                      <div className="flex items-center justify-between gap-4">
+                        <span className="flex-1 truncate text-base font-semibold text-zinc-900">{s.name || s.phone}</span>
+                        <ChevronRight className={`h-4 w-4 text-zinc-300 transition-transform ${selectedSubmission?._id === s._id ? "translate-x-1 text-emerald-500" : "group-hover:translate-x-1"}`} />
+                      </div>
+                      <span className="mt-1 truncate text-sm text-zinc-500 font-medium">{s.message.substring(0, 80)}...</span>
                     </button>
                   ))
                 )}
               </div>
             </div>
 
-            {selectedSubmission ? (
-              <div className="rounded-xl border border-zinc-100 bg-white p-6">
-                <div className="mb-6 flex items-center justify-between border-b border-zinc-50 pb-4">
-                  <h3 className="text-sm font-medium text-zinc-900">{t.details}</h3>
-                  <select
-                    value={selectedSubmission.status}
-                    onChange={e => handleStatusChange(selectedSubmission._id, e.target.value)}
-                    className="rounded border-none bg-zinc-50 px-2 py-1 text-[11px] outline-none"
-                  >
-                    <option value="new">{t.new}</option>
-                    <option value="read">{t.read}</option>
-                    <option value="responded">{t.responded}</option>
-                  </select>
-                </div>
+            {/* Details Pane */}
+            <div className="hidden flex-col bg-zinc-50/30 lg:flex">
+              {selectedSubmission ? (
+                <div className="flex flex-col h-full p-10">
+                  <div className="mb-10 flex items-center justify-between">
+                    <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-white shadow-sm">
+                      <User className="h-6 w-6 text-zinc-400" />
+                    </div>
+                    <select
+                      value={selectedSubmission.status}
+                      onChange={e => handleStatusChange(selectedSubmission._id, e.target.value)}
+                      className="rounded-full border border-zinc-200 bg-white px-6 py-2 text-xs font-bold shadow-sm outline-none transition-all hover:border-zinc-300"
+                    >
+                      <option value="new">{t.new}</option>
+                      <option value="read">{t.read}</option>
+                      <option value="responded">{t.responded}</option>
+                    </select>
+                  </div>
 
-                <div className="space-y-5">
-                  {selectedSubmission.name && (
-                    <div className="flex items-center gap-3">
-                      <User className="h-4 w-4 text-zinc-400" />
-                      <div className="text-sm text-zinc-600">{selectedSubmission.name}</div>
+                  <div className="space-y-8">
+                    <div>
+                      <h2 className="text-2xl font-bold text-zinc-900">{selectedSubmission.name || "Anonymous User"}</h2>
+                      <div className="mt-3 flex flex-wrap gap-3">
+                        <div className="flex items-center gap-2 rounded-full bg-white px-4 py-2 text-sm font-medium text-zinc-600 shadow-sm">
+                          <Phone className="h-4 w-4 text-emerald-500" />
+                          {selectedSubmission.phone}
+                        </div>
+                        {selectedSubmission.email && (
+                          <div className="flex items-center gap-2 rounded-full bg-white px-4 py-2 text-sm font-medium text-zinc-600 shadow-sm">
+                            <Mail className="h-4 w-4 text-blue-500" />
+                            {selectedSubmission.email}
+                          </div>
+                        )}
+                      </div>
                     </div>
-                  )}
-                  {selectedSubmission.email && (
-                    <div className="flex items-center gap-3">
-                      <Mail className="h-4 w-4 text-zinc-400" />
-                      <div className="text-sm text-zinc-600 underline">{selectedSubmission.email}</div>
+
+                    <div className="rounded-[32px] border border-zinc-100 bg-white p-8 shadow-sm">
+                      <div className="mb-6 flex items-center justify-between">
+                        <span className="text-xs font-bold uppercase tracking-widest text-zinc-400">Message</span>
+                        <div className="flex items-center gap-2 text-[10px] font-bold text-zinc-300">
+                          <Clock className="h-3.5 w-3.5" />
+                          {new Date(selectedSubmission.createdAt).toLocaleString()}
+                        </div>
+                      </div>
+                      <p className="text-lg leading-relaxed text-zinc-700 font-medium">
+                        {selectedSubmission.message}
+                      </p>
                     </div>
-                  )}
-                  <div className="flex items-center gap-3">
-                    <Phone className="h-4 w-4 text-zinc-400" />
-                    <div className="text-sm text-zinc-600">{selectedSubmission.phone}</div>
-                  </div>
-                  <div className="space-y-2 border-t border-zinc-50 pt-4">
-                    <div className="text-[11px] text-zinc-400">Message</div>
-                    <div className="rounded-lg bg-zinc-50 p-4 text-sm text-zinc-600 leading-relaxed">
-                      {selectedSubmission.message}
-                    </div>
-                  </div>
-                  <div className="flex items-center gap-2 pt-2 text-[10px] text-zinc-400">
-                    <Clock className="h-3.5 w-3.5" />
-                    {new Date(selectedSubmission.createdAt).toLocaleString()}
                   </div>
                 </div>
-              </div>
-            ) : (
-              <div className="hidden items-center justify-center rounded-xl border border-dashed border-zinc-100 xl:flex">
-                <p className="text-xs text-zinc-400">Сонгоно уу</p>
-              </div>
-            )}
+              ) : (
+                <div className="flex h-full flex-col items-center justify-center p-20 text-center opacity-30">
+                  <div className="mb-6 flex h-24 w-24 items-center justify-center rounded-[32px] bg-white shadow-xl">
+                    <Filter className="h-10 w-10 text-zinc-300" />
+                  </div>
+                  <p className="text-lg font-semibold text-zinc-400">Select a submission to view details</p>
+                </div>
+              )}
+            </div>
           </div>
-        </div>
+        </main>
       </div>
+
+      <style jsx global>{`
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+      `}</style>
     </div>
   );
 }
