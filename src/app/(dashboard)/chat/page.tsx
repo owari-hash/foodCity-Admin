@@ -399,8 +399,10 @@ export default function ChatAdminPage() {
     }
   }
 
+  const [humanModeLoading, setHumanModeLoading] = useState(false);
   async function setHumanMode(humanMode: boolean) {
     if (!selected) return;
+    setHumanModeLoading(true);
     try {
       const res = await fetch(
         joinBackendRequestUrl(getApiBaseUrl(), `/api/v1/admin/conversations/${selected.id}`),
@@ -422,6 +424,8 @@ export default function ChatAdminPage() {
       void loadConversations();
     } catch (e) {
       setError(e instanceof Error ? e.message : t.siteContent.common.error);
+    } finally {
+      setHumanModeLoading(false);
     }
   }
 
@@ -744,9 +748,10 @@ export default function ChatAdminPage() {
               <button
                 type="button"
                 onClick={() => setHumanMode(!selected.humanMode)}
-                className="min-h-9 shrink-0 rounded-lg border border-zinc-200 px-2 py-1.5 text-xs leading-tight dark:border-zinc-700 sm:max-w-none"
+                disabled={humanModeLoading}
+                className="min-h-9 shrink-0 rounded-lg border border-zinc-200 px-2 py-1.5 text-xs leading-tight dark:border-zinc-700 sm:max-w-none disabled:opacity-50"
               >
-                {selected.humanMode ? t.chat.thread.backToBot : t.chat.thread.connectHuman}
+                {humanModeLoading ? t.chat.chatbot.status.saving : (selected.humanMode ? t.chat.thread.backToBot : t.chat.thread.connectHuman)}
               </button>
             </div>
             <div className="min-h-0 flex-1 space-y-2 overflow-y-auto px-3 py-3 sm:px-4">
