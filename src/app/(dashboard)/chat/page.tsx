@@ -279,7 +279,7 @@ export default function ChatAdminPage() {
     setConfigLoading(true);
     try {
       const res = await fetch(
-        joinBackendRequestUrl(getApiBaseUrl(), "/api/v1/admin/site-pages/chatbot"),
+        joinBackendRequestUrl(getApiBaseUrl(), "/api/v1/admin/site-pages/chatbot?lang=mn"),
         withClientAdminAuth(),
       );
       const gate = await ensureClientAuthorized(res);
@@ -436,21 +436,35 @@ export default function ChatAdminPage() {
           .map((n) => normalizeChoiceNode(n))
           .filter((n): n is ChatChoiceNode => Boolean(n)),
       };
-      const res = await fetch(
-        joinBackendRequestUrl(getApiBaseUrl(), "/api/v1/admin/site-pages/chatbot"),
-        withClientAdminAuth({
-          method: "PUT",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ sections: cleaned }),
-        }),
-      );
-      const gate = await ensureClientAuthorized(res);
-      if (gate === "forbidden") {
+      const [resMN, resEN] = await Promise.all([
+        fetch(
+          joinBackendRequestUrl(getApiBaseUrl(), "/api/v1/admin/site-pages/chatbot?lang=mn"),
+          withClientAdminAuth({
+            method: "PUT",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ sections: cleaned }),
+          }),
+        ),
+        fetch(
+          joinBackendRequestUrl(getApiBaseUrl(), "/api/v1/admin/site-pages/chatbot?lang=en"),
+          withClientAdminAuth({
+            method: "PUT",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ sections: cleaned }),
+          }),
+        ),
+      ]);
+
+      const gateMN = await ensureClientAuthorized(resMN);
+      if (gateMN === "forbidden") {
         setError(t.siteContent.common.forbidden);
         return;
       }
-      if (gate !== "ok") return;
-      if (!res.ok) throw new Error(await res.text());
+      if (gateMN !== "ok") return;
+
+      if (!resMN.ok) throw new Error(await resMN.text());
+      if (!resEN.ok) throw new Error(await resEN.text());
+
       setConfigMsg(t.chat.chatbot.status.success);
       setTimeout(() => setConfigMsg(null), 3000);
     } catch (e) {
