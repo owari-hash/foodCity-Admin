@@ -728,7 +728,7 @@ export default function SiteContentPage() {
                     {TABS.find((t) => t.id === tab)?.label ?? ""}
                   </h2>
                 </div>
-                {tab !== "footer" && (
+                {true && (
                   <div className="flex shrink-0 items-center gap-3 rounded-xl border border-slate-200/60 bg-slate-50/50 px-3 py-2 dark:border-slate-700/50 dark:bg-slate-900/40">
                     <span className="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">
                       {t.siteContent.common.visible}
@@ -745,6 +745,7 @@ export default function SiteContentPage() {
                         if (tab === "jobs-page") setJobsPage((prev) => ({ ...prev, hidden: !prev.hidden }));
                         if (tab === "team") setTeamPage((prev) => ({ ...prev, hidden: !prev.hidden }));
                         if (tab === "projects-page") setProjectsPage((prev) => ({ ...prev, hidden: !prev.hidden }));
+                        if (tab === "footer") setFooter((prev) => ({ ...prev, hidden: !prev.hidden }));
                       }}
                       className={`relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-hidden ${
                         (() => {
@@ -757,6 +758,7 @@ export default function SiteContentPage() {
                           if (tab === "jobs-page") return !jobsPage.hidden;
                           if (tab === "team") return !teamPage.hidden;
                           if (tab === "projects-page") return !projectsPage.hidden;
+                          if (tab === "footer") return !footer.hidden;
                           return true;
                         })()
                           ? "bg-indigo-600"
@@ -775,6 +777,7 @@ export default function SiteContentPage() {
                             if (tab === "jobs-page") return !jobsPage.hidden;
                             if (tab === "team") return !teamPage.hidden;
                             if (tab === "projects-page") return !projectsPage.hidden;
+                            if (tab === "footer") return !footer.hidden;
                             return true;
                           })()
                             ? "translate-x-5"
