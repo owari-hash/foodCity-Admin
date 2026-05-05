@@ -99,7 +99,7 @@ type ContactState = {
     telHref: string;
     telLabel: string;
   };
-  formTitle: string;
+  formTitle?: string;
   links: { type: string; href: string; title: string }[];
 };
 type GalleryState = {
@@ -1658,13 +1658,7 @@ export default function SiteContentPage() {
                       </GhostButton>
                     </div>
                   </EditorSection>
-                    <DualInput
-                      label={t.siteContent.contact.fields.formTitle}
-                      mnValue={contact.formTitle}
-                      enValue={contactEN.formTitle}
-                      onChangeMN={(v) => setContact({ ...contact, formTitle: v })}
-                      onChangeEN={(v) => setContactEN({ ...contactEN, formTitle: v })}
-                    />
+
                   <PrimarySave
                     disabled={saving}
                     onClick={() => void save("contact")}
