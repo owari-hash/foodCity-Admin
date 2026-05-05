@@ -431,59 +431,6 @@ export function DangerMini({
   );
 }
 
-function FormattingToolbar({
-  onAction,
-}: {
-  onAction: (tag: string, endTag?: string) => void;
-}) {
-  const btn = "p-1.5 hover:bg-slate-100 dark:hover:bg-slate-800 rounded text-slate-500 hover:text-indigo-600 transition-colors";
-  return (
-    <div className="flex items-center gap-0.5 border-b border-slate-100 bg-slate-50/50 px-2 py-1 dark:border-slate-800 dark:bg-slate-900/30">
-      <button type="button" onClick={() => onAction("<b>", "</b>")} className={btn} title="Bold">
-        <span className="font-bold">B</span>
-      </button>
-      <button type="button" onClick={() => onAction("<i>", "</i>")} className={btn} title="Italic">
-        <span className="italic font-serif">I</span>
-      </button>
-      <div className="mx-1 h-4 w-px bg-slate-200 dark:bg-slate-700" />
-      <button type="button" onClick={() => onAction("<p align=\"left\">", "</p>")} className={btn} title="Align Left">
-        <svg className="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h10M4 18h16" /></svg>
-      </button>
-      <button type="button" onClick={() => onAction("<p align=\"center\">", "</p>")} className={btn} title="Align Center">
-        <svg className="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M7 12h10M4 18h16" /></svg>
-      </button>
-      <button type="button" onClick={() => onAction("<p align=\"right\">", "</p>")} className={btn} title="Align Right">
-        <svg className="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M10 12h10M4 18h16" /></svg>
-      </button>
-      <button type="button" onClick={() => onAction("<p align=\"justify\">", "</p>")} className={btn} title="Justify">
-        <svg className="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" /></svg>
-      </button>
-    </div>
-  );
-}
-
-function handleFormatting(
-  input: HTMLInputElement | HTMLTextAreaElement | null,
-  startTag: string,
-  endTag: string = "",
-  onChange: (val: string) => void
-) {
-  if (!input) return;
-  const start = input.selectionStart ?? 0;
-  const end = input.selectionEnd ?? 0;
-  const text = input.value;
-  const before = text.substring(0, start);
-  const selection = text.substring(start, end);
-  const after = text.substring(end);
-  const newVal = before + startTag + selection + endTag + after;
-  onChange(newVal);
-  // Re-focus and restore selection
-  setTimeout(() => {
-    input.focus();
-    input.setSelectionRange(start + startTag.length, end + startTag.length);
-  }, 0);
-}
-
 export function DualInput({
   label,
   mnValue,
@@ -499,9 +446,6 @@ export function DualInput({
   onChangeEN: (val: string) => void;
   required?: boolean;
 }) {
-  const [mnRef, setMnRef] = useState<HTMLInputElement | null>(null);
-  const [enRef, setEnRef] = useState<HTMLInputElement | null>(null);
-
   return (
     <div className="space-y-1.5">
       <label className="text-[11px] font-bold uppercase tracking-[0.12em] text-slate-500 dark:text-slate-400">
@@ -509,30 +453,26 @@ export function DualInput({
       </label>
       <div className="grid gap-3 sm:grid-cols-2">
         <div className="group relative overflow-hidden rounded-xl border border-indigo-100/50 bg-white dark:border-indigo-900/30 dark:bg-slate-950">
-          <FormattingToolbar onAction={(s, e) => handleFormatting(mnRef, s, e, onChangeMN)} />
           <input
-            ref={setMnRef}
             required={required}
             className="w-full bg-transparent px-3.5 py-2.5 pr-8 text-sm text-slate-900 focus:outline-none dark:text-slate-100"
             value={mnValue}
             onChange={(e) => onChangeMN(e.target.value)}
             placeholder="Монгол"
           />
-          <span className="absolute right-3 top-10 select-none text-[10px] font-bold text-slate-300 dark:text-slate-700">
+          <span className="absolute right-3 top-2.5 select-none text-[10px] font-bold text-slate-300 dark:text-slate-700">
             MN
           </span>
         </div>
         <div className="group relative overflow-hidden rounded-xl border border-amber-100/50 bg-white dark:border-amber-900/30 dark:bg-slate-950">
-          <FormattingToolbar onAction={(s, e) => handleFormatting(enRef, s, e, onChangeEN)} />
           <input
-            ref={setEnRef}
             required={required}
             className="w-full bg-transparent px-3.5 py-2.5 pr-8 text-sm text-slate-900 focus:outline-none dark:text-slate-100"
             value={enValue}
             onChange={(e) => onChangeEN(e.target.value)}
             placeholder="English"
           />
-          <span className="absolute right-3 top-10 select-none text-[10px] font-bold text-slate-300 dark:text-slate-700">
+          <span className="absolute right-3 top-2.5 select-none text-[10px] font-bold text-slate-300 dark:text-slate-700">
             EN
           </span>
         </div>
@@ -558,9 +498,6 @@ export function DualTextarea({
   rows?: number;
   required?: boolean;
 }) {
-  const [mnRef, setMnRef] = useState<HTMLTextAreaElement | null>(null);
-  const [enRef, setEnRef] = useState<HTMLTextAreaElement | null>(null);
-
   return (
     <div className="space-y-1.5">
       <label className="text-[11px] font-bold uppercase tracking-[0.12em] text-slate-500 dark:text-slate-400">
@@ -568,9 +505,7 @@ export function DualTextarea({
       </label>
       <div className="grid gap-3 lg:grid-cols-2">
         <div className="group relative overflow-hidden rounded-xl border border-indigo-100/50 bg-white dark:border-indigo-900/30 dark:bg-slate-950">
-          <FormattingToolbar onAction={(s, e) => handleFormatting(mnRef, s, e, onChangeMN)} />
           <textarea
-            ref={setMnRef}
             required={required}
             rows={rows}
             className="w-full bg-transparent px-3.5 py-2.5 pr-8 text-sm text-slate-900 focus:outline-none dark:text-slate-100 resize-y"
@@ -578,14 +513,12 @@ export function DualTextarea({
             onChange={(e) => onChangeMN(e.target.value)}
             placeholder="Монгол"
           />
-          <span className="absolute right-3 top-10 select-none text-[10px] font-bold text-slate-300 dark:text-slate-700">
+          <span className="absolute right-3 top-2.5 select-none text-[10px] font-bold text-slate-300 dark:text-slate-700">
             MN
           </span>
         </div>
         <div className="group relative overflow-hidden rounded-xl border border-amber-100/50 bg-white dark:border-amber-900/30 dark:bg-slate-950">
-          <FormattingToolbar onAction={(s, e) => handleFormatting(enRef, s, e, onChangeEN)} />
           <textarea
-            ref={setEnRef}
             required={required}
             rows={rows}
             className="w-full bg-transparent px-3.5 py-2.5 pr-8 text-sm text-slate-900 focus:outline-none dark:text-slate-100 resize-y"
@@ -593,7 +526,7 @@ export function DualTextarea({
             onChange={(e) => onChangeEN(e.target.value)}
             placeholder="English"
           />
-          <span className="absolute right-3 top-10 select-none text-[10px] font-bold text-slate-300 dark:text-slate-700">
+          <span className="absolute right-3 top-2.5 select-none text-[10px] font-bold text-slate-300 dark:text-slate-700">
             EN
           </span>
         </div>
@@ -601,6 +534,7 @@ export function DualTextarea({
     </div>
   );
 }
+
 
 export function ListRow({ children }: { children: React.ReactNode }) {
   return (

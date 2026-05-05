@@ -2796,6 +2796,7 @@ export default function SiteContentPage() {
                                     <label className="text-[11px] font-bold uppercase tracking-wider text-slate-400">URL</label>
                                     <input
                                       className={scInput}
+                                      list="site-paths"
                                       value={link.href}
                                       onChange={(e) => {
                                         const v = e.target.value;
@@ -2814,6 +2815,7 @@ export default function SiteContentPage() {
                                       }}
                                     />
                                   </div>
+
                                 </div>
                                 <div className="flex flex-col gap-1 items-center mb-1">
                                   <button
@@ -2917,6 +2919,7 @@ export default function SiteContentPage() {
                                  <label className="text-xs text-slate-400">URL</label>
                                  <input
                                    className={scInput}
+                                   list="site-paths"
                                    value={s.href}
                                    onChange={(e) => {
                                      const v = e.target.value;
@@ -3118,6 +3121,17 @@ export default function SiteContentPage() {
           </EditorSurface>
         </div>
       </div>
+      <datalist id="site-paths">
+        <option value="/">Нүүр</option>
+        <option value="/about">Бидний тухай</option>
+        <option value="/gallery">Галлерей</option>
+        <option value="/contact">Холбоо барих</option>
+        <option value="/properties">Properties</option>
+        <option value="/sales">Борлуулалт</option>
+        <option value="/jobs">Ажлын зар</option>
+        <option value="/team">Мэдээ мэдээлэл</option>
+        <option value="/projects">Төслүүд</option>
+      </datalist>
     </div>
   );
 }
