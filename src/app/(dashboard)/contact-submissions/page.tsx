@@ -8,6 +8,7 @@ import {
 } from "@/lib/adminClientAuth";
 import { getApiBaseUrl, joinBackendRequestUrl } from "@/lib/api";
 import { useAdminLanguage } from "@/contexts/AdminLanguageContext";
+import { Mail, Phone, Calendar, Filter, MessageSquare, AlertCircle, CheckCircle2 } from "lucide-react";
 
 interface ContactSubmission {
   _id: string;
@@ -21,8 +22,62 @@ interface ContactSubmission {
   updatedAt: string;
 }
 
+const translations = {
+  mn: {
+    title: "Холбоо барих",
+    description: "Вебсайтаас ирсэн холбоо барих маягтын өргөдлүүдийг харах, удирдах",
+    loading: "Өргөдлүүдийг ачаалж байна...",
+    noSubmissions: "Өргөдөл байхгүй",
+    all: "Бүгд",
+    new: "Шинэ",
+    read: "Унших",
+    responded: "Хариулсан",
+    details: "Өргөдлийн дэлгэрэнгүй",
+    name: "Нэр",
+    email: "Имэйл",
+    phone: "Утас",
+    subject: "Сэдэв",
+    message: "Мессеж",
+    status: "Статус",
+    submitted: "Илгээсэн",
+    updated: "Шинэчилсэн",
+    callNow: "Одоо залгах",
+    emailNow: "Имэйл илгээх",
+    newStatus: "Шинэ",
+    readStatus: "Унших",
+    respondedStatus: "Хариулсан",
+    failed: "Өргөдлүүдийг ачаалахад алдаа гарлаа",
+  },
+  en: {
+    title: "Contact Submissions",
+    description: "View and manage contact form submissions from your website",
+    loading: "Loading submissions...",
+    noSubmissions: "No submissions found",
+    all: "All",
+    new: "New",
+    read: "Read",
+    responded: "Responded",
+    details: "Submission Details",
+    name: "Name",
+    email: "Email",
+    phone: "Phone",
+    subject: "Subject",
+    message: "Message",
+    status: "Status",
+    submitted: "Submitted",
+    updated: "Updated",
+    callNow: "Call Now",
+    emailNow: "Send Email",
+    newStatus: "New",
+    readStatus: "Read",
+    respondedStatus: "Responded",
+    failed: "Failed to load submissions",
+  },
+};
+
 export default function ContactSubmissionsPage() {
-  const { lang, t } = useAdminLanguage();
+  const { lang } = useAdminLanguage();
+  const t = translations[lang as keyof typeof translations] || translations.en;
   const [submissions, setSubmissions] = useState<ContactSubmission[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -39,7 +94,7 @@ export default function ContactSubmissionsPage() {
       );
       const gate = await ensureClientAuthorized(res);
       if (gate === "forbidden") {
-        setError(t.siteContent.common.forbidden || "Permission denied");
+        setError(lang === "mn" ? "Хандалт хориотой" : "Permission denied");
         return;
       }
       if (gate !== "ok") return;
@@ -47,11 +102,11 @@ export default function ContactSubmissionsPage() {
       const json = (await res.json()) as { submissions: ContactSubmission[] };
       setSubmissions(json.submissions);
     } catch (e) {
-      setError(e instanceof Error ? e.message : "Failed to load submissions");
+      setError(e instanceof Error ? e.message : t.failed);
     } finally {
       setLoading(false);
     }
-  }, [t]);
+  }, [lang, t.failed]);
 
   useEffect(() => {
     void loadSubmissions();
