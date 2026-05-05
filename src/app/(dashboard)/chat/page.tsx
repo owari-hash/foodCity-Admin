@@ -675,8 +675,15 @@ export default function ChatAdminPage() {
                 : "hover:bg-zinc-50 dark:hover:bg-zinc-900"
             }`}
           >
-            <div className="font-medium truncate">
-               {c.displayName || (t.chat.thread.roles.user + " " + c.guestId.slice(0, 8))}
+            <div className="flex items-center justify-between gap-2">
+              <div className="font-medium truncate flex-1">
+                {c.displayName || (t.chat.thread.roles.user + " " + c.guestId.slice(0, 8))}
+              </div>
+              {c.updatedAt && (
+                <div className="shrink-0 text-[10px] text-zinc-400">
+                  {new Date(c.updatedAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                </div>
+              )}
             </div>
             <div className="text-xs text-zinc-500">
               {c.humanMode ? t.chat.thread.roles.agent("") : t.chat.thread.roles.bot} · {c.status}
@@ -736,13 +743,20 @@ export default function ChatAdminPage() {
                           : "bg-amber-100 text-amber-950 dark:bg-amber-900 dark:text-amber-50"
                     }`}
                   >
-                    <span className="mb-0.5 block text-[10px] uppercase opacity-70">
-                      {m.role === "agent" && (m.agentDisplayName || m.agentUsername)
-                        ? t.chat.thread.roles.agent(m.agentDisplayName || m.agentUsername || "")
-                        : m.role === "user"
-                          ? t.chat.thread.roles.user
-                          : t.chat.thread.roles.bot}
-                    </span>
+                    <div className="mb-0.5 flex items-center justify-between gap-3 text-[10px] uppercase opacity-70">
+                      <span>
+                        {m.role === "agent" && (m.agentDisplayName || m.agentUsername)
+                          ? t.chat.thread.roles.agent(m.agentDisplayName || m.agentUsername || "")
+                          : m.role === "user"
+                            ? t.chat.thread.roles.user
+                            : t.chat.thread.roles.bot}
+                      </span>
+                      {m.createdAt && (
+                        <span>
+                          {new Date(m.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                        </span>
+                      )}
+                    </div>
                     {m.text}
                   </div>
                 </div>
