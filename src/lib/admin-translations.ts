@@ -57,6 +57,7 @@ export const adminTranslations = {
         label: "Шошго",
         editingPage: "Засварлаж буй хуудас",
         revalidated: "Хадгалагдлаа. Сайт шинэчлэгдлээ.",
+        visible: "Харуулах",
         saveTab: (name: string) => `${name} хадгалах`,
       },
       home: {
@@ -445,6 +446,7 @@ export const adminTranslations = {
         label: "Label",
         editingPage: "Editing Page",
         revalidated: "Saved and revalidated.",
+        visible: "Visible",
         saveTab: (name: string) => `Save ${name}`,
       },
       home: {

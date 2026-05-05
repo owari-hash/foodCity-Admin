@@ -39,6 +39,7 @@ import {
 } from "./editorUi";
 
 type HomeState = {
+  hidden: boolean;
   hero: {
     slideImages: string[];
     badge: string;
@@ -56,6 +57,7 @@ type HomeState = {
 };
 
 type AboutState = {
+  hidden: boolean;
   main: {
     sectionLabel: string;
     h2Line1: string;
@@ -72,14 +74,22 @@ type AboutState = {
 };
 
 type FooterState = {
-  partners: {
-    partnersLabel: string;
-    items: { name: string; src: string; width: number; height: number }[];
-  };
+  hidden: boolean;
+  logo: string;
+  partners: { partnersLabel: string; items: { name: string; src: string; width: number; height: number }[] };
   brand: { desc: string };
+  socials: { label: string; href: string; iconType: string }[];
+  sections: {
+    label: string;
+    href?: string;
+    hidden?: boolean;
+    items: { label: string; href: string; hidden?: boolean }[];
+  }[];
+  copyright: string;
 };
 
 type ContactState = {
+  hidden: boolean;
   hero: { badge: string; h2Accent: string; intro: string };
   items: { title: string; value: string }[];
   agent: {
@@ -93,9 +103,11 @@ type ContactState = {
   links: { type: string; href: string; title: string }[];
 };
 type GalleryState = {
+  hidden: boolean;
   features: { title: string; desc: string; image: string; images: string[]; videoUrl?: string; date?: string }[];
 };
 type PropertiesPageState = {
+  hidden: boolean;
   header: {
     badge: string;
     titleLine1: string;
@@ -119,9 +131,10 @@ type PropertiesPageState = {
   }[];
   cta: { href: string; label: string };
 };
-type SalesPageState = { header: { eyebrow: string; title: string; intro: string } };
-type JobsPageState = { header: { title: string; intro: string } };
+type SalesPageState = { hidden: boolean; header: { eyebrow: string; title: string; intro: string } };
+type JobsPageState = { hidden: boolean; header: { title: string; intro: string } };
 type TeamPageState = {
+  hidden: boolean;
   header: { eyebrow: string; h2Line1: string; h2Accent: string; intro: string };
   members: {
     name: string;
@@ -136,6 +149,7 @@ type TeamPageState = {
   cta: { title: string; subtitle: string; buttonLabel: string; buttonHref: string };
 };
 type ProjectsPageState = {
+  hidden: boolean;
   header: { badge: string; titleLine1: string; titleAccent: string; intro: string };
   items: {
     id: number;
@@ -148,6 +162,7 @@ type ProjectsPageState = {
 };
 
 const EMPTY_HOME: HomeState = {
+  hidden: false,
   hero: {
     slideImages: [],
     badge: "",
@@ -164,6 +179,7 @@ const EMPTY_HOME: HomeState = {
   },
 };
 const EMPTY_ABOUT: AboutState = {
+  hidden: false,
   main: {
     sectionLabel: "",
     h2Line1: "",
@@ -179,10 +195,16 @@ const EMPTY_ABOUT: AboutState = {
   },
 };
 const EMPTY_FOOTER: FooterState = {
+  hidden: false,
+  logo: "",
   partners: { partnersLabel: "", items: [] },
   brand: { desc: "" },
+  socials: [],
+  sections: [],
+  copyright: "",
 };
 const EMPTY_CONTACT: ContactState = {
+  hidden: false,
   hero: { badge: "", h2Accent: "", intro: "" },
   items: [],
   agent: { initials: "", name: "", role: "", telHref: "", telLabel: "" },
@@ -190,26 +212,32 @@ const EMPTY_CONTACT: ContactState = {
   links: [],
 };
 const EMPTY_GALLERY: GalleryState = {
+  hidden: false,
   features: [],
 };
 const EMPTY_PROPERTIES_PAGE: PropertiesPageState = {
+  hidden: false,
   header: { badge: "", titleLine1: "", titleAccent: "", intro: "" },
   categories: [],
   items: [],
   cta: { href: "", label: "" },
 };
 const EMPTY_SALES_PAGE: SalesPageState = {
+  hidden: false,
   header: { eyebrow: "", title: "", intro: "" },
 };
 const EMPTY_JOBS_PAGE: JobsPageState = {
+  hidden: false,
   header: { title: "", intro: "" },
 };
 const EMPTY_TEAM_PAGE: TeamPageState = {
+  hidden: false,
   header: { eyebrow: "", h2Line1: "", h2Accent: "", intro: "" },
   members: [],
   cta: { title: "", subtitle: "", buttonLabel: "", buttonHref: "" },
 };
 const EMPTY_PROJECTS_PAGE: ProjectsPageState = {
+  hidden: false,
   header: { badge: "", titleLine1: "", titleAccent: "", intro: "" },
   items: [],
 };
@@ -223,6 +251,7 @@ function normalizeHome(v: unknown): HomeState {
   const root = asRecord(v);
   const hero = asRecord(root.hero);
   return {
+    hidden: !!root.hidden,
     hero: {
       ...EMPTY_HOME.hero,
       ...hero,
@@ -235,6 +264,7 @@ function normalizeAbout(v: unknown): AboutState {
   const root = asRecord(v);
   const main = asRecord(root.main);
   return {
+    hidden: !!root.hidden,
     main: {
       ...EMPTY_ABOUT.main,
       ...main,
@@ -247,6 +277,8 @@ function normalizeFooter(v: unknown): FooterState {
   const partners = asRecord(root.partners);
   const brand = asRecord(root.brand);
   return {
+    hidden: !!root.hidden,
+    logo: typeof root.logo === "string" ? root.logo : "",
     partners: {
       ...EMPTY_FOOTER.partners,
       ...partners,
@@ -255,11 +287,15 @@ function normalizeFooter(v: unknown): FooterState {
         : [],
     },
     brand: { ...EMPTY_FOOTER.brand, ...brand },
+    socials: Array.isArray(root.socials) ? (root.socials as FooterState["socials"]) : [],
+    sections: Array.isArray(root.sections) ? (root.sections as FooterState["sections"]) : [],
+    copyright: typeof root.copyright === "string" ? root.copyright : "",
   };
 }
 function normalizeContact(v: unknown): ContactState {
   const root = asRecord(v);
   return {
+    hidden: !!root.hidden,
     hero: { ...EMPTY_CONTACT.hero, ...asRecord(root.hero) },
     items: Array.isArray(root.items) ? (root.items as { title: string; value: string }[]) : [],
     agent: { ...EMPTY_CONTACT.agent, ...asRecord(root.agent) },
@@ -276,6 +312,7 @@ function normalizeContact(v: unknown): ContactState {
 function normalizeGallery(v: unknown): GalleryState {
   const root = asRecord(v);
   return {
+    hidden: !!root.hidden,
     features: Array.isArray(root.features)
       ? (root.features as Record<string, unknown>[]).map((f) => ({
           title: String(f.title || ""),
@@ -291,6 +328,7 @@ function normalizeGallery(v: unknown): GalleryState {
 function normalizePropertiesPage(v: unknown): PropertiesPageState {
   const root = asRecord(v);
   return {
+    hidden: !!root.hidden,
     header: { ...EMPTY_PROPERTIES_PAGE.header, ...asRecord(root.header) },
     categories: Array.isArray(root.categories) ? (root.categories as string[]) : [],
     items: Array.isArray(root.items)
@@ -314,15 +352,16 @@ function normalizePropertiesPage(v: unknown): PropertiesPageState {
 }
 function normalizeSalesPage(v: unknown): SalesPageState {
   const root = asRecord(v);
-  return { header: { ...EMPTY_SALES_PAGE.header, ...asRecord(root.header) } };
+  return { hidden: !!root.hidden, header: { ...EMPTY_SALES_PAGE.header, ...asRecord(root.header) } };
 }
 function normalizeJobsPage(v: unknown): JobsPageState {
   const root = asRecord(v);
-  return { header: { ...EMPTY_JOBS_PAGE.header, ...asRecord(root.header) } };
+  return { hidden: !!root.hidden, header: { ...EMPTY_JOBS_PAGE.header, ...asRecord(root.header) } };
 }
 function normalizeTeamPage(v: unknown): TeamPageState {
   const root = asRecord(v);
   return {
+    hidden: !!root.hidden,
     header: { ...EMPTY_TEAM_PAGE.header, ...asRecord(root.header) },
     members: Array.isArray(root.members)
       ? (root.members as TeamPageState["members"])
@@ -333,6 +372,7 @@ function normalizeTeamPage(v: unknown): TeamPageState {
 function normalizeProjectsPage(v: unknown): ProjectsPageState {
   const root = asRecord(v);
   return {
+    hidden: !!root.hidden,
     header: { ...EMPTY_PROJECTS_PAGE.header, ...asRecord(root.header) },
     items: Array.isArray(root.items)
       ? (root.items as ProjectsPageState["items"]).map((item) => ({
@@ -342,6 +382,7 @@ function normalizeProjectsPage(v: unknown): ProjectsPageState {
       : [],
   };
 }
+
 
 async function fetchSections(pageId: string, lang: string): Promise<Record<string, unknown>> {
   const res = await fetch(
@@ -678,16 +719,77 @@ export default function SiteContentPage() {
 
           <EditorSurface>
             <header className="shrink-0 border-b border-slate-200/80 pb-4 dark:border-slate-800">
-              <p className="text-[11px] font-bold uppercase tracking-[0.14em] text-indigo-600 dark:text-indigo-400">
-                {t.siteContent.common.editingPage}
-              </p>
-              <h2 className="mt-1 text-xl font-bold tracking-tight text-slate-900 dark:text-slate-50">
-                {TABS.find((t) => t.id === tab)?.label ?? ""}
-              </h2>
+              <div className="flex items-center justify-between gap-4">
+                <div className="min-w-0">
+                  <p className="text-[11px] font-bold uppercase tracking-[0.14em] text-indigo-600 dark:text-indigo-400">
+                    {t.siteContent.common.editingPage}
+                  </p>
+                  <h2 className="mt-1 text-xl font-bold tracking-tight text-slate-900 dark:text-slate-50">
+                    {TABS.find((t) => t.id === tab)?.label ?? ""}
+                  </h2>
+                </div>
+                {tab !== "footer" && (
+                  <div className="flex shrink-0 items-center gap-3 rounded-xl border border-slate-200/60 bg-slate-50/50 px-3 py-2 dark:border-slate-700/50 dark:bg-slate-900/40">
+                    <span className="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">
+                      {t.siteContent.common.visible}
+                    </span>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        if (tab === "home") setHome((prev) => ({ ...prev, hidden: !prev.hidden }));
+                        if (tab === "about") setAbout((prev) => ({ ...prev, hidden: !prev.hidden }));
+                        if (tab === "gallery") setGallery((prev) => ({ ...prev, hidden: !prev.hidden }));
+                        if (tab === "contact") setContact((prev) => ({ ...prev, hidden: !prev.hidden }));
+                        if (tab === "properties-page") setPropertiesPage((prev) => ({ ...prev, hidden: !prev.hidden }));
+                        if (tab === "sales-page") setSalesPage((prev) => ({ ...prev, hidden: !prev.hidden }));
+                        if (tab === "jobs-page") setJobsPage((prev) => ({ ...prev, hidden: !prev.hidden }));
+                        if (tab === "team") setTeamPage((prev) => ({ ...prev, hidden: !prev.hidden }));
+                        if (tab === "projects-page") setProjectsPage((prev) => ({ ...prev, hidden: !prev.hidden }));
+                      }}
+                      className={`relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-hidden ${
+                        (() => {
+                          if (tab === "home") return !home.hidden;
+                          if (tab === "about") return !about.hidden;
+                          if (tab === "gallery") return !gallery.hidden;
+                          if (tab === "contact") return !contact.hidden;
+                          if (tab === "properties-page") return !propertiesPage.hidden;
+                          if (tab === "sales-page") return !salesPage.hidden;
+                          if (tab === "jobs-page") return !jobsPage.hidden;
+                          if (tab === "team") return !teamPage.hidden;
+                          if (tab === "projects-page") return !projectsPage.hidden;
+                          return true;
+                        })()
+                          ? "bg-indigo-600"
+                          : "bg-slate-200 dark:bg-slate-700"
+                      }`}
+                    >
+                      <span
+                        className={`pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow-sm ring-0 transition duration-200 ease-in-out ${
+                          (() => {
+                            if (tab === "home") return !home.hidden;
+                            if (tab === "about") return !about.hidden;
+                            if (tab === "gallery") return !gallery.hidden;
+                            if (tab === "contact") return !contact.hidden;
+                            if (tab === "properties-page") return !propertiesPage.hidden;
+                            if (tab === "sales-page") return !salesPage.hidden;
+                            if (tab === "jobs-page") return !jobsPage.hidden;
+                            if (tab === "team") return !teamPage.hidden;
+                            if (tab === "projects-page") return !projectsPage.hidden;
+                            return true;
+                          })()
+                            ? "translate-x-5"
+                            : "translate-x-0"
+                        }`}
+                      />
+                    </button>
+                  </div>
+                )}
+              </div>
               <p className="mt-1 w-full text-sm leading-relaxed text-slate-600 dark:text-slate-400">
                 {TABS.find((t) => t.id === tab)?.hint}
               </p>
             </header>
+
             <div className="min-h-0 flex-1 overflow-y-auto overscroll-y-contain [scrollbar-gutter:stable]">
               {loading ? (
                 <p className="text-sm font-medium text-slate-500 dark:text-slate-400">
@@ -2589,33 +2691,290 @@ export default function SiteContentPage() {
                 <EditorBody
                   sectionJumpKey={tab}
                   sectionItems={[
-                    { id: "footer-brand", label: "Брэнд" },
+                    { id: "footer-brand", label: "Брэнд & Лого" },
+                    { id: "footer-sections", label: "Холбоосууд" },
+                    { id: "footer-socials", label: "Сошиал" },
                     { id: "footer-partners", label: "Түншүүд" },
+                    { id: "footer-copyright", label: "Copyright" },
                   ]}
                 >
-                  <EditorSection
-                    id="footer-brand"
-                    title="Лого хэсэг & брэнд"
-                    subtitle="Хөлийн түншүүдийн гарчиг болон брэндийн танилцуулга"
-                  >
+                  <EditorSection id="footer-brand" title="Лого & Брэнд">
                     <div className="space-y-4">
-                      <DualInput
-                        label={lang === "mn" ? "Лого хэсгийн гарчиг" : "Logo Section Title"}
-                        mnValue={footer.partners.partnersLabel}
-                        enValue={footerEN.partners.partnersLabel}
-                        onChangeMN={(v) => setFooter({ ...footer, partners: { ...footer.partners, partnersLabel: v } })}
-                        onChangeEN={(v) => setFooterEN({ ...footerEN, partners: { ...footerEN.partners, partnersLabel: v } })}
-                      />
+                      <div className="space-y-1.5">
+                        <label className="text-[11px] font-bold uppercase tracking-wider text-slate-400">Лого</label>
+                        <ImageUploadField
+                          value={footer.logo}
+                          onChange={(v) => {
+                            setFooter({ ...footer, logo: v });
+                            setFooterEN({ ...footerEN, logo: v });
+                          }}
+                        />
+                      </div>
                       <DualTextarea
-                         label={lang === "mn" ? "Танилцуулга (брэндийн текст)" : "Brand Intro Text"}
-                         mnValue={footer.brand.desc}
-                         enValue={footerEN.brand.desc}
-                         onChangeMN={(v) => setFooter({ ...footer, brand: { desc: v } })}
-                         onChangeEN={(v) => setFooterEN({ ...footerEN, brand: { desc: v } })}
-                         rows={3}
+                        label={lang === "mn" ? "Брэндийн тайлбар" : "Brand Description"}
+                        mnValue={footer.brand.desc}
+                        enValue={footerEN.brand.desc}
+                        onChangeMN={(v) => setFooter({ ...footer, brand: { desc: v } })}
+                        onChangeEN={(v) => setFooterEN({ ...footerEN, brand: { desc: v } })}
+                        rows={3}
                       />
                     </div>
                   </EditorSection>
+
+                  <EditorSection id="footer-sections" title="Холбоосууд (Баганууд)">
+                    <div className="space-y-6">
+                      {footer.sections.map((section, si) => (
+                        <div key={si} className="rounded-xl border border-slate-200 bg-slate-50/30 p-4 dark:border-slate-800 dark:bg-slate-900/20">
+                          <div className="mb-4 flex items-center justify-between gap-4">
+                            <div className="flex-1">
+                              <DualInput
+                                label="Баганын нэр"
+                                mnValue={section.label}
+                                enValue={footerEN.sections[si]?.label ?? ""}
+                                onChangeMN={(v) => {
+                                  const s = [...footer.sections];
+                                  s[si] = { ...s[si], label: v };
+                                  setFooter({ ...footer, sections: s });
+                                }}
+                                onChangeEN={(v) => {
+                                  const s = [...footerEN.sections];
+                                  if (!s[si]) s[si] = { ...section, label: "" };
+                                  s[si] = { ...s[si], label: v };
+                                  setFooterEN({ ...footerEN, sections: s });
+                                }}
+                              />
+                            </div>
+                            <div className="flex items-center gap-2 pt-5">
+                              <span className="text-[10px] font-bold uppercase text-slate-400">Нуух</span>
+                              <button
+                                type="button"
+                                onClick={() => {
+                                  const s = [...footer.sections];
+                                  s[si] = { ...s[si], hidden: !s[si].hidden };
+                                  setFooter({ ...footer, sections: s });
+                                  const sEN = [...footerEN.sections];
+                                  if (sEN[si]) {
+                                    sEN[si] = { ...sEN[si], hidden: s[si].hidden };
+                                    setFooterEN({ ...footerEN, sections: sEN });
+                                  }
+                                }}
+                                className={`h-5 w-9 rounded-full border-2 border-transparent transition-colors duration-200 ${
+                                  section.hidden ? "bg-indigo-600" : "bg-slate-200 dark:bg-slate-700"
+                                }`}
+                              >
+                                <div className={`h-4 w-4 transform rounded-full bg-white transition-transform ${section.hidden ? "translate-x-4" : "translate-x-0"}`} />
+                              </button>
+                            </div>
+                          </div>
+
+                          <div className="space-y-3 pl-4 border-l-2 border-slate-100 dark:border-slate-800">
+                            {(section.items || []).map((link, li) => (
+                              <div key={li} className="flex items-end gap-3">
+                                <div className="flex-1 grid gap-3 sm:grid-cols-2">
+                                  <DualInput
+                                    label="Текст"
+                                    mnValue={link.label}
+                                    enValue={footerEN.sections[si]?.items[li]?.label ?? ""}
+                                    onChangeMN={(v) => {
+                                      const s = [...footer.sections];
+                                      const items = [...s[si].items];
+                                      items[li] = { ...items[li], label: v };
+                                      s[si] = { ...s[si], items };
+                                      setFooter({ ...footer, sections: s });
+                                    }}
+                                    onChangeEN={(v) => {
+                                      const s = [...footerEN.sections];
+                                      if (!s[si]) return;
+                                      const items = [...s[si].items];
+                                      if (!items[li]) items[li] = { ...link, label: "" };
+                                      items[li] = { ...items[li], label: v };
+                                      s[si] = { ...s[si], items };
+                                      setFooterEN({ ...footerEN, sections: s });
+                                    }}
+                                  />
+                                  <div className="space-y-1.5">
+                                    <label className="text-[11px] font-bold uppercase tracking-wider text-slate-400">URL</label>
+                                    <input
+                                      className={scInput}
+                                      value={link.href}
+                                      onChange={(e) => {
+                                        const v = e.target.value;
+                                        const s = [...footer.sections];
+                                        const items = [...s[si].items];
+                                        items[li] = { ...items[li], href: v };
+                                        s[si] = { ...s[si], items };
+                                        setFooter({ ...footer, sections: s });
+                                        const sEN = [...footerEN.sections];
+                                        if (sEN[si]) {
+                                          const itemsEN = [...sEN[si].items];
+                                          if (itemsEN[li]) itemsEN[li] = { ...itemsEN[li], href: v };
+                                          sEN[si] = { ...sEN[si], items: itemsEN };
+                                          setFooterEN({ ...footerEN, sections: sEN });
+                                        }
+                                      }}
+                                    />
+                                  </div>
+                                </div>
+                                <div className="flex flex-col gap-1 items-center mb-1">
+                                  <button
+                                    type="button"
+                                    onClick={() => {
+                                      const s = [...footer.sections];
+                                      const items = [...s[si].items];
+                                      items[li] = { ...items[li], hidden: !items[li].hidden };
+                                      s[si] = { ...s[si], items };
+                                      setFooter({ ...footer, sections: s });
+                                      const sEN = [...footerEN.sections];
+                                      if (sEN[si]) {
+                                        const itemsEN = [...sEN[si].items];
+                                        if (itemsEN[li]) itemsEN[li] = { ...itemsEN[li], hidden: items[li].hidden };
+                                        sEN[si] = { ...sEN[si], items: itemsEN };
+                                        setFooterEN({ ...footerEN, sections: sEN });
+                                      }
+                                    }}
+                                    className={`h-4 w-7 rounded-full border border-transparent transition-colors ${
+                                      link.hidden ? "bg-indigo-500" : "bg-slate-200 dark:bg-slate-700"
+                                    }`}
+                                  >
+                                    <div className={`h-3 w-3 transform rounded-full bg-white transition-transform ${link.hidden ? "translate-x-3" : "translate-x-0"}`} />
+                                  </button>
+                                  <button
+                                    onClick={() => {
+                                      const s = [...footer.sections];
+                                      s[si] = { ...s[si], items: s[si].items.filter((_, k) => k !== li) };
+                                      setFooter({ ...footer, sections: s });
+                                      const sEN = [...footerEN.sections];
+                                      if (sEN[si]) {
+                                        sEN[si] = { ...sEN[si], items: sEN[si].items.filter((_, k) => k !== li) };
+                                        setFooterEN({ ...footerEN, sections: sEN });
+                                      }
+                                    }}
+                                    className="text-slate-400 hover:text-red-500"
+                                  >
+                                    <Trash2 className="h-3.5 w-3.5" />
+                                  </button>
+                                </div>
+                              </div>
+                            ))}
+                            <GhostButton
+                              onClick={() => {
+                                const s = [...footer.sections];
+                                s[si] = { ...s[si], items: [...s[si].items, { label: "", href: "" }] };
+                                setFooter({ ...footer, sections: s });
+                                const sEN = [...footerEN.sections];
+                                if (sEN[si]) {
+                                  sEN[si] = { ...sEN[si], items: [...sEN[si].items, { label: "", href: "" }] };
+                                  setFooterEN({ ...footerEN, sections: sEN });
+                                }
+                              }}
+                            >
+                              + Линк нэмэх
+                            </GhostButton>
+                          </div>
+                          <div className="mt-4 flex justify-end">
+                             <DangerMini onClick={() => {
+                               setFooter({ ...footer, sections: footer.sections.filter((_, j) => j !== si) });
+                               setFooterEN({ ...footerEN, sections: footerEN.sections.filter((_, j) => j !== si) });
+                             }}>Устгах</DangerMini>
+                          </div>
+                        </div>
+                      ))}
+                      <GhostButton
+                        onClick={() => {
+                          const newSec = { label: "", items: [] };
+                          setFooter({ ...footer, sections: [...footer.sections, newSec] });
+                          setFooterEN({ ...footerEN, sections: [...footerEN.sections, { ...newSec }] });
+                        }}
+                      >
+                        + Багана нэмэх
+                      </GhostButton>
+                    </div>
+                  </EditorSection>
+
+                  <EditorSection id="footer-socials" title="Сошиал">
+                    <div className="space-y-4">
+                      {footer.socials.map((s, i) => (
+                        <div key={i} className="flex flex-wrap items-end gap-3 rounded-lg border border-slate-200 p-3 dark:border-slate-700">
+                          <div className="flex-1 space-y-3 min-w-[200px]">
+                             <DualInput
+                               label="Label (hover text)"
+                               mnValue={s.label}
+                               enValue={footerEN.socials[i]?.label ?? ""}
+                               onChangeMN={(v) => {
+                                 const list = [...footer.socials];
+                                 list[i] = { ...list[i], label: v };
+                                 setFooter({ ...footer, socials: list });
+                               }}
+                               onChangeEN={(v) => {
+                                 const list = [...footerEN.socials];
+                                 if (!list[i]) list[i] = { ...s, label: "" };
+                                 list[i] = { ...list[i], label: v };
+                                 setFooterEN({ ...footerEN, socials: list });
+                               }}
+                             />
+                             <div className="grid gap-3 sm:grid-cols-2">
+                               <div className="space-y-1.5">
+                                 <label className="text-xs text-slate-400">URL</label>
+                                 <input
+                                   className={scInput}
+                                   value={s.href}
+                                   onChange={(e) => {
+                                     const v = e.target.value;
+                                     const list = [...footer.socials];
+                                     list[i] = { ...list[i], href: v };
+                                     setFooter({ ...footer, socials: list });
+                                     const listEN = [...footerEN.socials];
+                                     if (listEN[i]) {
+                                       listEN[i] = { ...listEN[i], href: v };
+                                       setFooterEN({ ...footerEN, socials: listEN });
+                                     }
+                                   }}
+                                 />
+                               </div>
+                               <div className="space-y-1.5">
+                                 <label className="text-xs text-slate-400">Icon Type</label>
+                                 <select
+                                   className={scInput}
+                                   value={s.iconType}
+                                   onChange={(e) => {
+                                     const v = e.target.value;
+                                     const list = [...footer.socials];
+                                     list[i] = { ...list[i], iconType: v };
+                                     setFooter({ ...footer, socials: list });
+                                     const listEN = [...footerEN.socials];
+                                     if (listEN[i]) {
+                                       listEN[i] = { ...listEN[i], iconType: v };
+                                       setFooterEN({ ...footerEN, socials: listEN });
+                                     }
+                                   }}
+                                 >
+                                   <option value="facebook">Facebook</option>
+                                   <option value="instagram">Instagram</option>
+                                   <option value="linkedin">LinkedIn</option>
+                                   <option value="twitter">Twitter</option>
+                                   <option value="youtube">YouTube</option>
+                                 </select>
+                               </div>
+                             </div>
+                          </div>
+                          <DangerMini onClick={() => {
+                            setFooter({ ...footer, socials: footer.socials.filter((_, j) => j !== i) });
+                            setFooterEN({ ...footerEN, socials: footerEN.socials.filter((_, j) => j !== i) });
+                          }}>Устгах</DangerMini>
+                        </div>
+                      ))}
+                      <GhostButton
+                        onClick={() => {
+                          const newSoc = { label: "", href: "", iconType: "facebook" };
+                          setFooter({ ...footer, socials: [...footer.socials, newSoc] });
+                          setFooterEN({ ...footerEN, socials: [...footerEN.socials, newSoc] });
+                        }}
+                      >
+                        + Сошиал нэмэх
+                      </GhostButton>
+                    </div>
+                  </EditorSection>
+
                   <EditorSection
                     id="footer-partners"
                     title="Түншүүд (лого)"
@@ -2735,6 +3094,17 @@ export default function SiteContentPage() {
                       </GhostButton>
                     </div>
                   </EditorSection>
+
+                  <EditorSection id="footer-copyright" title="Copyright">
+                    <DualInput
+                      label="Copyright Text"
+                      mnValue={footer.copyright}
+                      enValue={footerEN.copyright}
+                      onChangeMN={(v) => setFooter({ ...footer, copyright: v })}
+                      onChangeEN={(v) => setFooterEN({ ...footerEN, copyright: v })}
+                    />
+                  </EditorSection>
+
                   <PrimarySave
                     disabled={saving}
                     onClick={() => void save("footer")}
@@ -2742,6 +3112,7 @@ export default function SiteContentPage() {
                     {saving ? t.common.saving : t.siteContent.common.saveTab(t.siteContent.tabs.footer.label)}
                   </PrimarySave>
                 </EditorBody>
+
               )}
             </div>
           </EditorSurface>
