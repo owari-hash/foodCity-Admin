@@ -822,7 +822,12 @@ export default function SiteContentPage() {
                               ...home,
                               hero: { ...home.hero, slideImages },
                             });
+                            
+                            // Sync to EN: ensure the array is long enough
                             const slideImagesEN = [...homeEN.hero.slideImages];
+                            while (slideImagesEN.length < slideImages.length) {
+                              slideImagesEN.push("");
+                            }
                             slideImagesEN[i] = next;
                             setHomeEN({
                               ...homeEN,
@@ -2555,10 +2560,12 @@ export default function SiteContentPage() {
                                   items[i] = { ...items[i], coverImage: v };
                                   setProjectsPage({ ...projectsPage, items });
                                   const itemsEN = [...projectsPageEN.items];
-                                  if (itemsEN[i]) {
+                                  if (!itemsEN[i]) {
+                                    itemsEN[i] = { ...items[i], coverImage: v };
+                                  } else {
                                     itemsEN[i] = { ...itemsEN[i], coverImage: v };
-                                    setProjectsPageEN({ ...projectsPageEN, items: itemsEN });
                                   }
+                                  setProjectsPageEN({ ...projectsPageEN, items: itemsEN });
                                 }}
                               />
                             </div>
@@ -3012,10 +3019,12 @@ export default function SiteContentPage() {
                                   items[i] = { ...items[i], src: next };
                                   setFooter({ ...footer, partners: { ...footer.partners, items } });
                                   const itemsEN = [...footerEN.partners.items];
-                                  if (itemsEN[i]) {
+                                  if (!itemsEN[i]) {
+                                    itemsEN[i] = { ...items[i], src: next };
+                                  } else {
                                     itemsEN[i] = { ...itemsEN[i], src: next };
-                                    setFooterEN({ ...footerEN, partners: { ...footerEN.partners, items: itemsEN } });
                                   }
+                                  setFooterEN({ ...footerEN, partners: { ...footerEN.partners, items: itemsEN } });
                                 }}
                               />
                             </div>
