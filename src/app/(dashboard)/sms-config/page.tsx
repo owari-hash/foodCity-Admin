@@ -119,6 +119,19 @@ export default function SMSConfigPage() {
     void loadData();
   }, [loadData]);
 
+  const handleAddPhone = () => {
+    if (!newPhone.trim() || !config) return;
+    if (config.adminPhoneNumbers.includes(newPhone.trim())) {
+      setError("Phone number already exists");
+      return;
+    }
+    setConfig({
+      ...config,
+      adminPhoneNumbers: [...config.adminPhoneNumbers, newPhone.trim()]
+    });
+    setNewPhone("");
+  };
+
   const handleSave = async () => {
     if (!config) return;
     setSaving(true);
@@ -187,7 +200,11 @@ export default function SMSConfigPage() {
           <h1 className="text-2xl font-medium text-zinc-900">{t.title}</h1>
           <p className="text-sm text-zinc-500">{t.description}</p>
         </div>
-        <button onClick={handleSave} disabled={saving} className="flex items-center gap-2 rounded-lg bg-zinc-900 px-6 py-2.5 text-sm text-white transition-all hover:bg-zinc-800 disabled:opacity-50">
+        <button 
+          onClick={handleSave} 
+          disabled={saving} 
+          className="flex items-center gap-2 rounded-lg bg-zinc-900 px-6 py-2.5 text-sm font-medium text-white transition-all hover:bg-zinc-800 disabled:opacity-50"
+        >
           <Save className="h-4 w-4" />
           <span>{saving ? "..." : t.save}</span>
         </button>
@@ -212,10 +229,16 @@ export default function SMSConfigPage() {
                   type="tel"
                   value={newPhone}
                   onChange={e => setNewPhone(e.target.value)}
+                  onKeyDown={e => e.key === 'Enter' && handleAddPhone()}
                   placeholder={t.placeholderPhone}
                   className="w-full rounded-lg border border-zinc-200 bg-white px-3 py-2 text-sm outline-none focus:border-zinc-400 transition-colors"
                 />
-                <button onClick={() => {if(newPhone){setConfig({...config!, adminPhoneNumbers: [...config!.adminPhoneNumbers, newPhone]}); setNewPhone("");}}} className="rounded-lg bg-zinc-100 px-3 py-2 text-zinc-600 hover:bg-zinc-200"><Plus className="h-4 w-4" /></button>
+                <button 
+                  onClick={handleAddPhone} 
+                  className="rounded-lg bg-zinc-100 px-3 py-2 text-zinc-600 hover:bg-zinc-200"
+                >
+                  <Plus className="h-4 w-4" />
+                </button>
               </div>
             </div>
           </section>
