@@ -49,8 +49,8 @@ export default function AdminShell({ children }: { children: React.ReactNode }) 
     { href: "/sales-ads", label: t.nav.salesAds, icon: Megaphone, perm: "sales-ads" },
     { href: "/jobs", label: t.nav.jobs, icon: Briefcase, perm: "jobs" },
     { href: "/chat", label: t.nav.chat, icon: MessageCircle, perm: "chat" },
-    { href: "/contact-submissions", label: lang === "mn" ? "Холбоо барих" : "Contact Submissions", icon: MessageSquare, perm: "dashboard" },
-    { href: "/sms-config", label: lang === "mn" ? "SMS Тохиргоо" : "SMS Configuration", icon: Settings, perm: "dashboard" },
+    { href: "/contact-submissions", label: lang === "mn" ? "Холбоо барих" : "Contact Submissions", icon: MessageSquare, perm: "site-content" },
+    { href: "/sms-config", label: lang === "mn" ? "SMS Тохиргоо" : "SMS Configuration", icon: Settings, perm: "site-content" },
     { href: "/users", label: t.nav.users, icon: Users, perm: "admin-users" },
   ];
 
