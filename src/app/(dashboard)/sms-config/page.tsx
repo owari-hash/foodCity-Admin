@@ -3,7 +3,6 @@
 import { useCallback, useEffect, useState } from "react";
 import {
   ensureClientAuthorized,
-  PERMISSION_DENIED_MN,
   withClientAdminAuth,
 } from "@/lib/adminClientAuth";
 import { getApiBaseUrl, joinBackendRequestUrl } from "@/lib/api";

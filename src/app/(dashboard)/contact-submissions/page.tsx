@@ -3,12 +3,10 @@
 import { useCallback, useEffect, useState } from "react";
 import {
   ensureClientAuthorized,
-  PERMISSION_DENIED_MN,
   withClientAdminAuth,
 } from "@/lib/adminClientAuth";
 import { getApiBaseUrl, joinBackendRequestUrl } from "@/lib/api";
 import { useAdminLanguage } from "@/contexts/AdminLanguageContext";
-import { Mail, Phone, Calendar, Filter, MessageSquare, AlertCircle, CheckCircle2 } from "lucide-react";
 
 interface ContactSubmission {
   _id: string;
