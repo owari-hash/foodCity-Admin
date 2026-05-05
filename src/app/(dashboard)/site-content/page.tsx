@@ -662,6 +662,58 @@ export default function SiteContentPage() {
                         ? projectsPageEN
                         : footerEN;
 
+    // --- AUTO SYNC ASSETS & STRUCTURE MN -> EN ---
+    // If EN has missing assets or empty structural arrays that exist in MN, 
+    // we propagate them automatically on save to prevent broken EN pages.
+    if (pageId === "home") {
+      const mn = mnSections as HomeState;
+      const en = enSections as HomeState;
+      if (en.hero.slideImages.length === 0) en.hero.slideImages = [...mn.hero.slideImages];
+      if (en.hero.stats.length === 0) en.hero.stats = mn.hero.stats.map(s => ({ ...s }));
+    } else if (pageId === "about") {
+      const mn = mnSections as AboutState;
+      const en = enSections as AboutState;
+      if (!en.main.imageUrl) en.main.imageUrl = mn.main.imageUrl;
+      if (en.main.stats.length === 0) en.main.stats = mn.main.stats.map(s => ({ ...s }));
+    } else if (pageId === "gallery") {
+      const mn = mnSections as GalleryState;
+      const en = enSections as GalleryState;
+      if (en.features.length === 0) en.features = mn.features.map(f => ({ ...f }));
+      else {
+        mn.features.forEach((f, i) => {
+          if (en.features[i]) {
+            if (!en.features[i].image) en.features[i].image = f.image;
+            if (en.features[i].images.length === 0) en.features[i].images = [...f.images];
+          }
+        });
+      }
+    } else if (pageId === "properties-page") {
+      const mn = mnSections as PropertiesPageState;
+      const en = enSections as PropertiesPageState;
+      if (en.items.length === 0) en.items = mn.items.map(it => ({ ...it }));
+      else {
+        mn.items.forEach((it, i) => {
+          if (en.items[i]) {
+            if (!en.items[i].image) en.items[i].image = it.image;
+            if (en.items[i].images.length === 0) en.items[i].images = [...it.images];
+          }
+        });
+      }
+    } else if (pageId === "projects-page") {
+      const mn = mnSections as ProjectsPageState;
+      const en = enSections as ProjectsPageState;
+      if (en.items.length === 0) en.items = mn.items.map(it => ({ ...it }));
+      else {
+        mn.items.forEach((it, i) => {
+          if (en.items[i]) {
+            if (!en.items[i].coverImage) en.items[i].coverImage = it.coverImage;
+            if (en.items[i].images.length === 0) en.items[i].images = [...it.images];
+          }
+        });
+      }
+    }
+    // ----------------------------------------------
+
     try {
       await Promise.all([
         fetch(
@@ -905,6 +957,11 @@ export default function SiteContentPage() {
                               ...home,
                               hero: { ...home.hero, [key]: v },
                             });
+                            // Sync to EN
+                            setHomeEN({
+                              ...homeEN,
+                              hero: { ...homeEN.hero, [key]: v },
+                            });
                           }}
                           onChangeEN={(v) => {
                             setHomeEN({
@@ -921,12 +978,16 @@ export default function SiteContentPage() {
                       label={t.siteContent.home.sections.desc}
                       mnValue={home.hero.desc}
                       enValue={homeEN.hero.desc}
-                      onChangeMN={(v) =>
+                      onChangeMN={(v) => {
                         setHome({
                           ...home,
                           hero: { ...home.hero, desc: v },
-                        })
-                      }
+                        });
+                        setHomeEN({
+                          ...homeEN,
+                          hero: { ...homeEN.hero, desc: v },
+                        });
+                      }}
                       onChangeEN={(v) =>
                         setHomeEN({
                           ...homeEN,
@@ -1054,12 +1115,16 @@ export default function SiteContentPage() {
                           label={lab}
                           mnValue={about.main[key] as string}
                           enValue={aboutEN.main[key] as string}
-                          onChangeMN={(v) =>
+                          onChangeMN={(v) => {
                             setAbout({
                               ...about,
                               main: { ...about.main, [key]: v },
-                            })
-                          }
+                            });
+                            setAboutEN({
+                              ...aboutEN,
+                              main: { ...aboutEN.main, [key]: v },
+                            });
+                          }}
                           onChangeEN={(v) =>
                             setAboutEN({
                               ...aboutEN,
@@ -1098,14 +1163,20 @@ export default function SiteContentPage() {
                         label={`${t.siteContent.about.sections.copy} 1`}
                         mnValue={about.main.p1}
                         enValue={aboutEN.main.p1}
-                        onChangeMN={(v) => setAbout({ ...about, main: { ...about.main, p1: v } })}
+                        onChangeMN={(v) => {
+                          setAbout({ ...about, main: { ...about.main, p1: v } });
+                          setAboutEN({ ...aboutEN, main: { ...aboutEN.main, p1: v } });
+                        }}
                         onChangeEN={(v) => setAboutEN({ ...aboutEN, main: { ...aboutEN.main, p1: v } })}
                       />
                       <DualTextarea
                         label={`${t.siteContent.about.sections.copy} 2`}
                         mnValue={about.main.p2}
                         enValue={aboutEN.main.p2}
-                        onChangeMN={(v) => setAbout({ ...about, main: { ...about.main, p2: v } })}
+                        onChangeMN={(v) => {
+                          setAbout({ ...about, main: { ...about.main, p2: v } });
+                          setAboutEN({ ...aboutEN, main: { ...aboutEN.main, p2: v } });
+                        }}
                         onChangeEN={(v) => setAboutEN({ ...aboutEN, main: { ...aboutEN.main, p2: v } })}
                       />
                     </div>
