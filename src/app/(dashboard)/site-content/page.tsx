@@ -1134,12 +1134,16 @@ export default function SiteContentPage() {
                                 const features = [...gallery.features];
                                 features[i] = { ...features[i], date: v };
                                 setGallery({ ...gallery, features });
+                                const featuresEN = [...galleryEN.features];
+                                if (!featuresEN[i]) featuresEN[i] = { ...features[i] };
+                                featuresEN[i] = { ...featuresEN[i], date: v };
+                                setGalleryEN({ ...galleryEN, features: featuresEN });
                               }}
                               onChangeEN={(v) => {
-                                const features = [...galleryEN.features];
-                                if (!features[i]) features[i] = { title: "", desc: "", image: "", images: [], date: "" };
-                                features[i] = { ...features[i], date: v };
-                                setGalleryEN({ ...galleryEN, features });
+                                const featuresEN = [...galleryEN.features];
+                                if (!featuresEN[i]) featuresEN[i] = { ...gallery.features[i], date: "" };
+                                featuresEN[i] = { ...featuresEN[i], date: v };
+                                setGalleryEN({ ...galleryEN, features: featuresEN });
                               }}
                             />
 
@@ -1200,12 +1204,16 @@ export default function SiteContentPage() {
                                 const features = [...gallery.features];
                                 features[i] = { ...features[i], videoUrl: v };
                                 setGallery({ ...gallery, features });
+                                const featuresEN = [...galleryEN.features];
+                                if (!featuresEN[i]) featuresEN[i] = { ...features[i] };
+                                featuresEN[i] = { ...featuresEN[i], videoUrl: v };
+                                setGalleryEN({ ...galleryEN, features: featuresEN });
                               }}
                               onChangeEN={(v) => {
-                                const features = [...galleryEN.features];
-                                if (!features[i]) features[i] = { title: "", desc: "", image: "", images: [], videoUrl: "" };
-                                features[i] = { ...features[i], videoUrl: v };
-                                setGalleryEN({ ...galleryEN, features });
+                                const featuresEN = [...galleryEN.features];
+                                if (!featuresEN[i]) featuresEN[i] = { ...gallery.features[i], videoUrl: "" };
+                                featuresEN[i] = { ...featuresEN[i], videoUrl: v };
+                                setGalleryEN({ ...galleryEN, features: featuresEN });
                               }}
                             />
                             <div>
@@ -1754,11 +1762,13 @@ export default function SiteContentPage() {
                                   const items = [...propertiesPage.items];
                                   items[i] = { ...items[i], image: next };
                                   setPropertiesPage({ ...propertiesPage, items });
+                                  
                                   const itemsEN = [...propertiesPageEN.items];
-                                  if (itemsEN[i]) {
-                                    itemsEN[i] = { ...itemsEN[i], image: next };
-                                    setPropertiesPageEN({ ...propertiesPageEN, items: itemsEN });
+                                  if (!itemsEN[i]) {
+                                    itemsEN[i] = { ...items[i] };
                                   }
+                                  itemsEN[i] = { ...itemsEN[i], image: next };
+                                  setPropertiesPageEN({ ...propertiesPageEN, items: itemsEN });
                                 }}
                               />
                               <div className="grid gap-3 sm:grid-cols-2">
@@ -1882,13 +1892,15 @@ export default function SiteContentPage() {
                                       imgs[gi] = next;
                                       items[i] = { ...items[i], images: imgs };
                                       setPropertiesPage({ ...propertiesPage, items });
+                                      
                                       const itemsEN = [...propertiesPageEN.items];
-                                      if (itemsEN[i]) {
-                                        const imgsEN = [...(itemsEN[i].images ?? [])];
-                                        imgsEN[gi] = next;
-                                        itemsEN[i] = { ...itemsEN[i], images: imgsEN };
-                                        setPropertiesPageEN({ ...propertiesPageEN, items: itemsEN });
+                                      if (!itemsEN[i]) {
+                                        itemsEN[i] = { ...items[i] };
                                       }
+                                      const imgsEN = [...(itemsEN[i].images ?? [])];
+                                      imgsEN[gi] = next;
+                                      itemsEN[i] = { ...itemsEN[i], images: imgsEN };
+                                      setPropertiesPageEN({ ...propertiesPageEN, items: itemsEN });
                                     }}
                                   />
                                 </div>
