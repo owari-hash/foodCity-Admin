@@ -88,6 +88,7 @@ type ContactState = {
     items: {
         title: string;
         value: string;
+        icon?: string;
     }[];
     agent: {
         initials: string;
@@ -348,6 +349,7 @@ function normalizeContact(v: unknown): ContactState {
         items: Array.isArray(root.items) ? (root.items as {
             title: string;
             value: string;
+            icon?: string;
         }[]) : [],
         agent: { ...EMPTY_CONTACT.agent, ...asRecord(root.agent) },
         formTitle: typeof root.formTitle === "string" ? root.formTitle : "",
@@ -1318,8 +1320,8 @@ export default function SiteContentPage() {
                   </PrimarySave>
                 </EditorBody>) : tab === "contact" ? (<EditorBody sectionJumpKey={tab} sectionItems={[
                 { id: "contact-hero", label: t.siteContent.contact.sections.hero },
-                { id: "contact-items", label: t.siteContent.contact.sections.items },
                 { id: "contact-agent", label: t.siteContent.contact.sections.agent },
+                { id: "contact-items", label: t.siteContent.contact.sections.items },
                 { id: "contact-links", label: "Холбоосууд" },
                 { id: "contact-form", label: t.siteContent.contact.sections.form },
             ]}>
@@ -1330,57 +1332,6 @@ export default function SiteContentPage() {
                 ["h2Accent", t.siteContent.contact.fields.h2Accent],
             ] as const).map(([key, lab]) => (<DualInput key={key} label={lab} mnValue={contact.hero[key]} enValue={contactEN.hero[key]} onChangeMN={(v) => setContact({ ...contact, hero: { ...contact.hero, [key]: v } })} onChangeEN={(v) => setContactEN({ ...contactEN, hero: { ...contactEN.hero, [key]: v } })}/>))}
                       <DualTextarea label={t.siteContent.contact.fields.intro} mnValue={contact.hero.intro} enValue={contactEN.hero.intro} onChangeMN={(v) => setContact({ ...contact, hero: { ...contact.hero, intro: v } })} onChangeEN={(v) => setContactEN({ ...contactEN, hero: { ...contactEN.hero, intro: v } })}/>
-                    </div>
-                  </EditorSection>
-                  <EditorSection id="contact-items" title={t.siteContent.contact.fields.infoItems} defaultOpen={false}>
-                    <div className="space-y-3">
-                      {contact.items.map((row, i) => (<div key={i} className="flex flex-wrap items-end gap-3 rounded-xl border border-slate-100 bg-slate-50/30 p-3 dark:border-slate-800/40 dark:bg-slate-900/20">
-                          <div className="flex-1">
-                            <DualInput label={t.siteContent.common.title} mnValue={row.title} enValue={contactEN.items[i]?.title ?? ""} onChangeMN={(v) => {
-                const items = [...contact.items];
-                items[i] = { ...items[i], title: v };
-                setContact({ ...contact, items });
-            }} onChangeEN={(v) => {
-                    const items = [...contactEN.items];
-                    if (!items[i])
-                        items[i] = { title: "", value: row.value };
-                    items[i] = { ...items[i], title: v };
-                    setContactEN({ ...contactEN, items });
-                }}/>
-                          </div>
-                          <div className="flex-1">
-                             <DualInput label={t.siteContent.common.placeholder} mnValue={row.value} enValue={contactEN.items[i]?.value ?? ""} onChangeMN={(v) => {
-                const items = [...contact.items];
-                items[i] = { ...items[i], value: v };
-                setContact({ ...contact, items });
-            }} onChangeEN={(v) => {
-                    const items = [...contactEN.items];
-                    if (!items[i])
-                        items[i] = { title: row.title, value: "" };
-                    items[i] = { ...items[i], value: v };
-                    setContactEN({ ...contactEN, items });
-                }}/>
-                          </div>
-                          <DangerMini onClick={() => {
-                    setContact({
-                        ...contact,
-                        items: contact.items.filter((_, j) => j !== i),
-                    });
-                    setContactEN({
-                        ...contactEN,
-                        items: contactEN.items.filter((_, j) => j !== i),
-                    });
-                }}>
-                            {t.siteContent.common.remove}
-                          </DangerMini>
-                        </div>))}
-                      <GhostButton onClick={() => {
-                const newItem = { title: "", value: "" };
-                setContact({ ...contact, items: [...contact.items, newItem] });
-                setContactEN({ ...contactEN, items: [...contactEN.items, newItem] });
-            }}>
-                        + {t.siteContent.common.addRow}
-                      </GhostButton>
                     </div>
                   </EditorSection>
                   <EditorSection id="contact-agent" title={t.siteContent.contact.fields.agentTitle} defaultOpen={false}>
@@ -1414,9 +1365,91 @@ export default function SiteContentPage() {
                       </div>
                     </div>
                   </EditorSection>
-                  <EditorSection id="contact-links" title="Холбоосууд" subtitle="Facebook, вебсайт болон бусад сошиал холбоосууд" defaultOpen={false}>
+
+                  <EditorSection id="contact-items" title={t.siteContent.contact.fields.infoItems} defaultOpen={false}>
                     <div className="space-y-3">
-                      {contact.links.map((link, i) => (<div key={i} className="rounded-xl border border-slate-100 bg-slate-50/30 p-3 dark:border-slate-800/40 dark:bg-slate-900/20 space-y-3">
+                      <div className="flex flex-wrap gap-3">
+                        {contact.items.map((row, i) => (<div key={i} className="flex-1 min-w-[280px] space-y-3 rounded-xl border border-slate-100 bg-slate-50/30 p-3 dark:border-slate-800/40 dark:bg-slate-900/20">
+                            <div className="flex items-center justify-between">
+                              <div className="flex items-center gap-2">
+                                <select 
+                                  className={`${scInput} !mt-0 h-8 !py-1 !px-2 text-xs w-24`}
+                                  value={row.icon || ""}
+                                  onChange={(e) => {
+                                    const v = e.target.value;
+                                    const items = [...contact.items];
+                                    items[i] = { ...items[i], icon: v };
+                                    setContact({ ...contact, items });
+                                    const itemsEN = [...contactEN.items];
+                                    if (itemsEN[i]) {
+                                      itemsEN[i] = { ...itemsEN[i], icon: v };
+                                      setContactEN({ ...contactEN, items: itemsEN });
+                                    }
+                                  }}
+                                >
+                                  <option value="">No Icon</option>
+                                  <option value="phone">Phone</option>
+                                  <option value="mail">Mail</option>
+                                  <option value="map-pin">Map Pin</option>
+                                  <option value="clock">Clock</option>
+                                  <option value="facebook">Facebook</option>
+                                  <option value="instagram">Instagram</option>
+                                  <option value="linkedin">LinkedIn</option>
+                                  <option value="website">Website</option>
+                                </select>
+                                <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400">#{i + 1}</span>
+                              </div>
+                              <DangerMini onClick={() => {
+                                setContact({
+                                    ...contact,
+                                    items: contact.items.filter((_, j) => j !== i),
+                                });
+                                setContactEN({
+                                    ...contactEN,
+                                    items: contactEN.items.filter((_, j) => j !== i),
+                                });
+                              }}>
+                                {t.siteContent.common.remove}
+                              </DangerMini>
+                            </div>
+                            <div className="space-y-3">
+                              <DualInput label={t.siteContent.common.title} mnValue={row.title} enValue={contactEN.items[i]?.title ?? ""} onChangeMN={(v) => {
+                                  const items = [...contact.items];
+                                  items[i] = { ...items[i], title: v };
+                                  setContact({ ...contact, items });
+                              }} onChangeEN={(v) => {
+                                      const items = [...contactEN.items];
+                                      if (!items[i])
+                                          items[i] = { title: "", value: row.value, icon: row.icon };
+                                      items[i] = { ...items[i], title: v };
+                                      setContactEN({ ...contactEN, items });
+                                  }}/>
+                               <DualInput label={t.siteContent.common.placeholder} mnValue={row.value} enValue={contactEN.items[i]?.value ?? ""} onChangeMN={(v) => {
+                                  const items = [...contact.items];
+                                  items[i] = { ...items[i], value: v };
+                                  setContact({ ...contact, items });
+                              }} onChangeEN={(v) => {
+                                      const items = [...contactEN.items];
+                                      if (!items[i])
+                                          items[i] = { title: row.title, value: "", icon: row.icon };
+                                      items[i] = { ...items[i], value: v };
+                                      setContactEN({ ...contactEN, items });
+                                  }}/>
+                            </div>
+                          </div>))}
+                      </div>
+                      <GhostButton onClick={() => {
+                const newItem = { title: "", value: "", icon: "" };
+                setContact({ ...contact, items: [...contact.items, newItem] });
+                setContactEN({ ...contactEN, items: [...contactEN.items, newItem] });
+            }}>
+                        + {t.siteContent.common.addRow}
+                      </GhostButton>
+                    </div>
+                  </EditorSection>
+                  <EditorSection id="contact-links" title="Холбоосууд" subtitle="Facebook, вебсайт болон бусад сошиал холбоосууд" defaultOpen={false}>
+                    <div className="flex flex-wrap gap-3">
+                      {contact.links.map((link, i) => (<div key={i} className="flex-1 min-w-[300px] rounded-xl border border-slate-100 bg-slate-50/30 p-3 dark:border-slate-800/40 dark:bg-slate-900/20 space-y-3">
                           <div className="flex flex-wrap items-end gap-3">
                             <div className="space-y-1.5 w-44">
                               <label className="text-[11px] font-bold uppercase tracking-[0.12em] text-slate-500">Платформ</label>
