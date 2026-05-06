@@ -10,6 +10,7 @@ import { DangerMini, EditorAlerts, EditorBody, EditorSection, EditorSurface, Edi
 type HomeState = {
     hidden: boolean;
     hero: {
+        hidden?: boolean;
         slideImages: string[];
         badge: string;
         titleLine1: string;
@@ -24,12 +25,14 @@ type HomeState = {
             value: string;
             label: string;
         }[];
+        statsHidden?: boolean;
         slideLabel: string;
     };
 };
 type AboutState = {
     hidden: boolean;
     main: {
+        hidden?: boolean;
         sectionLabel: string;
         h2Line1: string;
         h2Accent: string;
@@ -44,12 +47,14 @@ type AboutState = {
             value: string;
             label: string;
         }[];
+        statsHidden?: boolean;
     };
 };
 type FooterState = {
     hidden: boolean;
     logo: string;
     partners: {
+        hidden?: boolean;
         partnersLabel: string;
         items: {
             name: string;
@@ -59,12 +64,14 @@ type FooterState = {
         }[];
     };
     brand: {
+        hidden?: boolean;
         desc: string;
     };
     socials: {
         label: string;
         href: string;
         iconType: string;
+        hidden?: boolean;
     }[];
     sections: {
         label: string;
@@ -77,132 +84,62 @@ type FooterState = {
         }[];
     }[];
     copyright: string;
+    copyrightHidden?: boolean;
 };
 type ContactState = {
     hidden: boolean;
-    hero: {
-        badge: string;
-        h2Accent: string;
-        intro: string;
-    };
-    items: {
-        title: string;
-        value: string;
-        icon?: string;
-    }[];
-    agent: {
-        initials: string;
-        name: string;
-        role: string;
-        telHref: string;
-        telLabel: string;
-    };
+    navbarPhoneLabel?: string;
+    navbarPhoneHref?: string;
+    hero: { hidden?: boolean; badge: string; h2Accent: string; intro: string; };
+    items: { title: string; value: string; icon?: string; hidden?: boolean; }[];
+    itemsHidden?: boolean;
+    agent: { hidden?: boolean; initials: string; name: string; role: string; telHref: string; telLabel: string; };
     formTitle?: string;
-    links: {
-        type: string;
-        href: string;
-        title: string;
-    }[];
+    formHidden?: boolean;
+    links: { type: string; href: string; title: string; hidden?: boolean; }[];
+    linksHidden?: boolean;
 };
 type GalleryState = {
     hidden: boolean;
-    features: {
-        title: string;
-        desc: string;
-        image: string;
-        images: string[];
-        videoUrl?: string;
-        date?: string;
-    }[];
+    header: { hidden?: boolean; badge: string; h2Line1: string; h2Accent: string; intro: string; };
+    features: { title: string; desc: string; image: string; images: string[]; videoUrl?: string; date?: string; hidden?: boolean; }[];
+    featuresHidden?: boolean;
+    banner: { value: string; suffix: string; label: string; }[];
+    bannerHidden?: boolean;
 };
 type PropertiesPageState = {
     hidden: boolean;
-    header: {
-        badge: string;
-        titleLine1: string;
-        titleAccent: string;
-        intro: string;
-    };
+    header: { hidden?: boolean; badge: string; titleLine1: string; titleAccent: string; intro: string; };
     categories: string[];
-    items: {
-        id: number;
-        name: string;
-        image: string;
-        images: string[];
-        category: string;
-        badge: string | null;
-        size: string;
-        floor: string;
-        parking: string;
-        price: string;
-        tag: string;
-        description: string;
-    }[];
-    cta: {
-        href: string;
-        label: string;
-    };
+    items: { id: number; name: string; image: string; images: string[]; category: string; badge: string | null; size: string; floor: string; parking: string; price: string; tag: string; description: string; hidden?: boolean; }[];
+    itemsHidden?: boolean;
+    cta: { hidden?: boolean; href: string; label: string; };
 };
 type SalesPageState = {
     hidden: boolean;
-    header: {
-        eyebrow: string;
-        title: string;
-        intro: string;
-    };
+    header: { hidden?: boolean; eyebrow: string; title: string; intro: string; };
 };
 type JobsPageState = {
     hidden: boolean;
-    header: {
-        title: string;
-        intro: string;
-    };
+    header: { hidden?: boolean; title: string; intro: string; };
 };
 type TeamPageState = {
     hidden: boolean;
-    header: {
-        eyebrow: string;
-        h2Line1: string;
-        h2Accent: string;
-        intro: string;
-    };
-    members: {
-        name: string;
-        role: string;
-        initials: string;
-        color: string;
-        phone: string;
-        email: string;
-        bio: string;
-        projects: number;
-    }[];
-    cta: {
-        title: string;
-        subtitle: string;
-        buttonLabel: string;
-        buttonHref: string;
-    };
+    header: { hidden?: boolean; eyebrow: string; h2Line1: string; h2Accent: string; intro: string; };
+    members: { name: string; role: string; initials: string; color: string; phone: string; email: string; bio: string; projects: number; hidden?: boolean; }[];
+    membersHidden?: boolean;
+    cta: { hidden?: boolean; title: string; subtitle: string; buttonLabel: string; buttonHref: string; };
 };
 type ProjectsPageState = {
     hidden: boolean;
-    header: {
-        badge: string;
-        titleLine1: string;
-        titleAccent: string;
-        intro: string;
-    };
-    items: {
-        id: number;
-        name: string;
-        coverImage: string;
-        images: string[];
-        description: string;
-        category: string;
-    }[];
+    header: { hidden?: boolean; badge: string; titleLine1: string; titleAccent: string; intro: string; };
+    items: { id: number; name: string; coverImage: string; images: string[]; description: string; category: string; hidden?: boolean; }[];
+    itemsHidden?: boolean;
 };
 const EMPTY_HOME: HomeState = {
     hidden: false,
     hero: {
+        hidden: false,
         slideImages: [],
         badge: "",
         titleLine1: "",
@@ -214,12 +151,14 @@ const EMPTY_HOME: HomeState = {
         btn2: "",
         btn2Href: "",
         stats: [],
+        statsHidden: false,
         slideLabel: "",
     },
 };
 const EMPTY_ABOUT: AboutState = {
     hidden: false,
     main: {
+        hidden: false,
         sectionLabel: "",
         h2Line1: "",
         h2Accent: "",
@@ -231,54 +170,68 @@ const EMPTY_ABOUT: AboutState = {
         yearsBadgeValue: "",
         yearsLabel: "",
         stats: [],
+        statsHidden: false,
     },
 };
 const EMPTY_FOOTER: FooterState = {
     hidden: false,
     logo: "",
-    partners: { partnersLabel: "", items: [] },
-    brand: { desc: "" },
+    partners: { hidden: false, partnersLabel: "", items: [] },
+    brand: { hidden: false, desc: "" },
     socials: [],
     sections: [],
     copyright: "",
+    copyrightHidden: false,
 };
 const EMPTY_CONTACT: ContactState = {
     hidden: false,
-    hero: { badge: "", h2Accent: "", intro: "" },
+    navbarPhoneLabel: "",
+    navbarPhoneHref: "",
+    hero: { hidden: false, badge: "", h2Accent: "", intro: "" },
     items: [],
-    agent: { initials: "", name: "", role: "", telHref: "", telLabel: "" },
+    itemsHidden: false,
+    agent: { hidden: false, initials: "", name: "", role: "", telHref: "", telLabel: "" },
     formTitle: "",
+    formHidden: false,
     links: [],
+    linksHidden: false,
 };
 const EMPTY_GALLERY: GalleryState = {
     hidden: false,
+    header: { hidden: false, badge: "", h2Line1: "", h2Accent: "", intro: "" },
     features: [],
+    featuresHidden: false,
+    banner: [],
+    bannerHidden: false,
 };
 const EMPTY_PROPERTIES_PAGE: PropertiesPageState = {
     hidden: false,
-    header: { badge: "", titleLine1: "", titleAccent: "", intro: "" },
+    header: { hidden: false, badge: "", titleLine1: "", titleAccent: "", intro: "" },
     categories: [],
     items: [],
-    cta: { href: "", label: "" },
+    itemsHidden: false,
+    cta: { hidden: false, href: "", label: "" },
 };
 const EMPTY_SALES_PAGE: SalesPageState = {
     hidden: false,
-    header: { eyebrow: "", title: "", intro: "" },
+    header: { hidden: false, eyebrow: "", title: "", intro: "" },
 };
 const EMPTY_JOBS_PAGE: JobsPageState = {
     hidden: false,
-    header: { title: "", intro: "" },
+    header: { hidden: false, title: "", intro: "" },
 };
 const EMPTY_TEAM_PAGE: TeamPageState = {
     hidden: false,
-    header: { eyebrow: "", h2Line1: "", h2Accent: "", intro: "" },
+    header: { hidden: false, eyebrow: "", h2Line1: "", h2Accent: "", intro: "" },
     members: [],
-    cta: { title: "", subtitle: "", buttonLabel: "", buttonHref: "" },
+    membersHidden: false,
+    cta: { hidden: false, title: "", subtitle: "", buttonLabel: "", buttonHref: "" },
 };
 const EMPTY_PROJECTS_PAGE: ProjectsPageState = {
     hidden: false,
-    header: { badge: "", titleLine1: "", titleAccent: "", intro: "" },
+    header: { hidden: false, badge: "", titleLine1: "", titleAccent: "", intro: "" },
     items: [],
+    itemsHidden: false,
 };
 function asRecord(v: unknown): Record<string, unknown> {
     return v && typeof v === "object" && !Array.isArray(v)
@@ -345,6 +298,8 @@ function normalizeContact(v: unknown): ContactState {
     const root = asRecord(v);
     return {
         hidden: !!root.hidden,
+        navbarPhoneLabel: typeof root.navbarPhoneLabel === "string" ? root.navbarPhoneLabel : "",
+        navbarPhoneHref: typeof root.navbarPhoneHref === "string" ? root.navbarPhoneHref : "",
         hero: { ...EMPTY_CONTACT.hero, ...asRecord(root.hero) },
         items: Array.isArray(root.items) ? (root.items as {
             title: string;
@@ -366,6 +321,7 @@ function normalizeGallery(v: unknown): GalleryState {
     const root = asRecord(v);
     return {
         hidden: !!root.hidden,
+        header: { ...EMPTY_GALLERY.header, ...asRecord(root.header) },
         features: Array.isArray(root.features)
             ? (root.features as Record<string, unknown>[]).map((f) => ({
                 title: String(f.title || ""),
@@ -374,8 +330,18 @@ function normalizeGallery(v: unknown): GalleryState {
                 images: Array.isArray(f.images) ? (f.images as string[]) : [],
                 videoUrl: f.videoUrl ? String(f.videoUrl) : undefined,
                 date: f.date ? String(f.date) : undefined,
+                hidden: !!f.hidden,
             }))
             : [],
+        featuresHidden: !!root.featuresHidden,
+        banner: Array.isArray(root.banner)
+            ? (root.banner as Record<string, unknown>[]).map((b) => ({
+                value: String(b.value || ""),
+                suffix: String(b.suffix || ""),
+                label: String(b.label || ""),
+            }))
+            : [],
+        bannerHidden: !!root.bannerHidden,
     };
 }
 function normalizePropertiesPage(v: unknown): PropertiesPageState {
@@ -968,6 +934,16 @@ export default function SiteContentPage() {
                     </div>
                   </EditorSection>
                   <EditorSection id="home-hero" title={t.siteContent.home.fields.heroTitle} subtitle={t.siteContent.home.fields.heroSubtitle}>
+                    <div className="mb-4 flex items-center gap-2">
+                      <span className="text-[10px] font-bold uppercase text-slate-400">{t.siteContent.common.hide}</span>
+                      <button type="button" onClick={() => {
+                const next = !home.hero.hidden;
+                setHome({ ...home, hero: { ...home.hero, hidden: next } });
+                setHomeEN({ ...homeEN, hero: { ...homeEN.hero, hidden: next } });
+            }} className={`h-5 w-9 rounded-full border-2 border-transparent transition-colors duration-200 ${home.hero.hidden ? "bg-indigo-600" : "bg-slate-200 dark:bg-slate-700"}`}>
+                        <div className={`h-4 w-4 transform rounded-full bg-white transition-transform ${home.hero.hidden ? "translate-x-4" : "translate-x-0"}`}/>
+                      </button>
+                    </div>
                     <div className="space-y-4">
                       {([
                 ["badge", t.siteContent.home.fields.badge],
@@ -1004,23 +980,35 @@ export default function SiteContentPage() {
             })}/>
                   </EditorSection>
                   <EditorSection id="home-stats" title={t.siteContent.home.sections.stats} defaultOpen={false}>
+                    <div className="mb-4 flex items-center gap-2">
+                      <span className="text-[10px] font-bold uppercase text-slate-400">{t.siteContent.common.hide}</span>
+                      <button type="button" onClick={() => {
+                const next = !home.hero.statsHidden;
+                setHome({ ...home, hero: { ...home.hero, statsHidden: next } });
+                setHomeEN({ ...homeEN, hero: { ...homeEN.hero, statsHidden: next } });
+            }} className={`h-5 w-9 rounded-full border-2 border-transparent transition-colors duration-200 ${home.hero.statsHidden ? "bg-indigo-600" : "bg-slate-200 dark:bg-slate-700"}`}>
+                        <div className={`h-4 w-4 transform rounded-full bg-white transition-transform ${home.hero.statsHidden ? "translate-x-4" : "translate-x-0"}`}/>
+                      </button>
+                    </div>
                     <div className="space-y-3">
                       {home.hero.stats.map((row, i) => (<div key={i} className="flex flex-wrap items-end gap-3 rounded-xl border border-slate-100 bg-slate-50/30 p-3 dark:border-slate-800/40 dark:bg-slate-900/20">
-                          <div className="space-y-1.5">
-                            <label className="text-[10px] font-bold uppercase tracking-wider text-slate-400">
-                              {lang === "mn" ? "Утга" : "Value"}
-                            </label>
-                            <input className={`${scInput} max-w-[120px]`} value={row.value} onChange={(e) => {
-                    const v = e.target.value;
-                    const s = [...home.hero.stats];
-                    s[i] = { ...s[i], value: v };
-                    setHome({ ...home, hero: { ...home.hero, stats: s } });
-                    const sEN = [...homeEN.hero.stats];
-                    if (sEN[i]) {
-                        sEN[i] = { ...sEN[i], value: v };
-                        setHomeEN({ ...homeEN, hero: { ...homeEN.hero, stats: sEN } });
-                    }
-                }}/>
+                          <div className="space-y-1.5 min-w-[200px]">
+                            <DualInput 
+                              label={lang === "mn" ? "Утга" : "Value"} 
+                              mnValue={row.value} 
+                              enValue={homeEN.hero.stats[i]?.value ?? ""} 
+                              onChangeMN={(v) => {
+                                const s = [...home.hero.stats];
+                                s[i] = { ...s[i], value: v };
+                                setHome({ ...home, hero: { ...home.hero, stats: s } });
+                              }} 
+                              onChangeEN={(v) => {
+                                const s = [...homeEN.hero.stats];
+                                if (!s[i]) s[i] = { label: row.label, value: "" };
+                                s[i] = { ...s[i], value: v };
+                                setHomeEN({ ...homeEN, hero: { ...homeEN.hero, stats: s } });
+                              }}
+                            />
                           </div>
                           <div className="flex-1">
                             <DualInput label={lang === "mn" ? "Шошго" : "Label"} mnValue={row.label} enValue={homeEN.hero.stats[i]?.label ?? ""} onChangeMN={(v) => {
@@ -1073,6 +1061,16 @@ export default function SiteContentPage() {
                 { id: "about-stats", label: t.siteContent.about.sections.stats },
             ]}>
                   <EditorSection id="about-fields" title={t.siteContent.about.fields.title} subtitle={t.siteContent.about.fields.subtitle}>
+                    <div className="mb-4 flex items-center gap-2">
+                      <span className="text-[10px] font-bold uppercase text-slate-400">{t.siteContent.common.hide}</span>
+                      <button type="button" onClick={() => {
+                const next = !about.main.hidden;
+                setAbout({ ...about, main: { ...about.main, hidden: next } });
+                setAboutEN({ ...aboutEN, main: { ...aboutEN.main, hidden: next } });
+            }} className={`h-5 w-9 rounded-full border-2 border-transparent transition-colors duration-200 ${about.main.hidden ? "bg-indigo-600" : "bg-slate-200 dark:bg-slate-700"}`}>
+                        <div className={`h-4 w-4 transform rounded-full bg-white transition-transform ${about.main.hidden ? "translate-x-4" : "translate-x-0"}`}/>
+                      </button>
+                    </div>
                     <div className="space-y-4">
                       {([
                 ["sectionLabel", t.siteContent.about.fields.sectionLabel],
@@ -1116,23 +1114,35 @@ export default function SiteContentPage() {
                     </div>
                   </EditorSection>
                   <EditorSection id="about-stats" title={t.siteContent.about.sections.stats} defaultOpen={false}>
+                    <div className="mb-4 flex items-center gap-2">
+                      <span className="text-[10px] font-bold uppercase text-slate-400">{t.siteContent.common.hide}</span>
+                      <button type="button" onClick={() => {
+                const next = !about.main.statsHidden;
+                setAbout({ ...about, main: { ...about.main, statsHidden: next } });
+                setAboutEN({ ...aboutEN, main: { ...aboutEN.main, statsHidden: next } });
+            }} className={`h-5 w-9 rounded-full border-2 border-transparent transition-colors duration-200 ${about.main.statsHidden ? "bg-indigo-600" : "bg-slate-200 dark:bg-slate-700"}`}>
+                        <div className={`h-4 w-4 transform rounded-full bg-white transition-transform ${about.main.statsHidden ? "translate-x-4" : "translate-x-0"}`}/>
+                      </button>
+                    </div>
                     <div className="space-y-3">
                       {about.main.stats.map((row, i) => (<div key={i} className="flex flex-wrap items-end gap-3 rounded-xl border border-slate-100 bg-slate-50/30 p-3 dark:border-slate-800/40 dark:bg-slate-900/20">
-                          <div className="space-y-1.5">
-                            <label className="text-[10px] font-bold uppercase tracking-wider text-slate-400">
-                              {lang === "mn" ? "Утга" : "Value"}
-                            </label>
-                            <input className={`${scInput} max-w-[120px]`} value={row.value} onChange={(e) => {
-                    const v = e.target.value;
-                    const s = [...about.main.stats];
-                    s[i] = { ...s[i], value: v };
-                    setAbout({ ...about, main: { ...about.main, stats: s } });
-                    const sEN = [...aboutEN.main.stats];
-                    if (sEN[i]) {
-                        sEN[i] = { ...sEN[i], value: v };
-                        setAboutEN({ ...aboutEN, main: { ...aboutEN.main, stats: sEN } });
-                    }
-                }}/>
+                          <div className="space-y-1.5 min-w-[200px]">
+                            <DualInput 
+                              label={lang === "mn" ? "Утга" : "Value"} 
+                              mnValue={row.value} 
+                              enValue={aboutEN.main.stats[i]?.value ?? ""} 
+                              onChangeMN={(v) => {
+                                const s = [...about.main.stats];
+                                s[i] = { ...s[i], value: v };
+                                setAbout({ ...about, main: { ...about.main, stats: s } });
+                              }} 
+                              onChangeEN={(v) => {
+                                const s = [...aboutEN.main.stats];
+                                if (!s[i]) s[i] = { label: row.label, value: "" };
+                                s[i] = { ...s[i], value: v };
+                                setAboutEN({ ...aboutEN, main: { ...aboutEN.main, stats: s } });
+                              }}
+                            />
                           </div>
                           <div className="flex-1">
                             <DualInput label={lang === "mn" ? "Шошго" : "Label"} mnValue={row.label} enValue={aboutEN.main.stats[i]?.label ?? ""} onChangeMN={(v) => {
@@ -1182,6 +1192,28 @@ export default function SiteContentPage() {
                 { id: "svc-features", label: t.siteContent.gallery.sections.features },
             ]}>
                   <EditorSection id="svc-features" title={t.siteContent.gallery.sections.features} defaultOpen={true}>
+                    <div className="mb-4 flex flex-wrap gap-6 border-b border-slate-100 pb-4 dark:border-slate-800">
+                      <div className="flex items-center gap-2">
+                        <span className="text-[10px] font-bold uppercase text-slate-400">{t.siteContent.common.header} {t.siteContent.common.hide}</span>
+                        <button type="button" onClick={() => {
+                  const next = !gallery.header?.hidden;
+                  setGallery({ ...gallery, header: { ...gallery.header, hidden: next } });
+                  setGalleryEN({ ...galleryEN, header: { ...galleryEN.header, hidden: next } });
+              }} className={`h-5 w-9 rounded-full border-2 border-transparent transition-colors duration-200 ${gallery.header?.hidden ? "bg-indigo-600" : "bg-slate-200 dark:bg-slate-700"}`}>
+                          <div className={`h-4 w-4 transform rounded-full bg-white transition-transform ${gallery.header?.hidden ? "translate-x-4" : "translate-x-0"}`}/>
+                        </button>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <span className="text-[10px] font-bold uppercase text-slate-400">{t.siteContent.common.posts} {t.siteContent.common.hide}</span>
+                        <button type="button" onClick={() => {
+                  const next = !gallery.featuresHidden;
+                  setGallery({ ...gallery, featuresHidden: next });
+                  setGalleryEN({ ...galleryEN, featuresHidden: next });
+              }} className={`h-5 w-9 rounded-full border-2 border-transparent transition-colors duration-200 ${gallery.featuresHidden ? "bg-indigo-600" : "bg-slate-200 dark:bg-slate-700"}`}>
+                          <div className={`h-4 w-4 transform rounded-full bg-white transition-transform ${gallery.featuresHidden ? "translate-x-4" : "translate-x-0"}`}/>
+                        </button>
+                      </div>
+                    </div>
                     <div className="space-y-4">
                       {gallery.features.map((f, i) => (<div key={i} className="rounded-xl border border-slate-200/90 bg-white/80 p-4 dark:border-slate-700 dark:bg-slate-900/40">
                           <div className="flex items-center justify-between mb-2">
@@ -1319,13 +1351,49 @@ export default function SiteContentPage() {
                     {saving ? t.common.saving : t.siteContent.common.saveTab(t.siteContent.tabs.services.label)}
                   </PrimarySave>
                 </EditorBody>) : tab === "contact" ? (<EditorBody sectionJumpKey={tab} sectionItems={[
+                { id: "contact-navbar-phone", label: t.siteContent.contact.sections.navbarPhone },
                 { id: "contact-hero", label: t.siteContent.contact.sections.hero },
                 { id: "contact-agent", label: t.siteContent.contact.sections.agent },
                 { id: "contact-items", label: t.siteContent.contact.sections.items },
                 { id: "contact-links", label: "Холбоосууд" },
                 { id: "contact-form", label: t.siteContent.contact.sections.form },
             ]}>
+                  <EditorSection id="contact-navbar-phone" title={t.siteContent.contact.fields.navbarPhoneTitle} subtitle={t.siteContent.contact.fields.navbarPhoneSubtitle}>
+                    <div className="space-y-4">
+                      <DualInput 
+                        label={t.siteContent.contact.fields.telLabel} 
+                        mnValue={contact.navbarPhoneLabel || ""} 
+                        enValue={contactEN.navbarPhoneLabel || ""} 
+                        onChangeMN={(v) => setContact({ ...contact, navbarPhoneLabel: v })} 
+                        onChangeEN={(v) => setContactEN({ ...contactEN, navbarPhoneLabel: v })}
+                      />
+                      <div className="space-y-1.5">
+                        <label className="text-[11px] font-bold uppercase tracking-[0.12em] text-slate-500">
+                          {t.siteContent.contact.fields.telHref}
+                        </label>
+                        <input 
+                          className={scInput} 
+                          value={contact.navbarPhoneHref || ""} 
+                          onChange={(e) => {
+                            const v = e.target.value;
+                            setContact({ ...contact, navbarPhoneHref: v });
+                            setContactEN({ ...contactEN, navbarPhoneHref: v });
+                          }}
+                        />
+                      </div>
+                    </div>
+                  </EditorSection>
                   <EditorSection id="contact-hero" title={t.siteContent.contact.fields.heroTitle} subtitle={t.siteContent.contact.fields.heroSubtitle}>
+                    <div className="mb-4 flex items-center gap-2">
+                      <span className="text-[10px] font-bold uppercase text-slate-400">{t.siteContent.common.hide}</span>
+                      <button type="button" onClick={() => {
+                const next = !contact.hero.hidden;
+                setContact({ ...contact, hero: { ...contact.hero, hidden: next } });
+                setContactEN({ ...contactEN, hero: { ...contactEN.hero, hidden: next } });
+            }} className={`h-5 w-9 rounded-full border-2 border-transparent transition-colors duration-200 ${contact.hero.hidden ? "bg-indigo-600" : "bg-slate-200 dark:bg-slate-700"}`}>
+                        <div className={`h-4 w-4 transform rounded-full bg-white transition-transform ${contact.hero.hidden ? "translate-x-4" : "translate-x-0"}`}/>
+                      </button>
+                    </div>
                     <div className="space-y-4">
                       {([
                 ["badge", t.siteContent.contact.fields.badge],
@@ -1335,6 +1403,16 @@ export default function SiteContentPage() {
                     </div>
                   </EditorSection>
                   <EditorSection id="contact-agent" title={t.siteContent.contact.fields.agentTitle} defaultOpen={false}>
+                    <div className="mb-4 flex items-center gap-2">
+                      <span className="text-[10px] font-bold uppercase text-slate-400">{t.siteContent.common.hide}</span>
+                      <button type="button" onClick={() => {
+                const next = !contact.agent.hidden;
+                setContact({ ...contact, agent: { ...contact.agent, hidden: next } });
+                setContactEN({ ...contactEN, agent: { ...contactEN.agent, hidden: next } });
+            }} className={`h-5 w-9 rounded-full border-2 border-transparent transition-colors duration-200 ${contact.agent.hidden ? "bg-indigo-600" : "bg-slate-200 dark:bg-slate-700"}`}>
+                        <div className={`h-4 w-4 transform rounded-full bg-white transition-transform ${contact.agent.hidden ? "translate-x-4" : "translate-x-0"}`}/>
+                      </button>
+                    </div>
                     <div className="space-y-4">
                       <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-2">
                         <div className="space-y-1.5">
@@ -1367,6 +1445,16 @@ export default function SiteContentPage() {
                   </EditorSection>
 
                   <EditorSection id="contact-items" title={t.siteContent.contact.fields.infoItems} defaultOpen={false}>
+                    <div className="mb-4 flex items-center gap-2">
+                      <span className="text-[10px] font-bold uppercase text-slate-400">{t.siteContent.common.section} {t.siteContent.common.hide}</span>
+                      <button type="button" onClick={() => {
+                const next = !contact.itemsHidden;
+                setContact({ ...contact, itemsHidden: next });
+                setContactEN({ ...contactEN, itemsHidden: next });
+            }} className={`h-5 w-9 rounded-full border-2 border-transparent transition-colors duration-200 ${contact.itemsHidden ? "bg-indigo-600" : "bg-slate-200 dark:bg-slate-700"}`}>
+                        <div className={`h-4 w-4 transform rounded-full bg-white transition-transform ${contact.itemsHidden ? "translate-x-4" : "translate-x-0"}`}/>
+                      </button>
+                    </div>
                     <div className="space-y-3">
                       <div className="flex flex-wrap gap-3">
                         {contact.items.map((row, i) => (<div key={i} className="flex-1 min-w-[280px] space-y-3 rounded-xl border border-slate-100 bg-slate-50/30 p-3 dark:border-slate-800/40 dark:bg-slate-900/20">
@@ -1448,6 +1536,16 @@ export default function SiteContentPage() {
                     </div>
                   </EditorSection>
                   <EditorSection id="contact-links" title="Холбоосууд" subtitle="Facebook, вебсайт болон бусад сошиал холбоосууд" defaultOpen={false}>
+                    <div className="mb-4 flex items-center gap-2">
+                      <span className="text-[10px] font-bold uppercase text-slate-400">{t.siteContent.common.section} {t.siteContent.common.hide}</span>
+                      <button type="button" onClick={() => {
+                const next = !contact.linksHidden;
+                setContact({ ...contact, linksHidden: next });
+                setContactEN({ ...contactEN, linksHidden: next });
+            }} className={`h-5 w-9 rounded-full border-2 border-transparent transition-colors duration-200 ${contact.linksHidden ? "bg-indigo-600" : "bg-slate-200 dark:bg-slate-700"}`}>
+                        <div className={`h-4 w-4 transform rounded-full bg-white transition-transform ${contact.linksHidden ? "translate-x-4" : "translate-x-0"}`}/>
+                      </button>
+                    </div>
                     <div className="flex flex-wrap gap-3">
                       {contact.links.map((link, i) => (<div key={i} className="flex-1 min-w-[300px] rounded-xl border border-slate-100 bg-slate-50/30 p-3 dark:border-slate-800/40 dark:bg-slate-900/20 space-y-3">
                           <div className="flex flex-wrap items-end gap-3">
@@ -1527,6 +1625,16 @@ export default function SiteContentPage() {
                 { id: "properties-cta", label: t.siteContent.propertiesPage.sections.cta },
             ]}>
                   <EditorSection id="properties-header" title={t.siteContent.propertiesPage.fields.headerTitle} subtitle={t.siteContent.propertiesPage.fields.headerSubtitle}>
+                    <div className="mb-4 flex items-center gap-2">
+                      <span className="text-[10px] font-bold uppercase text-slate-400">{t.siteContent.common.hide}</span>
+                      <button type="button" onClick={() => {
+                const next = !propertiesPage.header.hidden;
+                setPropertiesPage({ ...propertiesPage, header: { ...propertiesPage.header, hidden: next } });
+                setPropertiesPageEN({ ...propertiesPageEN, header: { ...propertiesPageEN.header, hidden: next } });
+            }} className={`h-5 w-9 rounded-full border-2 border-transparent transition-colors duration-200 ${propertiesPage.header.hidden ? "bg-indigo-600" : "bg-slate-200 dark:bg-slate-700"}`}>
+                        <div className={`h-4 w-4 transform rounded-full bg-white transition-transform ${propertiesPage.header.hidden ? "translate-x-4" : "translate-x-0"}`}/>
+                      </button>
+                    </div>
                     <div className="space-y-4">
                       <DualInput label={t.siteContent.propertiesPage.fields.headerBadge} mnValue={propertiesPage.header.badge} enValue={propertiesPageEN.header.badge} onChangeMN={(v) => setPropertiesPage({ ...propertiesPage, header: { ...propertiesPage.header, badge: v } })} onChangeEN={(v) => setPropertiesPageEN({ ...propertiesPageEN, header: { ...propertiesPageEN.header, badge: v } })}/>
                       <div className="grid gap-4 sm:grid-cols-2">
@@ -1572,6 +1680,16 @@ export default function SiteContentPage() {
                     </div>
                   </EditorSection>
                   <EditorSection id="properties-items" title={t.siteContent.propertiesPage.fields.itemsTitle} subtitle="Properties list" defaultOpen={false}>
+                    <div className="mb-4 flex items-center gap-2">
+                      <span className="text-[10px] font-bold uppercase text-slate-400">{t.siteContent.common.section} {t.siteContent.common.hide}</span>
+                      <button type="button" onClick={() => {
+                const next = !propertiesPage.itemsHidden;
+                setPropertiesPage({ ...propertiesPage, itemsHidden: next });
+                setPropertiesPageEN({ ...propertiesPageEN, itemsHidden: next });
+            }} className={`h-5 w-9 rounded-full border-2 border-transparent transition-colors duration-200 ${propertiesPage.itemsHidden ? "bg-indigo-600" : "bg-slate-200 dark:bg-slate-700"}`}>
+                        <div className={`h-4 w-4 transform rounded-full bg-white transition-transform ${propertiesPage.itemsHidden ? "translate-x-4" : "translate-x-0"}`}/>
+                      </button>
+                    </div>
                     <div className="space-y-4">
                       {propertiesPage.items.map((item, i) => (<div key={item.id || i} className="rounded-xl border border-slate-200/90 bg-white/80 p-4 dark:border-slate-700 dark:bg-slate-900/40">
                           <div className="grid gap-6 lg:grid-cols-2">
@@ -1779,6 +1897,16 @@ export default function SiteContentPage() {
                     </div>
                   </EditorSection>
                   <EditorSection id="properties-cta" title={t.siteContent.propertiesPage.sections.cta}>
+                    <div className="mb-4 flex items-center gap-2">
+                      <span className="text-[10px] font-bold uppercase text-slate-400">{t.siteContent.common.hide}</span>
+                      <button type="button" onClick={() => {
+                const next = !propertiesPage.cta.hidden;
+                setPropertiesPage({ ...propertiesPage, cta: { ...propertiesPage.cta, hidden: next } });
+                setPropertiesPageEN({ ...propertiesPageEN, cta: { ...propertiesPageEN.cta, hidden: next } });
+            }} className={`h-5 w-9 rounded-full border-2 border-transparent transition-colors duration-200 ${propertiesPage.cta.hidden ? "bg-indigo-600" : "bg-slate-200 dark:bg-slate-700"}`}>
+                        <div className={`h-4 w-4 transform rounded-full bg-white transition-transform ${propertiesPage.cta.hidden ? "translate-x-4" : "translate-x-0"}`}/>
+                      </button>
+                    </div>
                     <div className="space-y-4">
                       <div className="space-y-1.5">
                         <label className="text-[11px] font-bold uppercase tracking-[0.12em] text-slate-500">
@@ -1801,6 +1929,16 @@ export default function SiteContentPage() {
                 { id: "sales-intro", label: t.siteContent.salesPage.fields.intro },
             ]}>
                   <EditorSection id="sales-meta" title={t.siteContent.salesPage.fields.headerTitle}>
+                    <div className="mb-4 flex items-center gap-2">
+                      <span className="text-[10px] font-bold uppercase text-slate-400">{t.siteContent.common.hide}</span>
+                      <button type="button" onClick={() => {
+                const next = !salesPage.header.hidden;
+                setSalesPage({ ...salesPage, header: { ...salesPage.header, hidden: next } });
+                setSalesPageEN({ ...salesPageEN, header: { ...salesPageEN.header, hidden: next } });
+            }} className={`h-5 w-9 rounded-full border-2 border-transparent transition-colors duration-200 ${salesPage.header.hidden ? "bg-indigo-600" : "bg-slate-200 dark:bg-slate-700"}`}>
+                        <div className={`h-4 w-4 transform rounded-full bg-white transition-transform ${salesPage.header.hidden ? "translate-x-4" : "translate-x-0"}`}/>
+                      </button>
+                    </div>
                     <div className="space-y-4">
                       <div className="grid gap-4 lg:grid-cols-2">
                         <DualInput label={t.siteContent.salesPage.fields.eyebrow} mnValue={salesPage.header.eyebrow} enValue={salesPageEN.header.eyebrow} onChangeMN={(v) => setSalesPage({ ...salesPage, header: { ...salesPage.header, eyebrow: v } })} onChangeEN={(v) => setSalesPageEN({ ...salesPageEN, header: { ...salesPageEN.header, eyebrow: v } })}/>
@@ -1819,6 +1957,16 @@ export default function SiteContentPage() {
                 { id: "jobs-header-intro", label: t.siteContent.jobsPage.fields.intro },
             ]}>
                   <EditorSection id="jobs-header-title" title={t.siteContent.jobsPage.fields.headerTitle}>
+                    <div className="mb-4 flex items-center gap-2">
+                      <span className="text-[10px] font-bold uppercase text-slate-400">{t.siteContent.common.hide}</span>
+                      <button type="button" onClick={() => {
+                const next = !jobsPage.header.hidden;
+                setJobsPage({ ...jobsPage, header: { ...jobsPage.header, hidden: next } });
+                setJobsPageEN({ ...jobsPageEN, header: { ...jobsPageEN.header, hidden: next } });
+            }} className={`h-5 w-9 rounded-full border-2 border-transparent transition-colors duration-200 ${jobsPage.header.hidden ? "bg-indigo-600" : "bg-slate-200 dark:bg-slate-700"}`}>
+                        <div className={`h-4 w-4 transform rounded-full bg-white transition-transform ${jobsPage.header.hidden ? "translate-x-4" : "translate-x-0"}`}/>
+                      </button>
+                    </div>
                     <DualInput label={t.siteContent.jobsPage.fields.title} mnValue={jobsPage.header.title} enValue={jobsPageEN.header.title} onChangeMN={(v) => setJobsPage({ ...jobsPage, header: { ...jobsPage.header, title: v } })} onChangeEN={(v) => setJobsPageEN({ ...jobsPageEN, header: { ...jobsPageEN.header, title: v } })}/>
                   </EditorSection>
                   <EditorSection id="jobs-header-intro" title={lang === "mn" ? "Дэд тайлбар" : "Intro"}>
@@ -1833,6 +1981,16 @@ export default function SiteContentPage() {
                 { id: "team-cta", label: t.siteContent.team.sections.cta },
             ]}>
                   <EditorSection id="team-header" title={t.siteContent.team.fields.headerTitle} subtitle={t.siteContent.team.fields.headerSubtitle}>
+                    <div className="mb-4 flex items-center gap-2">
+                      <span className="text-[10px] font-bold uppercase text-slate-400">{t.siteContent.common.hide}</span>
+                      <button type="button" onClick={() => {
+                const next = !teamPage.header.hidden;
+                setTeamPage({ ...teamPage, header: { ...teamPage.header, hidden: next } });
+                setTeamPageEN({ ...teamPageEN, header: { ...teamPageEN.header, hidden: next } });
+            }} className={`h-5 w-9 rounded-full border-2 border-transparent transition-colors duration-200 ${teamPage.header.hidden ? "bg-indigo-600" : "bg-slate-200 dark:bg-slate-700"}`}>
+                        <div className={`h-4 w-4 transform rounded-full bg-white transition-transform ${teamPage.header.hidden ? "translate-x-4" : "translate-x-0"}`}/>
+                      </button>
+                    </div>
                     <div className="space-y-4">
                       <DualInput label={lang === "mn" ? "Дээд шошго" : "Eyebrow"} mnValue={teamPage.header.eyebrow} enValue={teamPageEN.header.eyebrow} onChangeMN={(v) => setTeamPage({ ...teamPage, header: { ...teamPage.header, eyebrow: v } })} onChangeEN={(v) => setTeamPageEN({ ...teamPageEN, header: { ...teamPageEN.header, eyebrow: v } })}/>
                       <div className="grid gap-4 sm:grid-cols-2">
@@ -1843,6 +2001,16 @@ export default function SiteContentPage() {
                     </div>
                   </EditorSection>
                   <EditorSection id="team-members" title="Багийн гишүүд" defaultOpen={false}>
+                    <div className="mb-4 flex items-center gap-2">
+                      <span className="text-[10px] font-bold uppercase text-slate-400">{t.siteContent.common.section} {t.siteContent.common.hide}</span>
+                      <button type="button" onClick={() => {
+                const next = !teamPage.membersHidden;
+                setTeamPage({ ...teamPage, membersHidden: next });
+                setTeamPageEN({ ...teamPageEN, membersHidden: next });
+            }} className={`h-5 w-9 rounded-full border-2 border-transparent transition-colors duration-200 ${teamPage.membersHidden ? "bg-indigo-600" : "bg-slate-200 dark:bg-slate-700"}`}>
+                        <div className={`h-4 w-4 transform rounded-full bg-white transition-transform ${teamPage.membersHidden ? "translate-x-4" : "translate-x-0"}`}/>
+                      </button>
+                    </div>
                     <div className="space-y-4">
                       {teamPage.members.map((m, i) => (<div key={i} className="rounded-xl border border-slate-200/90 bg-white/80 p-4 dark:border-slate-700 dark:bg-slate-900/40">
                           <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
@@ -1994,6 +2162,16 @@ export default function SiteContentPage() {
                 { id: "projects-items", label: t.siteContent.projectsPage.sections.items },
             ]}>
                   <EditorSection id="projects-header" title={t.siteContent.projectsPage.fields.headerTitle} subtitle={t.siteContent.projectsPage.fields.headerSubtitle}>
+                    <div className="mb-4 flex items-center gap-2">
+                      <span className="text-[10px] font-bold uppercase text-slate-400">{t.siteContent.common.hide}</span>
+                      <button type="button" onClick={() => {
+                const next = !projectsPage.header.hidden;
+                setProjectsPage({ ...projectsPage, header: { ...projectsPage.header, hidden: next } });
+                setProjectsPageEN({ ...projectsPageEN, header: { ...projectsPageEN.header, hidden: next } });
+            }} className={`h-5 w-9 rounded-full border-2 border-transparent transition-colors duration-200 ${projectsPage.header.hidden ? "bg-indigo-600" : "bg-slate-200 dark:bg-slate-700"}`}>
+                        <div className={`h-4 w-4 transform rounded-full bg-white transition-transform ${projectsPage.header.hidden ? "translate-x-4" : "translate-x-0"}`}/>
+                      </button>
+                    </div>
                     <div className="space-y-4">
                       <DualInput label={t.siteContent.projectsPage.fields.badge} mnValue={projectsPage.header.badge} enValue={projectsPageEN.header.badge} onChangeMN={(v) => setProjectsPage({ ...projectsPage, header: { ...projectsPage.header, badge: v } })} onChangeEN={(v) => setProjectsPageEN({ ...projectsPageEN, header: { ...projectsPageEN.header, badge: v } })}/>
                       <div className="grid gap-4 sm:grid-cols-2">
@@ -2004,6 +2182,16 @@ export default function SiteContentPage() {
                     </div>
                   </EditorSection>
                   <EditorSection id="projects-items" title={t.siteContent.projectsPage.fields.itemsTitle} subtitle={t.siteContent.projectsPage.fields.headerSubtitle} defaultOpen={false}>
+                    <div className="mb-4 flex items-center gap-2">
+                      <span className="text-[10px] font-bold uppercase text-slate-400">{t.siteContent.common.section} {t.siteContent.common.hide}</span>
+                      <button type="button" onClick={() => {
+                const next = !projectsPage.itemsHidden;
+                setProjectsPage({ ...projectsPage, itemsHidden: next });
+                setProjectsPageEN({ ...projectsPageEN, itemsHidden: next });
+            }} className={`h-5 w-9 rounded-full border-2 border-transparent transition-colors duration-200 ${projectsPage.itemsHidden ? "bg-indigo-600" : "bg-slate-200 dark:bg-slate-700"}`}>
+                        <div className={`h-4 w-4 transform rounded-full bg-white transition-transform ${projectsPage.itemsHidden ? "translate-x-4" : "translate-x-0"}`}/>
+                      </button>
+                    </div>
                     <div className="space-y-4">
                       {projectsPage.items.map((item, i) => (<div key={item.id || i} className="rounded-xl border border-slate-200/90 bg-white/80 p-4 dark:border-slate-700 dark:bg-slate-900/40">
                           <div className="space-y-4">
@@ -2167,6 +2355,16 @@ export default function SiteContentPage() {
                 { id: "footer-copyright", label: "Copyright" },
             ]}>
                   <EditorSection id="footer-brand" title="Лого & Брэнд">
+                    <div className="mb-4 flex items-center gap-2">
+                      <span className="text-[10px] font-bold uppercase text-slate-400">{t.siteContent.common.section} {t.siteContent.common.hide}</span>
+                      <button type="button" onClick={() => {
+                const next = !footer.brand.hidden;
+                setFooter({ ...footer, brand: { ...footer.brand, hidden: next } });
+                setFooterEN({ ...footerEN, brand: { ...footerEN.brand, hidden: next } });
+            }} className={`h-5 w-9 rounded-full border-2 border-transparent transition-colors duration-200 ${footer.brand.hidden ? "bg-indigo-600" : "bg-slate-200 dark:bg-slate-700"}`}>
+                        <div className={`h-4 w-4 transform rounded-full bg-white transition-transform ${footer.brand.hidden ? "translate-x-4" : "translate-x-0"}`}/>
+                      </button>
+                    </div>
                     <div className="space-y-4">
                       <div className="space-y-1.5">
                         <label className="text-[11px] font-bold uppercase tracking-wider text-slate-400">Лого</label>
@@ -2175,7 +2373,14 @@ export default function SiteContentPage() {
                 setFooterEN({ ...footerEN, logo: v });
             }}/>
                       </div>
-                      <DualTextarea label={lang === "mn" ? "Брэндийн тайлбар" : "Brand Description"} mnValue={footer.brand.desc} enValue={footerEN.brand.desc} onChangeMN={(v) => setFooter({ ...footer, brand: { desc: v } })} onChangeEN={(v) => setFooterEN({ ...footerEN, brand: { desc: v } })} rows={3}/>
+                      <DualTextarea 
+                        label={lang === "mn" ? "Брэндийн тайлбар" : "Brand Description"} 
+                        mnValue={footer.brand.desc} 
+                        enValue={footerEN.brand.desc} 
+                        onChangeMN={(v) => setFooter({ ...footer, brand: { ...footer.brand, desc: v } })} 
+                        onChangeEN={(v) => setFooterEN({ ...footerEN, brand: { ...footerEN.brand, desc: v } })} 
+                        rows={3}
+                      />
                     </div>
                   </EditorSection>
 
@@ -2197,7 +2402,7 @@ export default function SiteContentPage() {
                 }}/>
                             </div>
                             <div className="flex items-center gap-2 pt-5">
-                              <span className="text-[10px] font-bold uppercase text-slate-400">Нуух</span>
+                              <span className="text-[10px] font-bold uppercase text-slate-400">{t.siteContent.common.hide}</span>
                               <button type="button" onClick={() => {
                     const s = [...footer.sections];
                     s[si] = { ...s[si], hidden: !s[si].hidden };
@@ -2320,6 +2525,23 @@ export default function SiteContentPage() {
                     <div className="space-y-4">
                       {footer.socials.map((s, i) => (<div key={i} className="flex flex-wrap items-end gap-3 rounded-lg border border-slate-200 p-3 dark:border-slate-700">
                           <div className="flex-1 space-y-3 min-w-[200px]">
+                            <div className="flex items-center justify-between mb-2">
+                              <div className="flex items-center gap-2">
+                                <span className="text-[10px] font-bold uppercase text-slate-400">{t.siteContent.common.hide}</span>
+                                <button type="button" onClick={() => {
+                        const list = [...footer.socials];
+                        list[i] = { ...list[i], hidden: !list[i].hidden };
+                        setFooter({ ...footer, socials: list });
+                        const listEN = [...footerEN.socials];
+                        if (listEN[i]) {
+                          listEN[i] = { ...listEN[i], hidden: list[i].hidden };
+                          setFooterEN({ ...footerEN, socials: listEN });
+                        }
+                      }} className={`h-4 w-7 rounded-full border border-transparent transition-colors ${s.hidden ? "bg-indigo-500" : "bg-slate-200 dark:bg-slate-700"}`}>
+                                  <div className={`h-3 w-3 transform rounded-full bg-white transition-transform ${s.hidden ? "translate-x-3" : "translate-x-0"}`}/>
+                                </button>
+                              </div>
+                            </div>
                              <DualInput label="Label (hover text)" mnValue={s.label} enValue={footerEN.socials[i]?.label ?? ""} onChangeMN={(v) => {
                 const list = [...footer.socials];
                 list[i] = { ...list[i], label: v };
@@ -2384,6 +2606,16 @@ export default function SiteContentPage() {
                   </EditorSection>
 
                   <EditorSection id="footer-partners" title="Түншүүд (лого)" subtitle="Лого файлуудыг public/ доор байршуулж, энд зөвхөн замыг оруулна (ж: /logos/x.svg)." defaultOpen={false}>
+                    <div className="mb-4 flex items-center gap-2">
+                      <span className="text-[10px] font-bold uppercase text-slate-400">Section Нуух</span>
+                      <button type="button" onClick={() => {
+                const next = !footer.partners.hidden;
+                setFooter({ ...footer, partners: { ...footer.partners, hidden: next } });
+                setFooterEN({ ...footerEN, partners: { ...footerEN.partners, hidden: next } });
+            }} className={`h-5 w-9 rounded-full border-2 border-transparent transition-colors duration-200 ${footer.partners.hidden ? "bg-indigo-600" : "bg-slate-200 dark:bg-slate-700"}`}>
+                        <div className={`h-4 w-4 transform rounded-full bg-white transition-transform ${footer.partners.hidden ? "translate-x-4" : "translate-x-0"}`}/>
+                      </button>
+                    </div>
                     <div className="space-y-4">
                       {footer.partners.items.map((row, i) => (<div key={i} className="rounded-lg border border-zinc-200 p-3 dark:border-zinc-700">
                           <div className="grid gap-2 sm:grid-cols-2">
@@ -2469,6 +2701,16 @@ export default function SiteContentPage() {
                   </EditorSection>
 
                   <EditorSection id="footer-copyright" title="Copyright">
+                    <div className="mb-4 flex items-center gap-2">
+                      <span className="text-[10px] font-bold uppercase text-slate-400">Нуух</span>
+                      <button type="button" onClick={() => {
+                const next = !footer.copyrightHidden;
+                setFooter({ ...footer, copyrightHidden: next });
+                setFooterEN({ ...footerEN, copyrightHidden: next });
+            }} className={`h-5 w-9 rounded-full border-2 border-transparent transition-colors duration-200 ${footer.copyrightHidden ? "bg-indigo-600" : "bg-slate-200 dark:bg-slate-700"}`}>
+                        <div className={`h-4 w-4 transform rounded-full bg-white transition-transform ${footer.copyrightHidden ? "translate-x-4" : "translate-x-0"}`}/>
+                      </button>
+                    </div>
                     <DualInput label="Copyright Text" mnValue={footer.copyright} enValue={footerEN.copyright} onChangeMN={(v) => setFooter({ ...footer, copyright: v })} onChangeEN={(v) => setFooterEN({ ...footerEN, copyright: v })}/>
                   </EditorSection>
 

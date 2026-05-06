@@ -62,6 +62,8 @@ export const defaultFooterSections = {
 };
 
 export const defaultContactSections = {
+  navbarPhoneLabel: "+976 1100-0000",
+  navbarPhoneHref: "tel:+97611000000",
   hero: {
     badge: "Холбоо барих",
     h2Accent: "Хамтдаа эхлүүлцгээе",

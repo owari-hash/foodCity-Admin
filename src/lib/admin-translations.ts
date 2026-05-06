@@ -58,6 +58,10 @@ export const adminTranslations = {
         editingPage: "Засварлаж буй хуудас",
         revalidated: "Хадгалагдлаа. Сайт шинэчлэгдлээ.",
         visible: "Харуулах",
+        hide: "Нуух",
+        header: "Толгой",
+        posts: "Постууд",
+        section: "Хэсэг",
         saveTab: (name: string) => `${name} хадгалах`,
       },
       home: {
@@ -114,6 +118,7 @@ export const adminTranslations = {
       contact: {
         sections: {
           hero: "Hero",
+          navbarPhone: "Навбар Утас",
           items: "Мэдээлэл",
           agent: "Ажилтан",
           form: "Маягт",
@@ -121,6 +126,8 @@ export const adminTranslations = {
         fields: {
           heroTitle: "Hero хэсэг",
           heroSubtitle: "Badge, гарчиг, танилцуулга",
+          navbarPhoneTitle: "Навбар дээрх утас",
+          navbarPhoneSubtitle: "Сайтын хамгийн дээд хэсэгт харагдах утас",
           badge: "Badge",
           h2Accent: "Гарчиг онцлох",
           intro: "Танилцуулга",
@@ -447,6 +454,10 @@ export const adminTranslations = {
         editingPage: "Editing Page",
         revalidated: "Saved and revalidated.",
         visible: "Visible",
+        hide: "Hide",
+        header: "Header",
+        posts: "Posts",
+        section: "Section",
         saveTab: (name: string) => `Save ${name}`,
       },
       home: {
@@ -503,6 +514,7 @@ export const adminTranslations = {
       contact: {
         sections: {
           hero: "Hero",
+          navbarPhone: "Navbar Phone",
           items: "Info",
           agent: "Agent",
           form: "Form",
@@ -510,6 +522,8 @@ export const adminTranslations = {
         fields: {
           heroTitle: "Hero Section",
           heroSubtitle: "Badge, title, intro",
+          navbarPhoneTitle: "Navbar Phone Number",
+          navbarPhoneSubtitle: "Phone number shown at the top of the site",
           badge: "Badge",
           h2Accent: "Title Accent",
           intro: "Introduction",
