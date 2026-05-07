@@ -1367,20 +1367,6 @@ export default function SiteContentPage() {
                         onChangeMN={(v) => setContact({ ...contact, navbarPhoneLabel: v })} 
                         onChangeEN={(v) => setContactEN({ ...contactEN, navbarPhoneLabel: v })}
                       />
-                      <div className="space-y-1.5">
-                        <label className="text-[11px] font-bold uppercase tracking-[0.12em] text-slate-500">
-                          {t.siteContent.contact.fields.telHref}
-                        </label>
-                        <input 
-                          className={scInput} 
-                          value={contact.navbarPhoneHref || ""} 
-                          onChange={(e) => {
-                            const v = e.target.value;
-                            setContact({ ...contact, navbarPhoneHref: v });
-                            setContactEN({ ...contactEN, navbarPhoneHref: v });
-                          }}
-                        />
-                      </div>
                     </div>
                   </EditorSection>
                   <EditorSection id="contact-hero" title={t.siteContent.contact.fields.heroTitle} subtitle={t.siteContent.contact.fields.heroSubtitle}>
