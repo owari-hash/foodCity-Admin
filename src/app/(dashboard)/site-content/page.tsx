@@ -96,7 +96,7 @@ type ContactState = {
     agent: { hidden?: boolean; initials: string; name: string; role: string; telHref: string; telLabel: string; };
     formTitle?: string;
     formHidden?: boolean;
-    links: { type: string; href: string; title: string; hidden?: boolean; }[];
+    links: { type: string; href: string; title: string; imageUrl?: string; hidden?: boolean; }[];
     linksHidden?: boolean;
 };
 type GalleryState = {
@@ -313,6 +313,8 @@ function normalizeContact(v: unknown): ContactState {
                 type: typeof l.type === "string" ? l.type : "",
                 href: typeof l.href === "string" ? l.href : "",
                 title: typeof l.title === "string" ? l.title : "",
+                imageUrl: typeof l.imageUrl === "string" ? l.imageUrl : undefined,
+                hidden: !!l.hidden,
             }))
             : [],
     };
@@ -1587,6 +1589,18 @@ export default function SiteContentPage() {
                     const linksEN = [...contactEN.links];
                     if (linksEN[i])
                         linksEN[i] = { ...linksEN[i], title: e.target.value };
+                    setContactEN({ ...contactEN, links: linksEN });
+                }}/>
+                          </div>
+                          <div className="space-y-1.5 w-full">
+                            <label className="text-[11px] font-bold uppercase tracking-[0.12em] text-slate-500">Зураг / Лого (сонголттой)</label>
+                            <ImageUploadField previewFit="contain" value={link.imageUrl || ""} onChange={(v) => {
+                    const links = [...contact.links];
+                    links[i] = { ...links[i], imageUrl: v };
+                    setContact({ ...contact, links });
+                    const linksEN = [...contactEN.links];
+                    if (linksEN[i])
+                        linksEN[i] = { ...linksEN[i], imageUrl: v };
                     setContactEN({ ...contactEN, links: linksEN });
                 }}/>
                           </div>

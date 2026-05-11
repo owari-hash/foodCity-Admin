@@ -16,6 +16,7 @@ type LangContent = {
   title: string;
   summary: string;
   body: string;
+  badge: string;
 };
 
 type Ad = {
@@ -40,6 +41,8 @@ type AdForm = {
   summary_en: string;
   body_mn: string;
   body_en: string;
+  badge_mn: string;
+  badge_en: string;
   imageUrl: string;
   externalUrl: string;
   active: boolean;
@@ -54,6 +57,8 @@ const empty: AdForm = {
   summary_en: "",
   body_mn: "",
   body_en: "",
+  badge_mn: "",
+  badge_en: "",
   imageUrl: "",
   externalUrl: "",
   active: true,
@@ -77,11 +82,13 @@ function buildPayload(form: AdForm) {
       title: form.title_mn.trim(),
       summary: form.summary_mn.trim(),
       body: form.body_mn.trim(),
+      badge: form.badge_mn.trim(),
     },
     en: {
       title: form.title_en.trim(),
       summary: form.summary_en.trim(),
       body: form.body_en.trim(),
+      badge: form.badge_en.trim(),
     },
     imageUrl: form.imageUrl.trim() || undefined,
     externalUrl: form.externalUrl.trim() || undefined,
@@ -147,6 +154,8 @@ export default function SalesAdsPage() {
       summary_en: ad.en?.summary ?? "",
       body_mn: ad.mn?.body ?? "",
       body_en: ad.en?.body ?? "",
+      badge_mn: ad.mn?.badge ?? "",
+      badge_en: ad.en?.badge ?? "",
       imageUrl: ad.imageUrl ?? "",
       externalUrl: ad.externalUrl ?? "",
       active: ad.active,
@@ -272,6 +281,13 @@ export default function SalesAdsPage() {
                   enValue={form.title_en}
                   onChangeMN={(v) => setForm({ ...form, title_mn: v })}
                   onChangeEN={(v) => setForm({ ...form, title_en: v })}
+                />
+                <DualInput
+                  label={lang === "mn" ? "Badge (онцлох, хямдрал...)" : "Badge (Featured, Sale...)"}
+                  mnValue={form.badge_mn}
+                  enValue={form.badge_en}
+                  onChangeMN={(v) => setForm({ ...form, badge_mn: v })}
+                  onChangeEN={(v) => setForm({ ...form, badge_en: v })}
                 />
                 <DualInput
                   label={t.siteContent.common.subtitle}
