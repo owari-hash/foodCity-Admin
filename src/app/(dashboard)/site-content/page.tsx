@@ -96,7 +96,7 @@ type ContactState = {
     agent: { hidden?: boolean; initials: string; name: string; role: string; telHref: string; telLabel: string; };
     formTitle?: string;
     formHidden?: boolean;
-    links: { type: string; href: string; title: string; imageUrl?: string; hidden?: boolean; }[];
+    links: { type: string; href: string; title: string; imageUrl?: string; hidden?: boolean; subLinks?: { type: string; label: string; href: string }[]; }[];
     linksHidden?: boolean;
 };
 type GalleryState = {
@@ -315,6 +315,13 @@ function normalizeContact(v: unknown): ContactState {
                 title: typeof l.title === "string" ? l.title : "",
                 imageUrl: typeof l.imageUrl === "string" ? l.imageUrl : undefined,
                 hidden: !!l.hidden,
+                subLinks: Array.isArray(l.subLinks) 
+                    ? (l.subLinks as Record<string, unknown>[]).map(sl => ({
+                        type: typeof sl.type === "string" ? sl.type : "",
+                        label: typeof sl.label === "string" ? sl.label : "",
+                        href: typeof sl.href === "string" ? sl.href : "",
+                    }))
+                    : undefined,
             }))
             : [],
     };
@@ -737,6 +744,19 @@ export default function SiteContentPage() {
                     }
                 });
             }
+        }
+        else if (pageId === "contact") {
+            const mn = mnSections as ContactState;
+            const en = enSections as ContactState;
+            mn.links.forEach((l, i) => {
+                if (en.links[i]) {
+                    if (!en.links[i].imageUrl && l.imageUrl)
+                        en.links[i].imageUrl = l.imageUrl;
+                    if (l.subLinks && (!en.links[i].subLinks || en.links[i].subLinks.length === 0)) {
+                        en.links[i].subLinks = l.subLinks.map(s => ({ ...s }));
+                    }
+                }
+            });
         }
         // ----------------------------------------------
         try {
@@ -1630,6 +1650,128 @@ export default function SiteContentPage() {
                         linksEN[i] = { ...linksEN[i], imageUrl: v };
                     setContactEN({ ...contactEN, links: linksEN });
                 }}/>
+                          </div>
+
+                          <div className="mt-4 space-y-3 rounded-lg border border-slate-200/60 bg-white/50 p-3 dark:border-slate-700/50 dark:bg-slate-900/40">
+                            <div className="flex items-center justify-between">
+                              <label className="text-[10px] font-bold uppercase tracking-wider text-slate-400">Нэмэлт холбоосууд (Modal - max 5)</label>
+                              <GhostButton onClick={() => {
+                    const links = [...contact.links];
+                    const subs = [...(links[i].subLinks || [])];
+                    if (subs.length < 5) {
+                        subs.push({ type: "facebook", label: "", href: "" });
+                        links[i] = { ...links[i], subLinks: subs };
+                        setContact({ ...contact, links });
+                        const linksEN = [...contactEN.links];
+                        if (linksEN[i]) {
+                            const subsEN = [...(linksEN[i].subLinks || [])];
+                            subsEN.push({ type: "facebook", label: "", href: "" });
+                            linksEN[i] = { ...linksEN[i], subLinks: subsEN };
+                            setContactEN({ ...contactEN, links: linksEN });
+                        }
+                    }
+                }} className="!py-1 !h-7 !text-[10px]">
+                                + Нэмэх
+                              </GhostButton>
+                            </div>
+                            {(link.subLinks || []).map((sub, si) => (<div key={si} className="space-y-2 border-b border-slate-100 pb-3 last:border-0 last:pb-0">
+                                <div className="flex gap-2 items-start">
+                                  <div className="flex-1 space-y-1.5">
+                                    <div className="flex gap-2">
+                                      <div className="w-32 shrink-0">
+                                        <label className="text-[10px] font-bold uppercase tracking-wider text-slate-400">Платформ</label>
+                                        <select className={scInput} value={sub.type} onChange={(e) => {
+                        const v = e.target.value;
+                        const links = [...contact.links];
+                        const subs = [...(links[i].subLinks || [])];
+                        subs[si] = { ...subs[si], type: v };
+                        links[i] = { ...links[i], subLinks: subs };
+                        setContact({ ...contact, links });
+                        const linksEN = [...contactEN.links];
+                        if (linksEN[i]) {
+                            const subsEN = [...(linksEN[i].subLinks || [])];
+                            if (!subsEN[si])
+                                subsEN[si] = { type: v, label: "", href: "" };
+                            subsEN[si] = { ...subsEN[si], type: v };
+                            linksEN[i] = { ...linksEN[i], subLinks: subsEN };
+                            setContactEN({ ...contactEN, links: linksEN });
+                        }
+                    }}>
+                                          <option value="facebook">Facebook</option>
+                                          <option value="instagram">Instagram</option>
+                                          <option value="twitter">Twitter / X</option>
+                                          <option value="youtube">YouTube</option>
+                                          <option value="linkedin">LinkedIn</option>
+                                          <option value="tiktok">TikTok</option>
+                                          <option value="telegram">Telegram</option>
+                                          <option value="whatsapp">WhatsApp</option>
+                                          <option value="google">Google</option>
+                                          <option value="website">Website</option>
+                                        </select>
+                                      </div>
+                                      <div className="flex-1">
+                                        <DualInput 
+                                          label="Гарчиг" 
+                                          mnValue={sub.label} 
+                                          enValue={contactEN.links[i]?.subLinks?.[si]?.label || ""} 
+                                          onChangeMN={(v) => {
+                            const links = [...contact.links];
+                            const subs = [...(links[i].subLinks || [])];
+                            subs[si] = { ...subs[si], label: v };
+                            links[i] = { ...links[i], subLinks: subs };
+                            setContact({ ...contact, links });
+                        }} 
+                                          onChangeEN={(v) => {
+                            const linksEN = [...contactEN.links];
+                            if (linksEN[i]) {
+                                const subsEN = [...(linksEN[i].subLinks || [])];
+                                if (!subsEN[si])
+                                    subsEN[si] = { type: sub.type, label: "", href: sub.href };
+                                subsEN[si] = { ...subsEN[si], label: v };
+                                linksEN[i] = { ...linksEN[i], subLinks: subsEN };
+                                setContactEN({ ...contactEN, links: linksEN });
+                            }
+                        }}
+                                        />
+                                      </div>
+                                    </div>
+                                  </div>
+                                  <button type="button" onClick={() => {
+                        const links = [...contact.links];
+                        const subs = (links[i].subLinks || []).filter((_, sj) => sj !== si);
+                        links[i] = { ...links[i], subLinks: subs };
+                        setContact({ ...contact, links });
+                        const linksEN = [...contactEN.links];
+                        if (linksEN[i]) {
+                            const subsEN = (linksEN[i].subLinks || []).filter((_, sj) => sj !== si);
+                            linksEN[i] = { ...linksEN[i], subLinks: subsEN };
+                            setContactEN({ ...contactEN, links: linksEN });
+                        }
+                    }} className="mt-7 p-1.5 text-slate-400 hover:text-red-500 transition-colors">
+                                    <Trash2 className="w-4 h-4"/>
+                                  </button>
+                                </div>
+                                <div className="space-y-1">
+                                  <label className="text-[10px] font-bold uppercase tracking-wider text-slate-400">URL</label>
+                                  <input className={scInput} placeholder="https://..." value={sub.href} onChange={(e) => {
+                        const v = e.target.value;
+                        const links = [...contact.links];
+                        const subs = [...(links[i].subLinks || [])];
+                        subs[si] = { ...subs[si], href: v };
+                        links[i] = { ...links[i], subLinks: subs };
+                        setContact({ ...contact, links });
+                        const linksEN = [...contactEN.links];
+                        if (linksEN[i]) {
+                            const subsEN = [...(linksEN[i].subLinks || [])];
+                            if (!subsEN[si])
+                                subsEN[si] = { type: sub.type, label: "", href: "" };
+                            subsEN[si] = { ...subsEN[si], href: v };
+                            linksEN[i] = { ...linksEN[i], subLinks: subsEN };
+                            setContactEN({ ...contactEN, links: linksEN });
+                        }
+                    }}/>
+                                </div>
+                              </div>))}
                           </div>
                         </div>))}
                       <GhostButton onClick={() => {
