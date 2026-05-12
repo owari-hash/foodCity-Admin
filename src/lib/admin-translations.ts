@@ -413,6 +413,20 @@ export const adminTranslations = {
         },
       },
     },
+    profile: {
+      title: "Миний бүртгэл",
+      subtitle: "Нэвтрэх нэр болон нууц үгээ эндээс солих боломжтой.",
+      fields: {
+        username: "Нэвтрэх нэр",
+        displayName: "Харагдах нэр",
+        password: "Шинэ нууц үг (солихгүй бол хоосон орхино)",
+        passwordConfirm: "Нууц үг баталгаажуулах",
+      },
+      messages: {
+        success: "Мэдээлэл амжилттай шинэчлэгдлээ. Та системээс гарч дахин нэвтэрнэ үү.",
+        passwordMismatch: "Нууц үг таарахгүй байна.",
+      }
+    },
   },
   en: {
     common: {
@@ -827,6 +841,20 @@ export const adminTranslations = {
           success: "Chatbot choices saved.",
         },
       },
+    },
+    profile: {
+      title: "My Profile",
+      subtitle: "Change your username and password here.",
+      fields: {
+        username: "Username",
+        displayName: "Display Name",
+        password: "New Password (leave empty to keep current)",
+        passwordConfirm: "Confirm Password",
+      },
+      messages: {
+        success: "Profile updated successfully. Please log out and log in again.",
+        passwordMismatch: "Passwords do not match.",
+      }
     },
   },
 };
