@@ -7,7 +7,6 @@ import { useEffect, useState } from "react";
 import type { LucideIcon } from "lucide-react";
 import {
   LayoutDashboard,
-  Megaphone,
   MessageCircle,
   ShoppingBag,
   Briefcase,
@@ -47,7 +46,6 @@ export default function AdminShell({ children }: { children: React.ReactNode }) 
     { href: "/dashboard", label: t.nav.dashboard, icon: LayoutDashboard, perm: "dashboard" },
     { href: "/site-content", label: t.nav.siteContent, icon: FileEdit, perm: "site-content" },
     { href: "/orders", label: t.nav.orders, icon: ShoppingBag, perm: "orders" },
-    { href: "/sales-ads", label: t.nav.salesAds, icon: Megaphone, perm: "sales-ads" },
     { href: "/jobs", label: t.nav.jobs, icon: Briefcase, perm: "jobs" },
     { href: "/chat", label: t.nav.chat, icon: MessageCircle, perm: "chat" },
     { href: "/sms-config", label: lang === "mn" ? "Мессеж болон санал" : "Messages & Feedback", icon: MessageSquare, perm: "site-content" },
@@ -59,7 +57,6 @@ export default function AdminShell({ children }: { children: React.ReactNode }) 
     "/dashboard": t.nav.dashboard,
     "/site-content": t.nav.siteContent,
     "/orders": t.nav.orders,
-    "/sales-ads": t.nav.salesAds,
     "/jobs": t.nav.jobs,
     "/chat": t.nav.chat,
     "/sms-config": lang === "mn" ? "Мессеж болон санал" : "Messages & Feedback",

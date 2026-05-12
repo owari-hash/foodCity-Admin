@@ -4,7 +4,7 @@ import { useAdminLanguage } from "@/contexts/AdminLanguageContext";
 import { useDebounce } from "@/hooks/useDebounce";
 import { ensureClientAuthorized, PERMISSION_DENIED_MN, withClientAdminAuth, } from "@/lib/adminClientAuth";
 import { getApiBaseUrl, joinBackendRequestUrl } from "@/lib/api";
-import { Briefcase, Building2, ClipboardList, Home, LayoutGrid, FolderOpen, Megaphone, Newspaper, Phone, Trash2, } from "lucide-react";
+import { Briefcase, Building2, ClipboardList, ExternalLink, Home, LayoutGrid, FolderOpen, Megaphone, Newspaper, Phone, Trash2, } from "lucide-react";
 import ImageUploadField from "@/components/ImageUploadField";
 import { DangerMini, EditorAlerts, EditorBody, EditorSection, EditorSurface, EditorTabRail, EditorTabSelect, GhostButton, MoveControls, PrimarySave, scInput, scTextarea, DualInput, DualTextarea, } from "./editorUi";
 type HomeState = {
@@ -118,10 +118,12 @@ type PropertiesPageState = {
 type SalesPageState = {
   hidden: boolean;
   header: { hidden?: boolean; eyebrow: string; title: string; intro: string; };
+  items: { id: string; title: string; summary: string; body: string; badge: string; imageUrl: string; externalUrl: string; active: boolean; }[];
 };
 type JobsPageState = {
   hidden: boolean;
   header: { hidden?: boolean; title: string; intro: string; };
+  items: { id: string; title: string; company: string; location: string; description: string; salary: string; contactEmail: string; imageUrl: string; active: boolean; }[];
 };
 type TeamPageState = {
   hidden: boolean;
@@ -215,10 +217,12 @@ const EMPTY_PROPERTIES_PAGE: PropertiesPageState = {
 const EMPTY_SALES_PAGE: SalesPageState = {
   hidden: false,
   header: { hidden: false, eyebrow: "", title: "", intro: "" },
+  items: [],
 };
 const EMPTY_JOBS_PAGE: JobsPageState = {
   hidden: false,
   header: { hidden: false, title: "", intro: "" },
+  items: [],
 };
 const EMPTY_TEAM_PAGE: TeamPageState = {
   hidden: false,
@@ -380,11 +384,42 @@ function normalizePropertiesPage(v: unknown): PropertiesPageState {
 }
 function normalizeSalesPage(v: unknown): SalesPageState {
   const root = asRecord(v);
-  return { hidden: !!root.hidden, header: { ...EMPTY_SALES_PAGE.header, ...asRecord(root.header) } };
+  return {
+    hidden: !!root.hidden,
+    header: { ...EMPTY_SALES_PAGE.header, ...asRecord(root.header) },
+    items: Array.isArray(root.items)
+      ? (root.items as Record<string, unknown>[]).map((it) => ({
+        id: String(it.id || Date.now()),
+        title: String(it.title || ""),
+        summary: String(it.summary || ""),
+        body: String(it.body || ""),
+        badge: String(it.badge || ""),
+        imageUrl: String(it.imageUrl || ""),
+        externalUrl: String(it.externalUrl || ""),
+        active: it.active !== false,
+      }))
+      : [],
+  };
 }
 function normalizeJobsPage(v: unknown): JobsPageState {
   const root = asRecord(v);
-  return { hidden: !!root.hidden, header: { ...EMPTY_JOBS_PAGE.header, ...asRecord(root.header) } };
+  return {
+    hidden: !!root.hidden,
+    header: { ...EMPTY_JOBS_PAGE.header, ...asRecord(root.header) },
+    items: Array.isArray(root.items)
+      ? (root.items as Record<string, unknown>[]).map((it) => ({
+        id: String(it.id || Date.now()),
+        title: String(it.title || ""),
+        company: String(it.company || ""),
+        location: String(it.location || ""),
+        description: String(it.description || ""),
+        salary: String(it.salary || ""),
+        contactEmail: String(it.contactEmail || ""),
+        imageUrl: String(it.imageUrl || ""),
+        active: it.active !== false,
+      }))
+      : [],
+  };
 }
 function normalizeTeamPage(v: unknown): TeamPageState {
   const root = asRecord(v);
@@ -2103,6 +2138,7 @@ export default function SiteContentPage() {
             </EditorBody>) : tab === "sales-page" ? (<EditorBody sectionJumpKey={tab} sectionItems={[
               { id: "sales-meta", label: t.siteContent.salesPage.fields.title },
               { id: "sales-intro", label: t.siteContent.salesPage.fields.intro },
+              { id: "sales-manage", label: lang === "mn" ? "Зарууд удирдах" : "Manage Ads" },
             ]}>
               <EditorSection id="sales-meta" title={t.siteContent.salesPage.fields.headerTitle}>
                 <div className="mb-4 flex items-center gap-2">
@@ -2125,12 +2161,130 @@ export default function SiteContentPage() {
               <EditorSection id="sales-intro" title={t.siteContent.salesPage.fields.intro}>
                 <DualTextarea label={t.siteContent.salesPage.fields.intro} mnValue={salesPage.header.intro} enValue={salesPageEN.header.intro} onChangeMN={(v) => setSalesPage({ ...salesPage, header: { ...salesPage.header, intro: v } })} onChangeEN={(v) => setSalesPageEN({ ...salesPageEN, header: { ...salesPageEN.header, intro: v } })} />
               </EditorSection>
+              <EditorSection id="sales-items" title={lang === "mn" ? "Борлуулалтын зарууд" : "Sales Ads"}>
+                <div className="space-y-4">
+                  {salesPage.items.map((it, i) => (
+                    <div key={it.id || i} className="group relative rounded-xl border border-slate-200 bg-white p-4 transition-all hover:border-indigo-200 dark:border-slate-800 dark:bg-slate-900/40">
+                      <div className="mb-4 flex items-center justify-between">
+                        <div className="flex items-center gap-2">
+                          <span className="text-xs font-bold text-slate-400">#{i + 1}</span>
+                          <div className="flex items-center gap-1.5 ml-4">
+                            <span className="text-[10px] font-bold uppercase text-slate-400">{t.siteContent.common.hide}</span>
+                            <button
+                              type="button"
+                              onClick={() => {
+                                const items = [...salesPage.items];
+                                const next = !items[i].active;
+                                items[i] = { ...items[i], active: next };
+                                setSalesPage({ ...salesPage, items });
+                                const itemsEN = [...salesPageEN.items];
+                                if (itemsEN[i]) {
+                                  itemsEN[i] = { ...itemsEN[i], active: next };
+                                  setSalesPageEN({ ...salesPageEN, items: itemsEN });
+                                }
+                              }}
+                              className={`h-4 w-7 rounded-full border-2 border-transparent transition-colors duration-200 ${!it.active ? "bg-rose-500" : "bg-emerald-500"}`}
+                            >
+                              <div className={`h-3 w-3 transform rounded-full bg-white transition-transform ${!it.active ? "translate-x-3" : "translate-x-0"}`} />
+                            </button>
+                          </div>
+                        </div>
+                        <DangerMini onClick={() => {
+                          setSalesPage({ ...salesPage, items: salesPage.items.filter((_, j) => j !== i) });
+                          setSalesPageEN({ ...salesPageEN, items: salesPageEN.items.filter((_, j) => j !== i) });
+                        }}>
+                          {t.siteContent.common.remove}
+                        </DangerMini>
+                      </div>
+                      <div className="space-y-4">
+                        <DualInput label={lang === "mn" ? "Гарчиг" : "Title"} mnValue={it.title} enValue={salesPageEN.items[i]?.title ?? ""} onChangeMN={(v) => {
+                          const items = [...salesPage.items];
+                          items[i] = { ...items[i], title: v };
+                          setSalesPage({ ...salesPage, items });
+                        }} onChangeEN={(v) => {
+                          const items = [...salesPageEN.items];
+                          if (!items[i]) items[i] = { ...it, title: "" };
+                          items[i] = { ...items[i], title: v };
+                          setSalesPageEN({ ...salesPageEN, items });
+                        }} />
+                        <DualInput label={lang === "mn" ? "Товч тайлбар" : "Summary"} mnValue={it.summary} enValue={salesPageEN.items[i]?.summary ?? ""} onChangeMN={(v) => {
+                          const items = [...salesPage.items];
+                          items[i] = { ...items[i], summary: v };
+                          setSalesPage({ ...salesPage, items });
+                        }} onChangeEN={(v) => {
+                          const items = [...salesPageEN.items];
+                          if (!items[i]) items[i] = { ...it, summary: "" };
+                          items[i] = { ...items[i], summary: v };
+                          setSalesPageEN({ ...salesPageEN, items });
+                        }} />
+                        <DualTextarea label={lang === "mn" ? "Дэлгэрэнгүй текст" : "Body Text"} mnValue={it.body} enValue={salesPageEN.items[i]?.body ?? ""} onChangeMN={(v) => {
+                          const items = [...salesPage.items];
+                          items[i] = { ...items[i], body: v };
+                          setSalesPage({ ...salesPage, items });
+                        }} onChangeEN={(v) => {
+                          const items = [...salesPageEN.items];
+                          if (!items[i]) items[i] = { ...it, body: "" };
+                          items[i] = { ...items[i], body: v };
+                          setSalesPageEN({ ...salesPageEN, items });
+                        }} rows={3} />
+                        <div className="grid gap-4 sm:grid-cols-2">
+                          <DualInput label={lang === "mn" ? "Тэмдэг (ж: ШИНЭ)" : "Badge"} mnValue={it.badge} enValue={salesPageEN.items[i]?.badge ?? ""} onChangeMN={(v) => {
+                            const items = [...salesPage.items];
+                            items[i] = { ...items[i], badge: v };
+                            setSalesPage({ ...salesPage, items });
+                          }} onChangeEN={(v) => {
+                            const items = [...salesPageEN.items];
+                            if (!items[i]) items[i] = { ...it, badge: "" };
+                            items[i] = { ...items[i], badge: v };
+                            setSalesPageEN({ ...salesPageEN, items });
+                          }} />
+                          <div className="space-y-1.5">
+                            <label className="text-[11px] font-bold uppercase tracking-wider text-slate-400">Холбоос (URL)</label>
+                            <input className={scInput} value={it.externalUrl} onChange={(e) => {
+                              const v = e.target.value;
+                              const items = [...salesPage.items];
+                              items[i] = { ...items[i], externalUrl: v };
+                              setSalesPage({ ...salesPage, items });
+                              const itemsEN = [...salesPageEN.items];
+                              if (itemsEN[i]) {
+                                itemsEN[i] = { ...itemsEN[i], externalUrl: v };
+                                setSalesPageEN({ ...salesPageEN, items: itemsEN });
+                              }
+                            }} />
+                          </div>
+                        </div>
+                        <div className="space-y-1.5">
+                          <label className="text-[11px] font-bold uppercase tracking-wider text-slate-400">Зураг</label>
+                          <ImageUploadField value={it.imageUrl} onChange={(v) => {
+                            const items = [...salesPage.items];
+                            items[i] = { ...items[i], imageUrl: v };
+                            setSalesPage({ ...salesPage, items });
+                            const itemsEN = [...salesPageEN.items];
+                            if (itemsEN[i]) {
+                              itemsEN[i] = { ...itemsEN[i], imageUrl: v };
+                              setSalesPageEN({ ...salesPageEN, items: itemsEN });
+                            }
+                          }} />
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                  <GhostButton onClick={() => {
+                    const newItem = { id: String(Date.now()), title: "", summary: "", body: "", badge: "", imageUrl: "", externalUrl: "", active: true };
+                    setSalesPage({ ...salesPage, items: [...salesPage.items, newItem] });
+                    setSalesPageEN({ ...salesPageEN, items: [...salesPageEN.items, newItem] });
+                  }}>
+                    + Зар нэмэх
+                  </GhostButton>
+                </div>
+              </EditorSection>
               <PrimarySave disabled={saving} onClick={() => void save("sales-page")}>
                 {saving ? t.common.saving : t.siteContent.common.saveTab(t.siteContent.tabs.salesPage.label)}
               </PrimarySave>
             </EditorBody>) : tab === "jobs-page" ? (<EditorBody sectionJumpKey={tab} sectionItems={[
               { id: "jobs-header-title", label: t.siteContent.jobsPage.fields.title },
               { id: "jobs-header-intro", label: t.siteContent.jobsPage.fields.intro },
+              { id: "jobs-manage", label: lang === "mn" ? "Зарууд удирдах" : "Manage Jobs" },
             ]}>
               <EditorSection id="jobs-header-title" title={t.siteContent.jobsPage.fields.headerTitle}>
                 <div className="mb-4 flex items-center gap-2">
@@ -2147,6 +2301,139 @@ export default function SiteContentPage() {
               </EditorSection>
               <EditorSection id="jobs-header-intro" title={lang === "mn" ? "Дэд тайлбар" : "Intro"}>
                 <DualTextarea label={t.siteContent.jobsPage.fields.intro} mnValue={jobsPage.header.intro} enValue={jobsPageEN.header.intro} onChangeMN={(v) => setJobsPage({ ...jobsPage, header: { ...jobsPage.header, intro: v } })} onChangeEN={(v) => setJobsPageEN({ ...jobsPageEN, header: { ...jobsPageEN.header, intro: v } })} />
+              </EditorSection>
+              <EditorSection id="jobs-items" title={lang === "mn" ? "Ажлын зарууд" : "Job Postings"}>
+                <div className="space-y-4">
+                  {jobsPage.items.map((it, i) => (
+                    <div key={it.id || i} className="group relative rounded-xl border border-slate-200 bg-white p-4 transition-all hover:border-indigo-200 dark:border-slate-800 dark:bg-slate-900/40">
+                      <div className="mb-4 flex items-center justify-between">
+                        <div className="flex items-center gap-2">
+                          <span className="text-xs font-bold text-slate-400">#{i + 1}</span>
+                          <div className="flex items-center gap-1.5 ml-4">
+                            <span className="text-[10px] font-bold uppercase text-slate-400">{t.siteContent.common.hide}</span>
+                            <button
+                              type="button"
+                              onClick={() => {
+                                const items = [...jobsPage.items];
+                                const next = !items[i].active;
+                                items[i] = { ...items[i], active: next };
+                                setJobsPage({ ...jobsPage, items });
+                                const itemsEN = [...jobsPageEN.items];
+                                if (itemsEN[i]) {
+                                  itemsEN[i] = { ...itemsEN[i], active: next };
+                                  setJobsPageEN({ ...jobsPageEN, items: itemsEN });
+                                }
+                              }}
+                              className={`h-4 w-7 rounded-full border-2 border-transparent transition-colors duration-200 ${!it.active ? "bg-rose-500" : "bg-emerald-500"}`}
+                            >
+                              <div className={`h-3 w-3 transform rounded-full bg-white transition-transform ${!it.active ? "translate-x-3" : "translate-x-0"}`} />
+                            </button>
+                          </div>
+                        </div>
+                        <DangerMini onClick={() => {
+                          setJobsPage({ ...jobsPage, items: jobsPage.items.filter((_, j) => j !== i) });
+                          setJobsPageEN({ ...jobsPageEN, items: jobsPageEN.items.filter((_, j) => j !== i) });
+                        }}>
+                          {t.siteContent.common.remove}
+                        </DangerMini>
+                      </div>
+                      <div className="space-y-4">
+                        <DualInput label={lang === "mn" ? "Албан тушаал" : "Job Title"} mnValue={it.title} enValue={jobsPageEN.items[i]?.title ?? ""} onChangeMN={(v) => {
+                          const items = [...jobsPage.items];
+                          items[i] = { ...items[i], title: v };
+                          setJobsPage({ ...jobsPage, items });
+                        }} onChangeEN={(v) => {
+                          const items = [...jobsPageEN.items];
+                          if (!items[i]) items[i] = { ...it, title: "" };
+                          items[i] = { ...items[i], title: v };
+                          setJobsPageEN({ ...jobsPageEN, items });
+                        }} />
+                        <div className="grid gap-4 sm:grid-cols-2">
+                          <div className="space-y-1.5">
+                            <label className="text-[11px] font-bold uppercase tracking-wider text-slate-400">Компани</label>
+                            <input className={scInput} value={it.company} onChange={(e) => {
+                              const v = e.target.value;
+                              const items = [...jobsPage.items];
+                              items[i] = { ...items[i], company: v };
+                              setJobsPage({ ...jobsPage, items });
+                              const itemsEN = [...jobsPageEN.items];
+                              if (itemsEN[i]) {
+                                itemsEN[i] = { ...itemsEN[i], company: v };
+                                setJobsPageEN({ ...jobsPageEN, items: itemsEN });
+                              }
+                            }} />
+                          </div>
+                          <DualInput label={lang === "mn" ? "Байршил" : "Location"} mnValue={it.location} enValue={jobsPageEN.items[i]?.location ?? ""} onChangeMN={(v) => {
+                            const items = [...jobsPage.items];
+                            items[i] = { ...items[i], location: v };
+                            setJobsPage({ ...jobsPage, items });
+                          }} onChangeEN={(v) => {
+                            const items = [...jobsPageEN.items];
+                            if (!items[i]) items[i] = { ...it, location: "" };
+                            items[i] = { ...items[i], location: v };
+                            setJobsPageEN({ ...jobsPageEN, items });
+                          }} />
+                        </div>
+                        <DualTextarea label={lang === "mn" ? "Тайлбар" : "Description"} mnValue={it.description} enValue={jobsPageEN.items[i]?.description ?? ""} onChangeMN={(v) => {
+                          const items = [...jobsPage.items];
+                          items[i] = { ...items[i], description: v };
+                          setJobsPage({ ...jobsPage, items });
+                        }} onChangeEN={(v) => {
+                          const items = [...jobsPageEN.items];
+                          if (!items[i]) items[i] = { ...it, description: "" };
+                          items[i] = { ...items[i], description: v };
+                          setJobsPageEN({ ...jobsPageEN, items });
+                        }} rows={3} />
+                        <div className="grid gap-4 sm:grid-cols-2">
+                          <DualInput label={lang === "mn" ? "Цалин" : "Salary"} mnValue={it.salary} enValue={jobsPageEN.items[i]?.salary ?? ""} onChangeMN={(v) => {
+                            const items = [...jobsPage.items];
+                            items[i] = { ...items[i], salary: v };
+                            setJobsPage({ ...jobsPage, items });
+                          }} onChangeEN={(v) => {
+                            const items = [...jobsPageEN.items];
+                            if (!items[i]) items[i] = { ...it, salary: "" };
+                            items[i] = { ...items[i], salary: v };
+                            setJobsPageEN({ ...jobsPageEN, items });
+                          }} />
+                          <div className="space-y-1.5">
+                            <label className="text-[11px] font-bold uppercase tracking-wider text-slate-400">Холбоо барих Имэйл</label>
+                            <input className={scInput} value={it.contactEmail} onChange={(e) => {
+                              const v = e.target.value;
+                              const items = [...jobsPage.items];
+                              items[i] = { ...items[i], contactEmail: v };
+                              setJobsPage({ ...jobsPage, items });
+                              const itemsEN = [...jobsPageEN.items];
+                              if (itemsEN[i]) {
+                                itemsEN[i] = { ...itemsEN[i], contactEmail: v };
+                                setJobsPageEN({ ...jobsPageEN, items: itemsEN });
+                              }
+                            }} />
+                          </div>
+                        </div>
+                        <div className="space-y-1.5">
+                          <label className="text-[11px] font-bold uppercase tracking-wider text-slate-400">Зураг / Лого</label>
+                          <ImageUploadField value={it.imageUrl} onChange={(v) => {
+                            const items = [...jobsPage.items];
+                            items[i] = { ...items[i], imageUrl: v };
+                            setJobsPage({ ...jobsPage, items });
+                            const itemsEN = [...jobsPageEN.items];
+                            if (itemsEN[i]) {
+                              itemsEN[i] = { ...itemsEN[i], imageUrl: v };
+                              setJobsPageEN({ ...jobsPageEN, items: itemsEN });
+                            }
+                          }} />
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                  <GhostButton onClick={() => {
+                    const newItem = { id: String(Date.now()), title: "", company: "", location: "", description: "", salary: "", contactEmail: "", imageUrl: "", active: true };
+                    setJobsPage({ ...jobsPage, items: [...jobsPage.items, newItem] });
+                    setJobsPageEN({ ...jobsPageEN, items: [...jobsPageEN.items, newItem] });
+                  }}>
+                    + Ажлын зар нэмэх
+                  </GhostButton>
+                </div>
               </EditorSection>
               <PrimarySave disabled={saving} onClick={() => void save("jobs-page")}>
                 {saving ? t.common.saving : t.siteContent.common.saveTab(t.siteContent.tabs.jobsPage.label)}
