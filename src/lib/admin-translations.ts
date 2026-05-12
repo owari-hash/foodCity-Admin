@@ -419,7 +419,7 @@ export const adminTranslations = {
       fields: {
         username: "Нэвтрэх нэр",
         displayName: "Харагдах нэр",
-        password: "Шинэ нууц үг (солихгүй бол хоосон орхино)",
+        password: "Шинэ нууц үг",
         passwordConfirm: "Нууц үг баталгаажуулах",
       },
       messages: {
