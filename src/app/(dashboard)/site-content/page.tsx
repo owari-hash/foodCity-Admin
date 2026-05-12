@@ -8,2975 +8,2957 @@ import { Briefcase, Building2, ClipboardList, Home, LayoutGrid, FolderOpen, Mega
 import ImageUploadField from "@/components/ImageUploadField";
 import { DangerMini, EditorAlerts, EditorBody, EditorSection, EditorSurface, EditorTabRail, EditorTabSelect, GhostButton, MoveControls, PrimarySave, scInput, scTextarea, DualInput, DualTextarea, } from "./editorUi";
 type HomeState = {
-    hidden: boolean;
-    hero: {
-        hidden?: boolean;
-        slideImages: string[];
-        badge: string;
-        titleLine1: string;
-        titleAccent: string;
-        titleLine2: string;
-        desc: string;
-        btn1: string;
-        btn1Href: string;
-        btn2: string;
-        btn2Href: string;
-        stats: {
-            value: string;
-            label: string;
-        }[];
-        statsHidden?: boolean;
-        slideLabel: string;
-    };
+  hidden: boolean;
+  hero: {
+    hidden?: boolean;
+    slideImages: string[];
+    badge: string;
+    titleLine1: string;
+    titleAccent: string;
+    titleLine2: string;
+    desc: string;
+    btn1: string;
+    btn1Href: string;
+    btn2: string;
+    btn2Href: string;
+    stats: {
+      value: string;
+      label: string;
+    }[];
+    statsHidden?: boolean;
+    slideLabel: string;
+  };
 };
 type AboutState = {
-    hidden: boolean;
-    main: {
-        hidden?: boolean;
-        sectionLabel: string;
-        h2Line1: string;
-        h2Accent: string;
-        p1: string;
-        p2: string;
-        imageUrl: string;
-        imageBuildingName: string;
-        imageBuildingSubtitle: string;
-        yearsBadgeValue: string;
-        yearsLabel: string;
-        stats: {
-            value: string;
-            label: string;
-        }[];
-        statsHidden?: boolean;
-    };
+  hidden: boolean;
+  main: {
+    hidden?: boolean;
+    sectionLabel: string;
+    h2Line1: string;
+    h2Accent: string;
+    p1: string;
+    p2: string;
+    imageUrl: string;
+    imageBuildingName: string;
+    imageBuildingSubtitle: string;
+    yearsBadgeValue: string;
+    yearsLabel: string;
+    stats: {
+      value: string;
+      label: string;
+    }[];
+    statsHidden?: boolean;
+  };
 };
 type FooterState = {
-    hidden: boolean;
-    logo: string;
-    partners: {
-        hidden?: boolean;
-        partnersLabel: string;
-        items: {
-            name: string;
-            src: string;
-            width: number;
-            height: number;
-        }[];
-    };
-    brand: {
-        hidden?: boolean;
-        desc: string;
-    };
-    socials: {
-        label: string;
-        href: string;
-        iconType: string;
-        hidden?: boolean;
+  hidden: boolean;
+  logo: string;
+  partners: {
+    hidden?: boolean;
+    partnersLabel: string;
+    items: {
+      name: string;
+      src: string;
+      width: number;
+      height: number;
     }[];
-    sections: {
-        label: string;
-        href?: string;
-        hidden?: boolean;
-        items: {
-            label: string;
-            href: string;
-            hidden?: boolean;
-        }[];
+  };
+  brand: {
+    hidden?: boolean;
+    desc: string;
+  };
+  socials: {
+    label: string;
+    href: string;
+    iconType: string;
+    hidden?: boolean;
+  }[];
+  sections: {
+    label: string;
+    href?: string;
+    hidden?: boolean;
+    items: {
+      label: string;
+      href: string;
+      hidden?: boolean;
     }[];
-    copyright: string;
-    copyrightHidden?: boolean;
+  }[];
+  copyright: string;
+  copyrightHidden?: boolean;
 };
 type ContactState = {
-    hidden: boolean;
-    navbarPhoneLabel?: string;
-    navbarPhoneHref?: string;
-    hero: { hidden?: boolean; badge: string; h2Accent: string; intro: string; };
-    items: { title: string; value: string; icon?: string; hidden?: boolean; }[];
-    itemsHidden?: boolean;
-    agent: { hidden?: boolean; initials: string; name: string; role: string; telHref: string; telLabel: string; };
-    formTitle?: string;
-    formHidden?: boolean;
-    links: { type: string; href: string; title: string; imageUrl?: string; hidden?: boolean; subLinks?: { type: string; label: string; href: string }[]; }[];
-    linksHidden?: boolean;
+  hidden: boolean;
+  navbarPhoneLabel?: string;
+  navbarPhoneHref?: string;
+  hero: { hidden?: boolean; badge: string; h2Accent: string; intro: string; };
+  items: { title: string; value: string; icon?: string; hidden?: boolean; }[];
+  itemsHidden?: boolean;
+  agent: { hidden?: boolean; initials: string; name: string; role: string; telHref: string; telLabel: string; };
+  formTitle?: string;
+  formHidden?: boolean;
+  links: { type: string; href: string; title: string; imageUrl?: string; hidden?: boolean; subLinks?: { type: string; label: string; href: string }[]; }[];
+  linksHidden?: boolean;
 };
 type GalleryState = {
-    hidden: boolean;
-    header: { hidden?: boolean; badge: string; h2Line1: string; h2Accent: string; intro: string; };
-    features: { title: string; desc: string; image: string; images: string[]; videoUrl?: string; date?: string; hidden?: boolean; }[];
-    featuresHidden?: boolean;
-    banner: { value: string; suffix: string; label: string; }[];
-    bannerHidden?: boolean;
+  hidden: boolean;
+  header: { hidden?: boolean; badge: string; h2Line1: string; h2Accent: string; intro: string; };
+  features: { title: string; desc: string; image: string; images: string[]; videoUrl?: string; date?: string; hidden?: boolean; }[];
+  featuresHidden?: boolean;
+  banner: { value: string; suffix: string; label: string; }[];
+  bannerHidden?: boolean;
 };
 type PropertiesPageState = {
-    hidden: boolean;
-    header: { hidden?: boolean; badge: string; titleLine1: string; titleAccent: string; intro: string; };
-    categories: string[];
-    items: { id: number; name: string; image: string; images: string[]; category: string; badge: string | null; size: string; floor: string; parking: string; price: string; tag: string; description: string; hidden?: boolean; }[];
-    itemsHidden?: boolean;
-    cta: { hidden?: boolean; href: string; label: string; };
+  hidden: boolean;
+  header: { hidden?: boolean; badge: string; titleLine1: string; titleAccent: string; intro: string; };
+  categories: string[];
+  items: { id: number; name: string; image: string; images: string[]; category: string; badge: string | null; size: string; floor: string; parking: string; price: string; tag: string; description: string; hidden?: boolean; }[];
+  itemsHidden?: boolean;
+  cta: { hidden?: boolean; href: string; label: string; };
 };
 type SalesPageState = {
-    hidden: boolean;
-    header: { hidden?: boolean; eyebrow: string; title: string; intro: string; };
+  hidden: boolean;
+  header: { hidden?: boolean; eyebrow: string; title: string; intro: string; };
 };
 type JobsPageState = {
-    hidden: boolean;
-    header: { hidden?: boolean; title: string; intro: string; };
+  hidden: boolean;
+  header: { hidden?: boolean; title: string; intro: string; };
 };
 type TeamPageState = {
-    hidden: boolean;
-    header: { hidden?: boolean; eyebrow: string; h2Line1: string; h2Accent: string; intro: string; };
-    members: { name: string; role: string; initials: string; color: string; phone: string; email: string; bio: string; projects: number; hidden?: boolean; }[];
-    membersHidden?: boolean;
-    cta: { hidden?: boolean; title: string; subtitle: string; buttonLabel: string; buttonHref: string; };
+  hidden: boolean;
+  header: { hidden?: boolean; eyebrow: string; h2Line1: string; h2Accent: string; intro: string; };
+  members: { name: string; role: string; initials: string; color: string; phone: string; email: string; bio: string; projects: number; hidden?: boolean; }[];
+  membersHidden?: boolean;
+  cta: { hidden?: boolean; title: string; subtitle: string; buttonLabel: string; buttonHref: string; };
 };
 type ProjectsPageState = {
-    hidden: boolean;
-    header: { hidden?: boolean; badge: string; titleLine1: string; titleAccent: string; intro: string; };
-    items: { id: number; name: string; coverImage: string; images: string[]; description: string; category: string; hidden?: boolean; reactKey?: string; }[];
-    itemsHidden?: boolean;
+  hidden: boolean;
+  header: { hidden?: boolean; badge: string; titleLine1: string; titleAccent: string; intro: string; };
+  items: { id: number; name: string; coverImage: string; images: string[]; description: string; category: string; hidden?: boolean; reactKey?: string; }[];
+  itemsHidden?: boolean;
 };
 const EMPTY_HOME: HomeState = {
+  hidden: false,
+  hero: {
     hidden: false,
-    hero: {
-        hidden: false,
-        slideImages: [],
-        badge: "",
-        titleLine1: "",
-        titleAccent: "",
-        titleLine2: "",
-        desc: "",
-        btn1: "",
-        btn1Href: "",
-        btn2: "",
-        btn2Href: "",
-        stats: [],
-        statsHidden: false,
-        slideLabel: "",
-    },
+    slideImages: [],
+    badge: "",
+    titleLine1: "",
+    titleAccent: "",
+    titleLine2: "",
+    desc: "",
+    btn1: "",
+    btn1Href: "",
+    btn2: "",
+    btn2Href: "",
+    stats: [],
+    statsHidden: false,
+    slideLabel: "",
+  },
 };
 const EMPTY_ABOUT: AboutState = {
+  hidden: false,
+  main: {
     hidden: false,
-    main: {
-        hidden: false,
-        sectionLabel: "",
-        h2Line1: "",
-        h2Accent: "",
-        p1: "",
-        p2: "",
-        imageUrl: "",
-        imageBuildingName: "",
-        imageBuildingSubtitle: "",
-        yearsBadgeValue: "",
-        yearsLabel: "",
-        stats: [],
-        statsHidden: false,
-    },
+    sectionLabel: "",
+    h2Line1: "",
+    h2Accent: "",
+    p1: "",
+    p2: "",
+    imageUrl: "",
+    imageBuildingName: "",
+    imageBuildingSubtitle: "",
+    yearsBadgeValue: "",
+    yearsLabel: "",
+    stats: [],
+    statsHidden: false,
+  },
 };
 const EMPTY_FOOTER: FooterState = {
-    hidden: false,
-    logo: "",
-    partners: { hidden: false, partnersLabel: "", items: [] },
-    brand: { hidden: false, desc: "" },
-    socials: [],
-    sections: [],
-    copyright: "",
-    copyrightHidden: false,
+  hidden: false,
+  logo: "",
+  partners: { hidden: false, partnersLabel: "", items: [] },
+  brand: { hidden: false, desc: "" },
+  socials: [],
+  sections: [],
+  copyright: "",
+  copyrightHidden: false,
 };
 const EMPTY_CONTACT: ContactState = {
-    hidden: false,
-    navbarPhoneLabel: "",
-    navbarPhoneHref: "",
-    hero: { hidden: false, badge: "", h2Accent: "", intro: "" },
-    items: [],
-    itemsHidden: false,
-    agent: { hidden: false, initials: "", name: "", role: "", telHref: "", telLabel: "" },
-    formTitle: "",
-    formHidden: false,
-    links: [],
-    linksHidden: false,
+  hidden: false,
+  navbarPhoneLabel: "",
+  navbarPhoneHref: "",
+  hero: { hidden: false, badge: "", h2Accent: "", intro: "" },
+  items: [],
+  itemsHidden: false,
+  agent: { hidden: false, initials: "", name: "", role: "", telHref: "", telLabel: "" },
+  formTitle: "",
+  formHidden: false,
+  links: [],
+  linksHidden: false,
 };
 const EMPTY_GALLERY: GalleryState = {
-    hidden: false,
-    header: { hidden: false, badge: "", h2Line1: "", h2Accent: "", intro: "" },
-    features: [],
-    featuresHidden: false,
-    banner: [],
-    bannerHidden: false,
+  hidden: false,
+  header: { hidden: false, badge: "", h2Line1: "", h2Accent: "", intro: "" },
+  features: [],
+  featuresHidden: false,
+  banner: [],
+  bannerHidden: false,
 };
 const EMPTY_PROPERTIES_PAGE: PropertiesPageState = {
-    hidden: false,
-    header: { hidden: false, badge: "", titleLine1: "", titleAccent: "", intro: "" },
-    categories: [],
-    items: [],
-    itemsHidden: false,
-    cta: { hidden: false, href: "", label: "" },
+  hidden: false,
+  header: { hidden: false, badge: "", titleLine1: "", titleAccent: "", intro: "" },
+  categories: [],
+  items: [],
+  itemsHidden: false,
+  cta: { hidden: false, href: "", label: "" },
 };
 const EMPTY_SALES_PAGE: SalesPageState = {
-    hidden: false,
-    header: { hidden: false, eyebrow: "", title: "", intro: "" },
+  hidden: false,
+  header: { hidden: false, eyebrow: "", title: "", intro: "" },
 };
 const EMPTY_JOBS_PAGE: JobsPageState = {
-    hidden: false,
-    header: { hidden: false, title: "", intro: "" },
+  hidden: false,
+  header: { hidden: false, title: "", intro: "" },
 };
 const EMPTY_TEAM_PAGE: TeamPageState = {
-    hidden: false,
-    header: { hidden: false, eyebrow: "", h2Line1: "", h2Accent: "", intro: "" },
-    members: [],
-    membersHidden: false,
-    cta: { hidden: false, title: "", subtitle: "", buttonLabel: "", buttonHref: "" },
+  hidden: false,
+  header: { hidden: false, eyebrow: "", h2Line1: "", h2Accent: "", intro: "" },
+  members: [],
+  membersHidden: false,
+  cta: { hidden: false, title: "", subtitle: "", buttonLabel: "", buttonHref: "" },
 };
 const EMPTY_PROJECTS_PAGE: ProjectsPageState = {
-    hidden: false,
-    header: { hidden: false, badge: "", titleLine1: "", titleAccent: "", intro: "" },
-    items: [],
-    itemsHidden: false,
+  hidden: false,
+  header: { hidden: false, badge: "", titleLine1: "", titleAccent: "", intro: "" },
+  items: [],
+  itemsHidden: false,
 };
 function asRecord(v: unknown): Record<string, unknown> {
-    return v && typeof v === "object" && !Array.isArray(v)
-        ? (v as Record<string, unknown>)
-        : {};
+  return v && typeof v === "object" && !Array.isArray(v)
+    ? (v as Record<string, unknown>)
+    : {};
 }
 function normalizeHome(v: unknown): HomeState {
-    const root = asRecord(v);
-    const hero = asRecord(root.hero);
-    return {
-        hidden: !!root.hidden,
-        hero: {
-            ...EMPTY_HOME.hero,
-            ...hero,
-            slideImages: Array.isArray(hero.slideImages) ? (hero.slideImages as string[]) : [],
-            stats: Array.isArray(hero.stats) ? (hero.stats as {
-                value: string;
-                label: string;
-            }[]) : [],
-        },
-    };
+  const root = asRecord(v);
+  const hero = asRecord(root.hero);
+  return {
+    hidden: !!root.hidden,
+    hero: {
+      ...EMPTY_HOME.hero,
+      ...hero,
+      slideImages: Array.isArray(hero.slideImages) ? (hero.slideImages as string[]) : [],
+      stats: Array.isArray(hero.stats) ? (hero.stats as {
+        value: string;
+        label: string;
+      }[]) : [],
+    },
+  };
 }
 function normalizeAbout(v: unknown): AboutState {
-    const root = asRecord(v);
-    const main = asRecord(root.main);
-    return {
-        hidden: !!root.hidden,
-        main: {
-            ...EMPTY_ABOUT.main,
-            ...main,
-            stats: Array.isArray(main.stats) ? (main.stats as {
-                value: string;
-                label: string;
-            }[]) : [],
-        },
-    };
+  const root = asRecord(v);
+  const main = asRecord(root.main);
+  return {
+    hidden: !!root.hidden,
+    main: {
+      ...EMPTY_ABOUT.main,
+      ...main,
+      stats: Array.isArray(main.stats) ? (main.stats as {
+        value: string;
+        label: string;
+      }[]) : [],
+    },
+  };
 }
 function normalizeFooter(v: unknown): FooterState {
-    const root = asRecord(v);
-    const partners = asRecord(root.partners);
-    const brand = asRecord(root.brand);
-    return {
-        hidden: !!root.hidden,
-        logo: typeof root.logo === "string" ? root.logo : "",
-        partners: {
-            ...EMPTY_FOOTER.partners,
-            ...partners,
-            items: Array.isArray(partners.items)
-                ? (partners.items as {
-                    name: string;
-                    src: string;
-                    width: number;
-                    height: number;
-                }[])
-                : [],
-        },
-        brand: { ...EMPTY_FOOTER.brand, ...brand },
-        socials: Array.isArray(root.socials) ? (root.socials as FooterState["socials"]) : [],
-        sections: Array.isArray(root.sections) ? (root.sections as FooterState["sections"]) : [],
-        copyright: typeof root.copyright === "string" ? root.copyright : "",
-    };
+  const root = asRecord(v);
+  const partners = asRecord(root.partners);
+  const brand = asRecord(root.brand);
+  return {
+    hidden: !!root.hidden,
+    logo: typeof root.logo === "string" ? root.logo : "",
+    partners: {
+      ...EMPTY_FOOTER.partners,
+      ...partners,
+      items: Array.isArray(partners.items)
+        ? (partners.items as {
+          name: string;
+          src: string;
+          width: number;
+          height: number;
+        }[])
+        : [],
+    },
+    brand: { ...EMPTY_FOOTER.brand, ...brand },
+    socials: Array.isArray(root.socials) ? (root.socials as FooterState["socials"]) : [],
+    sections: Array.isArray(root.sections) ? (root.sections as FooterState["sections"]) : [],
+    copyright: typeof root.copyright === "string" ? root.copyright : "",
+  };
 }
 function normalizeContact(v: unknown): ContactState {
-    const root = asRecord(v);
-    return {
-        hidden: !!root.hidden,
-        navbarPhoneLabel: typeof root.navbarPhoneLabel === "string" ? root.navbarPhoneLabel : "",
-        navbarPhoneHref: typeof root.navbarPhoneHref === "string" ? root.navbarPhoneHref : "",
-        hero: { ...EMPTY_CONTACT.hero, ...asRecord(root.hero) },
-        items: Array.isArray(root.items) ? (root.items as {
-            title: string;
-            value: string;
-            icon?: string;
-        }[]) : [],
-        agent: { ...EMPTY_CONTACT.agent, ...asRecord(root.agent) },
-        formTitle: typeof root.formTitle === "string" ? root.formTitle : "",
-        links: Array.isArray(root.links)
-            ? (root.links as Record<string, unknown>[]).map((l) => ({
-                type: typeof l.type === "string" ? l.type : "",
-                href: typeof l.href === "string" ? l.href : "",
-                title: typeof l.title === "string" ? l.title : "",
-                imageUrl: typeof l.imageUrl === "string" ? l.imageUrl : undefined,
-                hidden: !!l.hidden,
-                subLinks: Array.isArray(l.subLinks) 
-                    ? (l.subLinks as Record<string, unknown>[]).map(sl => ({
-                        type: typeof sl.type === "string" ? sl.type : "",
-                        label: typeof sl.label === "string" ? sl.label : "",
-                        href: typeof sl.href === "string" ? sl.href : "",
-                    }))
-                    : undefined,
-            }))
-            : [],
-    };
+  const root = asRecord(v);
+  return {
+    hidden: !!root.hidden,
+    navbarPhoneLabel: typeof root.navbarPhoneLabel === "string" ? root.navbarPhoneLabel : "",
+    navbarPhoneHref: typeof root.navbarPhoneHref === "string" ? root.navbarPhoneHref : "",
+    hero: { ...EMPTY_CONTACT.hero, ...asRecord(root.hero) },
+    items: Array.isArray(root.items) ? (root.items as {
+      title: string;
+      value: string;
+      icon?: string;
+    }[]) : [],
+    agent: { ...EMPTY_CONTACT.agent, ...asRecord(root.agent) },
+    formTitle: typeof root.formTitle === "string" ? root.formTitle : "",
+    links: Array.isArray(root.links)
+      ? (root.links as Record<string, unknown>[]).map((l) => ({
+        type: typeof l.type === "string" ? l.type : "",
+        href: typeof l.href === "string" ? l.href : "",
+        title: typeof l.title === "string" ? l.title : "",
+        imageUrl: typeof l.imageUrl === "string" ? l.imageUrl : undefined,
+        hidden: !!l.hidden,
+        subLinks: Array.isArray(l.subLinks)
+          ? (l.subLinks as Record<string, unknown>[]).map(sl => ({
+            type: typeof sl.type === "string" ? sl.type : "",
+            label: typeof sl.label === "string" ? sl.label : "",
+            href: typeof sl.href === "string" ? sl.href : "",
+          }))
+          : undefined,
+      }))
+      : [],
+  };
 }
 function normalizeGallery(v: unknown): GalleryState {
-    const root = asRecord(v);
-    return {
-        hidden: !!root.hidden,
-        header: { ...EMPTY_GALLERY.header, ...asRecord(root.header) },
-        features: Array.isArray(root.features)
-            ? (root.features as Record<string, unknown>[]).map((f) => ({
-                title: String(f.title || ""),
-                desc: String(f.desc || ""),
-                image: String(f.image || ""),
-                images: Array.isArray(f.images) ? (f.images as string[]) : [],
-                videoUrl: f.videoUrl ? String(f.videoUrl) : undefined,
-                date: f.date ? String(f.date) : undefined,
-                hidden: !!f.hidden,
-            }))
-            : [],
-        featuresHidden: !!root.featuresHidden,
-        banner: Array.isArray(root.banner)
-            ? (root.banner as Record<string, unknown>[]).map((b) => ({
-                value: String(b.value || ""),
-                suffix: String(b.suffix || ""),
-                label: String(b.label || ""),
-            }))
-            : [],
-        bannerHidden: !!root.bannerHidden,
-    };
+  const root = asRecord(v);
+  return {
+    hidden: !!root.hidden,
+    header: { ...EMPTY_GALLERY.header, ...asRecord(root.header) },
+    features: Array.isArray(root.features)
+      ? (root.features as Record<string, unknown>[]).map((f) => ({
+        title: String(f.title || ""),
+        desc: String(f.desc || ""),
+        image: String(f.image || ""),
+        images: Array.isArray(f.images) ? (f.images as string[]) : [],
+        videoUrl: f.videoUrl ? String(f.videoUrl) : undefined,
+        date: f.date ? String(f.date) : undefined,
+        hidden: !!f.hidden,
+      }))
+      : [],
+    featuresHidden: !!root.featuresHidden,
+    banner: Array.isArray(root.banner)
+      ? (root.banner as Record<string, unknown>[]).map((b) => ({
+        value: String(b.value || ""),
+        suffix: String(b.suffix || ""),
+        label: String(b.label || ""),
+      }))
+      : [],
+    bannerHidden: !!root.bannerHidden,
+  };
 }
 function normalizePropertiesPage(v: unknown): PropertiesPageState {
-    const root = asRecord(v);
-    return {
-        hidden: !!root.hidden,
-        header: { ...EMPTY_PROPERTIES_PAGE.header, ...asRecord(root.header) },
-        categories: Array.isArray(root.categories) ? (root.categories as string[]) : [],
-        items: Array.isArray(root.items)
-            ? (root.items as Record<string, unknown>[]).map((item) => ({
-                id: typeof item.id === "number" ? item.id : 0,
-                name: typeof item.name === "string" ? item.name : "",
-                image: typeof item.image === "string" ? item.image : "",
-                images: Array.isArray(item.images) ? (item.images as string[]) : [],
-                category: typeof item.category === "string" ? item.category : "",
-                badge: typeof item.badge === "string" ? item.badge : null,
-                size: typeof item.size === "string" ? item.size : "",
-                floor: typeof item.floor === "string" ? item.floor : "",
-                parking: typeof item.parking === "string" ? item.parking : "",
-                price: typeof item.price === "string" ? item.price : "",
-                tag: typeof item.tag === "string" ? item.tag : "",
-                description: typeof item.description === "string" ? item.description : "",
-            }))
-            : [],
-        cta: { ...EMPTY_PROPERTIES_PAGE.cta, ...asRecord(root.cta) },
-    };
+  const root = asRecord(v);
+  return {
+    hidden: !!root.hidden,
+    header: { ...EMPTY_PROPERTIES_PAGE.header, ...asRecord(root.header) },
+    categories: Array.isArray(root.categories) ? (root.categories as string[]) : [],
+    items: Array.isArray(root.items)
+      ? (root.items as Record<string, unknown>[]).map((item) => ({
+        id: typeof item.id === "number" ? item.id : 0,
+        name: typeof item.name === "string" ? item.name : "",
+        image: typeof item.image === "string" ? item.image : "",
+        images: Array.isArray(item.images) ? (item.images as string[]) : [],
+        category: typeof item.category === "string" ? item.category : "",
+        badge: typeof item.badge === "string" ? item.badge : null,
+        size: typeof item.size === "string" ? item.size : "",
+        floor: typeof item.floor === "string" ? item.floor : "",
+        parking: typeof item.parking === "string" ? item.parking : "",
+        price: typeof item.price === "string" ? item.price : "",
+        tag: typeof item.tag === "string" ? item.tag : "",
+        description: typeof item.description === "string" ? item.description : "",
+      }))
+      : [],
+    cta: { ...EMPTY_PROPERTIES_PAGE.cta, ...asRecord(root.cta) },
+  };
 }
 function normalizeSalesPage(v: unknown): SalesPageState {
-    const root = asRecord(v);
-    return { hidden: !!root.hidden, header: { ...EMPTY_SALES_PAGE.header, ...asRecord(root.header) } };
+  const root = asRecord(v);
+  return { hidden: !!root.hidden, header: { ...EMPTY_SALES_PAGE.header, ...asRecord(root.header) } };
 }
 function normalizeJobsPage(v: unknown): JobsPageState {
-    const root = asRecord(v);
-    return { hidden: !!root.hidden, header: { ...EMPTY_JOBS_PAGE.header, ...asRecord(root.header) } };
+  const root = asRecord(v);
+  return { hidden: !!root.hidden, header: { ...EMPTY_JOBS_PAGE.header, ...asRecord(root.header) } };
 }
 function normalizeTeamPage(v: unknown): TeamPageState {
-    const root = asRecord(v);
-    return {
-        hidden: !!root.hidden,
-        header: { ...EMPTY_TEAM_PAGE.header, ...asRecord(root.header) },
-        members: Array.isArray(root.members)
-            ? (root.members as TeamPageState["members"])
-            : [],
-        cta: { ...EMPTY_TEAM_PAGE.cta, ...asRecord(root.cta) },
-    };
+  const root = asRecord(v);
+  return {
+    hidden: !!root.hidden,
+    header: { ...EMPTY_TEAM_PAGE.header, ...asRecord(root.header) },
+    members: Array.isArray(root.members)
+      ? (root.members as TeamPageState["members"])
+      : [],
+    cta: { ...EMPTY_TEAM_PAGE.cta, ...asRecord(root.cta) },
+  };
 }
 function normalizeProjectsPage(v: unknown): ProjectsPageState {
-    const root = asRecord(v);
-    return {
-        hidden: !!root.hidden,
-        header: { ...EMPTY_PROJECTS_PAGE.header, ...asRecord(root.header) },
-        items: Array.isArray(root.items)
-            ? (root.items as ProjectsPageState["items"]).map((item, idx) => ({
-                ...item,
-                reactKey: `project-${idx}-${Date.now()}-${Math.random()}`,
-                images: Array.isArray(item.images) ? item.images : [],
-            }))
-            : [],
-    };
+  const root = asRecord(v);
+  return {
+    hidden: !!root.hidden,
+    header: { ...EMPTY_PROJECTS_PAGE.header, ...asRecord(root.header) },
+    items: Array.isArray(root.items)
+      ? (root.items as ProjectsPageState["items"]).map((item, idx) => ({
+        ...item,
+        reactKey: `project-${idx}-${Date.now()}-${Math.random()}`,
+        images: Array.isArray(item.images) ? item.images : [],
+      }))
+      : [],
+  };
 }
 async function fetchSections(pageId: string, lang: string): Promise<Record<string, unknown>> {
-    const res = await fetch(joinBackendRequestUrl(getApiBaseUrl(), `/api/v1/admin/site-pages/${pageId}?lang=${lang}`), withClientAdminAuth());
-    const gate = await ensureClientAuthorized(res);
-    if (gate === "forbidden")
-        throw new Error("FC_FORBIDDEN");
-    if (gate !== "ok")
-        return {};
-    if (!res.ok)
-        throw new Error(await res.text());
-    const json = (await res.json()) as {
-        data?: {
-            sections?: unknown;
-        };
+  const res = await fetch(joinBackendRequestUrl(getApiBaseUrl(), `/api/v1/admin/site-pages/${pageId}?lang=${lang}`), withClientAdminAuth());
+  const gate = await ensureClientAuthorized(res);
+  if (gate === "forbidden")
+    throw new Error("FC_FORBIDDEN");
+  if (gate !== "ok")
+    return {};
+  if (!res.ok)
+    throw new Error(await res.text());
+  const json = (await res.json()) as {
+    data?: {
+      sections?: unknown;
     };
-    const s = json.data?.sections;
-    return s && typeof s === "object" && !Array.isArray(s)
-        ? (s as Record<string, unknown>)
-        : {};
+  };
+  const s = json.data?.sections;
+  return s && typeof s === "object" && !Array.isArray(s)
+    ? (s as Record<string, unknown>)
+    : {};
 }
 export function useTabs() {
-    const { t } = useAdminLanguage();
-    return [
-        {
-            id: "home" as const,
-            label: t.siteContent.tabs.home.label,
-            hint: t.siteContent.tabs.home.hint,
-            icon: Home,
-        },
-        {
-            id: "about" as const,
-            label: t.siteContent.tabs.about.label,
-            hint: t.siteContent.tabs.about.hint,
-            icon: Building2,
-        },
-        {
-            id: "gallery" as const,
-            label: t.siteContent.tabs.services.label,
-            hint: t.siteContent.tabs.services.hint,
-            icon: Briefcase,
-        },
-        {
-            id: "contact" as const,
-            label: t.siteContent.tabs.contact.label,
-            hint: t.siteContent.tabs.contact.hint,
-            icon: Phone,
-        },
-        {
-            id: "properties-page" as const,
-            label: t.siteContent.tabs.propertiesPage.label,
-            hint: t.siteContent.tabs.propertiesPage.hint,
-            icon: Building2,
-        },
-        {
-            id: "sales-page" as const,
-            label: t.siteContent.tabs.salesPage.label,
-            hint: t.siteContent.tabs.salesPage.hint,
-            icon: Megaphone,
-        },
-        {
-            id: "jobs-page" as const,
-            label: t.siteContent.tabs.jobsPage.label,
-            hint: t.siteContent.tabs.jobsPage.hint,
-            icon: ClipboardList,
-        },
-        {
-            id: "team" as const,
-            label: t.siteContent.tabs.team.label,
-            hint: t.siteContent.tabs.team.hint,
-            icon: Newspaper,
-        },
-        {
-            id: "projects-page" as const,
-            label: t.siteContent.tabs.projectsPage.label,
-            hint: t.siteContent.tabs.projectsPage.hint,
-            icon: FolderOpen,
-        },
-        {
-            id: "footer" as const,
-            label: t.siteContent.tabs.footer.label,
-            hint: t.siteContent.tabs.footer.hint,
-            icon: LayoutGrid,
-        },
-    ];
+  const { t } = useAdminLanguage();
+  return [
+    {
+      id: "home" as const,
+      label: t.siteContent.tabs.home.label,
+      hint: t.siteContent.tabs.home.hint,
+      icon: Home,
+    },
+    {
+      id: "about" as const,
+      label: t.siteContent.tabs.about.label,
+      hint: t.siteContent.tabs.about.hint,
+      icon: Building2,
+    },
+    {
+      id: "gallery" as const,
+      label: t.siteContent.tabs.services.label,
+      hint: t.siteContent.tabs.services.hint,
+      icon: Briefcase,
+    },
+    {
+      id: "contact" as const,
+      label: t.siteContent.tabs.contact.label,
+      hint: t.siteContent.tabs.contact.hint,
+      icon: Phone,
+    },
+    {
+      id: "properties-page" as const,
+      label: t.siteContent.tabs.propertiesPage.label,
+      hint: t.siteContent.tabs.propertiesPage.hint,
+      icon: Building2,
+    },
+    {
+      id: "sales-page" as const,
+      label: t.siteContent.tabs.salesPage.label,
+      hint: t.siteContent.tabs.salesPage.hint,
+      icon: Megaphone,
+    },
+    {
+      id: "jobs-page" as const,
+      label: t.siteContent.tabs.jobsPage.label,
+      hint: t.siteContent.tabs.jobsPage.hint,
+      icon: ClipboardList,
+    },
+    {
+      id: "team" as const,
+      label: t.siteContent.tabs.team.label,
+      hint: t.siteContent.tabs.team.hint,
+      icon: Newspaper,
+    },
+    {
+      id: "projects-page" as const,
+      label: t.siteContent.tabs.projectsPage.label,
+      hint: t.siteContent.tabs.projectsPage.hint,
+      icon: FolderOpen,
+    },
+    {
+      id: "footer" as const,
+      label: t.siteContent.tabs.footer.label,
+      hint: t.siteContent.tabs.footer.hint,
+      icon: LayoutGrid,
+    },
+  ];
 }
 type TabId = "home" | "about" | "gallery" | "contact" | "properties-page" | "sales-page" | "jobs-page" | "team" | "projects-page" | "footer";
 export default function SiteContentPage() {
-    const { lang, t } = useAdminLanguage();
-    const TABS = useTabs();
-    const [tab, setTab] = useState<TabId>("home");
-    const [error, setError] = useState<string | null>(null);
-    const [saved, setSaved] = useState<string | null>(null);
-    const [loading, setLoading] = useState(true);
-    const [saving, setSaving] = useState(false);
-    const [home, setHome] = useState<HomeState>(EMPTY_HOME);
-    const [homeEN, setHomeEN] = useState<HomeState>(EMPTY_HOME);
-    const [about, setAbout] = useState<AboutState>(EMPTY_ABOUT);
-    const [aboutEN, setAboutEN] = useState<AboutState>(EMPTY_ABOUT);
-    const [footer, setFooter] = useState<FooterState>(EMPTY_FOOTER);
-    const [footerEN, setFooterEN] = useState<FooterState>(EMPTY_FOOTER);
-    const [contact, setContact] = useState<ContactState>(EMPTY_CONTACT);
-    const [contactEN, setContactEN] = useState<ContactState>(EMPTY_CONTACT);
-    const [gallery, setGallery] = useState<GalleryState>(EMPTY_GALLERY);
-    const [galleryEN, setGalleryEN] = useState<GalleryState>(EMPTY_GALLERY);
-    const [propertiesPage, setPropertiesPage] = useState<PropertiesPageState>(EMPTY_PROPERTIES_PAGE);
-    const [propertiesPageEN, setPropertiesPageEN] = useState<PropertiesPageState>(EMPTY_PROPERTIES_PAGE);
-    const [salesPage, setSalesPage] = useState<SalesPageState>(EMPTY_SALES_PAGE);
-    const [salesPageEN, setSalesPageEN] = useState<SalesPageState>(EMPTY_SALES_PAGE);
-    const [jobsPage, setJobsPage] = useState<JobsPageState>(EMPTY_JOBS_PAGE);
-    const [jobsPageEN, setJobsPageEN] = useState<JobsPageState>(EMPTY_JOBS_PAGE);
-    const [teamPage, setTeamPage] = useState<TeamPageState>(EMPTY_TEAM_PAGE);
-    const [teamPageEN, setTeamPageEN] = useState<TeamPageState>(EMPTY_TEAM_PAGE);
-    const [projectsPage, setProjectsPage] = useState<ProjectsPageState>(EMPTY_PROJECTS_PAGE);
-    const [projectsPageEN, setProjectsPageEN] = useState<ProjectsPageState>(EMPTY_PROJECTS_PAGE);
+  const { lang, t } = useAdminLanguage();
+  const TABS = useTabs();
+  const [tab, setTab] = useState<TabId>("home");
+  const [error, setError] = useState<string | null>(null);
+  const [saved, setSaved] = useState<string | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
+  const [home, setHome] = useState<HomeState>(EMPTY_HOME);
+  const [homeEN, setHomeEN] = useState<HomeState>(EMPTY_HOME);
+  const [about, setAbout] = useState<AboutState>(EMPTY_ABOUT);
+  const [aboutEN, setAboutEN] = useState<AboutState>(EMPTY_ABOUT);
+  const [footer, setFooter] = useState<FooterState>(EMPTY_FOOTER);
+  const [footerEN, setFooterEN] = useState<FooterState>(EMPTY_FOOTER);
+  const [contact, setContact] = useState<ContactState>(EMPTY_CONTACT);
+  const [contactEN, setContactEN] = useState<ContactState>(EMPTY_CONTACT);
+  const [gallery, setGallery] = useState<GalleryState>(EMPTY_GALLERY);
+  const [galleryEN, setGalleryEN] = useState<GalleryState>(EMPTY_GALLERY);
+  const [propertiesPage, setPropertiesPage] = useState<PropertiesPageState>(EMPTY_PROPERTIES_PAGE);
+  const [propertiesPageEN, setPropertiesPageEN] = useState<PropertiesPageState>(EMPTY_PROPERTIES_PAGE);
+  const [salesPage, setSalesPage] = useState<SalesPageState>(EMPTY_SALES_PAGE);
+  const [salesPageEN, setSalesPageEN] = useState<SalesPageState>(EMPTY_SALES_PAGE);
+  const [jobsPage, setJobsPage] = useState<JobsPageState>(EMPTY_JOBS_PAGE);
+  const [jobsPageEN, setJobsPageEN] = useState<JobsPageState>(EMPTY_JOBS_PAGE);
+  const [teamPage, setTeamPage] = useState<TeamPageState>(EMPTY_TEAM_PAGE);
+  const [teamPageEN, setTeamPageEN] = useState<TeamPageState>(EMPTY_TEAM_PAGE);
+  const [projectsPage, setProjectsPage] = useState<ProjectsPageState>(EMPTY_PROJECTS_PAGE);
+  const [projectsPageEN, setProjectsPageEN] = useState<ProjectsPageState>(EMPTY_PROJECTS_PAGE);
 
-    const reorder = <T,>(arr: T[], from: number, to: number): T[] => {
-        const next = [...arr];
-        const [removed] = next.splice(from, 1);
-        next.splice(to, 0, removed);
-        return next;
-    };
+  const reorder = <T,>(arr: T[], from: number, to: number): T[] => {
+    const next = [...arr];
+    const [removed] = next.splice(from, 1);
+    next.splice(to, 0, removed);
+    return next;
+  };
 
-    const handleDragStart = (e: React.DragEvent, index: number, type: string) => {
-        e.dataTransfer.setData("index", index.toString());
-        e.dataTransfer.setData("type", type);
-        e.dataTransfer.effectAllowed = "move";
-    };
+  const handleDragStart = (e: React.DragEvent, index: number, type: string) => {
+    e.dataTransfer.setData("index", index.toString());
+    e.dataTransfer.setData("type", type);
+    e.dataTransfer.effectAllowed = "move";
+  };
 
-    const handleDrop = (e: React.DragEvent, toIndex: number, type: string, items: any[], setter: (val: any[]) => void, itemsEN?: any[], setterEN?: (val: any[]) => void) => {
-        e.preventDefault();
-        const fromIndex = parseInt(e.dataTransfer.getData("index"));
-        const dragType = e.dataTransfer.getData("type");
-        if (dragType !== type || fromIndex === toIndex) return;
+  const handleDrop = (e: React.DragEvent, toIndex: number, type: string, items: any[], setter: (val: any[]) => void, itemsEN?: any[], setterEN?: (val: any[]) => void) => {
+    e.preventDefault();
+    const fromIndex = parseInt(e.dataTransfer.getData("index"));
+    const dragType = e.dataTransfer.getData("type");
+    if (dragType !== type || fromIndex === toIndex) return;
 
-        const next = reorder(items, fromIndex, toIndex);
-        setter(next);
-        if (itemsEN && setterEN) {
-            setterEN(reorder(itemsEN, fromIndex, toIndex));
-        }
-    };
-    const load = useCallback(async () => {
-        setError(null);
-        setLoading(true);
-        try {
-            const allPages = [
-                "home",
-                "about",
-                "gallery",
-                "contact",
-                "properties-page",
-                "sales-page",
-                "jobs-page",
-                "team",
-                "projects-page",
-                "footer",
-            ];
-            const [mnResults, enResults] = await Promise.all([
-                Promise.all(allPages.map((p) => fetchSections(p, "mn"))),
-                Promise.all(allPages.map((p) => fetchSections(p, "en"))),
-            ]);
-            const [hMN, aMN, svcMN, cMN, ppMN, spMN, jpMN, tmMN, pjMN, fMN] = mnResults;
-            const [hEN, aEN, svcEN, cEN, ppEN, spEN, jpEN, tmEN, pjEN, fEN] = enResults;
-            setHome(normalizeHome(hMN));
-            setHomeEN(normalizeHome(hEN));
-            setAbout(normalizeAbout(aMN));
-            setAboutEN(normalizeAbout(aEN));
-            setGallery(normalizeGallery(svcMN));
-            setGalleryEN(normalizeGallery(svcEN));
-            setContact(normalizeContact(cMN));
-            setContactEN(normalizeContact(cEN));
-            setPropertiesPage(normalizePropertiesPage(ppMN));
-            setPropertiesPageEN(normalizePropertiesPage(ppEN));
-            setSalesPage(normalizeSalesPage(spMN));
-            setSalesPageEN(normalizeSalesPage(spEN));
-            setJobsPage(normalizeJobsPage(jpMN));
-            setJobsPageEN(normalizeJobsPage(jpEN));
-            setTeamPage(normalizeTeamPage(tmMN));
-            setTeamPageEN(normalizeTeamPage(tmEN));
-            setProjectsPage(normalizeProjectsPage(pjMN));
-            setProjectsPageEN(normalizeProjectsPage(pjEN));
-            setFooter(normalizeFooter(fMN));
-            setFooterEN(normalizeFooter(fEN));
-        }
-        catch (e) {
-            if (e instanceof Error && e.message === "FC_FORBIDDEN") {
-                setError(t.siteContent.common.forbidden);
-            }
-            else {
-                setError(e instanceof Error ? e.message : t.siteContent.common.error);
-            }
-        }
-        finally {
-            setLoading(false);
-        }
-    }, [t.siteContent.common.error, t.siteContent.common.forbidden]);
-    const debouncedSave = useDebounce(async (pageId: (typeof TABS)[number]["id"], sections: unknown, targetLang?: string) => {
-        setError(null);
-        setSaved(null);
-        setSaving(true);
-        try {
-            const res = await fetch(joinBackendRequestUrl(getApiBaseUrl(), `/api/v1/admin/site-pages/${pageId}?lang=${targetLang || lang}`), withClientAdminAuth({
-                method: "PUT",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ sections }),
-            }));
-            const gate = await ensureClientAuthorized(res);
-            if (gate === "forbidden") {
-                setError(PERMISSION_DENIED_MN);
-                return;
-            }
-            if (gate !== "ok")
-                return;
-            if (!res.ok)
-                throw new Error(await res.text());
-            setSaved(t.siteContent.common.saveSuccess);
-        }
-        catch (e) {
-            setError(e instanceof Error ? e.message : t.siteContent.common.error);
-        }
-        finally {
-            setSaving(false);
-        }
-    }, 500);
-    useEffect(() => {
-        void load();
-    }, [load]);
-    async function save(pageId: (typeof TABS)[number]["id"]) {
-        setError(null);
-        setSaved(null);
-        setSaving(true);
-        const mnSections = pageId === "home"
-            ? home
-            : pageId === "about"
-                ? about
-                : pageId === "gallery"
-                    ? gallery
-                    : pageId === "contact"
-                        ? contact
-                        : pageId === "properties-page"
-                            ? propertiesPage
-                            : pageId === "sales-page"
-                                ? salesPage
-                                : pageId === "jobs-page"
-                                    ? jobsPage
-                                    : pageId === "team"
-                                        ? teamPage
-                                        : pageId === "projects-page"
-                                            ? projectsPage
-                                            : footer;
-        const enSections = pageId === "home"
-            ? homeEN
-            : pageId === "about"
-                ? aboutEN
-                : pageId === "gallery"
-                    ? galleryEN
-                    : pageId === "contact"
-                        ? contactEN
-                        : pageId === "properties-page"
-                            ? propertiesPageEN
-                            : pageId === "sales-page"
-                                ? salesPageEN
-                                : pageId === "jobs-page"
-                                    ? jobsPageEN
-                                    : pageId === "team"
-                                        ? teamPageEN
-                                        : pageId === "projects-page"
-                                            ? projectsPageEN
-                                            : footerEN;
-        // --- AUTO SYNC ASSETS & STRUCTURE MN -> EN ---
-        // If EN has missing assets or empty structural arrays that exist in MN, 
-        // we propagate them automatically on save to prevent broken EN pages.
-        if (pageId === "home") {
-            const mn = mnSections as HomeState;
-            const en = enSections as HomeState;
-            if (en.hero.slideImages.length === 0)
-                en.hero.slideImages = [...mn.hero.slideImages];
-            if (en.hero.stats.length === 0)
-                en.hero.stats = mn.hero.stats.map(s => ({ ...s }));
-        }
-        else if (pageId === "about") {
-            const mn = mnSections as AboutState;
-            const en = enSections as AboutState;
-            if (!en.main.imageUrl)
-                en.main.imageUrl = mn.main.imageUrl;
-            if (en.main.stats.length === 0)
-                en.main.stats = mn.main.stats.map(s => ({ ...s }));
-        }
-        else if (pageId === "gallery") {
-            const mn = mnSections as GalleryState;
-            const en = enSections as GalleryState;
-            if (en.features.length === 0)
-                en.features = mn.features.map(f => ({ ...f }));
-            else {
-                mn.features.forEach((f, i) => {
-                    if (en.features[i]) {
-                        if (!en.features[i].image)
-                            en.features[i].image = f.image;
-                        if (en.features[i].images.length === 0)
-                            en.features[i].images = [...f.images];
-                    }
-                });
-            }
-        }
-        else if (pageId === "properties-page") {
-            const mn = mnSections as PropertiesPageState;
-            const en = enSections as PropertiesPageState;
-            if (en.items.length === 0)
-                en.items = mn.items.map(it => ({ ...it }));
-            else {
-                mn.items.forEach((it, i) => {
-                    if (en.items[i]) {
-                        if (!en.items[i].image)
-                            en.items[i].image = it.image;
-                        if (en.items[i].images.length === 0)
-                            en.items[i].images = [...it.images];
-                    }
-                });
-            }
-        }
-        else if (pageId === "projects-page") {
-            const mn = mnSections as ProjectsPageState;
-            const en = enSections as ProjectsPageState;
-            
-            // Strictly align EN items to MN structure/assets
-            const nextENItems: ProjectsPageState["items"] = mn.items.map((mnItem, i) => {
-                // Try to find by ID first, fallback to index
-                const existingEN = en.items.find(it => it.id === mnItem.id) || en.items[i];
-                return {
-                    ...mnItem, // Take all assets and structure from MN
-                    name: existingEN?.name || mnItem.name, // Keep EN name if exists
-                    description: existingEN?.description || mnItem.description, // Keep EN desc if exists
-                    category: existingEN?.category || mnItem.category, // Keep EN category if exists
-                };
-            });
-            en.items = nextENItems;
-        }
-        else if (pageId === "contact") {
-            const mn = mnSections as ContactState;
-            const en = enSections as ContactState;
-            mn.links.forEach((l, i) => {
-                if (en.links[i]) {
-                    if (!en.links[i].imageUrl && l.imageUrl)
-                        en.links[i].imageUrl = l.imageUrl;
-                    if (l.subLinks && (!en.links[i].subLinks || en.links[i].subLinks.length === 0)) {
-                        en.links[i].subLinks = l.subLinks.map(s => ({ ...s }));
-                    }
-                }
-            });
-        }
-        // ----------------------------------------------
-        try {
-            await Promise.all([
-                fetch(joinBackendRequestUrl(getApiBaseUrl(), `/api/v1/admin/site-pages/${pageId}?lang=mn`), withClientAdminAuth({
-                    method: "PUT",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({ sections: mnSections }),
-                })),
-                fetch(joinBackendRequestUrl(getApiBaseUrl(), `/api/v1/admin/site-pages/${pageId}?lang=en`), withClientAdminAuth({
-                    method: "PUT",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({ sections: enSections }),
-                })),
-            ]);
-            const rev = await fetch("/api/revalidate-front", { method: "POST" });
-            if (!rev.ok) {
-                const t2 = await rev.text();
-                console.warn("revalidate-front:", t2);
-            }
-            setSaved(t.siteContent.common.revalidated);
-            setTimeout(() => setSaved(null), 4000);
-        }
-        catch (e) {
-            setError(e instanceof Error ? e.message : t.siteContent.common.error);
-        }
-        finally {
-            setSaving(false);
-        }
+    const next = reorder(items, fromIndex, toIndex);
+    setter(next);
+    if (itemsEN && setterEN) {
+      setterEN(reorder(itemsEN, fromIndex, toIndex));
     }
-    return (<div className="flex h-[calc(100dvh-5.5rem)] max-h-[calc(100dvh-5.5rem)] w-full max-w-none min-h-0 flex-col gap-4 overflow-hidden sm:h-[calc(100dvh-6.5rem)] sm:max-h-[calc(100dvh-6.5rem)]">
-      <EditorAlerts error={error} saved={saved}/>
+  };
+  const load = useCallback(async () => {
+    setError(null);
+    setLoading(true);
+    try {
+      const allPages = [
+        "home",
+        "about",
+        "gallery",
+        "contact",
+        "properties-page",
+        "sales-page",
+        "jobs-page",
+        "team",
+        "projects-page",
+        "footer",
+      ];
+      const [mnResults, enResults] = await Promise.all([
+        Promise.all(allPages.map((p) => fetchSections(p, "mn"))),
+        Promise.all(allPages.map((p) => fetchSections(p, "en"))),
+      ]);
+      const [hMN, aMN, svcMN, cMN, ppMN, spMN, jpMN, tmMN, pjMN, fMN] = mnResults;
+      const [hEN, aEN, svcEN, cEN, ppEN, spEN, jpEN, tmEN, pjEN, fEN] = enResults;
+      setHome(normalizeHome(hMN));
+      setHomeEN(normalizeHome(hEN));
+      setAbout(normalizeAbout(aMN));
+      setAboutEN(normalizeAbout(aEN));
+      setGallery(normalizeGallery(svcMN));
+      setGalleryEN(normalizeGallery(svcEN));
+      setContact(normalizeContact(cMN));
+      setContactEN(normalizeContact(cEN));
+      setPropertiesPage(normalizePropertiesPage(ppMN));
+      setPropertiesPageEN(normalizePropertiesPage(ppEN));
+      setSalesPage(normalizeSalesPage(spMN));
+      setSalesPageEN(normalizeSalesPage(spEN));
+      setJobsPage(normalizeJobsPage(jpMN));
+      setJobsPageEN(normalizeJobsPage(jpEN));
+      setTeamPage(normalizeTeamPage(tmMN));
+      setTeamPageEN(normalizeTeamPage(tmEN));
+      setProjectsPage(normalizeProjectsPage(pjMN));
+      setProjectsPageEN(normalizeProjectsPage(pjEN));
+      setFooter(normalizeFooter(fMN));
+      setFooterEN(normalizeFooter(fEN));
+    }
+    catch (e) {
+      if (e instanceof Error && e.message === "FC_FORBIDDEN") {
+        setError(t.siteContent.common.forbidden);
+      }
+      else {
+        setError(e instanceof Error ? e.message : t.siteContent.common.error);
+      }
+    }
+    finally {
+      setLoading(false);
+    }
+  }, [t.siteContent.common.error, t.siteContent.common.forbidden]);
+  const debouncedSave = useDebounce(async (pageId: (typeof TABS)[number]["id"], sections: unknown, targetLang?: string) => {
+    setError(null);
+    setSaved(null);
+    setSaving(true);
+    try {
+      const res = await fetch(joinBackendRequestUrl(getApiBaseUrl(), `/api/v1/admin/site-pages/${pageId}?lang=${targetLang || lang}`), withClientAdminAuth({
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ sections }),
+      }));
+      const gate = await ensureClientAuthorized(res);
+      if (gate === "forbidden") {
+        setError(PERMISSION_DENIED_MN);
+        return;
+      }
+      if (gate !== "ok")
+        return;
+      if (!res.ok)
+        throw new Error(await res.text());
+      setSaved(t.siteContent.common.saveSuccess);
+    }
+    catch (e) {
+      setError(e instanceof Error ? e.message : t.siteContent.common.error);
+    }
+    finally {
+      setSaving(false);
+    }
+  }, 500);
+  useEffect(() => {
+    void load();
+  }, [load]);
+  async function save(pageId: (typeof TABS)[number]["id"]) {
+    setError(null);
+    setSaved(null);
+    setSaving(true);
+    const mnSections = pageId === "home"
+      ? home
+      : pageId === "about"
+        ? about
+        : pageId === "gallery"
+          ? gallery
+          : pageId === "contact"
+            ? contact
+            : pageId === "properties-page"
+              ? propertiesPage
+              : pageId === "sales-page"
+                ? salesPage
+                : pageId === "jobs-page"
+                  ? jobsPage
+                  : pageId === "team"
+                    ? teamPage
+                    : pageId === "projects-page"
+                      ? projectsPage
+                      : footer;
+    const enSections = pageId === "home"
+      ? homeEN
+      : pageId === "about"
+        ? aboutEN
+        : pageId === "gallery"
+          ? galleryEN
+          : pageId === "contact"
+            ? contactEN
+            : pageId === "properties-page"
+              ? propertiesPageEN
+              : pageId === "sales-page"
+                ? salesPageEN
+                : pageId === "jobs-page"
+                  ? jobsPageEN
+                  : pageId === "team"
+                    ? teamPageEN
+                    : pageId === "projects-page"
+                      ? projectsPageEN
+                      : footerEN;
+    // --- AUTO SYNC ASSETS & STRUCTURE MN -> EN ---
+    // If EN has missing assets or empty structural arrays that exist in MN, 
+    // we propagate them automatically on save to prevent broken EN pages.
+    if (pageId === "home") {
+      const mn = mnSections as HomeState;
+      const en = enSections as HomeState;
+      if (en.hero.slideImages.length === 0)
+        en.hero.slideImages = [...mn.hero.slideImages];
+      if (en.hero.stats.length === 0)
+        en.hero.stats = mn.hero.stats.map(s => ({ ...s }));
+    }
+    else if (pageId === "about") {
+      const mn = mnSections as AboutState;
+      const en = enSections as AboutState;
+      if (!en.main.imageUrl)
+        en.main.imageUrl = mn.main.imageUrl;
+      if (en.main.stats.length === 0)
+        en.main.stats = mn.main.stats.map(s => ({ ...s }));
+    }
+    else if (pageId === "gallery") {
+      const mn = mnSections as GalleryState;
+      const en = enSections as GalleryState;
+      if (en.features.length === 0)
+        en.features = mn.features.map(f => ({ ...f }));
+      else {
+        mn.features.forEach((f, i) => {
+          if (en.features[i]) {
+            if (!en.features[i].image)
+              en.features[i].image = f.image;
+            if (en.features[i].images.length === 0)
+              en.features[i].images = [...f.images];
+          }
+        });
+      }
+    }
+    else if (pageId === "properties-page") {
+      const mn = mnSections as PropertiesPageState;
+      const en = enSections as PropertiesPageState;
+      if (en.items.length === 0)
+        en.items = mn.items.map(it => ({ ...it }));
+      else {
+        mn.items.forEach((it, i) => {
+          if (en.items[i]) {
+            if (!en.items[i].image)
+              en.items[i].image = it.image;
+            if (en.items[i].images.length === 0)
+              en.items[i].images = [...it.images];
+          }
+        });
+      }
+    }
+    else if (pageId === "projects-page") {
+      const mn = mnSections as ProjectsPageState;
+      const en = enSections as ProjectsPageState;
 
-      <div className="flex min-h-0 flex-1 flex-col gap-4 overflow-hidden lg:grid lg:grid-cols-[minmax(220px,260px)_minmax(0,1fr)] lg:items-stretch lg:gap-6">
-        <aside className="hidden h-full min-h-0 lg:block lg:w-full lg:overflow-hidden lg:rounded-2xl lg:border lg:border-slate-200/80 lg:bg-linear-to-b lg:from-slate-50 lg:to-white lg:p-4 lg:shadow-sm dark:lg:border-slate-800 dark:lg:from-slate-950 dark:lg:to-slate-900">
-          <EditorTabRail tabs={TABS} active={tab} onSelect={(id) => setTab(id as TabId)}/>
-        </aside>
+      // Strictly align EN items to MN structure/assets
+      const nextENItems: ProjectsPageState["items"] = mn.items.map((mnItem, i) => {
+        // Try to find by ID first, fallback to index
+        const existingEN = en.items.find(it => it.id === mnItem.id) || en.items[i];
+        return {
+          ...mnItem, // Take all assets and structure from MN
+          name: existingEN?.name || mnItem.name, // Keep EN name if exists
+          description: existingEN?.description || mnItem.description, // Keep EN desc if exists
+          category: existingEN?.category || mnItem.category, // Keep EN category if exists
+        };
+      });
+      en.items = nextENItems;
+    }
+    else if (pageId === "contact") {
+      const mn = mnSections as ContactState;
+      const en = enSections as ContactState;
+      mn.links.forEach((l, i) => {
+        if (en.links[i]) {
+          if (!en.links[i].imageUrl && l.imageUrl)
+            en.links[i].imageUrl = l.imageUrl;
+          if (l.subLinks && (!en.links[i].subLinks || en.links[i].subLinks.length === 0)) {
+            en.links[i].subLinks = l.subLinks.map(s => ({ ...s }));
+          }
+        }
+      });
+    }
+    // ----------------------------------------------
+    try {
+      await Promise.all([
+        fetch(joinBackendRequestUrl(getApiBaseUrl(), `/api/v1/admin/site-pages/${pageId}?lang=mn`), withClientAdminAuth({
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ sections: mnSections }),
+        })),
+        fetch(joinBackendRequestUrl(getApiBaseUrl(), `/api/v1/admin/site-pages/${pageId}?lang=en`), withClientAdminAuth({
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ sections: enSections }),
+        })),
+      ]);
+      const rev = await fetch("/api/revalidate-front", { method: "POST" });
+      if (!rev.ok) {
+        const t2 = await rev.text();
+        console.warn("revalidate-front:", t2);
+      }
+      setSaved(t.siteContent.common.revalidated);
+      setTimeout(() => setSaved(null), 4000);
+    }
+    catch (e) {
+      setError(e instanceof Error ? e.message : t.siteContent.common.error);
+    }
+    finally {
+      setSaving(false);
+    }
+  }
+  return (<div className="flex h-[calc(100dvh-5.5rem)] max-h-[calc(100dvh-5.5rem)] w-full max-w-none min-h-0 flex-col gap-4 overflow-hidden sm:h-[calc(100dvh-6.5rem)] sm:max-h-[calc(100dvh-6.5rem)]">
+    <EditorAlerts error={error} saved={saved} />
 
-        <div className="flex min-h-0 min-w-0 flex-1 flex-col gap-4 overflow-hidden">
-          <EditorTabSelect tabs={TABS} active={tab} onSelect={(id) => setTab(id as TabId)}/>
+    <div className="flex min-h-0 flex-1 flex-col gap-4 overflow-hidden lg:grid lg:grid-cols-[minmax(220px,260px)_minmax(0,1fr)] lg:items-stretch lg:gap-6">
+      <aside className="hidden h-full min-h-0 lg:block lg:w-full lg:overflow-hidden lg:rounded-2xl lg:border lg:border-slate-200/80 lg:bg-linear-to-b lg:from-slate-50 lg:to-white lg:p-4 lg:shadow-sm dark:lg:border-slate-800 dark:lg:from-slate-950 dark:lg:to-slate-900">
+        <EditorTabRail tabs={TABS} active={tab} onSelect={(id) => setTab(id as TabId)} />
+      </aside>
 
-          <EditorSurface>
-            <header className="shrink-0 border-b border-slate-200/80 pb-4 dark:border-slate-800">
-              <div className="flex items-center justify-between gap-4">
-                <div className="min-w-0">
-                  <p className="text-[11px] font-bold uppercase tracking-[0.14em] text-indigo-600 dark:text-indigo-400">
-                    {t.siteContent.common.editingPage}
-                  </p>
-                  <h2 className="mt-1 text-xl font-bold tracking-tight text-slate-900 dark:text-slate-50">
-                    {TABS.find((t) => t.id === tab)?.label ?? ""}
-                  </h2>
-                </div>
-                {true && (<div className="flex shrink-0 items-center gap-3 rounded-xl border border-slate-200/60 bg-slate-50/50 px-3 py-2 dark:border-slate-700/50 dark:bg-slate-900/40">
-                    <span className="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">
-                      {t.siteContent.common.visible}
-                    </span>
-                    <button type="button" onClick={() => {
-                if (tab === "home") {
+      <div className="flex min-h-0 min-w-0 flex-1 flex-col gap-4 overflow-hidden">
+        <EditorTabSelect tabs={TABS} active={tab} onSelect={(id) => setTab(id as TabId)} />
+
+        <EditorSurface>
+          <header className="shrink-0 border-b border-slate-200/80 pb-4 dark:border-slate-800">
+            <div className="flex items-center justify-between gap-4">
+              <div className="min-w-0">
+                <p className="text-[11px] font-bold uppercase tracking-[0.14em] text-indigo-600 dark:text-indigo-400">
+                  {t.siteContent.common.editingPage}
+                </p>
+                <h2 className="mt-1 text-xl font-bold tracking-tight text-slate-900 dark:text-slate-50">
+                  {TABS.find((t) => t.id === tab)?.label ?? ""}
+                </h2>
+              </div>
+              {true && (<div className="flex shrink-0 items-center gap-3 rounded-xl border border-slate-200/60 bg-slate-50/50 px-3 py-2 dark:border-slate-700/50 dark:bg-slate-900/40">
+                <span className="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">
+                  {t.siteContent.common.visible}
+                </span>
+                <button type="button" onClick={() => {
+                  if (tab === "home") {
                     const next = !home.hidden;
                     setHome((prev) => ({ ...prev, hidden: next }));
                     setHomeEN((prev) => ({ ...prev, hidden: next }));
-                }
-                if (tab === "about") {
+                  }
+                  if (tab === "about") {
                     const next = !about.hidden;
                     setAbout((prev) => ({ ...prev, hidden: next }));
                     setAboutEN((prev) => ({ ...prev, hidden: next }));
-                }
-                if (tab === "gallery") {
+                  }
+                  if (tab === "gallery") {
                     const next = !gallery.hidden;
                     setGallery((prev) => ({ ...prev, hidden: next }));
                     setGalleryEN((prev) => ({ ...prev, hidden: next }));
-                }
-                if (tab === "contact") {
+                  }
+                  if (tab === "contact") {
                     const next = !contact.hidden;
                     setContact((prev) => ({ ...prev, hidden: next }));
                     setContactEN((prev) => ({ ...prev, hidden: next }));
-                }
-                if (tab === "properties-page") {
+                  }
+                  if (tab === "properties-page") {
                     const next = !propertiesPage.hidden;
                     setPropertiesPage((prev) => ({ ...prev, hidden: next }));
                     setPropertiesPageEN((prev) => ({ ...prev, hidden: next }));
-                }
-                if (tab === "sales-page") {
+                  }
+                  if (tab === "sales-page") {
                     const next = !salesPage.hidden;
                     setSalesPage((prev) => ({ ...prev, hidden: next }));
                     setSalesPageEN((prev) => ({ ...prev, hidden: next }));
-                }
-                if (tab === "jobs-page") {
+                  }
+                  if (tab === "jobs-page") {
                     const next = !jobsPage.hidden;
                     setJobsPage((prev) => ({ ...prev, hidden: next }));
                     setJobsPageEN((prev) => ({ ...prev, hidden: next }));
-                }
-                if (tab === "team") {
+                  }
+                  if (tab === "team") {
                     const next = !teamPage.hidden;
                     setTeamPage((prev) => ({ ...prev, hidden: next }));
                     setTeamPageEN((prev) => ({ ...prev, hidden: next }));
-                }
-                if (tab === "projects-page") {
+                  }
+                  if (tab === "projects-page") {
                     const next = !projectsPage.hidden;
                     setProjectsPage((prev) => ({ ...prev, hidden: next }));
                     setProjectsPageEN((prev) => ({ ...prev, hidden: next }));
-                }
-                if (tab === "footer") {
+                  }
+                  if (tab === "footer") {
                     const next = !footer.hidden;
                     setFooter((prev) => ({ ...prev, hidden: next }));
                     setFooterEN((prev) => ({ ...prev, hidden: next }));
-                }
-            }} className={`relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-hidden ${(() => {
-                if (tab === "home")
+                  }
+                }} className={`relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-hidden ${(() => {
+                  if (tab === "home")
                     return !home.hidden;
-                if (tab === "about")
+                  if (tab === "about")
                     return !about.hidden;
-                if (tab === "gallery")
+                  if (tab === "gallery")
                     return !gallery.hidden;
-                if (tab === "contact")
+                  if (tab === "contact")
                     return !contact.hidden;
-                if (tab === "properties-page")
+                  if (tab === "properties-page")
                     return !propertiesPage.hidden;
-                if (tab === "sales-page")
+                  if (tab === "sales-page")
                     return !salesPage.hidden;
-                if (tab === "jobs-page")
+                  if (tab === "jobs-page")
                     return !jobsPage.hidden;
-                if (tab === "team")
+                  if (tab === "team")
                     return !teamPage.hidden;
-                if (tab === "projects-page")
+                  if (tab === "projects-page")
                     return !projectsPage.hidden;
-                if (tab === "footer")
+                  if (tab === "footer")
                     return !footer.hidden;
-                return true;
-            })()
-                ? "bg-indigo-600"
-                : "bg-slate-200 dark:bg-slate-700"}`}>
-                      <span className={`pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow-sm ring-0 transition duration-200 ease-in-out ${(() => {
-                if (tab === "home")
-                    return !home.hidden;
-                if (tab === "about")
-                    return !about.hidden;
-                if (tab === "gallery")
-                    return !gallery.hidden;
-                if (tab === "contact")
-                    return !contact.hidden;
-                if (tab === "properties-page")
-                    return !propertiesPage.hidden;
-                if (tab === "sales-page")
-                    return !salesPage.hidden;
-                if (tab === "jobs-page")
-                    return !jobsPage.hidden;
-                if (tab === "team")
-                    return !teamPage.hidden;
-                if (tab === "projects-page")
-                    return !projectsPage.hidden;
-                if (tab === "footer")
-                    return !footer.hidden;
-                return true;
-            })()
-                ? "translate-x-5"
-                : "translate-x-0"}`}/>
-                    </button>
-                  </div>)}
-              </div>
-              <p className="mt-1 w-full text-sm leading-relaxed text-slate-600 dark:text-slate-400">
-                {TABS.find((t) => t.id === tab)?.hint}
-              </p>
-            </header>
+                  return true;
+                })()
+                  ? "bg-indigo-600"
+                  : "bg-slate-200 dark:bg-slate-700"}`}>
+                  <span className={`pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow-sm ring-0 transition duration-200 ease-in-out ${(() => {
+                    if (tab === "home")
+                      return !home.hidden;
+                    if (tab === "about")
+                      return !about.hidden;
+                    if (tab === "gallery")
+                      return !gallery.hidden;
+                    if (tab === "contact")
+                      return !contact.hidden;
+                    if (tab === "properties-page")
+                      return !propertiesPage.hidden;
+                    if (tab === "sales-page")
+                      return !salesPage.hidden;
+                    if (tab === "jobs-page")
+                      return !jobsPage.hidden;
+                    if (tab === "team")
+                      return !teamPage.hidden;
+                    if (tab === "projects-page")
+                      return !projectsPage.hidden;
+                    if (tab === "footer")
+                      return !footer.hidden;
+                    return true;
+                  })()
+                    ? "translate-x-5"
+                    : "translate-x-0"}`} />
+                </button>
+              </div>)}
+            </div>
+            <p className="mt-1 w-full text-sm leading-relaxed text-slate-600 dark:text-slate-400">
+              {TABS.find((t) => t.id === tab)?.hint}
+            </p>
+          </header>
 
-            <div className="min-h-0 flex-1 overflow-y-auto overscroll-y-contain [scrollbar-gutter:stable]">
-              {loading ? (<p className="text-sm font-medium text-slate-500 dark:text-slate-400">
-                  {t.common.loading}
-                </p>) : tab === "home" ? (<EditorBody sectionJumpKey={tab} sectionItems={[
-                { id: "home-slides", label: t.siteContent.home.sections.slides },
-                { id: "home-hero", label: t.siteContent.home.sections.hero },
-                { id: "home-desc", label: t.siteContent.home.sections.desc },
-                { id: "home-stats", label: t.siteContent.home.sections.stats },
+          <div className="min-h-0 flex-1 overflow-y-auto overscroll-y-contain [scrollbar-gutter:stable]">
+            {loading ? (<p className="text-sm font-medium text-slate-500 dark:text-slate-400">
+              {t.common.loading}
+            </p>) : tab === "home" ? (<EditorBody sectionJumpKey={tab} sectionItems={[
+              { id: "home-slides", label: t.siteContent.home.sections.slides },
+              { id: "home-hero", label: t.siteContent.home.sections.hero },
+              { id: "home-desc", label: t.siteContent.home.sections.desc },
+              { id: "home-stats", label: t.siteContent.home.sections.stats },
             ]}>
-                  <EditorSection id="home-slides" title={t.siteContent.home.fields.slideImages} subtitle={t.siteContent.home.fields.heroSubtitle}>
-                    <div className="space-y-3">
-                      {home.hero.slideImages.map((path, i) => (<ImageUploadField key={`slide-${i}`} value={path} onChange={(next) => {
+              <EditorSection id="home-slides" title={t.siteContent.home.fields.slideImages} subtitle={t.siteContent.home.fields.heroSubtitle}>
+                <div className="space-y-3">
+                  {home.hero.slideImages.map((path, i) => (<ImageUploadField key={`slide-${i}`} value={path} onChange={(next) => {
                     const slideImages = [...home.hero.slideImages];
                     slideImages[i] = next;
                     setHome({
-                        ...home,
-                        hero: { ...home.hero, slideImages },
+                      ...home,
+                      hero: { ...home.hero, slideImages },
                     });
                     // Sync to EN: ensure the array is long enough
                     const slideImagesEN = [...homeEN.hero.slideImages];
                     while (slideImagesEN.length < slideImages.length) {
-                        slideImagesEN.push("");
+                      slideImagesEN.push("");
                     }
                     slideImagesEN[i] = next;
                     setHomeEN({
-                        ...homeEN,
-                        hero: { ...homeEN.hero, slideImages: slideImagesEN },
+                      ...homeEN,
+                      hero: { ...homeEN.hero, slideImages: slideImagesEN },
                     });
-                }} showRemove onRemove={() => {
+                  }} showRemove onRemove={() => {
                     const slideImages = home.hero.slideImages.filter((_, j) => j !== i);
                     setHome({
-                        ...home,
-                        hero: { ...home.hero, slideImages },
+                      ...home,
+                      hero: { ...home.hero, slideImages },
                     });
                     const slideImagesEN = homeEN.hero.slideImages.filter((_, j) => j !== i);
                     setHomeEN({
-                        ...homeEN,
-                        hero: { ...homeEN.hero, slideImages: slideImagesEN },
+                      ...homeEN,
+                      hero: { ...homeEN.hero, slideImages: slideImagesEN },
                     });
-                }}/>))}
-                      <GhostButton className="font-medium" onClick={() => {
-                setHome({
-                    ...home,
-                    hero: {
+                  }} />))}
+                  <GhostButton className="font-medium" onClick={() => {
+                    setHome({
+                      ...home,
+                      hero: {
                         ...home.hero,
                         slideImages: [...home.hero.slideImages, ""],
-                    },
-                });
-                setHomeEN({
-                    ...homeEN,
-                    hero: {
+                      },
+                    });
+                    setHomeEN({
+                      ...homeEN,
+                      hero: {
                         ...homeEN.hero,
                         slideImages: [...homeEN.hero.slideImages, ""],
-                    },
-                });
-            }}>
-                        + {t.siteContent.home.fields.addSlide}
-                      </GhostButton>
-                    </div>
-                  </EditorSection>
-                  <EditorSection id="home-hero" title={t.siteContent.home.fields.heroTitle} subtitle={t.siteContent.home.fields.heroSubtitle}>
-                    <div className="mb-4 flex items-center gap-2">
-                      <span className="text-[10px] font-bold uppercase text-slate-400">{t.siteContent.common.hide}</span>
-                      <button type="button" onClick={() => {
-                const next = !home.hero.hidden;
-                setHome({ ...home, hero: { ...home.hero, hidden: next } });
-                setHomeEN({ ...homeEN, hero: { ...homeEN.hero, hidden: next } });
-            }} className={`h-5 w-9 rounded-full border-2 border-transparent transition-colors duration-200 ${home.hero.hidden ? "bg-indigo-600" : "bg-slate-200 dark:bg-slate-700"}`}>
-                        <div className={`h-4 w-4 transform rounded-full bg-white transition-transform ${home.hero.hidden ? "translate-x-4" : "translate-x-0"}`}/>
-                      </button>
-                    </div>
-                    <div className="space-y-4">
-                      {([
-                ["badge", t.siteContent.home.fields.badge],
-                ["titleLine1", t.siteContent.home.fields.titleLine1],
-                ["titleAccent", t.siteContent.home.fields.titleAccent],
-                ["titleLine2", t.siteContent.home.fields.titleLine2],
-                ["btn1", t.siteContent.home.fields.btn1],
-                ["btn1Href", t.siteContent.home.fields.btn1Href],
-                ["btn2", t.siteContent.home.fields.btn2],
-                ["btn2Href", t.siteContent.home.fields.btn2Href],
-                ["slideLabel", t.siteContent.home.fields.slideLabel],
-            ] as const).map(([key, lab]) => (<DualInput key={key} label={lab} mnValue={home.hero[key] as string} enValue={homeEN.hero[key] as string} onChangeMN={(v) => {
-                setHome({
-                    ...home,
-                    hero: { ...home.hero, [key]: v },
-                });
-            }} onChangeEN={(v) => {
-                    setHomeEN({
-                        ...homeEN,
-                        hero: { ...homeEN.hero, [key]: v },
+                      },
                     });
-                }}/>))}
-                    </div>
-                  </EditorSection>
-                  <EditorSection id="home-desc" title={t.siteContent.home.sections.desc}>
-                    <DualTextarea label={t.siteContent.home.sections.desc} mnValue={home.hero.desc} enValue={homeEN.hero.desc} onChangeMN={(v) => {
-            setHome({
-                ...home,
-                hero: { ...home.hero, desc: v },
-            });
-        }} onChangeEN={(v) => setHomeEN({
-                ...homeEN,
-                hero: { ...homeEN.hero, desc: v },
-            })}/>
-                  </EditorSection>
-                  <EditorSection id="home-stats" title={t.siteContent.home.sections.stats} defaultOpen={false}>
-                    <div className="mb-4 flex items-center gap-2">
-                      <span className="text-[10px] font-bold uppercase text-slate-400">{t.siteContent.common.hide}</span>
-                      <button type="button" onClick={() => {
-                const next = !home.hero.statsHidden;
-                setHome({ ...home, hero: { ...home.hero, statsHidden: next } });
-                setHomeEN({ ...homeEN, hero: { ...homeEN.hero, statsHidden: next } });
-            }} className={`h-5 w-9 rounded-full border-2 border-transparent transition-colors duration-200 ${home.hero.statsHidden ? "bg-indigo-600" : "bg-slate-200 dark:bg-slate-700"}`}>
-                        <div className={`h-4 w-4 transform rounded-full bg-white transition-transform ${home.hero.statsHidden ? "translate-x-4" : "translate-x-0"}`}/>
-                      </button>
-                    </div>
-                    <div className="space-y-3">
-                      {home.hero.stats.map((row, i) => (<div key={i} className="flex flex-wrap items-end gap-3 rounded-xl border border-slate-100 bg-slate-50/30 p-3 dark:border-slate-800/40 dark:bg-slate-900/20">
-                          <div className="space-y-1.5 min-w-[200px]">
-                            <DualInput 
-                              label={lang === "mn" ? "Утга" : "Value"} 
-                              mnValue={row.value} 
-                              enValue={homeEN.hero.stats[i]?.value ?? ""} 
-                              onChangeMN={(v) => {
-                                const s = [...home.hero.stats];
-                                s[i] = { ...s[i], value: v };
-                                setHome({ ...home, hero: { ...home.hero, stats: s } });
-                              }} 
-                              onChangeEN={(v) => {
-                                const s = [...homeEN.hero.stats];
-                                if (!s[i]) s[i] = { label: row.label, value: "" };
-                                s[i] = { ...s[i], value: v };
-                                setHomeEN({ ...homeEN, hero: { ...homeEN.hero, stats: s } });
-                              }}
-                            />
-                          </div>
-                          <div className="flex-1">
-                            <DualInput label={lang === "mn" ? "Шошго" : "Label"} mnValue={row.label} enValue={homeEN.hero.stats[i]?.label ?? ""} onChangeMN={(v) => {
-                const s = [...home.hero.stats];
-                s[i] = { ...s[i], label: v };
-                setHome({ ...home, hero: { ...home.hero, stats: s } });
-            }} onChangeEN={(v) => {
-                    const s = [...homeEN.hero.stats];
-                    if (!s[i])
-                        s[i] = { label: "", value: row.value };
-                    s[i] = { ...s[i], label: v };
-                    setHomeEN({ ...homeEN, hero: { ...homeEN.hero, stats: s } });
-                }}/>
-                          </div>
-                          <DangerMini onClick={() => {
+                  }}>
+                    + {t.siteContent.home.fields.addSlide}
+                  </GhostButton>
+                </div>
+              </EditorSection>
+              <EditorSection id="home-hero" title={t.siteContent.home.fields.heroTitle} subtitle={t.siteContent.home.fields.heroSubtitle}>
+                <div className="space-y-4">
+                  {([
+                    ["badge", t.siteContent.home.fields.badge],
+                    ["titleLine1", t.siteContent.home.fields.titleLine1],
+                    ["titleAccent", t.siteContent.home.fields.titleAccent],
+                    ["titleLine2", t.siteContent.home.fields.titleLine2],
+                    ["btn1", t.siteContent.home.fields.btn1],
+                    ["btn1Href", t.siteContent.home.fields.btn1Href],
+                    ["btn2", t.siteContent.home.fields.btn2],
+                    ["btn2Href", t.siteContent.home.fields.btn2Href],
+                    ["slideLabel", t.siteContent.home.fields.slideLabel],
+                  ] as const).map(([key, lab]) => (<DualInput key={key} label={lab} mnValue={home.hero[key] as string} enValue={homeEN.hero[key] as string} onChangeMN={(v) => {
                     setHome({
+                      ...home,
+                      hero: { ...home.hero, [key]: v },
+                    });
+                  }} onChangeEN={(v) => {
+                    setHomeEN({
+                      ...homeEN,
+                      hero: { ...homeEN.hero, [key]: v },
+                    });
+                  }} />))}
+                </div>
+              </EditorSection>
+              <EditorSection id="home-desc" title={t.siteContent.home.sections.desc}>
+                <DualTextarea label={t.siteContent.home.sections.desc} mnValue={home.hero.desc} enValue={homeEN.hero.desc} onChangeMN={(v) => {
+                  setHome({
+                    ...home,
+                    hero: { ...home.hero, desc: v },
+                  });
+                }} onChangeEN={(v) => setHomeEN({
+                  ...homeEN,
+                  hero: { ...homeEN.hero, desc: v },
+                })} />
+              </EditorSection>
+              <EditorSection id="home-stats" title={t.siteContent.home.sections.stats} defaultOpen={false}>
+                <div className="mb-4 flex items-center gap-2">
+                  <span className="text-[10px] font-bold uppercase text-slate-400">{t.siteContent.common.hide}</span>
+                  <button type="button" onClick={() => {
+                    const next = !home.hero.statsHidden;
+                    setHome({ ...home, hero: { ...home.hero, statsHidden: next } });
+                    setHomeEN({ ...homeEN, hero: { ...homeEN.hero, statsHidden: next } });
+                  }} className={`h-5 w-9 rounded-full border-2 border-transparent transition-colors duration-200 ${home.hero.statsHidden ? "bg-indigo-600" : "bg-slate-200 dark:bg-slate-700"}`}>
+                    <div className={`h-4 w-4 transform rounded-full bg-white transition-transform ${home.hero.statsHidden ? "translate-x-4" : "translate-x-0"}`} />
+                  </button>
+                </div>
+                <div className="space-y-3">
+                  {home.hero.stats.map((row, i) => (<div key={i} className="flex flex-wrap items-end gap-3 rounded-xl border border-slate-100 bg-slate-50/30 p-3 dark:border-slate-800/40 dark:bg-slate-900/20">
+                    <div className="space-y-1.5 min-w-[200px]">
+                      <DualInput
+                        label={lang === "mn" ? "Утга" : "Value"}
+                        mnValue={row.value}
+                        enValue={homeEN.hero.stats[i]?.value ?? ""}
+                        onChangeMN={(v) => {
+                          const s = [...home.hero.stats];
+                          s[i] = { ...s[i], value: v };
+                          setHome({ ...home, hero: { ...home.hero, stats: s } });
+                        }}
+                        onChangeEN={(v) => {
+                          const s = [...homeEN.hero.stats];
+                          if (!s[i]) s[i] = { label: row.label, value: "" };
+                          s[i] = { ...s[i], value: v };
+                          setHomeEN({ ...homeEN, hero: { ...homeEN.hero, stats: s } });
+                        }}
+                      />
+                    </div>
+                    <div className="flex-1">
+                      <DualInput label={lang === "mn" ? "Шошго" : "Label"} mnValue={row.label} enValue={homeEN.hero.stats[i]?.label ?? ""} onChangeMN={(v) => {
+                        const s = [...home.hero.stats];
+                        s[i] = { ...s[i], label: v };
+                        setHome({ ...home, hero: { ...home.hero, stats: s } });
+                      }} onChangeEN={(v) => {
+                        const s = [...homeEN.hero.stats];
+                        if (!s[i])
+                          s[i] = { label: "", value: row.value };
+                        s[i] = { ...s[i], label: v };
+                        setHomeEN({ ...homeEN, hero: { ...homeEN.hero, stats: s } });
+                      }} />
+                    </div>
+                    <DangerMini onClick={() => {
+                      setHome({
                         ...home,
                         hero: { ...home.hero, stats: home.hero.stats.filter((_, j) => j !== i) },
-                    });
-                    setHomeEN({
+                      });
+                      setHomeEN({
                         ...homeEN,
                         hero: { ...homeEN.hero, stats: homeEN.hero.stats.filter((_, j) => j !== i) },
+                      });
+                    }}>
+                      {t.siteContent.common.remove}
+                    </DangerMini>
+                  </div>))}
+                  <GhostButton onClick={() => {
+                    const newItem = { value: "", label: "" };
+                    setHome({
+                      ...home,
+                      hero: { ...home.hero, stats: [...home.hero.stats, newItem] },
                     });
-                }}>
-                            {t.siteContent.common.remove}
-                          </DangerMini>
-                        </div>))}
-                      <GhostButton onClick={() => {
-                const newItem = { value: "", label: "" };
-                setHome({
-                    ...home,
-                    hero: { ...home.hero, stats: [...home.hero.stats, newItem] },
-                });
-                setHomeEN({
-                    ...homeEN,
-                    hero: { ...homeEN.hero, stats: [...homeEN.hero.stats, newItem] },
-                });
-            }}>
-                        + {t.siteContent.common.addRow}
-                      </GhostButton>
-                    </div>
-                  </EditorSection>
-                  <PrimarySave disabled={saving} onClick={() => void save("home")}>
-                    {saving ? t.common.saving : t.siteContent.common.saveTab(t.siteContent.tabs.home.label)}
-                  </PrimarySave>
-                </EditorBody>) : tab === "about" ? (<EditorBody sectionJumpKey={tab} sectionItems={[
-                { id: "about-fields", label: t.siteContent.about.sections.fields },
-                { id: "about-image", label: t.siteContent.about.sections.image },
-                { id: "about-copy", label: t.siteContent.about.sections.copy },
-                { id: "about-stats", label: t.siteContent.about.sections.stats },
+                    setHomeEN({
+                      ...homeEN,
+                      hero: { ...homeEN.hero, stats: [...homeEN.hero.stats, newItem] },
+                    });
+                  }}>
+                    + {t.siteContent.common.addRow}
+                  </GhostButton>
+                </div>
+              </EditorSection>
+              <PrimarySave disabled={saving} onClick={() => void save("home")}>
+                {saving ? t.common.saving : t.siteContent.common.saveTab(t.siteContent.tabs.home.label)}
+              </PrimarySave>
+            </EditorBody>) : tab === "about" ? (<EditorBody sectionJumpKey={tab} sectionItems={[
+              { id: "about-fields", label: t.siteContent.about.sections.fields },
+              { id: "about-image", label: t.siteContent.about.sections.image },
+              { id: "about-copy", label: t.siteContent.about.sections.copy },
+              { id: "about-stats", label: t.siteContent.about.sections.stats },
             ]}>
-                  <EditorSection id="about-fields" title={t.siteContent.about.fields.title} subtitle={t.siteContent.about.fields.subtitle}>
-                    <div className="mb-4 flex items-center gap-2">
-                      <span className="text-[10px] font-bold uppercase text-slate-400">{t.siteContent.common.hide}</span>
-                      <button type="button" onClick={() => {
-                const next = !about.main.hidden;
-                setAbout({ ...about, main: { ...about.main, hidden: next } });
-                setAboutEN({ ...aboutEN, main: { ...aboutEN.main, hidden: next } });
-            }} className={`h-5 w-9 rounded-full border-2 border-transparent transition-colors duration-200 ${about.main.hidden ? "bg-indigo-600" : "bg-slate-200 dark:bg-slate-700"}`}>
-                        <div className={`h-4 w-4 transform rounded-full bg-white transition-transform ${about.main.hidden ? "translate-x-4" : "translate-x-0"}`}/>
-                      </button>
-                    </div>
-                    <div className="space-y-4">
-                      {([
-                ["sectionLabel", t.siteContent.about.fields.sectionLabel],
-                ["h2Line1", t.siteContent.about.fields.h2Line1],
-                ["h2Accent", t.siteContent.about.fields.h2Accent],
-                ["imageBuildingName", t.siteContent.about.fields.imageBuildingName],
-                ["imageBuildingSubtitle", t.siteContent.about.fields.imageBuildingSubtitle],
-                ["yearsBadgeValue", t.siteContent.about.fields.yearsBadgeValue],
-                ["yearsLabel", t.siteContent.about.fields.yearsLabel],
-            ] as const).map(([key, lab]) => (<DualInput key={key} label={lab} mnValue={about.main[key] as string} enValue={aboutEN.main[key] as string} onChangeMN={(v) => {
-                setAbout({
-                    ...about,
-                    main: { ...about.main, [key]: v },
-                });
-            }} onChangeEN={(v) => setAboutEN({
+              <EditorSection id="about-fields" title={t.siteContent.about.fields.title} subtitle={t.siteContent.about.fields.subtitle}>
+                <div className="mb-4 flex items-center gap-2">
+                  <span className="text-[10px] font-bold uppercase text-slate-400">{t.siteContent.common.hide}</span>
+                  <button type="button" onClick={() => {
+                    const next = !about.main.hidden;
+                    setAbout({ ...about, main: { ...about.main, hidden: next } });
+                    setAboutEN({ ...aboutEN, main: { ...aboutEN.main, hidden: next } });
+                  }} className={`h-5 w-9 rounded-full border-2 border-transparent transition-colors duration-200 ${about.main.hidden ? "bg-indigo-600" : "bg-slate-200 dark:bg-slate-700"}`}>
+                    <div className={`h-4 w-4 transform rounded-full bg-white transition-transform ${about.main.hidden ? "translate-x-4" : "translate-x-0"}`} />
+                  </button>
+                </div>
+                <div className="space-y-4">
+                  {([
+                    ["sectionLabel", t.siteContent.about.fields.sectionLabel],
+                    ["h2Line1", t.siteContent.about.fields.h2Line1],
+                    ["h2Accent", t.siteContent.about.fields.h2Accent],
+                    ["imageBuildingName", t.siteContent.about.fields.imageBuildingName],
+                    ["imageBuildingSubtitle", t.siteContent.about.fields.imageBuildingSubtitle],
+                    ["yearsBadgeValue", t.siteContent.about.fields.yearsBadgeValue],
+                    ["yearsLabel", t.siteContent.about.fields.yearsLabel],
+                  ] as const).map(([key, lab]) => (<DualInput key={key} label={lab} mnValue={about.main[key] as string} enValue={aboutEN.main[key] as string} onChangeMN={(v) => {
+                    setAbout({
+                      ...about,
+                      main: { ...about.main, [key]: v },
+                    });
+                  }} onChangeEN={(v) => setAboutEN({
                     ...aboutEN,
                     main: { ...aboutEN.main, [key]: v },
-                })}/>))}
-                    </div>
-                  </EditorSection>
-                  <EditorSection id="about-image" title={t.siteContent.about.sections.image} subtitle={t.siteContent.home.fields.heroSubtitle}>
-                    <ImageUploadField value={about.main.imageUrl ?? "/images/baclground-image-1.jpg"} onChange={(path) => {
-                setAbout({
+                  })} />))}
+                </div>
+              </EditorSection>
+              <EditorSection id="about-image" title={t.siteContent.about.sections.image} subtitle={t.siteContent.home.fields.heroSubtitle}>
+                <ImageUploadField value={about.main.imageUrl ?? "/images/baclground-image-1.jpg"} onChange={(path) => {
+                  setAbout({
                     ...about,
                     main: { ...about.main, imageUrl: path },
-                });
-                setAboutEN({
+                  });
+                  setAboutEN({
                     ...aboutEN,
                     main: { ...aboutEN.main, imageUrl: path },
-                });
-            }} previewFit="cover"/>
-                  </EditorSection>
-                  <EditorSection id="about-copy" title={t.siteContent.about.sections.copy}>
-                    <div className="space-y-4">
-                      <DualTextarea label={`${t.siteContent.about.sections.copy} 1`} mnValue={about.main.p1} enValue={aboutEN.main.p1} onChangeMN={(v) => {
-            setAbout({ ...about, main: { ...about.main, p1: v } });
-        }} onChangeEN={(v) => setAboutEN({ ...aboutEN, main: { ...aboutEN.main, p1: v } })}/>
-                      <DualTextarea label={`${t.siteContent.about.sections.copy} 2`} mnValue={about.main.p2} enValue={aboutEN.main.p2} onChangeMN={(v) => {
-            setAbout({ ...about, main: { ...about.main, p2: v } });
-        }} onChangeEN={(v) => setAboutEN({ ...aboutEN, main: { ...aboutEN.main, p2: v } })}/>
+                  });
+                }} previewFit="cover" />
+              </EditorSection>
+              <EditorSection id="about-copy" title={t.siteContent.about.sections.copy}>
+                <div className="space-y-4">
+                  <DualTextarea label={`${t.siteContent.about.sections.copy} 1`} mnValue={about.main.p1} enValue={aboutEN.main.p1} onChangeMN={(v) => {
+                    setAbout({ ...about, main: { ...about.main, p1: v } });
+                  }} onChangeEN={(v) => setAboutEN({ ...aboutEN, main: { ...aboutEN.main, p1: v } })} />
+                  <DualTextarea label={`${t.siteContent.about.sections.copy} 2`} mnValue={about.main.p2} enValue={aboutEN.main.p2} onChangeMN={(v) => {
+                    setAbout({ ...about, main: { ...about.main, p2: v } });
+                  }} onChangeEN={(v) => setAboutEN({ ...aboutEN, main: { ...aboutEN.main, p2: v } })} />
+                </div>
+              </EditorSection>
+              <EditorSection id="about-stats" title={t.siteContent.about.sections.stats} defaultOpen={false}>
+                <div className="space-y-3">
+                  {about.main.stats.map((row, i) => (<div key={i} className="flex flex-wrap items-end gap-3 rounded-xl border border-slate-100 bg-slate-50/30 p-3 dark:border-slate-800/40 dark:bg-slate-900/20">
+                    <div className="space-y-1.5 min-w-[200px]">
+                      <DualInput
+                        label={lang === "mn" ? "Утга" : "Value"}
+                        mnValue={row.value}
+                        enValue={aboutEN.main.stats[i]?.value ?? ""}
+                        onChangeMN={(v) => {
+                          const s = [...about.main.stats];
+                          s[i] = { ...s[i], value: v };
+                          setAbout({ ...about, main: { ...about.main, stats: s } });
+                        }}
+                        onChangeEN={(v) => {
+                          const s = [...aboutEN.main.stats];
+                          if (!s[i]) s[i] = { label: row.label, value: "" };
+                          s[i] = { ...s[i], value: v };
+                          setAboutEN({ ...aboutEN, main: { ...aboutEN.main, stats: s } });
+                        }}
+                      />
                     </div>
-                  </EditorSection>
-                  <EditorSection id="about-stats" title={t.siteContent.about.sections.stats} defaultOpen={false}>
-                    <div className="mb-4 flex items-center gap-2">
-                      <span className="text-[10px] font-bold uppercase text-slate-400">{t.siteContent.common.hide}</span>
-                      <button type="button" onClick={() => {
-                const next = !about.main.statsHidden;
-                setAbout({ ...about, main: { ...about.main, statsHidden: next } });
-                setAboutEN({ ...aboutEN, main: { ...aboutEN.main, statsHidden: next } });
-            }} className={`h-5 w-9 rounded-full border-2 border-transparent transition-colors duration-200 ${about.main.statsHidden ? "bg-indigo-600" : "bg-slate-200 dark:bg-slate-700"}`}>
-                        <div className={`h-4 w-4 transform rounded-full bg-white transition-transform ${about.main.statsHidden ? "translate-x-4" : "translate-x-0"}`}/>
-                      </button>
+                    <div className="flex-1">
+                      <DualInput label={lang === "mn" ? "Шошго" : "Label"} mnValue={row.label} enValue={aboutEN.main.stats[i]?.label ?? ""} onChangeMN={(v) => {
+                        const s = [...about.main.stats];
+                        s[i] = { ...s[i], label: v };
+                        setAbout({ ...about, main: { ...about.main, stats: s } });
+                      }} onChangeEN={(v) => {
+                        const s = [...aboutEN.main.stats];
+                        if (!s[i])
+                          s[i] = { label: "", value: row.value };
+                        s[i] = { ...s[i], label: v };
+                        setAboutEN({ ...aboutEN, main: { ...aboutEN.main, stats: s } });
+                      }} />
                     </div>
-                    <div className="space-y-3">
-                      {about.main.stats.map((row, i) => (<div key={i} className="flex flex-wrap items-end gap-3 rounded-xl border border-slate-100 bg-slate-50/30 p-3 dark:border-slate-800/40 dark:bg-slate-900/20">
-                          <div className="space-y-1.5 min-w-[200px]">
-                            <DualInput 
-                              label={lang === "mn" ? "Утга" : "Value"} 
-                              mnValue={row.value} 
-                              enValue={aboutEN.main.stats[i]?.value ?? ""} 
-                              onChangeMN={(v) => {
-                                const s = [...about.main.stats];
-                                s[i] = { ...s[i], value: v };
-                                setAbout({ ...about, main: { ...about.main, stats: s } });
-                              }} 
-                              onChangeEN={(v) => {
-                                const s = [...aboutEN.main.stats];
-                                if (!s[i]) s[i] = { label: row.label, value: "" };
-                                s[i] = { ...s[i], value: v };
-                                setAboutEN({ ...aboutEN, main: { ...aboutEN.main, stats: s } });
-                              }}
-                            />
-                          </div>
-                          <div className="flex-1">
-                            <DualInput label={lang === "mn" ? "Шошго" : "Label"} mnValue={row.label} enValue={aboutEN.main.stats[i]?.label ?? ""} onChangeMN={(v) => {
-                const s = [...about.main.stats];
-                s[i] = { ...s[i], label: v };
-                setAbout({ ...about, main: { ...about.main, stats: s } });
-            }} onChangeEN={(v) => {
-                    const s = [...aboutEN.main.stats];
-                    if (!s[i])
-                        s[i] = { label: "", value: row.value };
-                    s[i] = { ...s[i], label: v };
-                    setAboutEN({ ...aboutEN, main: { ...aboutEN.main, stats: s } });
-                }}/>
-                          </div>
-                          <DangerMini onClick={() => {
-                    setAbout({
+                    <DangerMini onClick={() => {
+                      setAbout({
                         ...about,
                         main: { ...about.main, stats: about.main.stats.filter((_, j) => j !== i) },
-                    });
-                    setAboutEN({
+                      });
+                      setAboutEN({
                         ...aboutEN,
                         main: { ...aboutEN.main, stats: aboutEN.main.stats.filter((_, j) => j !== i) },
+                      });
+                    }}>
+                      {t.siteContent.common.remove}
+                    </DangerMini>
+                  </div>))}
+                  <GhostButton onClick={() => {
+                    const newItem = { value: "", label: "" };
+                    setAbout({
+                      ...about,
+                      main: { ...about.main, stats: [...about.main.stats, newItem] },
                     });
-                }}>
-                            {t.siteContent.common.remove}
-                          </DangerMini>
-                        </div>))}
-                      <GhostButton onClick={() => {
-                const newItem = { value: "", label: "" };
-                setAbout({
-                    ...about,
-                    main: { ...about.main, stats: [...about.main.stats, newItem] },
-                });
-                setAboutEN({
-                    ...aboutEN,
-                    main: { ...aboutEN.main, stats: [...aboutEN.main.stats, newItem] },
-                });
-            }}>
-                        + {lang === "mn" ? "Мөр нэмэх" : "Add Row"}
-                      </GhostButton>
-                    </div>
-                  </EditorSection>
-                  <PrimarySave disabled={saving} onClick={() => void save("about")}>
-                    {saving ? t.common.saving : t.siteContent.common.saveTab(t.siteContent.tabs.about.label)}
-                  </PrimarySave>
-                </EditorBody>) : tab === "gallery" ? (<EditorBody sectionJumpKey={tab} sectionItems={[
-                { id: "svc-features", label: t.siteContent.gallery.sections.features },
+                    setAboutEN({
+                      ...aboutEN,
+                      main: { ...aboutEN.main, stats: [...aboutEN.main.stats, newItem] },
+                    });
+                  }}>
+                    + {lang === "mn" ? "Мөр нэмэх" : "Add Row"}
+                  </GhostButton>
+                </div>
+              </EditorSection>
+              <PrimarySave disabled={saving} onClick={() => void save("about")}>
+                {saving ? t.common.saving : t.siteContent.common.saveTab(t.siteContent.tabs.about.label)}
+              </PrimarySave>
+            </EditorBody>) : tab === "gallery" ? (<EditorBody sectionJumpKey={tab} sectionItems={[
+              { id: "svc-features", label: t.siteContent.gallery.sections.features },
             ]}>
-                  <EditorSection id="svc-features" title={t.siteContent.gallery.sections.features} defaultOpen={true}>
-                    <div className="mb-4 flex flex-wrap gap-6 border-b border-slate-100 pb-4 dark:border-slate-800">
+              <EditorSection id="svc-features" title={t.siteContent.gallery.sections.features} defaultOpen={true}>
+                <div className="mb-4 flex flex-wrap gap-6 border-b border-slate-100 pb-4 dark:border-slate-800">
+                  <div className="flex items-center gap-2">
+                    <span className="text-[10px] font-bold uppercase text-slate-400">{t.siteContent.common.header} {t.siteContent.common.hide}</span>
+                    <button type="button" onClick={() => {
+                      const next = !gallery.header?.hidden;
+                      setGallery({ ...gallery, header: { ...gallery.header, hidden: next } });
+                      setGalleryEN({ ...galleryEN, header: { ...galleryEN.header, hidden: next } });
+                    }} className={`h-5 w-9 rounded-full border-2 border-transparent transition-colors duration-200 ${gallery.header?.hidden ? "bg-indigo-600" : "bg-slate-200 dark:bg-slate-700"}`}>
+                      <div className={`h-4 w-4 transform rounded-full bg-white transition-transform ${gallery.header?.hidden ? "translate-x-4" : "translate-x-0"}`} />
+                    </button>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <span className="text-[10px] font-bold uppercase text-slate-400">{t.siteContent.common.posts} {t.siteContent.common.hide}</span>
+                    <button type="button" onClick={() => {
+                      const next = !gallery.featuresHidden;
+                      setGallery({ ...gallery, featuresHidden: next });
+                      setGalleryEN({ ...galleryEN, featuresHidden: next });
+                    }} className={`h-5 w-9 rounded-full border-2 border-transparent transition-colors duration-200 ${gallery.featuresHidden ? "bg-indigo-600" : "bg-slate-200 dark:bg-slate-700"}`}>
+                      <div className={`h-4 w-4 transform rounded-full bg-white transition-transform ${gallery.featuresHidden ? "translate-x-4" : "translate-x-0"}`} />
+                    </button>
+                  </div>
+                </div>
+                <div className="space-y-4">
+                  {gallery.features.map((f, i) => (<div key={i} className="rounded-xl border border-slate-200/90 bg-white/80 p-4 dark:border-slate-700 dark:bg-slate-900/40">
+                    <div className="flex items-center justify-between mb-2">
                       <div className="flex items-center gap-2">
-                        <span className="text-[10px] font-bold uppercase text-slate-400">{t.siteContent.common.header} {t.siteContent.common.hide}</span>
-                        <button type="button" onClick={() => {
-                  const next = !gallery.header?.hidden;
-                  setGallery({ ...gallery, header: { ...gallery.header, hidden: next } });
-                  setGalleryEN({ ...galleryEN, header: { ...galleryEN.header, hidden: next } });
-              }} className={`h-5 w-9 rounded-full border-2 border-transparent transition-colors duration-200 ${gallery.header?.hidden ? "bg-indigo-600" : "bg-slate-200 dark:bg-slate-700"}`}>
-                          <div className={`h-4 w-4 transform rounded-full bg-white transition-transform ${gallery.header?.hidden ? "translate-x-4" : "translate-x-0"}`}/>
-                        </button>
+                        <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400">Post #{i + 1}</span>
+                        <div className="flex items-center gap-1.5 ml-4">
+                          <span className="text-[10px] font-bold uppercase text-slate-400">{t.siteContent.common.hide}</span>
+                          <button
+                            type="button"
+                            onClick={() => {
+                              const features = [...gallery.features];
+                              const next = !features[i].hidden;
+                              features[i] = { ...features[i], hidden: next };
+                              setGallery({ ...gallery, features });
+                              const featuresEN = [...galleryEN.features];
+                              if (featuresEN[i]) {
+                                featuresEN[i] = { ...featuresEN[i], hidden: next };
+                                setGalleryEN({ ...galleryEN, features: featuresEN });
+                              }
+                            }}
+                            className={`h-4 w-7 rounded-full border-2 border-transparent transition-colors duration-200 ${f.hidden ? "bg-indigo-600" : "bg-slate-200 dark:bg-slate-700"}`}
+                          >
+                            <div className={`h-3 w-3 transform rounded-full bg-white transition-transform ${f.hidden ? "translate-x-3" : "translate-x-0"}`} />
+                          </button>
+                        </div>
                       </div>
-                      <div className="flex items-center gap-2">
-                        <span className="text-[10px] font-bold uppercase text-slate-400">{t.siteContent.common.posts} {t.siteContent.common.hide}</span>
-                        <button type="button" onClick={() => {
-                  const next = !gallery.featuresHidden;
-                  setGallery({ ...gallery, featuresHidden: next });
-                  setGalleryEN({ ...galleryEN, featuresHidden: next });
-              }} className={`h-5 w-9 rounded-full border-2 border-transparent transition-colors duration-200 ${gallery.featuresHidden ? "bg-indigo-600" : "bg-slate-200 dark:bg-slate-700"}`}>
-                          <div className={`h-4 w-4 transform rounded-full bg-white transition-transform ${gallery.featuresHidden ? "translate-x-4" : "translate-x-0"}`}/>
-                        </button>
-                      </div>
+                      <DangerMini onClick={() => {
+                        setGallery({
+                          ...gallery,
+                          features: gallery.features.filter((_, j) => j !== i),
+                        });
+                        setGalleryEN({
+                          ...galleryEN,
+                          features: galleryEN.features.filter((_, j) => j !== i),
+                        });
+                      }}>
+                        {t.siteContent.common.remove}
+                      </DangerMini>
                     </div>
                     <div className="space-y-4">
-                      {gallery.features.map((f, i) => (<div key={i} className="rounded-xl border border-slate-200/90 bg-white/80 p-4 dark:border-slate-700 dark:bg-slate-900/40">
-                          <div className="flex items-center justify-between mb-2">
-                             <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400">Post #{i + 1}</span>
-                             <DangerMini onClick={() => {
-                    setGallery({
-                        ...gallery,
-                        features: gallery.features.filter((_, j) => j !== i),
-                    });
-                    setGalleryEN({
-                        ...galleryEN,
-                        features: galleryEN.features.filter((_, j) => j !== i),
-                    });
-                }}>
-                               {t.siteContent.common.remove}
-                             </DangerMini>
-                          </div>
-                          <div className="space-y-4">
-                            <DualInput label="Огноо (заавал биш)" mnValue={f.date ?? ""} enValue={galleryEN.features[i]?.date ?? ""} onChangeMN={(v) => {
-                const features = [...gallery.features];
-                features[i] = { ...features[i], date: v };
-                setGallery({ ...gallery, features });
-            }} onChangeEN={(v) => {
-                    const featuresEN = [...galleryEN.features];
-                    if (!featuresEN[i])
-                        featuresEN[i] = { ...gallery.features[i], date: "" };
-                    featuresEN[i] = { ...featuresEN[i], date: v };
-                    setGalleryEN({ ...galleryEN, features: featuresEN });
-                }}/>
-
-                            <DualInput label={t.siteContent.gallery.fields.featureTitle} mnValue={f.title} enValue={galleryEN.features[i]?.title ?? ""} onChangeMN={(v) => {
-                const features = [...gallery.features];
-                features[i] = { ...features[i], title: v };
-                setGallery({ ...gallery, features });
-            }} onChangeEN={(v) => {
-                    const features = [...galleryEN.features];
-                    if (!features[i])
-                        features[i] = { title: "", desc: "", image: "", images: [] };
-                    features[i] = { ...features[i], title: v };
-                    setGalleryEN({ ...galleryEN, features });
-                }}/>
-                            <DualTextarea label={t.siteContent.gallery.fields.featureDesc} mnValue={f.desc} enValue={galleryEN.features[i]?.desc ?? ""} onChangeMN={(v) => {
-                const features = [...gallery.features];
-                features[i] = { ...features[i], desc: v };
-                setGallery({ ...gallery, features });
-            }} onChangeEN={(v) => {
-                    const features = [...galleryEN.features];
-                    if (!features[i])
-                        features[i] = { title: "", desc: "", image: "", images: [] };
-                    features[i] = { ...features[i], desc: v };
-                    setGalleryEN({ ...galleryEN, features });
-                }} rows={2}/>
-                            <div>
-                              <p className="text-[10px] font-bold uppercase tracking-wider text-slate-400 mb-2">Cover зураг</p>
-                              <ImageUploadField value={f.image} onChange={(v) => {
-                    const features = [...gallery.features];
-                    features[i] = { ...features[i], image: v };
-                    setGallery({ ...gallery, features });
-                    const featuresEN = [...galleryEN.features];
-                    if (!featuresEN[i])
-                        featuresEN[i] = { title: "", desc: "", image: "", images: [] };
-                    featuresEN[i] = { ...featuresEN[i], image: v };
-                    setGalleryEN({ ...galleryEN, features: featuresEN });
-                }} previewFit="contain"/>
-                            </div>
-                            <DualInput label="Youtube / Vimeo видео холбоос (заавал биш)" mnValue={f.videoUrl ?? ""} enValue={galleryEN.features[i]?.videoUrl ?? ""} onChangeMN={(v) => {
-                const features = [...gallery.features];
-                features[i] = { ...features[i], videoUrl: v };
-                setGallery({ ...gallery, features });
-            }} onChangeEN={(v) => {
-                    const featuresEN = [...galleryEN.features];
-                    if (!featuresEN[i])
-                        featuresEN[i] = { ...gallery.features[i], videoUrl: "" };
-                    featuresEN[i] = { ...featuresEN[i], videoUrl: v };
-                    setGalleryEN({ ...galleryEN, features: featuresEN });
-                }}/>
-                            <div>
-                              <p className="text-[10px] font-bold uppercase tracking-wider text-slate-400 mb-2">Галерей зургууд / видео</p>
-                              <div className="space-y-2">
-                                {f.images.map((img, j) => (<ImageUploadField key={j} value={img} onChange={(v) => {
+                      <DualInput label="Огноо (заавал биш)" mnValue={f.date ?? ""} enValue={galleryEN.features[i]?.date ?? ""} onChangeMN={(v) => {
                         const features = [...gallery.features];
-                        const imgs = [...features[i].images];
-                        imgs[j] = v;
-                        features[i] = { ...features[i], images: imgs };
+                        features[i] = { ...features[i], date: v };
                         setGallery({ ...gallery, features });
+                      }} onChangeEN={(v) => {
                         const featuresEN = [...galleryEN.features];
                         if (!featuresEN[i])
-                            featuresEN[i] = { title: "", desc: "", image: "", images: [] };
-                        const imgsEN = [...featuresEN[i].images];
-                        imgsEN[j] = v;
-                        featuresEN[i] = { ...featuresEN[i], images: imgsEN };
+                          featuresEN[i] = { ...gallery.features[i], date: "" };
+                        featuresEN[i] = { ...featuresEN[i], date: v };
                         setGalleryEN({ ...galleryEN, features: featuresEN });
-                    }} showRemove onRemove={() => {
+                      }} />
+
+                      <DualInput label={t.siteContent.gallery.fields.featureTitle} mnValue={f.title} enValue={galleryEN.features[i]?.title ?? ""} onChangeMN={(v) => {
                         const features = [...gallery.features];
-                        features[i] = { ...features[i], images: features[i].images.filter((_, k) => k !== j) };
+                        features[i] = { ...features[i], title: v };
                         setGallery({ ...gallery, features });
+                      }} onChangeEN={(v) => {
+                        const features = [...galleryEN.features];
+                        if (!features[i])
+                          features[i] = { title: "", desc: "", image: "", images: [] };
+                        features[i] = { ...features[i], title: v };
+                        setGalleryEN({ ...galleryEN, features });
+                      }} />
+                      <DualTextarea label={t.siteContent.gallery.fields.featureDesc} mnValue={f.desc} enValue={galleryEN.features[i]?.desc ?? ""} onChangeMN={(v) => {
+                        const features = [...gallery.features];
+                        features[i] = { ...features[i], desc: v };
+                        setGallery({ ...gallery, features });
+                      }} onChangeEN={(v) => {
+                        const features = [...galleryEN.features];
+                        if (!features[i])
+                          features[i] = { title: "", desc: "", image: "", images: [] };
+                        features[i] = { ...features[i], desc: v };
+                        setGalleryEN({ ...galleryEN, features });
+                      }} rows={2} />
+                      <div>
+                        <p className="text-[10px] font-bold uppercase tracking-wider text-slate-400 mb-2">Cover зураг</p>
+                        <ImageUploadField value={f.image} onChange={(v) => {
+                          const features = [...gallery.features];
+                          features[i] = { ...features[i], image: v };
+                          setGallery({ ...gallery, features });
+                          const featuresEN = [...galleryEN.features];
+                          if (!featuresEN[i])
+                            featuresEN[i] = { title: "", desc: "", image: "", images: [] };
+                          featuresEN[i] = { ...featuresEN[i], image: v };
+                          setGalleryEN({ ...galleryEN, features: featuresEN });
+                        }} previewFit="contain" />
+                      </div>
+                      <DualInput label="Youtube / Vimeo видео холбоос (заавал биш)" mnValue={f.videoUrl ?? ""} enValue={galleryEN.features[i]?.videoUrl ?? ""} onChangeMN={(v) => {
+                        const features = [...gallery.features];
+                        features[i] = { ...features[i], videoUrl: v };
+                        setGallery({ ...gallery, features });
+                      }} onChangeEN={(v) => {
                         const featuresEN = [...galleryEN.features];
-                        if (featuresEN[i]) {
-                            featuresEN[i] = { ...featuresEN[i], images: featuresEN[i].images.filter((_, k) => k !== j) };
+                        if (!featuresEN[i])
+                          featuresEN[i] = { ...gallery.features[i], videoUrl: "" };
+                        featuresEN[i] = { ...featuresEN[i], videoUrl: v };
+                        setGalleryEN({ ...galleryEN, features: featuresEN });
+                      }} />
+                      <div>
+                        <p className="text-[10px] font-bold uppercase tracking-wider text-slate-400 mb-2">Галерей зургууд / видео</p>
+                        <div className="space-y-2">
+                          {f.images.map((img, j) => (<ImageUploadField key={j} value={img} onChange={(v) => {
+                            const features = [...gallery.features];
+                            const imgs = [...features[i].images];
+                            imgs[j] = v;
+                            features[i] = { ...features[i], images: imgs };
+                            setGallery({ ...gallery, features });
+                            const featuresEN = [...galleryEN.features];
+                            if (!featuresEN[i])
+                              featuresEN[i] = { title: "", desc: "", image: "", images: [] };
+                            const imgsEN = [...featuresEN[i].images];
+                            imgsEN[j] = v;
+                            featuresEN[i] = { ...featuresEN[i], images: imgsEN };
                             setGalleryEN({ ...galleryEN, features: featuresEN });
-                        }
-                    }} previewFit="contain"/>))}
-                                <GhostButton onClick={() => {
-                    const features = [...gallery.features];
-                    features[i] = { ...features[i], images: [...features[i].images, ""] };
-                    setGallery({ ...gallery, features });
-                    const featuresEN = [...galleryEN.features];
-                    if (!featuresEN[i])
-                        featuresEN[i] = { title: "", desc: "", image: "", images: [] };
-                    featuresEN[i] = { ...featuresEN[i], images: [...featuresEN[i].images, ""] };
-                    setGalleryEN({ ...galleryEN, features: featuresEN });
-                }}>
-                                  + Зургийн сан нэмэх
-                                </GhostButton>
-                              </div>
-                            </div>
-                          </div>
-                        </div>))}
-                      <GhostButton onClick={() => {
-                const newItem = { title: "", desc: "", image: "", images: [], videoUrl: "", date: "" };
-                setGallery({
-                    ...gallery,
-                    features: [...gallery.features, newItem],
-                });
-                setGalleryEN({
-                    ...galleryEN,
-                    features: [...galleryEN.features, newItem],
-                });
-            }}>
-                        + Пост нэмэх
-                      </GhostButton>
-                    </div>
-                  </EditorSection>
-                  <PrimarySave disabled={saving} onClick={() => void save("gallery")}>
-                    {saving ? t.common.saving : t.siteContent.common.saveTab(t.siteContent.tabs.services.label)}
-                  </PrimarySave>
-                </EditorBody>) : tab === "contact" ? (<EditorBody sectionJumpKey={tab} sectionItems={[
-                { id: "contact-navbar-phone", label: t.siteContent.contact.sections.navbarPhone },
-                { id: "contact-hero", label: t.siteContent.contact.sections.hero },
-                { id: "contact-agent", label: t.siteContent.contact.sections.agent },
-                { id: "contact-items", label: t.siteContent.contact.sections.items },
-                { id: "contact-links", label: "Холбоосууд" },
-                { id: "contact-form", label: t.siteContent.contact.sections.form },
-            ]}>
-                  <EditorSection id="contact-navbar-phone" title={t.siteContent.contact.fields.navbarPhoneTitle} subtitle={t.siteContent.contact.fields.navbarPhoneSubtitle}>
-                    <div className="space-y-4">
-                      <DualInput 
-                        label={t.siteContent.contact.fields.telLabel} 
-                        mnValue={contact.navbarPhoneLabel || ""} 
-                        enValue={contactEN.navbarPhoneLabel || ""} 
-                        onChangeMN={(v) => setContact({ ...contact, navbarPhoneLabel: v })} 
-                        onChangeEN={(v) => setContactEN({ ...contactEN, navbarPhoneLabel: v })}
-                      />
-                    </div>
-                  </EditorSection>
-                  <EditorSection id="contact-hero" title={t.siteContent.contact.fields.heroTitle} subtitle={t.siteContent.contact.fields.heroSubtitle}>
-                    <div className="mb-4 flex items-center gap-2">
-                      <span className="text-[10px] font-bold uppercase text-slate-400">{t.siteContent.common.hide}</span>
-                      <button type="button" onClick={() => {
-                const next = !contact.hero.hidden;
-                setContact({ ...contact, hero: { ...contact.hero, hidden: next } });
-                setContactEN({ ...contactEN, hero: { ...contactEN.hero, hidden: next } });
-            }} className={`h-5 w-9 rounded-full border-2 border-transparent transition-colors duration-200 ${contact.hero.hidden ? "bg-indigo-600" : "bg-slate-200 dark:bg-slate-700"}`}>
-                        <div className={`h-4 w-4 transform rounded-full bg-white transition-transform ${contact.hero.hidden ? "translate-x-4" : "translate-x-0"}`}/>
-                      </button>
-                    </div>
-                    <div className="space-y-4">
-                      {([
-                ["badge", t.siteContent.contact.fields.badge],
-                ["h2Accent", t.siteContent.contact.fields.h2Accent],
-            ] as const).map(([key, lab]) => (<DualInput key={key} label={lab} mnValue={contact.hero[key]} enValue={contactEN.hero[key]} onChangeMN={(v) => setContact({ ...contact, hero: { ...contact.hero, [key]: v } })} onChangeEN={(v) => setContactEN({ ...contactEN, hero: { ...contactEN.hero, [key]: v } })}/>))}
-                      <DualTextarea label={t.siteContent.contact.fields.intro} mnValue={contact.hero.intro} enValue={contactEN.hero.intro} onChangeMN={(v) => setContact({ ...contact, hero: { ...contact.hero, intro: v } })} onChangeEN={(v) => setContactEN({ ...contactEN, hero: { ...contactEN.hero, intro: v } })}/>
-                    </div>
-                  </EditorSection>
-                  <EditorSection id="contact-agent" title={t.siteContent.contact.fields.agentTitle} defaultOpen={false}>
-                    <div className="mb-4 flex items-center gap-2">
-                      <span className="text-[10px] font-bold uppercase text-slate-400">{t.siteContent.common.hide}</span>
-                      <button type="button" onClick={() => {
-                const next = !contact.agent.hidden;
-                setContact({ ...contact, agent: { ...contact.agent, hidden: next } });
-                setContactEN({ ...contactEN, agent: { ...contactEN.agent, hidden: next } });
-            }} className={`h-5 w-9 rounded-full border-2 border-transparent transition-colors duration-200 ${contact.agent.hidden ? "bg-indigo-600" : "bg-slate-200 dark:bg-slate-700"}`}>
-                        <div className={`h-4 w-4 transform rounded-full bg-white transition-transform ${contact.agent.hidden ? "translate-x-4" : "translate-x-0"}`}/>
-                      </button>
-                    </div>
-                    <div className="space-y-4">
-                      <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-2">
-                        <div className="space-y-1.5">
-                          <label className="text-[11px] font-bold uppercase tracking-[0.12em] text-slate-500">
-                            {t.siteContent.contact.fields.initials}
-                          </label>
-                          <input className={scInput} value={contact.agent.initials} onChange={(e) => {
-                const v = e.target.value;
-                setContact({ ...contact, agent: { ...contact.agent, initials: v } });
-                setContactEN({ ...contactEN, agent: { ...contactEN.agent, initials: v } });
-            }}/>
+                          }} showRemove onRemove={() => {
+                            const features = [...gallery.features];
+                            features[i] = { ...features[i], images: features[i].images.filter((_, k) => k !== j) };
+                            setGallery({ ...gallery, features });
+                            const featuresEN = [...galleryEN.features];
+                            if (featuresEN[i]) {
+                              featuresEN[i] = { ...featuresEN[i], images: featuresEN[i].images.filter((_, k) => k !== j) };
+                              setGalleryEN({ ...galleryEN, features: featuresEN });
+                            }
+                          }} previewFit="contain" />))}
+                          <GhostButton onClick={() => {
+                            const features = [...gallery.features];
+                            features[i] = { ...features[i], images: [...features[i].images, ""] };
+                            setGallery({ ...gallery, features });
+                            const featuresEN = [...galleryEN.features];
+                            if (!featuresEN[i])
+                              featuresEN[i] = { title: "", desc: "", image: "", images: [] };
+                            featuresEN[i] = { ...featuresEN[i], images: [...featuresEN[i].images, ""] };
+                            setGalleryEN({ ...galleryEN, features: featuresEN });
+                          }}>
+                            + Зургийн сан нэмэх
+                          </GhostButton>
                         </div>
-                        <DualInput label={t.siteContent.contact.fields.name} mnValue={contact.agent.name} enValue={contactEN.agent.name} onChangeMN={(v) => setContact({ ...contact, agent: { ...contact.agent, name: v } })} onChangeEN={(v) => setContactEN({ ...contactEN, agent: { ...contactEN.agent, name: v } })}/>
-                      </div>
-                      <DualInput label={t.siteContent.contact.fields.role} mnValue={contact.agent.role} enValue={contactEN.agent.role} onChangeMN={(v) => setContact({ ...contact, agent: { ...contact.agent, role: v } })} onChangeEN={(v) => setContactEN({ ...contactEN, agent: { ...contactEN.agent, role: v } })}/>
-                      <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-2">
-                         <div className="space-y-1.5">
-                           <label className="text-[11px] font-bold uppercase tracking-[0.12em] text-slate-500">
-                             {t.siteContent.contact.fields.telHref}
-                           </label>
-                           <input className={scInput} value={contact.agent.telHref} onChange={(e) => {
-                const v = e.target.value;
-                setContact({ ...contact, agent: { ...contact.agent, telHref: v } });
-                setContactEN({ ...contactEN, agent: { ...contactEN.agent, telHref: v } });
-            }}/>
-                         </div>
-                         <DualInput label={t.siteContent.contact.fields.telLabel} mnValue={contact.agent.telLabel} enValue={contactEN.agent.telLabel} onChangeMN={(v) => setContact({ ...contact, agent: { ...contact.agent, telLabel: v } })} onChangeEN={(v) => setContactEN({ ...contactEN, agent: { ...contactEN.agent, telLabel: v } })}/>
                       </div>
                     </div>
-                  </EditorSection>
-
-                  <EditorSection id="contact-items" title={t.siteContent.contact.fields.infoItems} defaultOpen={false}>
-                    <div className="mb-4 flex items-center gap-2">
-                      <span className="text-[10px] font-bold uppercase text-slate-400">{t.siteContent.common.section} {t.siteContent.common.hide}</span>
-                      <button type="button" onClick={() => {
-                const next = !contact.itemsHidden;
-                setContact({ ...contact, itemsHidden: next });
-                setContactEN({ ...contactEN, itemsHidden: next });
-            }} className={`h-5 w-9 rounded-full border-2 border-transparent transition-colors duration-200 ${contact.itemsHidden ? "bg-indigo-600" : "bg-slate-200 dark:bg-slate-700"}`}>
-                        <div className={`h-4 w-4 transform rounded-full bg-white transition-transform ${contact.itemsHidden ? "translate-x-4" : "translate-x-0"}`}/>
-                      </button>
-                    </div>
-                    <div className="space-y-3">
-                      <div className="flex flex-wrap gap-3">
-                        {contact.items.map((row, i) => (<div key={i} className="flex-1 min-w-[280px] space-y-3 rounded-xl border border-slate-100 bg-slate-50/30 p-3 dark:border-slate-800/40 dark:bg-slate-900/20">
-                            <div className="flex items-center justify-between">
-                              <div className="flex items-center gap-2">
-                                <select 
-                                  className={`${scInput} !mt-0 h-8 !py-1 !px-2 text-xs w-24`}
-                                  value={row.icon || ""}
-                                  onChange={(e) => {
-                                    const v = e.target.value;
-                                    const items = [...contact.items];
-                                    items[i] = { ...items[i], icon: v };
-                                    setContact({ ...contact, items });
-                                    const itemsEN = [...contactEN.items];
-                                    if (itemsEN[i]) {
-                                      itemsEN[i] = { ...itemsEN[i], icon: v };
-                                      setContactEN({ ...contactEN, items: itemsEN });
-                                    }
-                                  }}
-                                >
-                                  <option value="">No Icon</option>
-                                  <option value="phone">Phone</option>
-                                  <option value="mail">Mail</option>
-                                  <option value="map-pin">Map Pin</option>
-                                  <option value="clock">Clock</option>
-                                  <option value="facebook">Facebook</option>
-                                  <option value="instagram">Instagram</option>
-                                  <option value="linkedin">LinkedIn</option>
-                                  <option value="website">Website</option>
-                                </select>
-                                <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400">#{i + 1}</span>
-                              </div>
-                              <DangerMini onClick={() => {
-                                setContact({
-                                    ...contact,
-                                    items: contact.items.filter((_, j) => j !== i),
-                                });
-                                setContactEN({
-                                    ...contactEN,
-                                    items: contactEN.items.filter((_, j) => j !== i),
-                                });
-                              }}>
-                                {t.siteContent.common.remove}
-                              </DangerMini>
-                            </div>
-                            <div className="space-y-3">
-                              <DualInput label={t.siteContent.common.title} mnValue={row.title} enValue={contactEN.items[i]?.title ?? ""} onChangeMN={(v) => {
-                                  const items = [...contact.items];
-                                  items[i] = { ...items[i], title: v };
-                                  setContact({ ...contact, items });
-                              }} onChangeEN={(v) => {
-                                      const items = [...contactEN.items];
-                                      if (!items[i])
-                                          items[i] = { title: "", value: row.value, icon: row.icon };
-                                      items[i] = { ...items[i], title: v };
-                                      setContactEN({ ...contactEN, items });
-                                  }}/>
-                               <DualInput label={t.siteContent.common.placeholder} mnValue={row.value} enValue={contactEN.items[i]?.value ?? ""} onChangeMN={(v) => {
-                                  const items = [...contact.items];
-                                  items[i] = { ...items[i], value: v };
-                                  setContact({ ...contact, items });
-                              }} onChangeEN={(v) => {
-                                      const items = [...contactEN.items];
-                                      if (!items[i])
-                                          items[i] = { title: row.title, value: "", icon: row.icon };
-                                      items[i] = { ...items[i], value: v };
-                                      setContactEN({ ...contactEN, items });
-                                  }}/>
-                            </div>
-                          </div>))}
-                      </div>
-                      <GhostButton onClick={() => {
-                const newItem = { title: "", value: "", icon: "" };
-                setContact({ ...contact, items: [...contact.items, newItem] });
-                setContactEN({ ...contactEN, items: [...contactEN.items, newItem] });
-            }}>
-                        + {t.siteContent.common.addRow}
-                      </GhostButton>
-                    </div>
-                  </EditorSection>
-                  <EditorSection id="contact-links" title="Холбоосууд" subtitle="Facebook, вебсайт болон бусад сошиал холбоосууд" defaultOpen={false}>
-                    <div className="mb-4 flex items-center gap-2">
-                      <span className="text-[10px] font-bold uppercase text-slate-400">{t.siteContent.common.section} {t.siteContent.common.hide}</span>
-                      <button type="button" onClick={() => {
-                const next = !contact.linksHidden;
-                setContact({ ...contact, linksHidden: next });
-                setContactEN({ ...contactEN, linksHidden: next });
-            }} className={`h-5 w-9 rounded-full border-2 border-transparent transition-colors duration-200 ${contact.linksHidden ? "bg-indigo-600" : "bg-slate-200 dark:bg-slate-700"}`}>
-                        <div className={`h-4 w-4 transform rounded-full bg-white transition-transform ${contact.linksHidden ? "translate-x-4" : "translate-x-0"}`}/>
-                      </button>
-                    </div>
-                    <div className="flex flex-wrap gap-3">
-                      {contact.links.map((link, i) => (<div key={i} className="flex-1 min-w-[300px] rounded-xl border border-slate-100 bg-slate-50/30 p-3 dark:border-slate-800/40 dark:bg-slate-900/20 space-y-3">
-                          <div className="flex flex-wrap items-end gap-3">
-                            <div className="space-y-1.5 w-44">
-                              <label className="text-[11px] font-bold uppercase tracking-[0.12em] text-slate-500">Платформ</label>
-                              <select className={scInput} value={link.type} onChange={(e) => {
-                    const links = [...contact.links];
-                    links[i] = { ...links[i], type: e.target.value };
-                    setContact({ ...contact, links });
-                    const linksEN = [...contactEN.links];
-                    if (linksEN[i])
-                        linksEN[i] = { ...linksEN[i], type: e.target.value };
-                    setContactEN({ ...contactEN, links: linksEN });
-                }}>
-                                <option value="">— сонгох —</option>
-                                <option value="facebook">Facebook</option>
-                                <option value="instagram">Instagram</option>
-                                <option value="twitter">Twitter / X</option>
-                                <option value="youtube">YouTube</option>
-                                <option value="linkedin">LinkedIn</option>
-                                <option value="tiktok">TikTok</option>
-                                <option value="telegram">Telegram</option>
-                                <option value="whatsapp">WhatsApp</option>
-                                <option value="google">Google Maps / Business</option>
-                                <option value="website">Вебсайт</option>
-                              </select>
-                            </div>
-                            <div className="flex-1 space-y-1.5">
-                              <label className="text-[11px] font-bold uppercase tracking-[0.12em] text-slate-500">Холбоос (URL)</label>
-                              <input className={scInput} placeholder="https://..." value={link.href} onChange={(e) => {
-                    const links = [...contact.links];
-                    links[i] = { ...links[i], href: e.target.value };
-                    setContact({ ...contact, links });
-                    const linksEN = [...contactEN.links];
-                    if (linksEN[i])
-                        linksEN[i] = { ...linksEN[i], href: e.target.value };
-                    setContactEN({ ...contactEN, links: linksEN });
-                }}/>
-                            </div>
-                            <DangerMini onClick={() => {
-                    setContact({ ...contact, links: contact.links.filter((_, j) => j !== i) });
-                    setContactEN({ ...contactEN, links: contactEN.links.filter((_, j) => j !== i) });
-                }}>
-                              {t.siteContent.common.remove}
-                            </DangerMini>
-                          </div>
-                          <div className="space-y-1.5">
-                            <label className="text-[11px] font-bold uppercase tracking-[0.12em] text-slate-500">Гарчиг</label>
-                            <input className={scInput} placeholder="жишээ: Манай Facebook хуудас" value={link.title} onChange={(e) => {
-                    const links = [...contact.links];
-                    links[i] = { ...links[i], title: e.target.value };
-                    setContact({ ...contact, links });
-                    const linksEN = [...contactEN.links];
-                    if (linksEN[i])
-                        linksEN[i] = { ...linksEN[i], title: e.target.value };
-                    setContactEN({ ...contactEN, links: linksEN });
-                }}/>
-                          </div>
-                          <div className="space-y-1.5 w-full">
-                            <label className="text-[11px] font-bold uppercase tracking-[0.12em] text-slate-500">Зураг / Лого (сонголттой)</label>
-                            <ImageUploadField previewFit="contain" value={link.imageUrl || ""} onChange={(v) => {
-                    const links = [...contact.links];
-                    links[i] = { ...links[i], imageUrl: v };
-                    setContact({ ...contact, links });
-                    const linksEN = [...contactEN.links];
-                    if (linksEN[i])
-                        linksEN[i] = { ...linksEN[i], imageUrl: v };
-                    setContactEN({ ...contactEN, links: linksEN });
-                }}/>
-                          </div>
-
-                          <div className="mt-4 space-y-3 rounded-lg border border-slate-200/60 bg-white/50 p-3 dark:border-slate-700/50 dark:bg-slate-900/40">
-                            <div className="flex items-center justify-between">
-                              <label className="text-[10px] font-bold uppercase tracking-wider text-slate-400">Нэмэлт холбоосууд (Modal - max 5)</label>
-                              <GhostButton onClick={() => {
-                    const links = [...contact.links];
-                    const subs = [...(links[i].subLinks || [])];
-                    if (subs.length < 5) {
-                        subs.push({ type: "facebook", label: "", href: "" });
-                        links[i] = { ...links[i], subLinks: subs };
-                        setContact({ ...contact, links });
-                        const linksEN = [...contactEN.links];
-                        if (linksEN[i]) {
-                            const subsEN = [...(linksEN[i].subLinks || [])];
-                            subsEN.push({ type: "facebook", label: "", href: "" });
-                            linksEN[i] = { ...linksEN[i], subLinks: subsEN };
-                            setContactEN({ ...contactEN, links: linksEN });
-                        }
-                    }
-                }} className="!py-1 !h-7 !text-[10px]">
-                                + Нэмэх
-                              </GhostButton>
-                            </div>
-                            {(link.subLinks || []).map((sub, si) => (<div key={si} className="space-y-2 border-b border-slate-100 pb-3 last:border-0 last:pb-0">
-                                <div className="flex gap-2 items-start">
-                                  <div className="flex-1 space-y-1.5">
-                                    <div className="flex gap-2">
-                                      <div className="w-32 shrink-0">
-                                        <label className="text-[10px] font-bold uppercase tracking-wider text-slate-400">Платформ</label>
-                                        <select className={scInput} value={sub.type} onChange={(e) => {
+                  </div>))}
+                  <GhostButton onClick={() => {
+                    const newItem = { title: "", desc: "", image: "", images: [], videoUrl: "", date: "" };
+                    setGallery({
+                      ...gallery,
+                      features: [...gallery.features, newItem],
+                    });
+                    setGalleryEN({
+                      ...galleryEN,
+                      features: [...galleryEN.features, newItem],
+                    });
+                  }}>
+                    + Пост нэмэх
+                  </GhostButton>
+                </div>
+              </EditorSection>
+              <PrimarySave disabled={saving} onClick={() => void save("gallery")}>
+                {saving ? t.common.saving : t.siteContent.common.saveTab(t.siteContent.tabs.services.label)}
+              </PrimarySave>
+            </EditorBody>) : tab === "contact" ? (<EditorBody sectionJumpKey={tab} sectionItems={[
+              { id: "contact-navbar-phone", label: t.siteContent.contact.sections.navbarPhone },
+              { id: "contact-hero", label: t.siteContent.contact.sections.hero },
+              { id: "contact-agent", label: t.siteContent.contact.sections.agent },
+              { id: "contact-items", label: t.siteContent.contact.sections.items },
+              { id: "contact-links", label: "Холбоосууд" },
+              { id: "contact-form", label: t.siteContent.contact.sections.form },
+            ]}>
+              <EditorSection id="contact-navbar-phone" title={t.siteContent.contact.fields.navbarPhoneTitle} subtitle={t.siteContent.contact.fields.navbarPhoneSubtitle}>
+                <div className="space-y-4">
+                  <DualInput
+                    label={t.siteContent.contact.fields.telLabel}
+                    mnValue={contact.navbarPhoneLabel || ""}
+                    enValue={contactEN.navbarPhoneLabel || ""}
+                    onChangeMN={(v) => setContact({ ...contact, navbarPhoneLabel: v })}
+                    onChangeEN={(v) => setContactEN({ ...contactEN, navbarPhoneLabel: v })}
+                  />
+                </div>
+              </EditorSection>
+              <EditorSection id="contact-hero" title={t.siteContent.contact.fields.heroTitle} subtitle={t.siteContent.contact.fields.heroSubtitle}>
+                <div className="mb-4 flex items-center gap-2">
+                  <span className="text-[10px] font-bold uppercase text-slate-400">{t.siteContent.common.hide}</span>
+                  <button type="button" onClick={() => {
+                    const next = !contact.hero.hidden;
+                    setContact({ ...contact, hero: { ...contact.hero, hidden: next } });
+                    setContactEN({ ...contactEN, hero: { ...contactEN.hero, hidden: next } });
+                  }} className={`h-5 w-9 rounded-full border-2 border-transparent transition-colors duration-200 ${contact.hero.hidden ? "bg-indigo-600" : "bg-slate-200 dark:bg-slate-700"}`}>
+                    <div className={`h-4 w-4 transform rounded-full bg-white transition-transform ${contact.hero.hidden ? "translate-x-4" : "translate-x-0"}`} />
+                  </button>
+                </div>
+                <div className="space-y-4">
+                  {([
+                    ["badge", t.siteContent.contact.fields.badge],
+                    ["h2Accent", t.siteContent.contact.fields.h2Accent],
+                  ] as const).map(([key, lab]) => (<DualInput key={key} label={lab} mnValue={contact.hero[key]} enValue={contactEN.hero[key]} onChangeMN={(v) => setContact({ ...contact, hero: { ...contact.hero, [key]: v } })} onChangeEN={(v) => setContactEN({ ...contactEN, hero: { ...contactEN.hero, [key]: v } })} />))}
+                  <DualTextarea label={t.siteContent.contact.fields.intro} mnValue={contact.hero.intro} enValue={contactEN.hero.intro} onChangeMN={(v) => setContact({ ...contact, hero: { ...contact.hero, intro: v } })} onChangeEN={(v) => setContactEN({ ...contactEN, hero: { ...contactEN.hero, intro: v } })} />
+                </div>
+              </EditorSection>
+              <EditorSection id="contact-agent" title={t.siteContent.contact.fields.agentTitle} defaultOpen={false}>
+                <div className="mb-4 flex items-center gap-2">
+                  <span className="text-[10px] font-bold uppercase text-slate-400">{t.siteContent.common.hide}</span>
+                  <button type="button" onClick={() => {
+                    const next = !contact.agent.hidden;
+                    setContact({ ...contact, agent: { ...contact.agent, hidden: next } });
+                    setContactEN({ ...contactEN, agent: { ...contactEN.agent, hidden: next } });
+                  }} className={`h-5 w-9 rounded-full border-2 border-transparent transition-colors duration-200 ${contact.agent.hidden ? "bg-indigo-600" : "bg-slate-200 dark:bg-slate-700"}`}>
+                    <div className={`h-4 w-4 transform rounded-full bg-white transition-transform ${contact.agent.hidden ? "translate-x-4" : "translate-x-0"}`} />
+                  </button>
+                </div>
+                <div className="space-y-4">
+                  <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-2">
+                    <div className="space-y-1.5">
+                      <label className="text-[11px] font-bold uppercase tracking-[0.12em] text-slate-500">
+                        {t.siteContent.contact.fields.initials}
+                      </label>
+                      <input className={scInput} value={contact.agent.initials} onChange={(e) => {
                         const v = e.target.value;
+                        setContact({ ...contact, agent: { ...contact.agent, initials: v } });
+                        setContactEN({ ...contactEN, agent: { ...contactEN.agent, initials: v } });
+                      }} />
+                    </div>
+                    <DualInput label={t.siteContent.contact.fields.name} mnValue={contact.agent.name} enValue={contactEN.agent.name} onChangeMN={(v) => setContact({ ...contact, agent: { ...contact.agent, name: v } })} onChangeEN={(v) => setContactEN({ ...contactEN, agent: { ...contactEN.agent, name: v } })} />
+                  </div>
+                  <DualInput label={t.siteContent.contact.fields.role} mnValue={contact.agent.role} enValue={contactEN.agent.role} onChangeMN={(v) => setContact({ ...contact, agent: { ...contact.agent, role: v } })} onChangeEN={(v) => setContactEN({ ...contactEN, agent: { ...contactEN.agent, role: v } })} />
+                  <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-2">
+                    <div className="space-y-1.5">
+                      <label className="text-[11px] font-bold uppercase tracking-[0.12em] text-slate-500">
+                        {t.siteContent.contact.fields.telHref}
+                      </label>
+                      <input className={scInput} value={contact.agent.telHref} onChange={(e) => {
+                        const v = e.target.value;
+                        setContact({ ...contact, agent: { ...contact.agent, telHref: v } });
+                        setContactEN({ ...contactEN, agent: { ...contactEN.agent, telHref: v } });
+                      }} />
+                    </div>
+                    <DualInput label={t.siteContent.contact.fields.telLabel} mnValue={contact.agent.telLabel} enValue={contactEN.agent.telLabel} onChangeMN={(v) => setContact({ ...contact, agent: { ...contact.agent, telLabel: v } })} onChangeEN={(v) => setContactEN({ ...contactEN, agent: { ...contactEN.agent, telLabel: v } })} />
+                  </div>
+                </div>
+              </EditorSection>
+
+              <EditorSection id="contact-items" title={t.siteContent.contact.fields.infoItems} defaultOpen={false}>
+                <div className="mb-4 flex items-center gap-2">
+                  <span className="text-[10px] font-bold uppercase text-slate-400">{t.siteContent.common.section} {t.siteContent.common.hide}</span>
+                  <button type="button" onClick={() => {
+                    const next = !contact.itemsHidden;
+                    setContact({ ...contact, itemsHidden: next });
+                    setContactEN({ ...contactEN, itemsHidden: next });
+                  }} className={`h-5 w-9 rounded-full border-2 border-transparent transition-colors duration-200 ${contact.itemsHidden ? "bg-indigo-600" : "bg-slate-200 dark:bg-slate-700"}`}>
+                    <div className={`h-4 w-4 transform rounded-full bg-white transition-transform ${contact.itemsHidden ? "translate-x-4" : "translate-x-0"}`} />
+                  </button>
+                </div>
+                <div className="space-y-3">
+                  <div className="flex flex-wrap gap-3">
+                    {contact.items.map((row, i) => (<div key={i} className="flex-1 min-w-[280px] space-y-3 rounded-xl border border-slate-100 bg-slate-50/30 p-3 dark:border-slate-800/40 dark:bg-slate-900/20">
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-2">
+                          <select
+                            className={`${scInput} !mt-0 h-8 !py-1 !px-2 text-xs w-24`}
+                            value={row.icon || ""}
+                            onChange={(e) => {
+                              const v = e.target.value;
+                              const items = [...contact.items];
+                              items[i] = { ...items[i], icon: v };
+                              setContact({ ...contact, items });
+                              const itemsEN = [...contactEN.items];
+                              if (itemsEN[i]) {
+                                itemsEN[i] = { ...itemsEN[i], icon: v };
+                                setContactEN({ ...contactEN, items: itemsEN });
+                              }
+                            }}
+                          >
+                            <option value="">No Icon</option>
+                            <option value="phone">Phone</option>
+                            <option value="mail">Mail</option>
+                            <option value="map-pin">Map Pin</option>
+                            <option value="clock">Clock</option>
+                            <option value="facebook">Facebook</option>
+                            <option value="instagram">Instagram</option>
+                            <option value="linkedin">LinkedIn</option>
+                            <option value="website">Website</option>
+                          </select>
+                          <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400">#{i + 1}</span>
+                        </div>
+                        <DangerMini onClick={() => {
+                          setContact({
+                            ...contact,
+                            items: contact.items.filter((_, j) => j !== i),
+                          });
+                          setContactEN({
+                            ...contactEN,
+                            items: contactEN.items.filter((_, j) => j !== i),
+                          });
+                        }}>
+                          {t.siteContent.common.remove}
+                        </DangerMini>
+                      </div>
+                      <div className="space-y-3">
+                        <DualInput label={t.siteContent.common.title} mnValue={row.title} enValue={contactEN.items[i]?.title ?? ""} onChangeMN={(v) => {
+                          const items = [...contact.items];
+                          items[i] = { ...items[i], title: v };
+                          setContact({ ...contact, items });
+                        }} onChangeEN={(v) => {
+                          const items = [...contactEN.items];
+                          if (!items[i])
+                            items[i] = { title: "", value: row.value, icon: row.icon };
+                          items[i] = { ...items[i], title: v };
+                          setContactEN({ ...contactEN, items });
+                        }} />
+                        <DualInput label={t.siteContent.common.placeholder} mnValue={row.value} enValue={contactEN.items[i]?.value ?? ""} onChangeMN={(v) => {
+                          const items = [...contact.items];
+                          items[i] = { ...items[i], value: v };
+                          setContact({ ...contact, items });
+                        }} onChangeEN={(v) => {
+                          const items = [...contactEN.items];
+                          if (!items[i])
+                            items[i] = { title: row.title, value: "", icon: row.icon };
+                          items[i] = { ...items[i], value: v };
+                          setContactEN({ ...contactEN, items });
+                        }} />
+                      </div>
+                    </div>))}
+                  </div>
+                  <GhostButton onClick={() => {
+                    const newItem = { title: "", value: "", icon: "" };
+                    setContact({ ...contact, items: [...contact.items, newItem] });
+                    setContactEN({ ...contactEN, items: [...contactEN.items, newItem] });
+                  }}>
+                    + {t.siteContent.common.addRow}
+                  </GhostButton>
+                </div>
+              </EditorSection>
+              <EditorSection id="contact-links" title="Холбоосууд" subtitle="Facebook, вебсайт болон бусад сошиал холбоосууд" defaultOpen={false}>
+                <div className="mb-4 flex items-center gap-2">
+                  <span className="text-[10px] font-bold uppercase text-slate-400">{t.siteContent.common.section} {t.siteContent.common.hide}</span>
+                  <button type="button" onClick={() => {
+                    const next = !contact.linksHidden;
+                    setContact({ ...contact, linksHidden: next });
+                    setContactEN({ ...contactEN, linksHidden: next });
+                  }} className={`h-5 w-9 rounded-full border-2 border-transparent transition-colors duration-200 ${contact.linksHidden ? "bg-indigo-600" : "bg-slate-200 dark:bg-slate-700"}`}>
+                    <div className={`h-4 w-4 transform rounded-full bg-white transition-transform ${contact.linksHidden ? "translate-x-4" : "translate-x-0"}`} />
+                  </button>
+                </div>
+                <div className="flex flex-wrap gap-3">
+                  {contact.links.map((link, i) => (<div key={i} className="flex-1 min-w-[300px] rounded-xl border border-slate-100 bg-slate-50/30 p-3 dark:border-slate-800/40 dark:bg-slate-900/20 space-y-3">
+                    <div className="flex flex-wrap items-end gap-3">
+                      <div className="space-y-1.5 w-44">
+                        <label className="text-[11px] font-bold uppercase tracking-[0.12em] text-slate-500">Платформ</label>
+                        <select className={scInput} value={link.type} onChange={(e) => {
+                          const links = [...contact.links];
+                          links[i] = { ...links[i], type: e.target.value };
+                          setContact({ ...contact, links });
+                          const linksEN = [...contactEN.links];
+                          if (linksEN[i])
+                            linksEN[i] = { ...linksEN[i], type: e.target.value };
+                          setContactEN({ ...contactEN, links: linksEN });
+                        }}>
+                          <option value="">— сонгох —</option>
+                          <option value="facebook">Facebook</option>
+                          <option value="instagram">Instagram</option>
+                          <option value="twitter">Twitter / X</option>
+                          <option value="youtube">YouTube</option>
+                          <option value="linkedin">LinkedIn</option>
+                          <option value="tiktok">TikTok</option>
+                          <option value="telegram">Telegram</option>
+                          <option value="whatsapp">WhatsApp</option>
+                          <option value="google">Google Maps / Business</option>
+                          <option value="website">Вебсайт</option>
+                        </select>
+                      </div>
+                      <div className="flex-1 space-y-1.5">
+                        <label className="text-[11px] font-bold uppercase tracking-[0.12em] text-slate-500">Холбоос (URL)</label>
+                        <input className={scInput} placeholder="https://..." value={link.href} onChange={(e) => {
+                          const links = [...contact.links];
+                          links[i] = { ...links[i], href: e.target.value };
+                          setContact({ ...contact, links });
+                          const linksEN = [...contactEN.links];
+                          if (linksEN[i])
+                            linksEN[i] = { ...linksEN[i], href: e.target.value };
+                          setContactEN({ ...contactEN, links: linksEN });
+                        }} />
+                      </div>
+                      <DangerMini onClick={() => {
+                        setContact({ ...contact, links: contact.links.filter((_, j) => j !== i) });
+                        setContactEN({ ...contactEN, links: contactEN.links.filter((_, j) => j !== i) });
+                      }}>
+                        {t.siteContent.common.remove}
+                      </DangerMini>
+                    </div>
+                    <div className="space-y-1.5">
+                      <label className="text-[11px] font-bold uppercase tracking-[0.12em] text-slate-500">Гарчиг</label>
+                      <input className={scInput} placeholder="жишээ: Манай Facebook хуудас" value={link.title} onChange={(e) => {
                         const links = [...contact.links];
-                        const subs = [...(links[i].subLinks || [])];
-                        subs[si] = { ...subs[si], type: v };
-                        links[i] = { ...links[i], subLinks: subs };
+                        links[i] = { ...links[i], title: e.target.value };
                         setContact({ ...contact, links });
                         const linksEN = [...contactEN.links];
-                        if (linksEN[i]) {
-                            const subsEN = [...(linksEN[i].subLinks || [])];
-                            if (!subsEN[si])
-                                subsEN[si] = { type: v, label: "", href: "" };
-                            subsEN[si] = { ...subsEN[si], type: v };
-                            linksEN[i] = { ...linksEN[i], subLinks: subsEN };
-                            setContactEN({ ...contactEN, links: linksEN });
-                        }
-                    }}>
-                                          <option value="facebook">Facebook</option>
-                                          <option value="instagram">Instagram</option>
-                                          <option value="twitter">Twitter / X</option>
-                                          <option value="youtube">YouTube</option>
-                                          <option value="linkedin">LinkedIn</option>
-                                          <option value="tiktok">TikTok</option>
-                                          <option value="telegram">Telegram</option>
-                                          <option value="whatsapp">WhatsApp</option>
-                                          <option value="google">Google</option>
-                                          <option value="website">Website</option>
-                                        </select>
-                                      </div>
-                                      <div className="flex-1">
-                                        <DualInput 
-                                          label="Гарчиг" 
-                                          mnValue={sub.label} 
-                                          enValue={contactEN.links[i]?.subLinks?.[si]?.label || ""} 
-                                          onChangeMN={(v) => {
-                            const links = [...contact.links];
-                            const subs = [...(links[i].subLinks || [])];
-                            subs[si] = { ...subs[si], label: v };
+                        if (linksEN[i])
+                          linksEN[i] = { ...linksEN[i], title: e.target.value };
+                        setContactEN({ ...contactEN, links: linksEN });
+                      }} />
+                    </div>
+                    <div className="space-y-1.5 w-full">
+                      <label className="text-[11px] font-bold uppercase tracking-[0.12em] text-slate-500">Зураг / Лого (сонголттой)</label>
+                      <ImageUploadField previewFit="contain" value={link.imageUrl || ""} onChange={(v) => {
+                        const links = [...contact.links];
+                        links[i] = { ...links[i], imageUrl: v };
+                        setContact({ ...contact, links });
+                        const linksEN = [...contactEN.links];
+                        if (linksEN[i])
+                          linksEN[i] = { ...linksEN[i], imageUrl: v };
+                        setContactEN({ ...contactEN, links: linksEN });
+                      }} />
+                    </div>
+
+                    <div className="mt-4 space-y-3 rounded-lg border border-slate-200/60 bg-white/50 p-3 dark:border-slate-700/50 dark:bg-slate-900/40">
+                      <div className="flex items-center justify-between">
+                        <label className="text-[10px] font-bold uppercase tracking-wider text-slate-400">Нэмэлт холбоосууд (Modal - max 5)</label>
+                        <GhostButton onClick={() => {
+                          const links = [...contact.links];
+                          const subs = [...(links[i].subLinks || [])];
+                          if (subs.length < 5) {
+                            subs.push({ type: "facebook", label: "", href: "" });
                             links[i] = { ...links[i], subLinks: subs };
                             setContact({ ...contact, links });
-                        }} 
-                                          onChangeEN={(v) => {
                             const linksEN = [...contactEN.links];
                             if (linksEN[i]) {
-                                const subsEN = [...(linksEN[i].subLinks || [])];
-                                if (!subsEN[si])
-                                    subsEN[si] = { type: sub.type, label: "", href: sub.href };
-                                subsEN[si] = { ...subsEN[si], label: v };
-                                linksEN[i] = { ...linksEN[i], subLinks: subsEN };
-                                setContactEN({ ...contactEN, links: linksEN });
+                              const subsEN = [...(linksEN[i].subLinks || [])];
+                              subsEN.push({ type: "facebook", label: "", href: "" });
+                              linksEN[i] = { ...linksEN[i], subLinks: subsEN };
+                              setContactEN({ ...contactEN, links: linksEN });
                             }
-                        }}
-                                        />
-                                      </div>
-                                    </div>
-                                  </div>
-                                  <button type="button" onClick={() => {
-                        const links = [...contact.links];
-                        const subs = (links[i].subLinks || []).filter((_, sj) => sj !== si);
-                        links[i] = { ...links[i], subLinks: subs };
-                        setContact({ ...contact, links });
-                        const linksEN = [...contactEN.links];
-                        if (linksEN[i]) {
-                            const subsEN = (linksEN[i].subLinks || []).filter((_, sj) => sj !== si);
-                            linksEN[i] = { ...linksEN[i], subLinks: subsEN };
-                            setContactEN({ ...contactEN, links: linksEN });
-                        }
-                    }} className="mt-7 p-1.5 text-slate-400 hover:text-red-500 transition-colors">
-                                    <Trash2 className="w-4 h-4"/>
-                                  </button>
-                                </div>
-                                <div className="space-y-1">
-                                  <label className="text-[10px] font-bold uppercase tracking-wider text-slate-400">URL</label>
-                                  <input className={scInput} placeholder="https://..." value={sub.href} onChange={(e) => {
-                        const v = e.target.value;
-                        const links = [...contact.links];
-                        const subs = [...(links[i].subLinks || [])];
-                        subs[si] = { ...subs[si], href: v };
-                        links[i] = { ...links[i], subLinks: subs };
-                        setContact({ ...contact, links });
-                        const linksEN = [...contactEN.links];
-                        if (linksEN[i]) {
-                            const subsEN = [...(linksEN[i].subLinks || [])];
-                            if (!subsEN[si])
-                                subsEN[si] = { type: sub.type, label: "", href: "" };
-                            subsEN[si] = { ...subsEN[si], href: v };
-                            linksEN[i] = { ...linksEN[i], subLinks: subsEN };
-                            setContactEN({ ...contactEN, links: linksEN });
-                        }
-                    }}/>
-                                </div>
-                              </div>))}
-                          </div>
-                        </div>))}
-                      <GhostButton onClick={() => {
-                const newLink = { type: "facebook", href: "", title: "" };
-                setContact({ ...contact, links: [...contact.links, newLink] });
-                setContactEN({ ...contactEN, links: [...contactEN.links, newLink] });
-            }}>
-                        + Холбоос нэмэх
-                      </GhostButton>
-                    </div>
-                  </EditorSection>
-
-                  <PrimarySave disabled={saving} onClick={() => void save("contact")}>
-                    {saving ? t.common.saving : t.siteContent.common.saveTab(t.siteContent.tabs.contact.label)}
-                  </PrimarySave>
-                </EditorBody>) : tab === "properties-page" ? (<EditorBody sectionJumpKey={tab} sectionItems={[
-                { id: "properties-header", label: t.siteContent.propertiesPage.sections.header },
-                { id: "properties-categories", label: t.siteContent.propertiesPage.sections.categories },
-                { id: "properties-items", label: t.siteContent.propertiesPage.sections.items },
-                { id: "properties-cta", label: t.siteContent.propertiesPage.sections.cta },
-            ]}>
-                  <EditorSection id="properties-header" title={t.siteContent.propertiesPage.fields.headerTitle} subtitle={t.siteContent.propertiesPage.fields.headerSubtitle}>
-                    <div className="mb-4 flex items-center gap-2">
-                      <span className="text-[10px] font-bold uppercase text-slate-400">{t.siteContent.common.hide}</span>
-                      <button type="button" onClick={() => {
-                const next = !propertiesPage.header.hidden;
-                setPropertiesPage({ ...propertiesPage, header: { ...propertiesPage.header, hidden: next } });
-                setPropertiesPageEN({ ...propertiesPageEN, header: { ...propertiesPageEN.header, hidden: next } });
-            }} className={`h-5 w-9 rounded-full border-2 border-transparent transition-colors duration-200 ${propertiesPage.header.hidden ? "bg-indigo-600" : "bg-slate-200 dark:bg-slate-700"}`}>
-                        <div className={`h-4 w-4 transform rounded-full bg-white transition-transform ${propertiesPage.header.hidden ? "translate-x-4" : "translate-x-0"}`}/>
-                      </button>
-                    </div>
-                    <div className="space-y-4">
-                      <DualInput label={t.siteContent.propertiesPage.fields.headerBadge} mnValue={propertiesPage.header.badge} enValue={propertiesPageEN.header.badge} onChangeMN={(v) => setPropertiesPage({ ...propertiesPage, header: { ...propertiesPage.header, badge: v } })} onChangeEN={(v) => setPropertiesPageEN({ ...propertiesPageEN, header: { ...propertiesPageEN.header, badge: v } })}/>
-                      <div className="grid gap-4 sm:grid-cols-2">
-                        <DualInput label={t.siteContent.propertiesPage.fields.titleLine1} mnValue={propertiesPage.header.titleLine1} enValue={propertiesPageEN.header.titleLine1} onChangeMN={(v) => setPropertiesPage({ ...propertiesPage, header: { ...propertiesPage.header, titleLine1: v } })} onChangeEN={(v) => setPropertiesPageEN({ ...propertiesPageEN, header: { ...propertiesPageEN.header, titleLine1: v } })}/>
-                        <DualInput label={t.siteContent.propertiesPage.fields.titleAccent} mnValue={propertiesPage.header.titleAccent} enValue={propertiesPageEN.header.titleAccent} onChangeMN={(v) => setPropertiesPage({ ...propertiesPage, header: { ...propertiesPage.header, titleAccent: v } })} onChangeEN={(v) => setPropertiesPageEN({ ...propertiesPageEN, header: { ...propertiesPageEN.header, titleAccent: v } })}/>
+                          }
+                        }} className="!py-1 !h-7 !text-[10px]">
+                          + Нэмэх
+                        </GhostButton>
                       </div>
-                      <DualTextarea label={t.siteContent.propertiesPage.fields.intro} mnValue={propertiesPage.header.intro} enValue={propertiesPageEN.header.intro} onChangeMN={(v) => setPropertiesPage({ ...propertiesPage, header: { ...propertiesPage.header, intro: v } })} onChangeEN={(v) => setPropertiesPageEN({ ...propertiesPageEN, header: { ...propertiesPageEN.header, intro: v } })}/>
-                    </div>
-                  </EditorSection>
-                  <EditorSection id="properties-categories" title={t.siteContent.propertiesPage.fields.categoriesTitle} subtitle={t.siteContent.propertiesPage.fields.categoriesHint} defaultOpen={false}>
-                    <div className="space-y-3">
-                      {propertiesPage.categories.map((row, i) => (<div key={i} className="flex flex-wrap items-end gap-3 rounded-xl border border-slate-100 bg-slate-50/30 p-3 dark:border-slate-800/40 dark:bg-slate-900/20">
-                          <div className="flex-1">
-                            <DualInput label={t.siteContent.propertiesPage.fields.categoriesTitle} mnValue={row} enValue={propertiesPageEN.categories[i] ?? ""} onChangeMN={(v) => {
-                const c = [...propertiesPage.categories];
-                c[i] = v;
-                setPropertiesPage({ ...propertiesPage, categories: c });
-            }} onChangeEN={(v) => {
-                    const c = [...propertiesPageEN.categories];
-                    c[i] = v;
-                    setPropertiesPageEN({ ...propertiesPageEN, categories: c });
-                }}/>
+                      {(link.subLinks || []).map((sub, si) => (<div key={si} className="space-y-2 border-b border-slate-100 pb-3 last:border-0 last:pb-0">
+                        <div className="flex gap-2 items-start">
+                          <div className="flex-1 space-y-1.5">
+                            <div className="flex gap-2">
+                              <div className="w-32 shrink-0">
+                                <label className="text-[10px] font-bold uppercase tracking-wider text-slate-400">Платформ</label>
+                                <select className={scInput} value={sub.type} onChange={(e) => {
+                                  const v = e.target.value;
+                                  const links = [...contact.links];
+                                  const subs = [...(links[i].subLinks || [])];
+                                  subs[si] = { ...subs[si], type: v };
+                                  links[i] = { ...links[i], subLinks: subs };
+                                  setContact({ ...contact, links });
+                                  const linksEN = [...contactEN.links];
+                                  if (linksEN[i]) {
+                                    const subsEN = [...(linksEN[i].subLinks || [])];
+                                    if (!subsEN[si])
+                                      subsEN[si] = { type: v, label: "", href: "" };
+                                    subsEN[si] = { ...subsEN[si], type: v };
+                                    linksEN[i] = { ...linksEN[i], subLinks: subsEN };
+                                    setContactEN({ ...contactEN, links: linksEN });
+                                  }
+                                }}>
+                                  <option value="facebook">Facebook</option>
+                                  <option value="instagram">Instagram</option>
+                                  <option value="twitter">Twitter / X</option>
+                                  <option value="youtube">YouTube</option>
+                                  <option value="linkedin">LinkedIn</option>
+                                  <option value="tiktok">TikTok</option>
+                                  <option value="telegram">Telegram</option>
+                                  <option value="whatsapp">WhatsApp</option>
+                                  <option value="google">Google</option>
+                                  <option value="website">Website</option>
+                                </select>
+                              </div>
+                              <div className="flex-1">
+                                <DualInput
+                                  label="Гарчиг"
+                                  mnValue={sub.label}
+                                  enValue={contactEN.links[i]?.subLinks?.[si]?.label || ""}
+                                  onChangeMN={(v) => {
+                                    const links = [...contact.links];
+                                    const subs = [...(links[i].subLinks || [])];
+                                    subs[si] = { ...subs[si], label: v };
+                                    links[i] = { ...links[i], subLinks: subs };
+                                    setContact({ ...contact, links });
+                                  }}
+                                  onChangeEN={(v) => {
+                                    const linksEN = [...contactEN.links];
+                                    if (linksEN[i]) {
+                                      const subsEN = [...(linksEN[i].subLinks || [])];
+                                      if (!subsEN[si])
+                                        subsEN[si] = { type: sub.type, label: "", href: sub.href };
+                                      subsEN[si] = { ...subsEN[si], label: v };
+                                      linksEN[i] = { ...linksEN[i], subLinks: subsEN };
+                                      setContactEN({ ...contactEN, links: linksEN });
+                                    }
+                                  }}
+                                />
+                              </div>
+                            </div>
                           </div>
-                          <DangerMini onClick={() => {
-                    setPropertiesPage({
+                          <button type="button" onClick={() => {
+                            const links = [...contact.links];
+                            const subs = (links[i].subLinks || []).filter((_, sj) => sj !== si);
+                            links[i] = { ...links[i], subLinks: subs };
+                            setContact({ ...contact, links });
+                            const linksEN = [...contactEN.links];
+                            if (linksEN[i]) {
+                              const subsEN = (linksEN[i].subLinks || []).filter((_, sj) => sj !== si);
+                              linksEN[i] = { ...linksEN[i], subLinks: subsEN };
+                              setContactEN({ ...contactEN, links: linksEN });
+                            }
+                          }} className="mt-7 p-1.5 text-slate-400 hover:text-red-500 transition-colors">
+                            <Trash2 className="w-4 h-4" />
+                          </button>
+                        </div>
+                        <div className="space-y-1">
+                          <label className="text-[10px] font-bold uppercase tracking-wider text-slate-400">URL</label>
+                          <input className={scInput} placeholder="https://..." value={sub.href} onChange={(e) => {
+                            const v = e.target.value;
+                            const links = [...contact.links];
+                            const subs = [...(links[i].subLinks || [])];
+                            subs[si] = { ...subs[si], href: v };
+                            links[i] = { ...links[i], subLinks: subs };
+                            setContact({ ...contact, links });
+                            const linksEN = [...contactEN.links];
+                            if (linksEN[i]) {
+                              const subsEN = [...(linksEN[i].subLinks || [])];
+                              if (!subsEN[si])
+                                subsEN[si] = { type: sub.type, label: "", href: "" };
+                              subsEN[si] = { ...subsEN[si], href: v };
+                              linksEN[i] = { ...linksEN[i], subLinks: subsEN };
+                              setContactEN({ ...contactEN, links: linksEN });
+                            }
+                          }} />
+                        </div>
+                      </div>))}
+                    </div>
+                  </div>))}
+                  <GhostButton onClick={() => {
+                    const newLink = { type: "facebook", href: "", title: "" };
+                    setContact({ ...contact, links: [...contact.links, newLink] });
+                    setContactEN({ ...contactEN, links: [...contactEN.links, newLink] });
+                  }}>
+                    + Холбоос нэмэх
+                  </GhostButton>
+                </div>
+              </EditorSection>
+
+              <PrimarySave disabled={saving} onClick={() => void save("contact")}>
+                {saving ? t.common.saving : t.siteContent.common.saveTab(t.siteContent.tabs.contact.label)}
+              </PrimarySave>
+            </EditorBody>) : tab === "properties-page" ? (<EditorBody sectionJumpKey={tab} sectionItems={[
+              { id: "properties-header", label: t.siteContent.propertiesPage.sections.header },
+              { id: "properties-categories", label: t.siteContent.propertiesPage.sections.categories },
+              { id: "properties-items", label: t.siteContent.propertiesPage.sections.items },
+              { id: "properties-cta", label: t.siteContent.propertiesPage.sections.cta },
+            ]}>
+              <EditorSection id="properties-header" title={t.siteContent.propertiesPage.fields.headerTitle} subtitle={t.siteContent.propertiesPage.fields.headerSubtitle}>
+                <div className="mb-4 flex items-center gap-2">
+                  <span className="text-[10px] font-bold uppercase text-slate-400">{t.siteContent.common.hide}</span>
+                  <button type="button" onClick={() => {
+                    const next = !propertiesPage.header.hidden;
+                    setPropertiesPage({ ...propertiesPage, header: { ...propertiesPage.header, hidden: next } });
+                    setPropertiesPageEN({ ...propertiesPageEN, header: { ...propertiesPageEN.header, hidden: next } });
+                  }} className={`h-5 w-9 rounded-full border-2 border-transparent transition-colors duration-200 ${propertiesPage.header.hidden ? "bg-indigo-600" : "bg-slate-200 dark:bg-slate-700"}`}>
+                    <div className={`h-4 w-4 transform rounded-full bg-white transition-transform ${propertiesPage.header.hidden ? "translate-x-4" : "translate-x-0"}`} />
+                  </button>
+                </div>
+                <div className="space-y-4">
+                  <DualInput label={t.siteContent.propertiesPage.fields.headerBadge} mnValue={propertiesPage.header.badge} enValue={propertiesPageEN.header.badge} onChangeMN={(v) => setPropertiesPage({ ...propertiesPage, header: { ...propertiesPage.header, badge: v } })} onChangeEN={(v) => setPropertiesPageEN({ ...propertiesPageEN, header: { ...propertiesPageEN.header, badge: v } })} />
+                  <div className="grid gap-4 sm:grid-cols-2">
+                    <DualInput label={t.siteContent.propertiesPage.fields.titleLine1} mnValue={propertiesPage.header.titleLine1} enValue={propertiesPageEN.header.titleLine1} onChangeMN={(v) => setPropertiesPage({ ...propertiesPage, header: { ...propertiesPage.header, titleLine1: v } })} onChangeEN={(v) => setPropertiesPageEN({ ...propertiesPageEN, header: { ...propertiesPageEN.header, titleLine1: v } })} />
+                    <DualInput label={t.siteContent.propertiesPage.fields.titleAccent} mnValue={propertiesPage.header.titleAccent} enValue={propertiesPageEN.header.titleAccent} onChangeMN={(v) => setPropertiesPage({ ...propertiesPage, header: { ...propertiesPage.header, titleAccent: v } })} onChangeEN={(v) => setPropertiesPageEN({ ...propertiesPageEN, header: { ...propertiesPageEN.header, titleAccent: v } })} />
+                  </div>
+                  <DualTextarea label={t.siteContent.propertiesPage.fields.intro} mnValue={propertiesPage.header.intro} enValue={propertiesPageEN.header.intro} onChangeMN={(v) => setPropertiesPage({ ...propertiesPage, header: { ...propertiesPage.header, intro: v } })} onChangeEN={(v) => setPropertiesPageEN({ ...propertiesPageEN, header: { ...propertiesPageEN.header, intro: v } })} />
+                </div>
+              </EditorSection>
+              <EditorSection id="properties-categories" title={t.siteContent.propertiesPage.fields.categoriesTitle} subtitle={t.siteContent.propertiesPage.fields.categoriesHint} defaultOpen={false}>
+                <div className="space-y-3">
+                  {propertiesPage.categories.map((row, i) => (<div key={i} className="flex flex-wrap items-end gap-3 rounded-xl border border-slate-100 bg-slate-50/30 p-3 dark:border-slate-800/40 dark:bg-slate-900/20">
+                    <div className="flex-1">
+                      <DualInput label={t.siteContent.propertiesPage.fields.categoriesTitle} mnValue={row} enValue={propertiesPageEN.categories[i] ?? ""} onChangeMN={(v) => {
+                        const c = [...propertiesPage.categories];
+                        c[i] = v;
+                        setPropertiesPage({ ...propertiesPage, categories: c });
+                      }} onChangeEN={(v) => {
+                        const c = [...propertiesPageEN.categories];
+                        c[i] = v;
+                        setPropertiesPageEN({ ...propertiesPageEN, categories: c });
+                      }} />
+                    </div>
+                    <DangerMini onClick={() => {
+                      setPropertiesPage({
                         ...propertiesPage,
                         categories: propertiesPage.categories.filter((_, j) => j !== i),
-                    });
-                    setPropertiesPageEN({
+                      });
+                      setPropertiesPageEN({
                         ...propertiesPageEN,
                         categories: propertiesPageEN.categories.filter((_, j) => j !== i),
-                    });
-                }}>
+                      });
+                    }}>
+                      {t.siteContent.common.remove}
+                    </DangerMini>
+                  </div>))}
+                  <GhostButton onClick={() => {
+                    setPropertiesPage({ ...propertiesPage, categories: [...propertiesPage.categories, ""] });
+                    setPropertiesPageEN({ ...propertiesPageEN, categories: [...propertiesPageEN.categories, ""] });
+                  }}>
+                    + {t.siteContent.common.add}
+                  </GhostButton>
+                </div>
+              </EditorSection>
+              <EditorSection id="properties-items" title={t.siteContent.propertiesPage.fields.itemsTitle} subtitle="Properties list" defaultOpen={false}>
+                <div className="space-y-4">
+                  {propertiesPage.items.map((item, i) => (
+                    <div
+                      key={item.id || i}
+                      draggable
+                      onDragStart={(e) => handleDragStart(e, i, "property")}
+                      onDragOver={(e) => e.preventDefault()}
+                      onDrop={(e) => handleDrop(e, i, "property", propertiesPage.items, (v) => setPropertiesPage({ ...propertiesPage, items: v }), propertiesPageEN.items, (v) => setPropertiesPageEN({ ...propertiesPageEN, items: v }))}
+                      className="group relative rounded-xl border border-slate-200/90 bg-white/80 p-4 transition-all hover:border-indigo-200 hover:shadow-sm dark:border-slate-700 dark:bg-slate-900/40"
+                    >
+                      <div className="absolute right-4 top-4 opacity-0 transition-opacity group-hover:opacity-100">
+                        <MoveControls
+                          isFirst={i === 0}
+                          isLast={i === propertiesPage.items.length - 1}
+                          onMoveUp={() => {
+                            setPropertiesPage({ ...propertiesPage, items: reorder(propertiesPage.items, i, i - 1) });
+                            setPropertiesPageEN({ ...propertiesPageEN, items: reorder(propertiesPageEN.items, i, i - 1) });
+                          }}
+                          onMoveDown={() => {
+                            setPropertiesPage({ ...propertiesPage, items: reorder(propertiesPage.items, i, i + 1) });
+                            setPropertiesPageEN({ ...propertiesPageEN, items: reorder(propertiesPageEN.items, i, i + 1) });
+                          }}
+                        />
+                      </div>
+                      <div className="grid gap-6 lg:grid-cols-2">
+                        <div className="space-y-4">
+                          <div className="space-y-1.5">
+                            <label className="text-[11px] font-bold uppercase tracking-[0.12em] text-slate-500">
+                              {t.siteContent.propertiesPage.fields.id}
+                            </label>
+                            <div className="flex h-10 items-center px-3 text-sm font-medium text-slate-500 bg-slate-50/50 rounded-xl border border-slate-100 dark:bg-slate-800/50 dark:border-slate-700">
+                              #{item.id}
+                            </div>
+                          </div>
+                          <DualInput label={t.siteContent.propertiesPage.fields.name} mnValue={item.name} enValue={propertiesPageEN.items[i]?.name ?? ""} onChangeMN={(v) => {
+                            const items = [...propertiesPage.items];
+                            items[i] = { ...items[i], name: v };
+                            setPropertiesPage({ ...propertiesPage, items });
+                          }} onChangeEN={(v) => {
+                            const items = [...propertiesPageEN.items];
+                            if (!items[i])
+                              items[i] = { ...item, name: "" };
+                            items[i] = { ...items[i], name: v };
+                            setPropertiesPageEN({ ...propertiesPageEN, items });
+                          }} />
+                          <DualInput label={t.siteContent.propertiesPage.fields.category} mnValue={item.category} enValue={propertiesPageEN.items[i]?.category ?? ""} onChangeMN={(v) => {
+                            const items = [...propertiesPage.items];
+                            items[i] = { ...items[i], category: v };
+                            setPropertiesPage({ ...propertiesPage, items });
+                          }} onChangeEN={(v) => {
+                            const items = [...propertiesPageEN.items];
+                            if (!items[i])
+                              items[i] = { ...item, category: "" };
+                            items[i] = { ...items[i], category: v };
+                            setPropertiesPageEN({ ...propertiesPageEN, items });
+                          }} />
+                          <DualInput label={t.siteContent.propertiesPage.fields.itemBadge} mnValue={item.badge ?? ""} enValue={propertiesPageEN.items[i]?.badge ?? ""} onChangeMN={(v) => {
+                            const items = [...propertiesPage.items];
+                            items[i] = { ...items[i], badge: v || null };
+                            setPropertiesPage({ ...propertiesPage, items });
+                          }} onChangeEN={(v) => {
+                            const items = [...propertiesPageEN.items];
+                            if (!items[i])
+                              items[i] = { ...item, badge: null };
+                            items[i] = { ...items[i], badge: v || null };
+                            setPropertiesPageEN({ ...propertiesPageEN, items });
+                          }} />
+                        </div>
+                        <div className="space-y-4">
+                          <ImageUploadField previewFit="cover" value={item.image} onChange={(next) => {
+                            const items = [...propertiesPage.items];
+                            items[i] = { ...items[i], image: next };
+                            setPropertiesPage({ ...propertiesPage, items });
+                            const itemsEN = [...propertiesPageEN.items];
+                            if (!itemsEN[i]) {
+                              itemsEN[i] = { ...items[i] };
+                            }
+                            itemsEN[i] = { ...itemsEN[i], image: next };
+                            setPropertiesPageEN({ ...propertiesPageEN, items: itemsEN });
+                          }} />
+                          <div className="grid gap-3 sm:grid-cols-2">
+                            <DualInput label={t.siteContent.propertiesPage.fields.tag} mnValue={item.tag} enValue={propertiesPageEN.items[i]?.tag ?? ""} onChangeMN={(v) => {
+                              const items = [...propertiesPage.items];
+                              items[i] = { ...items[i], tag: v };
+                              setPropertiesPage({ ...propertiesPage, items });
+                            }} onChangeEN={(v) => {
+                              const items = [...propertiesPageEN.items];
+                              if (!items[i])
+                                items[i] = { ...item, tag: "" };
+                              items[i] = { ...items[i], tag: v };
+                              setPropertiesPageEN({ ...propertiesPageEN, items });
+                            }} />
+                            <DualInput label={t.siteContent.propertiesPage.fields.size} mnValue={item.size} enValue={propertiesPageEN.items[i]?.size ?? ""} onChangeMN={(v) => {
+                              const items = [...propertiesPage.items];
+                              items[i] = { ...items[i], size: v };
+                              setPropertiesPage({ ...propertiesPage, items });
+                            }} onChangeEN={(v) => {
+                              const items = [...propertiesPageEN.items];
+                              if (!items[i])
+                                items[i] = { ...item, size: "" };
+                              items[i] = { ...items[i], size: v };
+                              setPropertiesPageEN({ ...propertiesPageEN, items });
+                            }} />
+                          </div>
+                        </div>
+                      </div>
+                      <div className="mt-4 grid gap-4 lg:grid-cols-3">
+                        <DualInput label={t.siteContent.propertiesPage.fields.floor} mnValue={item.floor} enValue={propertiesPageEN.items[i]?.floor ?? ""} onChangeMN={(v) => {
+                          const items = [...propertiesPage.items];
+                          items[i] = { ...items[i], floor: v };
+                          setPropertiesPage({ ...propertiesPage, items });
+                        }} onChangeEN={(v) => {
+                          const items = [...propertiesPageEN.items];
+                          if (!items[i])
+                            items[i] = { ...item, floor: "" };
+                          items[i] = { ...items[i], floor: v };
+                          setPropertiesPageEN({ ...propertiesPageEN, items });
+                        }} />
+                        <DualInput label={t.siteContent.propertiesPage.fields.parking} mnValue={item.parking} enValue={propertiesPageEN.items[i]?.parking ?? ""} onChangeMN={(v) => {
+                          const items = [...propertiesPage.items];
+                          items[i] = { ...items[i], parking: v };
+                          setPropertiesPage({ ...propertiesPage, items });
+                        }} onChangeEN={(v) => {
+                          const items = [...propertiesPageEN.items];
+                          if (!items[i])
+                            items[i] = { ...item, parking: "" };
+                          items[i] = { ...items[i], parking: v };
+                          setPropertiesPageEN({ ...propertiesPageEN, items });
+                        }} />
+                        <DualInput label={t.siteContent.propertiesPage.fields.price} mnValue={item.price} enValue={propertiesPageEN.items[i]?.price ?? ""} onChangeMN={(v) => {
+                          const items = [...propertiesPage.items];
+                          items[i] = { ...items[i], price: v };
+                          setPropertiesPage({ ...propertiesPage, items });
+                        }} onChangeEN={(v) => {
+                          const items = [...propertiesPageEN.items];
+                          if (!items[i])
+                            items[i] = { ...item, price: "" };
+                          items[i] = { ...items[i], price: v };
+                          setPropertiesPageEN({ ...propertiesPageEN, items });
+                        }} />
+                      </div>
+                      <div className="mt-4">
+                        <DualTextarea label={t.siteContent.propertiesPage.fields.description} mnValue={item.description} enValue={propertiesPageEN.items[i]?.description ?? ""} onChangeMN={(v) => {
+                          const items = [...propertiesPage.items];
+                          items[i] = { ...items[i], description: v };
+                          setPropertiesPage({ ...propertiesPage, items });
+                        }} onChangeEN={(v) => {
+                          const items = [...propertiesPageEN.items];
+                          if (!items[i])
+                            items[i] = { ...item, description: "" };
+                          items[i] = { ...items[i], description: v };
+                          setPropertiesPageEN({ ...propertiesPageEN, items });
+                        }} rows={3} />
+                      </div>
+                      <div className="mt-4 space-y-2">
+                        <label className="text-[11px] font-bold uppercase tracking-[0.12em] text-slate-500">
+                          Галерей зургууд / видео
+                        </label>
+                        {item.images.map((img, gi) => (<div key={gi} className="flex items-center gap-2">
+                          <div className="flex-1">
+                            <ImageUploadField previewFit="cover" value={img} onChange={(next) => {
+                              const items = [...propertiesPage.items];
+                              const imgs = [...items[i].images];
+                              imgs[gi] = next;
+                              items[i] = { ...items[i], images: imgs };
+                              setPropertiesPage({ ...propertiesPage, items });
+                              const itemsEN = [...propertiesPageEN.items];
+                              if (!itemsEN[i]) {
+                                itemsEN[i] = { ...items[i] };
+                              }
+                              const imgsEN = [...(itemsEN[i].images ?? [])];
+                              imgsEN[gi] = next;
+                              itemsEN[i] = { ...itemsEN[i], images: imgsEN };
+                              setPropertiesPageEN({ ...propertiesPageEN, items: itemsEN });
+                            }} />
+                          </div>
+                          <DangerMini onClick={() => {
+                            const items = [...propertiesPage.items];
+                            items[i] = { ...items[i], images: items[i].images.filter((_, j) => j !== gi) };
+                            setPropertiesPage({ ...propertiesPage, items });
+                            const itemsEN = [...propertiesPageEN.items];
+                            if (itemsEN[i]) {
+                              itemsEN[i] = { ...itemsEN[i], images: (itemsEN[i].images ?? []).filter((_, j) => j !== gi) };
+                              setPropertiesPageEN({ ...propertiesPageEN, items: itemsEN });
+                            }
+                          }}>
                             {t.siteContent.common.remove}
                           </DangerMini>
                         </div>))}
-                      <GhostButton onClick={() => {
-                setPropertiesPage({ ...propertiesPage, categories: [...propertiesPage.categories, ""] });
-                setPropertiesPageEN({ ...propertiesPageEN, categories: [...propertiesPageEN.categories, ""] });
-            }}>
-                        + {t.siteContent.common.add}
-                      </GhostButton>
+                        <GhostButton onClick={() => {
+                          const items = [...propertiesPage.items];
+                          items[i] = { ...items[i], images: [...items[i].images, ""] };
+                          setPropertiesPage({ ...propertiesPage, items });
+                          const itemsEN = [...propertiesPageEN.items];
+                          if (itemsEN[i]) {
+                            itemsEN[i] = { ...itemsEN[i], images: [...(itemsEN[i].images ?? []), ""] };
+                            setPropertiesPageEN({ ...propertiesPageEN, items: itemsEN });
+                          }
+                        }}>
+                          + Зураг нэмэх
+                        </GhostButton>
+                      </div>
+                      <div className="mt-3 flex justify-end">
+                        <DangerMini onClick={() => {
+                          setPropertiesPage({ ...propertiesPage, items: propertiesPage.items.filter((_, j) => j !== i) });
+                          setPropertiesPageEN({ ...propertiesPageEN, items: propertiesPageEN.items.filter((_, j) => j !== i) });
+                        }}>
+                          {t.siteContent.common.remove}
+                        </DangerMini>
+                      </div>
+                    </div>))}
+                  <GhostButton onClick={() => {
+                    const newItem = { id: Date.now(), name: "", image: "", images: [], category: "", badge: null, size: "", floor: "", parking: "", price: "", tag: "", description: "" };
+                    setPropertiesPage({ ...propertiesPage, items: [...propertiesPage.items, newItem] });
+                    setPropertiesPageEN({ ...propertiesPageEN, items: [...propertiesPageEN.items, newItem] });
+                  }}>
+                    + {t.siteContent.common.add}
+                  </GhostButton>
+                </div>
+              </EditorSection>
+              <EditorSection id="properties-cta" title={t.siteContent.propertiesPage.sections.cta}>
+                <div className="mb-4 flex items-center gap-2">
+                  <span className="text-[10px] font-bold uppercase text-slate-400">{t.siteContent.common.hide}</span>
+                  <button type="button" onClick={() => {
+                    const next = !propertiesPage.cta.hidden;
+                    setPropertiesPage({ ...propertiesPage, cta: { ...propertiesPage.cta, hidden: next } });
+                    setPropertiesPageEN({ ...propertiesPageEN, cta: { ...propertiesPageEN.cta, hidden: next } });
+                  }} className={`h-5 w-9 rounded-full border-2 border-transparent transition-colors duration-200 ${propertiesPage.cta.hidden ? "bg-indigo-600" : "bg-slate-200 dark:bg-slate-700"}`}>
+                    <div className={`h-4 w-4 transform rounded-full bg-white transition-transform ${propertiesPage.cta.hidden ? "translate-x-4" : "translate-x-0"}`} />
+                  </button>
+                </div>
+                <div className="space-y-4">
+                  <div className="space-y-1.5">
+                    <label className="text-[11px] font-bold uppercase tracking-[0.12em] text-slate-500">
+                      {t.siteContent.propertiesPage.fields.href}
+                    </label>
+                    <input className={scInput} value={propertiesPage.cta.href} onChange={(e) => {
+                      const v = e.target.value;
+                      setPropertiesPage({ ...propertiesPage, cta: { ...propertiesPage.cta, href: v } });
+                      setPropertiesPageEN({ ...propertiesPageEN, cta: { ...propertiesPageEN.cta, href: v } });
+                    }} />
+                  </div>
+                  <DualInput label={t.siteContent.propertiesPage.fields.label} mnValue={propertiesPage.cta.label} enValue={propertiesPageEN.cta.label} onChangeMN={(v) => setPropertiesPage({ ...propertiesPage, cta: { ...propertiesPage.cta, label: v } })} onChangeEN={(v) => setPropertiesPageEN({ ...propertiesPageEN, cta: { ...propertiesPageEN.cta, label: v } })} />
+                </div>
+              </EditorSection>
+              <PrimarySave disabled={saving} onClick={() => void save("properties-page")}>
+                {saving ? t.common.saving : t.siteContent.common.saveTab(t.siteContent.tabs.propertiesPage.label)}
+              </PrimarySave>
+            </EditorBody>) : tab === "sales-page" ? (<EditorBody sectionJumpKey={tab} sectionItems={[
+              { id: "sales-meta", label: t.siteContent.salesPage.fields.title },
+              { id: "sales-intro", label: t.siteContent.salesPage.fields.intro },
+            ]}>
+              <EditorSection id="sales-meta" title={t.siteContent.salesPage.fields.headerTitle}>
+                <div className="mb-4 flex items-center gap-2">
+                  <span className="text-[10px] font-bold uppercase text-slate-400">{t.siteContent.common.hide}</span>
+                  <button type="button" onClick={() => {
+                    const next = !salesPage.header.hidden;
+                    setSalesPage({ ...salesPage, header: { ...salesPage.header, hidden: next } });
+                    setSalesPageEN({ ...salesPageEN, header: { ...salesPageEN.header, hidden: next } });
+                  }} className={`h-5 w-9 rounded-full border-2 border-transparent transition-colors duration-200 ${salesPage.header.hidden ? "bg-indigo-600" : "bg-slate-200 dark:bg-slate-700"}`}>
+                    <div className={`h-4 w-4 transform rounded-full bg-white transition-transform ${salesPage.header.hidden ? "translate-x-4" : "translate-x-0"}`} />
+                  </button>
+                </div>
+                <div className="space-y-4">
+                  <div className="grid gap-4 lg:grid-cols-2">
+                    <DualInput label={t.siteContent.salesPage.fields.eyebrow} mnValue={salesPage.header.eyebrow} enValue={salesPageEN.header.eyebrow} onChangeMN={(v) => setSalesPage({ ...salesPage, header: { ...salesPage.header, eyebrow: v } })} onChangeEN={(v) => setSalesPageEN({ ...salesPageEN, header: { ...salesPageEN.header, eyebrow: v } })} />
+                    <DualInput label={t.siteContent.salesPage.fields.title} mnValue={salesPage.header.title} enValue={salesPageEN.header.title} onChangeMN={(v) => setSalesPage({ ...salesPage, header: { ...salesPage.header, title: v } })} onChangeEN={(v) => setSalesPageEN({ ...salesPageEN, header: { ...salesPageEN.header, title: v } })} />
+                  </div>
+                </div>
+              </EditorSection>
+              <EditorSection id="sales-intro" title={t.siteContent.salesPage.fields.intro}>
+                <DualTextarea label={t.siteContent.salesPage.fields.intro} mnValue={salesPage.header.intro} enValue={salesPageEN.header.intro} onChangeMN={(v) => setSalesPage({ ...salesPage, header: { ...salesPage.header, intro: v } })} onChangeEN={(v) => setSalesPageEN({ ...salesPageEN, header: { ...salesPageEN.header, intro: v } })} />
+              </EditorSection>
+              <PrimarySave disabled={saving} onClick={() => void save("sales-page")}>
+                {saving ? t.common.saving : t.siteContent.common.saveTab(t.siteContent.tabs.salesPage.label)}
+              </PrimarySave>
+            </EditorBody>) : tab === "jobs-page" ? (<EditorBody sectionJumpKey={tab} sectionItems={[
+              { id: "jobs-header-title", label: t.siteContent.jobsPage.fields.title },
+              { id: "jobs-header-intro", label: t.siteContent.jobsPage.fields.intro },
+            ]}>
+              <EditorSection id="jobs-header-title" title={t.siteContent.jobsPage.fields.headerTitle}>
+                <div className="mb-4 flex items-center gap-2">
+                  <span className="text-[10px] font-bold uppercase text-slate-400">{t.siteContent.common.hide}</span>
+                  <button type="button" onClick={() => {
+                    const next = !jobsPage.header.hidden;
+                    setJobsPage({ ...jobsPage, header: { ...jobsPage.header, hidden: next } });
+                    setJobsPageEN({ ...jobsPageEN, header: { ...jobsPageEN.header, hidden: next } });
+                  }} className={`h-5 w-9 rounded-full border-2 border-transparent transition-colors duration-200 ${jobsPage.header.hidden ? "bg-indigo-600" : "bg-slate-200 dark:bg-slate-700"}`}>
+                    <div className={`h-4 w-4 transform rounded-full bg-white transition-transform ${jobsPage.header.hidden ? "translate-x-4" : "translate-x-0"}`} />
+                  </button>
+                </div>
+                <DualInput label={t.siteContent.jobsPage.fields.title} mnValue={jobsPage.header.title} enValue={jobsPageEN.header.title} onChangeMN={(v) => setJobsPage({ ...jobsPage, header: { ...jobsPage.header, title: v } })} onChangeEN={(v) => setJobsPageEN({ ...jobsPageEN, header: { ...jobsPageEN.header, title: v } })} />
+              </EditorSection>
+              <EditorSection id="jobs-header-intro" title={lang === "mn" ? "Дэд тайлбар" : "Intro"}>
+                <DualTextarea label={t.siteContent.jobsPage.fields.intro} mnValue={jobsPage.header.intro} enValue={jobsPageEN.header.intro} onChangeMN={(v) => setJobsPage({ ...jobsPage, header: { ...jobsPage.header, intro: v } })} onChangeEN={(v) => setJobsPageEN({ ...jobsPageEN, header: { ...jobsPageEN.header, intro: v } })} />
+              </EditorSection>
+              <PrimarySave disabled={saving} onClick={() => void save("jobs-page")}>
+                {saving ? t.common.saving : t.siteContent.common.saveTab(t.siteContent.tabs.jobsPage.label)}
+              </PrimarySave>
+            </EditorBody>) : tab === "team" ? (<EditorBody sectionJumpKey={tab} sectionItems={[
+              { id: "team-header", label: t.siteContent.team.sections.header },
+              { id: "team-members", label: t.siteContent.team.sections.members },
+              { id: "team-cta", label: t.siteContent.team.sections.cta },
+            ]}>
+              <EditorSection id="team-header" title={t.siteContent.team.fields.headerTitle} subtitle={t.siteContent.team.fields.headerSubtitle}>
+                <div className="mb-4 flex items-center gap-2">
+                  <span className="text-[10px] font-bold uppercase text-slate-400">{t.siteContent.common.hide}</span>
+                  <button type="button" onClick={() => {
+                    const next = !teamPage.header.hidden;
+                    setTeamPage({ ...teamPage, header: { ...teamPage.header, hidden: next } });
+                    setTeamPageEN({ ...teamPageEN, header: { ...teamPageEN.header, hidden: next } });
+                  }} className={`h-5 w-9 rounded-full border-2 border-transparent transition-colors duration-200 ${teamPage.header.hidden ? "bg-indigo-600" : "bg-slate-200 dark:bg-slate-700"}`}>
+                    <div className={`h-4 w-4 transform rounded-full bg-white transition-transform ${teamPage.header.hidden ? "translate-x-4" : "translate-x-0"}`} />
+                  </button>
+                </div>
+                <div className="space-y-4">
+                  <DualInput label={lang === "mn" ? "Дээд шошго" : "Eyebrow"} mnValue={teamPage.header.eyebrow} enValue={teamPageEN.header.eyebrow} onChangeMN={(v) => setTeamPage({ ...teamPage, header: { ...teamPage.header, eyebrow: v } })} onChangeEN={(v) => setTeamPageEN({ ...teamPageEN, header: { ...teamPageEN.header, eyebrow: v } })} />
+                  <div className="grid gap-4 sm:grid-cols-2">
+                    <DualInput label={lang === "mn" ? "Гарчиг (эхний хэсэг)" : "Title (First Part)"} mnValue={teamPage.header.h2Line1} enValue={teamPageEN.header.h2Line1} onChangeMN={(v) => setTeamPage({ ...teamPage, header: { ...teamPage.header, h2Line1: v } })} onChangeEN={(v) => setTeamPageEN({ ...teamPageEN, header: { ...teamPageEN.header, h2Line1: v } })} />
+                    <DualInput label={lang === "mn" ? "Гарчиг (онцлох өнгө)" : "Title (Accent Color)"} mnValue={teamPage.header.h2Accent} enValue={teamPageEN.header.h2Accent} onChangeMN={(v) => setTeamPage({ ...teamPage, header: { ...teamPage.header, h2Accent: v } })} onChangeEN={(v) => setTeamPageEN({ ...teamPageEN, header: { ...teamPageEN.header, h2Accent: v } })} />
+                  </div>
+                  <DualTextarea label={lang === "mn" ? "Танилцуулга" : "Intro"} mnValue={teamPage.header.intro} enValue={teamPageEN.header.intro} onChangeMN={(v) => setTeamPage({ ...teamPage, header: { ...teamPage.header, intro: v } })} onChangeEN={(v) => setTeamPageEN({ ...teamPageEN, header: { ...teamPageEN.header, intro: v } })} />
+                </div>
+              </EditorSection>
+              <EditorSection id="team-members" title="Багийн гишүүд" defaultOpen={false}>
+                <div className="mb-4 flex items-center gap-2">
+                  <span className="text-[10px] font-bold uppercase text-slate-400">{t.siteContent.common.section} {t.siteContent.common.hide}</span>
+                  <button type="button" onClick={() => {
+                    const next = !teamPage.membersHidden;
+                    setTeamPage({ ...teamPage, membersHidden: next });
+                    setTeamPageEN({ ...teamPageEN, membersHidden: next });
+                  }} className={`h-5 w-9 rounded-full border-2 border-transparent transition-colors duration-200 ${teamPage.membersHidden ? "bg-indigo-600" : "bg-slate-200 dark:bg-slate-700"}`}>
+                    <div className={`h-4 w-4 transform rounded-full bg-white transition-transform ${teamPage.membersHidden ? "translate-x-4" : "translate-x-0"}`} />
+                  </button>
+                </div>
+                <div className="space-y-4">
+                  {teamPage.members.map((m, i) => (
+                    <div
+                      key={i}
+                      draggable
+                      onDragStart={(e) => handleDragStart(e, i, "team")}
+                      onDragOver={(e) => e.preventDefault()}
+                      onDrop={(e) => handleDrop(e, i, "team", teamPage.members, (v) => setTeamPage({ ...teamPage, members: v }), teamPageEN.members, (v) => setTeamPageEN({ ...teamPageEN, members: v }))}
+                      className="group relative rounded-xl border border-slate-200/90 bg-white/80 p-4 transition-all hover:border-indigo-200 hover:shadow-sm dark:border-slate-700 dark:bg-slate-900/40"
+                    >
+                      <div className="absolute right-4 top-4 opacity-0 transition-opacity group-hover:opacity-100">
+                        <MoveControls
+                          isFirst={i === 0}
+                          isLast={i === teamPage.members.length - 1}
+                          onMoveUp={() => {
+                            setTeamPage({ ...teamPage, members: reorder(teamPage.members, i, i - 1) });
+                            setTeamPageEN({ ...teamPageEN, members: reorder(teamPageEN.members, i, i - 1) });
+                          }}
+                          onMoveDown={() => {
+                            setTeamPage({ ...teamPage, members: reorder(teamPage.members, i, i + 1) });
+                            setTeamPageEN({ ...teamPageEN, members: reorder(teamPageEN.members, i, i + 1) });
+                          }}
+                        />
+                      </div>
+                      <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+                        <DualInput label={lang === "mn" ? "Нэр" : "Name"} mnValue={m.name} enValue={teamPageEN.members[i]?.name ?? ""} onChangeMN={(v) => {
+                          const members = [...teamPage.members];
+                          members[i] = { ...members[i], name: v };
+                          setTeamPage({ ...teamPage, members });
+                        }} onChangeEN={(v) => {
+                          const membersEN = [...teamPageEN.members];
+                          if (!membersEN[i])
+                            membersEN[i] = { ...m, name: "" };
+                          membersEN[i] = { ...membersEN[i], name: v };
+                          setTeamPageEN({ ...teamPageEN, members: membersEN });
+                        }} />
+                        <DualInput label={lang === "mn" ? "Албан тушаал" : "Role"} mnValue={m.role} enValue={teamPageEN.members[i]?.role ?? ""} onChangeMN={(v) => {
+                          const members = [...teamPage.members];
+                          members[i] = { ...members[i], role: v };
+                          setTeamPage({ ...teamPage, members });
+                        }} onChangeEN={(v) => {
+                          const membersEN = [...teamPageEN.members];
+                          if (!membersEN[i])
+                            membersEN[i] = { ...m, role: "" };
+                          membersEN[i] = { ...membersEN[i], role: v };
+                          setTeamPageEN({ ...teamPageEN, members: membersEN });
+                        }} />
+                        <DualInput label={lang === "mn" ? "Эхний үсэг" : "Initials"} mnValue={m.initials} enValue={teamPageEN.members[i]?.initials ?? ""} onChangeMN={(v) => {
+                          const members = [...teamPage.members];
+                          members[i] = { ...members[i], initials: v };
+                          setTeamPage({ ...teamPage, members });
+                        }} onChangeEN={(v) => {
+                          const membersEN = [...teamPageEN.members];
+                          if (!membersEN[i])
+                            membersEN[i] = { ...m, initials: "" };
+                          membersEN[i] = { ...membersEN[i], initials: v };
+                          setTeamPageEN({ ...teamPageEN, members: membersEN });
+                        }} />
+                        <div>
+                          <label className="text-xs text-zinc-500">Утас</label>
+                          <input className={scInput} value={m.phone} onChange={(e) => {
+                            const v = e.target.value;
+                            const members = [...teamPage.members];
+                            members[i] = { ...members[i], phone: v };
+                            setTeamPage({ ...teamPage, members });
+                            const membersEN = [...teamPageEN.members];
+                            if (membersEN[i]) {
+                              membersEN[i] = { ...membersEN[i], phone: v };
+                              setTeamPageEN({ ...teamPageEN, members: membersEN });
+                            }
+                          }} />
+                        </div>
+                        <div>
+                          <label className="text-xs text-zinc-500">Имэйл</label>
+                          <input className={scInput} value={m.email} onChange={(e) => {
+                            const v = e.target.value;
+                            const members = [...teamPage.members];
+                            members[i] = { ...members[i], email: v };
+                            setTeamPage({ ...teamPage, members });
+                            const membersEN = [...teamPageEN.members];
+                            if (membersEN[i]) {
+                              membersEN[i] = { ...membersEN[i], email: v };
+                              setTeamPageEN({ ...teamPageEN, members: membersEN });
+                            }
+                          }} />
+                        </div>
+                        <div>
+                          <label className="text-xs text-zinc-500">Төслүүд (тоо)</label>
+                          <input type="number" className={scInput} value={m.projects} onChange={(e) => {
+                            const v = Number(e.target.value) || 0;
+                            const members = [...teamPage.members];
+                            members[i] = { ...members[i], projects: v };
+                            setTeamPage({ ...teamPage, members });
+                            const membersEN = [...teamPageEN.members];
+                            if (membersEN[i]) {
+                              membersEN[i] = { ...membersEN[i], projects: v };
+                              setTeamPageEN({ ...teamPageEN, members: membersEN });
+                            }
+                          }} />
+                        </div>
+                        <div className="sm:col-span-2 lg:col-span-3">
+                          <DualTextarea label={lang === "mn" ? "Тайлбар" : "Bio"} mnValue={m.bio} enValue={teamPageEN.members[i]?.bio ?? ""} onChangeMN={(v) => {
+                            const members = [...teamPage.members];
+                            members[i] = { ...members[i], bio: v };
+                            setTeamPage({ ...teamPage, members });
+                          }} onChangeEN={(v) => {
+                            const membersEN = [...teamPageEN.members];
+                            if (!membersEN[i])
+                              membersEN[i] = { ...m, bio: "" };
+                            membersEN[i] = { ...membersEN[i], bio: v };
+                            setTeamPageEN({ ...teamPageEN, members: membersEN });
+                          }} />
+                        </div>
+                      </div>
+                      <div className="mt-3 flex justify-end">
+                        <DangerMini onClick={() => {
+                          setTeamPage({
+                            ...teamPage,
+                            members: teamPage.members.filter((_, j) => j !== i),
+                          });
+                          setTeamPageEN({
+                            ...teamPageEN,
+                            members: teamPageEN.members.filter((_, j) => j !== i),
+                          });
+                        }}>
+                          {t.siteContent.common.remove}
+                        </DangerMini>
+                      </div>
+                    </div>))}
+                  <GhostButton onClick={() => {
+                    const newMember = {
+                      name: "", role: "", initials: "", color: "bg-accent-500", phone: "", email: "", bio: "", projects: 0,
+                    };
+                    setTeamPage({
+                      ...teamPage,
+                      members: [...teamPage.members, newMember],
+                    });
+                    setTeamPageEN({
+                      ...teamPageEN,
+                      members: [...teamPageEN.members, newMember],
+                    });
+                  }}>
+                    + Гишүүн нэмэх
+                  </GhostButton>
+                </div>
+              </EditorSection>
+              <EditorSection id="team-cta" title="Доод урилга (CTA)">
+                <div className="space-y-4">
+                  <DualInput label={lang === "mn" ? "Гарчиг" : "Title"} mnValue={teamPage.cta.title} enValue={teamPageEN.cta.title} onChangeMN={(v) => setTeamPage({ ...teamPage, cta: { ...teamPage.cta, title: v } })} onChangeEN={(v) => setTeamPageEN({ ...teamPageEN, cta: { ...teamPageEN.cta, title: v } })} />
+                  <DualTextarea label={lang === "mn" ? "Дэд текст" : "Subtitle"} mnValue={teamPage.cta.subtitle} enValue={teamPageEN.cta.subtitle} onChangeMN={(v) => setTeamPage({ ...teamPage, cta: { ...teamPage.cta, subtitle: v } })} onChangeEN={(v) => setTeamPageEN({ ...teamPageEN, cta: { ...teamPageEN.cta, subtitle: v } })} rows={2} />
+                  <div className="grid gap-4 sm:grid-cols-2">
+                    <DualInput label={lang === "mn" ? "Товчны текст" : "Button Label"} mnValue={teamPage.cta.buttonLabel} enValue={teamPageEN.cta.buttonLabel} onChangeMN={(v) => setTeamPage({ ...teamPage, cta: { ...teamPage.cta, buttonLabel: v } })} onChangeEN={(v) => setTeamPageEN({ ...teamPageEN, cta: { ...teamPageEN.cta, buttonLabel: v } })} />
+                    <div className="space-y-1.5">
+                      <label className="text-[11px] font-bold uppercase tracking-[0.12em] text-slate-500">
+                        {lang === "mn" ? "Холбоос (ж: /contact)" : "Href (e.g., /contact)"}
+                      </label>
+                      <input className={scInput} value={teamPage.cta.buttonHref} onChange={(e) => {
+                        const v = e.target.value;
+                        setTeamPage({ ...teamPage, cta: { ...teamPage.cta, buttonHref: v } });
+                        setTeamPageEN({ ...teamPageEN, cta: { ...teamPageEN.cta, buttonHref: v } });
+                      }} />
                     </div>
-                  </EditorSection>
-                  <EditorSection id="properties-items" title={t.siteContent.propertiesPage.fields.itemsTitle} subtitle="Properties list" defaultOpen={false}>
-                    <div className="mb-4 flex items-center gap-2">
-                      <span className="text-[10px] font-bold uppercase text-slate-400">{t.siteContent.common.section} {t.siteContent.common.hide}</span>
-                      <button type="button" onClick={() => {
-                const next = !propertiesPage.itemsHidden;
-                setPropertiesPage({ ...propertiesPage, itemsHidden: next });
-                setPropertiesPageEN({ ...propertiesPageEN, itemsHidden: next });
-            }} className={`h-5 w-9 rounded-full border-2 border-transparent transition-colors duration-200 ${propertiesPage.itemsHidden ? "bg-indigo-600" : "bg-slate-200 dark:bg-slate-700"}`}>
-                        <div className={`h-4 w-4 transform rounded-full bg-white transition-transform ${propertiesPage.itemsHidden ? "translate-x-4" : "translate-x-0"}`}/>
-                      </button>
-                    </div>
-                    <div className="space-y-4">
-                      {propertiesPage.items.map((item, i) => (
-                        <div 
-                          key={item.id || i} 
-                          draggable
-                          onDragStart={(e) => handleDragStart(e, i, "property")}
-                          onDragOver={(e) => e.preventDefault()}
-                          onDrop={(e) => handleDrop(e, i, "property", propertiesPage.items, (v) => setPropertiesPage({ ...propertiesPage, items: v }), propertiesPageEN.items, (v) => setPropertiesPageEN({ ...propertiesPageEN, items: v }))}
-                          className="group relative rounded-xl border border-slate-200/90 bg-white/80 p-4 transition-all hover:border-indigo-200 hover:shadow-sm dark:border-slate-700 dark:bg-slate-900/40"
-                        >
-                          <div className="absolute right-4 top-4 opacity-0 transition-opacity group-hover:opacity-100">
-                            <MoveControls 
-                              isFirst={i === 0} 
-                              isLast={i === propertiesPage.items.length - 1} 
-                              onMoveUp={() => {
-                                setPropertiesPage({ ...propertiesPage, items: reorder(propertiesPage.items, i, i - 1) });
-                                setPropertiesPageEN({ ...propertiesPageEN, items: reorder(propertiesPageEN.items, i, i - 1) });
-                              }}
-                              onMoveDown={() => {
-                                setPropertiesPage({ ...propertiesPage, items: reorder(propertiesPage.items, i, i + 1) });
-                                setPropertiesPageEN({ ...propertiesPageEN, items: reorder(propertiesPageEN.items, i, i + 1) });
+                  </div>
+                </div>
+              </EditorSection>
+              <PrimarySave disabled={saving} onClick={() => void save("team")}>
+                {saving ? t.common.saving : t.siteContent.common.saveTab(t.siteContent.tabs.team.label)}
+              </PrimarySave>
+            </EditorBody>) : tab === "projects-page" ? (<EditorBody sectionJumpKey={tab} sectionItems={[
+              { id: "projects-header", label: t.siteContent.projectsPage.sections.header },
+              { id: "projects-items", label: t.siteContent.projectsPage.sections.items },
+            ]}>
+              <EditorSection id="projects-header" title={t.siteContent.projectsPage.fields.headerTitle} subtitle={t.siteContent.projectsPage.fields.headerSubtitle}>
+                <div className="mb-4 flex items-center gap-2">
+                  <span className="text-[10px] font-bold uppercase text-slate-400">{t.siteContent.common.hide}</span>
+                  <button type="button" onClick={() => {
+                    const next = !projectsPage.header.hidden;
+                    setProjectsPage({ ...projectsPage, header: { ...projectsPage.header, hidden: next } });
+                    setProjectsPageEN({ ...projectsPageEN, header: { ...projectsPageEN.header, hidden: next } });
+                  }} className={`h-5 w-9 rounded-full border-2 border-transparent transition-colors duration-200 ${projectsPage.header.hidden ? "bg-indigo-600" : "bg-slate-200 dark:bg-slate-700"}`}>
+                    <div className={`h-4 w-4 transform rounded-full bg-white transition-transform ${projectsPage.header.hidden ? "translate-x-4" : "translate-x-0"}`} />
+                  </button>
+                </div>
+                <div className="space-y-4">
+                  <DualInput label={t.siteContent.projectsPage.fields.badge} mnValue={projectsPage.header.badge} enValue={projectsPageEN.header.badge} onChangeMN={(v) => setProjectsPage({ ...projectsPage, header: { ...projectsPage.header, badge: v } })} onChangeEN={(v) => setProjectsPageEN({ ...projectsPageEN, header: { ...projectsPageEN.header, badge: v } })} />
+                  <div className="grid gap-4 sm:grid-cols-2">
+                    <DualInput label={t.siteContent.projectsPage.fields.titleLine1} mnValue={projectsPage.header.titleLine1} enValue={projectsPageEN.header.titleLine1} onChangeMN={(v) => setProjectsPage({ ...projectsPage, header: { ...projectsPage.header, titleLine1: v } })} onChangeEN={(v) => setProjectsPageEN({ ...projectsPageEN, header: { ...projectsPageEN.header, titleLine1: v } })} />
+                    <DualInput label={t.siteContent.projectsPage.fields.titleAccent} mnValue={projectsPage.header.titleAccent} enValue={projectsPageEN.header.titleAccent} onChangeMN={(v) => setProjectsPage({ ...projectsPage, header: { ...projectsPage.header, titleAccent: v } })} onChangeEN={(v) => setProjectsPageEN({ ...projectsPageEN, header: { ...projectsPageEN.header, titleAccent: v } })} />
+                  </div>
+                  <DualTextarea label={t.siteContent.projectsPage.fields.intro} mnValue={projectsPage.header.intro} enValue={projectsPageEN.header.intro} onChangeMN={(v) => setProjectsPage({ ...projectsPage, header: { ...projectsPage.header, intro: v } })} onChangeEN={(v) => setProjectsPageEN({ ...projectsPageEN, header: { ...projectsPageEN.header, intro: v } })} />
+                </div>
+              </EditorSection>
+              <EditorSection id="projects-items" title={t.siteContent.projectsPage.fields.itemsTitle} subtitle={t.siteContent.projectsPage.fields.headerSubtitle} defaultOpen={false}>
+                <div className="mb-4 flex items-center justify-end">
+                  <GhostButton onClick={() => {
+                    const sorted = [...projectsPage.items].sort((a, b) => (Number(a.id) || 0) - (Number(b.id) || 0));
+                    setProjectsPage({ ...projectsPage, items: sorted });
+                    const sortedEN = [...projectsPageEN.items].sort((a, b) => (Number(a.id) || 0) - (Number(b.id) || 0));
+                    setProjectsPageEN({ ...projectsPageEN, items: sortedEN });
+                  }}>
+                    ID-аар эрэмбэлэх
+                  </GhostButton>
+                </div>
+                <div className="space-y-4">
+                  {projectsPage.items.map((item, i) => (
+                    <div
+                      key={item.reactKey || i}
+                      draggable
+                      onDragStart={(e) => handleDragStart(e, i, "project")}
+                      onDragOver={(e) => e.preventDefault()}
+                      onDrop={(e) => handleDrop(e, i, "project", projectsPage.items, (v) => setProjectsPage({ ...projectsPage, items: v }), projectsPageEN.items, (v) => setProjectsPageEN({ ...projectsPageEN, items: v }))}
+                      className="group relative rounded-xl border border-slate-200/90 bg-white/80 p-4 transition-all hover:border-indigo-200 hover:shadow-sm dark:border-slate-700 dark:bg-slate-900/40"
+                    >
+                      <div className="absolute right-4 top-4 opacity-0 transition-opacity group-hover:opacity-100 z-10">
+                        <MoveControls
+                          isFirst={i === 0}
+                          isLast={i === projectsPage.items.length - 1}
+                          onMoveUp={() => {
+                            setProjectsPage({ ...projectsPage, items: reorder(projectsPage.items, i, i - 1) });
+                            setProjectsPageEN({ ...projectsPageEN, items: reorder(projectsPageEN.items, i, i - 1) });
+                          }}
+                          onMoveDown={() => {
+                            setProjectsPage({ ...projectsPage, items: reorder(projectsPage.items, i, i + 1) });
+                            setProjectsPageEN({ ...projectsPageEN, items: reorder(projectsPageEN.items, i, i + 1) });
+                          }}
+                        />
+                      </div>
+                      <div className="space-y-4">
+                        <div className="grid gap-4 sm:grid-cols-2">
+                          <div className="space-y-1.5">
+                            <label className="text-[11px] font-bold uppercase tracking-[0.12em] text-slate-500 dark:text-slate-400">
+                              {t.siteContent.projectsPage.fields.id}
+                            </label>
+                            <input
+                              type="number"
+                              className={scInput}
+                              value={item.id}
+                              onChange={(e) => {
+                                const v = parseInt(e.target.value) || 0;
+                                const items = [...projectsPage.items];
+                                items[i] = { ...items[i], id: v };
+                                setProjectsPage({ ...projectsPage, items });
+                                const itemsEN = [...projectsPageEN.items];
+                                if (itemsEN[i]) {
+                                  itemsEN[i] = { ...itemsEN[i], id: v };
+                                  setProjectsPageEN({ ...projectsPageEN, items: itemsEN });
+                                }
                               }}
                             />
                           </div>
-                          <div className="grid gap-6 lg:grid-cols-2">
-                            <div className="space-y-4">
-                              <div className="space-y-1.5">
-                                <label className="text-[11px] font-bold uppercase tracking-[0.12em] text-slate-500">
-                                  {t.siteContent.propertiesPage.fields.id}
-                                </label>
-                                <div className="flex h-10 items-center px-3 text-sm font-medium text-slate-500 bg-slate-50/50 rounded-xl border border-slate-100 dark:bg-slate-800/50 dark:border-slate-700">
-                                  #{item.id}
-                                </div>
+                          <DualInput label={t.siteContent.projectsPage.fields.name} mnValue={item.name} enValue={projectsPageEN.items[i]?.name ?? ""} onChangeMN={(v) => {
+                            const items = [...projectsPage.items];
+                            items[i] = { ...items[i], name: v };
+                            setProjectsPage({ ...projectsPage, items });
+                          }} onChangeEN={(v) => {
+                            const items = [...projectsPageEN.items];
+                            if (!items[i])
+                              items[i] = { ...item, name: "" };
+                            items[i] = { ...items[i], name: v };
+                            setProjectsPageEN({ ...projectsPageEN, items });
+                          }} />
+                        </div>
+                        <DualInput label={t.siteContent.projectsPage.fields.category} mnValue={item.category} enValue={projectsPageEN.items[i]?.category ?? ""} onChangeMN={(v) => {
+                          const items = [...projectsPage.items];
+                          items[i] = { ...items[i], category: v };
+                          setProjectsPage({ ...projectsPage, items });
+                        }} onChangeEN={(v) => {
+                          const items = [...projectsPageEN.items];
+                          if (!items[i])
+                            items[i] = { ...item, category: "" };
+                          items[i] = { ...items[i], category: v };
+                          setProjectsPageEN({ ...projectsPageEN, items });
+                        }} />
+                        <div className="space-y-1.5">
+                          <label className="text-[11px] font-bold uppercase tracking-[0.12em] text-slate-500 dark:text-slate-400">
+                            {t.siteContent.projectsPage.fields.coverImage}
+                          </label>
+                          <ImageUploadField value={item.coverImage} onChange={(v) => {
+                            const items = [...projectsPage.items];
+                            items[i] = { ...items[i], coverImage: v };
+                            setProjectsPage({ ...projectsPage, items });
+                            const itemsEN = [...projectsPageEN.items];
+                            if (!itemsEN[i]) {
+                              itemsEN[i] = { ...items[i], coverImage: v };
+                            }
+                            else {
+                              itemsEN[i] = { ...itemsEN[i], coverImage: v };
+                            }
+                            setProjectsPageEN({ ...projectsPageEN, items: itemsEN });
+                          }} />
+                        </div>
+                        <DualTextarea label={t.siteContent.projectsPage.fields.description} mnValue={item.description} enValue={projectsPageEN.items[i]?.description ?? ""} onChangeMN={(v) => {
+                          const items = [...projectsPage.items];
+                          items[i] = { ...items[i], description: v };
+                          setProjectsPage({ ...projectsPage, items });
+                        }} onChangeEN={(v) => {
+                          const items = [...projectsPageEN.items];
+                          if (!items[i])
+                            items[i] = { ...item, description: "" };
+                          items[i] = { ...items[i], description: v };
+                          setProjectsPageEN({ ...projectsPageEN, items });
+                        }} rows={2} />
+                        <div className="space-y-2">
+                          <label className="text-[11px] font-bold uppercase tracking-[0.12em] text-slate-500 dark:text-slate-400">
+                            {t.siteContent.projectsPage.fields.images}
+                          </label>
+                          <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 lg:grid-cols-4">
+                            {item.images.map((imgUrl, j) => (
+                              <div key={j} className="group/img relative">
+                                <ImageUploadField value={imgUrl} onChange={(v) => {
+                                  const items = [...projectsPage.items];
+                                  const imgs = [...items[i].images];
+                                  imgs[j] = v;
+                                  items[i] = { ...items[i], images: imgs };
+                                  setProjectsPage({ ...projectsPage, items });
+                                  const itemsEN = [...projectsPageEN.items];
+                                  if (itemsEN[i]) {
+                                    const imgsEN = [...(itemsEN[i].images ?? [])];
+                                    imgsEN[j] = v;
+                                    itemsEN[i] = { ...itemsEN[i], images: imgsEN };
+                                    setProjectsPageEN({ ...projectsPageEN, items: itemsEN });
+                                  }
+                                }} />
+                                <button onClick={() => {
+                                  const items = [...projectsPage.items];
+                                  items[i] = { ...items[i], images: items[i].images.filter((_, k) => k !== j) };
+                                  setProjectsPage({ ...projectsPage, items });
+                                }} className="absolute -right-1 -top-1 hidden h-5 w-5 items-center justify-center rounded-full bg-rose-500 text-white shadow-sm group-hover/img:flex">×</button>
                               </div>
-                              <DualInput label={t.siteContent.propertiesPage.fields.name} mnValue={item.name} enValue={propertiesPageEN.items[i]?.name ?? ""} onChangeMN={(v) => {
-                const items = [...propertiesPage.items];
-                items[i] = { ...items[i], name: v };
-                setPropertiesPage({ ...propertiesPage, items });
-            }} onChangeEN={(v) => {
-                    const items = [...propertiesPageEN.items];
-                    if (!items[i])
-                        items[i] = { ...item, name: "" };
-                    items[i] = { ...items[i], name: v };
-                    setPropertiesPageEN({ ...propertiesPageEN, items });
-                }}/>
-                              <DualInput label={t.siteContent.propertiesPage.fields.category} mnValue={item.category} enValue={propertiesPageEN.items[i]?.category ?? ""} onChangeMN={(v) => {
-                const items = [...propertiesPage.items];
-                items[i] = { ...items[i], category: v };
-                setPropertiesPage({ ...propertiesPage, items });
-            }} onChangeEN={(v) => {
-                    const items = [...propertiesPageEN.items];
-                    if (!items[i])
-                        items[i] = { ...item, category: "" };
-                    items[i] = { ...items[i], category: v };
-                    setPropertiesPageEN({ ...propertiesPageEN, items });
-                }}/>
-                              <DualInput label={t.siteContent.propertiesPage.fields.itemBadge} mnValue={item.badge ?? ""} enValue={propertiesPageEN.items[i]?.badge ?? ""} onChangeMN={(v) => {
-                const items = [...propertiesPage.items];
-                items[i] = { ...items[i], badge: v || null };
-                setPropertiesPage({ ...propertiesPage, items });
-            }} onChangeEN={(v) => {
-                    const items = [...propertiesPageEN.items];
-                    if (!items[i])
-                        items[i] = { ...item, badge: null };
-                    items[i] = { ...items[i], badge: v || null };
-                    setPropertiesPageEN({ ...propertiesPageEN, items });
-                }}/>
-                            </div>
-                            <div className="space-y-4">
-                              <ImageUploadField previewFit="cover" value={item.image} onChange={(next) => {
-                    const items = [...propertiesPage.items];
-                    items[i] = { ...items[i], image: next };
-                    setPropertiesPage({ ...propertiesPage, items });
-                    const itemsEN = [...propertiesPageEN.items];
-                    if (!itemsEN[i]) {
-                        itemsEN[i] = { ...items[i] };
-                    }
-                    itemsEN[i] = { ...itemsEN[i], image: next };
-                    setPropertiesPageEN({ ...propertiesPageEN, items: itemsEN });
-                }}/>
-                              <div className="grid gap-3 sm:grid-cols-2">
-                                <DualInput label={t.siteContent.propertiesPage.fields.tag} mnValue={item.tag} enValue={propertiesPageEN.items[i]?.tag ?? ""} onChangeMN={(v) => {
-                const items = [...propertiesPage.items];
-                items[i] = { ...items[i], tag: v };
-                setPropertiesPage({ ...propertiesPage, items });
-            }} onChangeEN={(v) => {
-                    const items = [...propertiesPageEN.items];
-                    if (!items[i])
-                        items[i] = { ...item, tag: "" };
-                    items[i] = { ...items[i], tag: v };
-                    setPropertiesPageEN({ ...propertiesPageEN, items });
-                }}/>
-                                <DualInput label={t.siteContent.propertiesPage.fields.size} mnValue={item.size} enValue={propertiesPageEN.items[i]?.size ?? ""} onChangeMN={(v) => {
-                const items = [...propertiesPage.items];
-                items[i] = { ...items[i], size: v };
-                setPropertiesPage({ ...propertiesPage, items });
-            }} onChangeEN={(v) => {
-                    const items = [...propertiesPageEN.items];
-                    if (!items[i])
-                        items[i] = { ...item, size: "" };
-                    items[i] = { ...items[i], size: v };
-                    setPropertiesPageEN({ ...propertiesPageEN, items });
-                }}/>
-                              </div>
-                            </div>
-                          </div>
-                          <div className="mt-4 grid gap-4 lg:grid-cols-3">
-                            <DualInput label={t.siteContent.propertiesPage.fields.floor} mnValue={item.floor} enValue={propertiesPageEN.items[i]?.floor ?? ""} onChangeMN={(v) => {
-                const items = [...propertiesPage.items];
-                items[i] = { ...items[i], floor: v };
-                setPropertiesPage({ ...propertiesPage, items });
-            }} onChangeEN={(v) => {
-                    const items = [...propertiesPageEN.items];
-                    if (!items[i])
-                        items[i] = { ...item, floor: "" };
-                    items[i] = { ...items[i], floor: v };
-                    setPropertiesPageEN({ ...propertiesPageEN, items });
-                }}/>
-                            <DualInput label={t.siteContent.propertiesPage.fields.parking} mnValue={item.parking} enValue={propertiesPageEN.items[i]?.parking ?? ""} onChangeMN={(v) => {
-                const items = [...propertiesPage.items];
-                items[i] = { ...items[i], parking: v };
-                setPropertiesPage({ ...propertiesPage, items });
-            }} onChangeEN={(v) => {
-                    const items = [...propertiesPageEN.items];
-                    if (!items[i])
-                        items[i] = { ...item, parking: "" };
-                    items[i] = { ...items[i], parking: v };
-                    setPropertiesPageEN({ ...propertiesPageEN, items });
-                }}/>
-                            <DualInput label={t.siteContent.propertiesPage.fields.price} mnValue={item.price} enValue={propertiesPageEN.items[i]?.price ?? ""} onChangeMN={(v) => {
-                const items = [...propertiesPage.items];
-                items[i] = { ...items[i], price: v };
-                setPropertiesPage({ ...propertiesPage, items });
-            }} onChangeEN={(v) => {
-                    const items = [...propertiesPageEN.items];
-                    if (!items[i])
-                        items[i] = { ...item, price: "" };
-                    items[i] = { ...items[i], price: v };
-                    setPropertiesPageEN({ ...propertiesPageEN, items });
-                }}/>
-                          </div>
-                          <div className="mt-4">
-                            <DualTextarea label={t.siteContent.propertiesPage.fields.description} mnValue={item.description} enValue={propertiesPageEN.items[i]?.description ?? ""} onChangeMN={(v) => {
-                const items = [...propertiesPage.items];
-                items[i] = { ...items[i], description: v };
-                setPropertiesPage({ ...propertiesPage, items });
-            }} onChangeEN={(v) => {
-                    const items = [...propertiesPageEN.items];
-                    if (!items[i])
-                        items[i] = { ...item, description: "" };
-                    items[i] = { ...items[i], description: v };
-                    setPropertiesPageEN({ ...propertiesPageEN, items });
-                }} rows={3}/>
-                          </div>
-                          <div className="mt-4 space-y-2">
-                            <label className="text-[11px] font-bold uppercase tracking-[0.12em] text-slate-500">
-                              Галерей зургууд / видео
-                            </label>
-                            {item.images.map((img, gi) => (<div key={gi} className="flex items-center gap-2">
-                                <div className="flex-1">
-                                  <ImageUploadField previewFit="cover" value={img} onChange={(next) => {
-                        const items = [...propertiesPage.items];
-                        const imgs = [...items[i].images];
-                        imgs[gi] = next;
-                        items[i] = { ...items[i], images: imgs };
-                        setPropertiesPage({ ...propertiesPage, items });
-                        const itemsEN = [...propertiesPageEN.items];
-                        if (!itemsEN[i]) {
-                            itemsEN[i] = { ...items[i] };
-                        }
-                        const imgsEN = [...(itemsEN[i].images ?? [])];
-                        imgsEN[gi] = next;
-                        itemsEN[i] = { ...itemsEN[i], images: imgsEN };
-                        setPropertiesPageEN({ ...propertiesPageEN, items: itemsEN });
-                    }}/>
-                                </div>
-                                <DangerMini onClick={() => {
-                        const items = [...propertiesPage.items];
-                        items[i] = { ...items[i], images: items[i].images.filter((_, j) => j !== gi) };
-                        setPropertiesPage({ ...propertiesPage, items });
-                        const itemsEN = [...propertiesPageEN.items];
-                        if (itemsEN[i]) {
-                            itemsEN[i] = { ...itemsEN[i], images: (itemsEN[i].images ?? []).filter((_, j) => j !== gi) };
-                            setPropertiesPageEN({ ...propertiesPageEN, items: itemsEN });
-                        }
-                    }}>
-                                  {t.siteContent.common.remove}
-                                </DangerMini>
-                              </div>))}
+                            ))}
                             <GhostButton onClick={() => {
-                    const items = [...propertiesPage.items];
-                    items[i] = { ...items[i], images: [...items[i].images, ""] };
-                    setPropertiesPage({ ...propertiesPage, items });
-                    const itemsEN = [...propertiesPageEN.items];
-                    if (itemsEN[i]) {
-                        itemsEN[i] = { ...itemsEN[i], images: [...(itemsEN[i].images ?? []), ""] };
-                        setPropertiesPageEN({ ...propertiesPageEN, items: itemsEN });
-                    }
-                }}>
-                              + Зураг нэмэх
+                              const items = [...projectsPage.items];
+                              items[i] = { ...items[i], images: [...items[i].images, ""] };
+                              setProjectsPage({ ...projectsPage, items });
+                              const itemsEN = [...projectsPageEN.items];
+                              if (itemsEN[i]) {
+                                itemsEN[i] = { ...itemsEN[i], images: [...(itemsEN[i].images ?? []), ""] };
+                                setProjectsPageEN({ ...projectsPageEN, items: itemsEN });
+                              }
+                            }}>
+                              + {t.siteContent.projectsPage.fields.addImage}
                             </GhostButton>
                           </div>
-                          <div className="mt-3 flex justify-end">
-                            <DangerMini onClick={() => {
-                    setPropertiesPage({ ...propertiesPage, items: propertiesPage.items.filter((_, j) => j !== i) });
-                    setPropertiesPageEN({ ...propertiesPageEN, items: propertiesPageEN.items.filter((_, j) => j !== i) });
-                }}>
-                              {t.siteContent.common.remove}
-                            </DangerMini>
-                          </div>
-                        </div>))}
-                      <GhostButton onClick={() => {
-                const newItem = { id: Date.now(), name: "", image: "", images: [], category: "", badge: null, size: "", floor: "", parking: "", price: "", tag: "", description: "" };
-                setPropertiesPage({ ...propertiesPage, items: [...propertiesPage.items, newItem] });
-                setPropertiesPageEN({ ...propertiesPageEN, items: [...propertiesPageEN.items, newItem] });
-            }}>
-                        + {t.siteContent.common.add}
-                      </GhostButton>
-                    </div>
-                  </EditorSection>
-                  <EditorSection id="properties-cta" title={t.siteContent.propertiesPage.sections.cta}>
-                    <div className="mb-4 flex items-center gap-2">
-                      <span className="text-[10px] font-bold uppercase text-slate-400">{t.siteContent.common.hide}</span>
-                      <button type="button" onClick={() => {
-                const next = !propertiesPage.cta.hidden;
-                setPropertiesPage({ ...propertiesPage, cta: { ...propertiesPage.cta, hidden: next } });
-                setPropertiesPageEN({ ...propertiesPageEN, cta: { ...propertiesPageEN.cta, hidden: next } });
-            }} className={`h-5 w-9 rounded-full border-2 border-transparent transition-colors duration-200 ${propertiesPage.cta.hidden ? "bg-indigo-600" : "bg-slate-200 dark:bg-slate-700"}`}>
-                        <div className={`h-4 w-4 transform rounded-full bg-white transition-transform ${propertiesPage.cta.hidden ? "translate-x-4" : "translate-x-0"}`}/>
-                      </button>
-                    </div>
-                    <div className="space-y-4">
-                      <div className="space-y-1.5">
-                        <label className="text-[11px] font-bold uppercase tracking-[0.12em] text-slate-500">
-                          {t.siteContent.propertiesPage.fields.href}
-                        </label>
-                        <input className={scInput} value={propertiesPage.cta.href} onChange={(e) => {
-                const v = e.target.value;
-                setPropertiesPage({ ...propertiesPage, cta: { ...propertiesPage.cta, href: v } });
-                setPropertiesPageEN({ ...propertiesPageEN, cta: { ...propertiesPageEN.cta, href: v } });
-            }}/>
+                        </div>
                       </div>
-                      <DualInput label={t.siteContent.propertiesPage.fields.label} mnValue={propertiesPage.cta.label} enValue={propertiesPageEN.cta.label} onChangeMN={(v) => setPropertiesPage({ ...propertiesPage, cta: { ...propertiesPage.cta, label: v } })} onChangeEN={(v) => setPropertiesPageEN({ ...propertiesPageEN, cta: { ...propertiesPageEN.cta, label: v } })}/>
-                    </div>
-                  </EditorSection>
-                  <PrimarySave disabled={saving} onClick={() => void save("properties-page")}>
-                    {saving ? t.common.saving : t.siteContent.common.saveTab(t.siteContent.tabs.propertiesPage.label)}
-                  </PrimarySave>
-                </EditorBody>) : tab === "sales-page" ? (<EditorBody sectionJumpKey={tab} sectionItems={[
-                { id: "sales-meta", label: t.siteContent.salesPage.fields.title },
-                { id: "sales-intro", label: t.siteContent.salesPage.fields.intro },
-            ]}>
-                  <EditorSection id="sales-meta" title={t.siteContent.salesPage.fields.headerTitle}>
-                    <div className="mb-4 flex items-center gap-2">
-                      <span className="text-[10px] font-bold uppercase text-slate-400">{t.siteContent.common.hide}</span>
-                      <button type="button" onClick={() => {
-                const next = !salesPage.header.hidden;
-                setSalesPage({ ...salesPage, header: { ...salesPage.header, hidden: next } });
-                setSalesPageEN({ ...salesPageEN, header: { ...salesPageEN.header, hidden: next } });
-            }} className={`h-5 w-9 rounded-full border-2 border-transparent transition-colors duration-200 ${salesPage.header.hidden ? "bg-indigo-600" : "bg-slate-200 dark:bg-slate-700"}`}>
-                        <div className={`h-4 w-4 transform rounded-full bg-white transition-transform ${salesPage.header.hidden ? "translate-x-4" : "translate-x-0"}`}/>
-                      </button>
-                    </div>
-                    <div className="space-y-4">
-                      <div className="grid gap-4 lg:grid-cols-2">
-                        <DualInput label={t.siteContent.salesPage.fields.eyebrow} mnValue={salesPage.header.eyebrow} enValue={salesPageEN.header.eyebrow} onChangeMN={(v) => setSalesPage({ ...salesPage, header: { ...salesPage.header, eyebrow: v } })} onChangeEN={(v) => setSalesPageEN({ ...salesPageEN, header: { ...salesPageEN.header, eyebrow: v } })}/>
-                        <DualInput label={t.siteContent.salesPage.fields.title} mnValue={salesPage.header.title} enValue={salesPageEN.header.title} onChangeMN={(v) => setSalesPage({ ...salesPage, header: { ...salesPage.header, title: v } })} onChangeEN={(v) => setSalesPageEN({ ...salesPageEN, header: { ...salesPageEN.header, title: v } })}/>
+                      <div className="mt-3 flex justify-end">
+                        <DangerMini onClick={() => {
+                          setProjectsPage({
+                            ...projectsPage,
+                            items: projectsPage.items.filter((_, j) => j !== i).map((it, idx) => ({ ...it, id: idx + 1 })),
+                          });
+                          setProjectsPageEN({
+                            ...projectsPageEN,
+                            items: projectsPageEN.items.filter((_, j) => j !== i).map((it, idx) => ({ ...it, id: idx + 1 })),
+                          });
+                        }}>
+                          {t.siteContent.common.remove}
+                        </DangerMini>
                       </div>
-                    </div>
-                  </EditorSection>
-                  <EditorSection id="sales-intro" title={t.siteContent.salesPage.fields.intro}>
-                    <DualTextarea label={t.siteContent.salesPage.fields.intro} mnValue={salesPage.header.intro} enValue={salesPageEN.header.intro} onChangeMN={(v) => setSalesPage({ ...salesPage, header: { ...salesPage.header, intro: v } })} onChangeEN={(v) => setSalesPageEN({ ...salesPageEN, header: { ...salesPageEN.header, intro: v } })}/>
-                  </EditorSection>
-                  <PrimarySave disabled={saving} onClick={() => void save("sales-page")}>
-                    {saving ? t.common.saving : t.siteContent.common.saveTab(t.siteContent.tabs.salesPage.label)}
-                  </PrimarySave>
-                </EditorBody>) : tab === "jobs-page" ? (<EditorBody sectionJumpKey={tab} sectionItems={[
-                { id: "jobs-header-title", label: t.siteContent.jobsPage.fields.title },
-                { id: "jobs-header-intro", label: t.siteContent.jobsPage.fields.intro },
+                    </div>))}
+                  <GhostButton onClick={() => {
+                    const newItem = {
+                      id: projectsPage.items.length + 1,
+                      name: "",
+                      coverImage: "",
+                      images: [],
+                      description: "",
+                      category: "",
+                      reactKey: `project-new-${Date.now()}`,
+                    };
+                    setProjectsPage({ ...projectsPage, items: [...projectsPage.items, newItem] });
+                    setProjectsPageEN({ ...projectsPageEN, items: [...projectsPageEN.items, { ...newItem }] });
+                  }}>
+                    + {lang === "mn" ? "Төсөл нэмэх" : "Add Project"}
+                  </GhostButton>
+                </div>
+              </EditorSection>
+              <PrimarySave disabled={saving} onClick={() => void save("projects-page")}>
+                {saving ? t.common.saving : t.siteContent.common.saveTab(t.siteContent.tabs.projectsPage.label)}
+              </PrimarySave>
+            </EditorBody>) : (<EditorBody sectionJumpKey={tab} sectionItems={[
+              { id: "footer-brand", label: "Брэнд & Лого" },
+              { id: "footer-sections", label: "Холбоосууд" },
+              { id: "footer-socials", label: "Сошиал" },
+              { id: "footer-partners", label: "Түншүүд" },
+              { id: "footer-copyright", label: "Copyright" },
             ]}>
-                  <EditorSection id="jobs-header-title" title={t.siteContent.jobsPage.fields.headerTitle}>
-                    <div className="mb-4 flex items-center gap-2">
-                      <span className="text-[10px] font-bold uppercase text-slate-400">{t.siteContent.common.hide}</span>
-                      <button type="button" onClick={() => {
-                const next = !jobsPage.header.hidden;
-                setJobsPage({ ...jobsPage, header: { ...jobsPage.header, hidden: next } });
-                setJobsPageEN({ ...jobsPageEN, header: { ...jobsPageEN.header, hidden: next } });
-            }} className={`h-5 w-9 rounded-full border-2 border-transparent transition-colors duration-200 ${jobsPage.header.hidden ? "bg-indigo-600" : "bg-slate-200 dark:bg-slate-700"}`}>
-                        <div className={`h-4 w-4 transform rounded-full bg-white transition-transform ${jobsPage.header.hidden ? "translate-x-4" : "translate-x-0"}`}/>
-                      </button>
-                    </div>
-                    <DualInput label={t.siteContent.jobsPage.fields.title} mnValue={jobsPage.header.title} enValue={jobsPageEN.header.title} onChangeMN={(v) => setJobsPage({ ...jobsPage, header: { ...jobsPage.header, title: v } })} onChangeEN={(v) => setJobsPageEN({ ...jobsPageEN, header: { ...jobsPageEN.header, title: v } })}/>
-                  </EditorSection>
-                  <EditorSection id="jobs-header-intro" title={lang === "mn" ? "Дэд тайлбар" : "Intro"}>
-                    <DualTextarea label={t.siteContent.jobsPage.fields.intro} mnValue={jobsPage.header.intro} enValue={jobsPageEN.header.intro} onChangeMN={(v) => setJobsPage({ ...jobsPage, header: { ...jobsPage.header, intro: v } })} onChangeEN={(v) => setJobsPageEN({ ...jobsPageEN, header: { ...jobsPageEN.header, intro: v } })}/>
-                  </EditorSection>
-                  <PrimarySave disabled={saving} onClick={() => void save("jobs-page")}>
-                    {saving ? t.common.saving : t.siteContent.common.saveTab(t.siteContent.tabs.jobsPage.label)}
-                  </PrimarySave>
-                </EditorBody>) : tab === "team" ? (<EditorBody sectionJumpKey={tab} sectionItems={[
-                { id: "team-header", label: t.siteContent.team.sections.header },
-                { id: "team-members", label: t.siteContent.team.sections.members },
-                { id: "team-cta", label: t.siteContent.team.sections.cta },
-            ]}>
-                  <EditorSection id="team-header" title={t.siteContent.team.fields.headerTitle} subtitle={t.siteContent.team.fields.headerSubtitle}>
-                    <div className="mb-4 flex items-center gap-2">
-                      <span className="text-[10px] font-bold uppercase text-slate-400">{t.siteContent.common.hide}</span>
-                      <button type="button" onClick={() => {
-                const next = !teamPage.header.hidden;
-                setTeamPage({ ...teamPage, header: { ...teamPage.header, hidden: next } });
-                setTeamPageEN({ ...teamPageEN, header: { ...teamPageEN.header, hidden: next } });
-            }} className={`h-5 w-9 rounded-full border-2 border-transparent transition-colors duration-200 ${teamPage.header.hidden ? "bg-indigo-600" : "bg-slate-200 dark:bg-slate-700"}`}>
-                        <div className={`h-4 w-4 transform rounded-full bg-white transition-transform ${teamPage.header.hidden ? "translate-x-4" : "translate-x-0"}`}/>
-                      </button>
-                    </div>
-                    <div className="space-y-4">
-                      <DualInput label={lang === "mn" ? "Дээд шошго" : "Eyebrow"} mnValue={teamPage.header.eyebrow} enValue={teamPageEN.header.eyebrow} onChangeMN={(v) => setTeamPage({ ...teamPage, header: { ...teamPage.header, eyebrow: v } })} onChangeEN={(v) => setTeamPageEN({ ...teamPageEN, header: { ...teamPageEN.header, eyebrow: v } })}/>
-                      <div className="grid gap-4 sm:grid-cols-2">
-                        <DualInput label={lang === "mn" ? "Гарчиг (эхний хэсэг)" : "Title (First Part)"} mnValue={teamPage.header.h2Line1} enValue={teamPageEN.header.h2Line1} onChangeMN={(v) => setTeamPage({ ...teamPage, header: { ...teamPage.header, h2Line1: v } })} onChangeEN={(v) => setTeamPageEN({ ...teamPageEN, header: { ...teamPageEN.header, h2Line1: v } })}/>
-                        <DualInput label={lang === "mn" ? "Гарчиг (онцлох өнгө)" : "Title (Accent Color)"} mnValue={teamPage.header.h2Accent} enValue={teamPageEN.header.h2Accent} onChangeMN={(v) => setTeamPage({ ...teamPage, header: { ...teamPage.header, h2Accent: v } })} onChangeEN={(v) => setTeamPageEN({ ...teamPageEN, header: { ...teamPageEN.header, h2Accent: v } })}/>
+              <EditorSection id="footer-brand" title="Лого & Брэнд">
+                <div className="mb-4 flex items-center gap-2">
+                  <span className="text-[10px] font-bold uppercase text-slate-400">{t.siteContent.common.section} {t.siteContent.common.hide}</span>
+                  <button type="button" onClick={() => {
+                    const next = !footer.brand.hidden;
+                    setFooter({ ...footer, brand: { ...footer.brand, hidden: next } });
+                    setFooterEN({ ...footerEN, brand: { ...footerEN.brand, hidden: next } });
+                  }} className={`h-5 w-9 rounded-full border-2 border-transparent transition-colors duration-200 ${footer.brand.hidden ? "bg-indigo-600" : "bg-slate-200 dark:bg-slate-700"}`}>
+                    <div className={`h-4 w-4 transform rounded-full bg-white transition-transform ${footer.brand.hidden ? "translate-x-4" : "translate-x-0"}`} />
+                  </button>
+                </div>
+                <div className="space-y-4">
+                  <div className="space-y-1.5">
+                    <label className="text-[11px] font-bold uppercase tracking-wider text-slate-400">Лого</label>
+                    <ImageUploadField value={footer.logo} onChange={(v) => {
+                      setFooter({ ...footer, logo: v });
+                      setFooterEN({ ...footerEN, logo: v });
+                    }} />
+                  </div>
+                  <DualTextarea
+                    label={lang === "mn" ? "Брэндийн тайлбар" : "Brand Description"}
+                    mnValue={footer.brand.desc}
+                    enValue={footerEN.brand.desc}
+                    onChangeMN={(v) => setFooter({ ...footer, brand: { ...footer.brand, desc: v } })}
+                    onChangeEN={(v) => setFooterEN({ ...footerEN, brand: { ...footerEN.brand, desc: v } })}
+                    rows={3}
+                  />
+                </div>
+              </EditorSection>
+
+              <EditorSection id="footer-sections" title="Холбоосууд (Баганууд)">
+                <div className="space-y-6">
+                  {footer.sections.map((section, si) => (
+                    <div
+                      key={si}
+                      className="rounded-xl border border-slate-200 bg-slate-50/30 p-4 dark:border-slate-800 dark:bg-slate-900/20"
+                    >
+                      <div className="mb-4 flex items-center justify-between gap-4">
+                        <div className="flex-1">
+                          <DualInput label="Баганын нэр" mnValue={section.label} enValue={footerEN.sections[si]?.label ?? ""} onChangeMN={(v) => {
+                            const s = [...footer.sections];
+                            s[si] = { ...s[si], label: v };
+                            setFooter({ ...footer, sections: s });
+                          }} onChangeEN={(v) => {
+                            const s = [...footerEN.sections];
+                            if (!s[si])
+                              s[si] = { ...section, label: "" };
+                            s[si] = { ...s[si], label: v };
+                            setFooterEN({ ...footerEN, sections: s });
+                          }} />
+                        </div>
+                        <div className="flex items-center gap-2 pt-5">
+                          <span className="text-[10px] font-bold uppercase text-slate-400">{t.siteContent.common.hide}</span>
+                          <button type="button" onClick={() => {
+                            const s = [...footer.sections];
+                            s[si] = { ...s[si], hidden: !s[si].hidden };
+                            setFooter({ ...footer, sections: s });
+                            const sEN = [...footerEN.sections];
+                            if (sEN[si]) {
+                              sEN[si] = { ...sEN[si], hidden: s[si].hidden };
+                              setFooterEN({ ...footerEN, sections: sEN });
+                            }
+                          }} className={`h-5 w-9 rounded-full border-2 border-transparent transition-colors duration-200 ${section.hidden ? "bg-indigo-600" : "bg-slate-200 dark:bg-slate-700"}`}>
+                            <div className={`h-4 w-4 transform rounded-full bg-white transition-transform ${section.hidden ? "translate-x-4" : "translate-x-0"}`} />
+                          </button>
+                        </div>
                       </div>
-                      <DualTextarea label={lang === "mn" ? "Танилцуулга" : "Intro"} mnValue={teamPage.header.intro} enValue={teamPageEN.header.intro} onChangeMN={(v) => setTeamPage({ ...teamPage, header: { ...teamPage.header, intro: v } })} onChangeEN={(v) => setTeamPageEN({ ...teamPageEN, header: { ...teamPageEN.header, intro: v } })}/>
-                    </div>
-                  </EditorSection>
-                  <EditorSection id="team-members" title="Багийн гишүүд" defaultOpen={false}>
-                    <div className="mb-4 flex items-center gap-2">
-                      <span className="text-[10px] font-bold uppercase text-slate-400">{t.siteContent.common.section} {t.siteContent.common.hide}</span>
-                      <button type="button" onClick={() => {
-                const next = !teamPage.membersHidden;
-                setTeamPage({ ...teamPage, membersHidden: next });
-                setTeamPageEN({ ...teamPageEN, membersHidden: next });
-            }} className={`h-5 w-9 rounded-full border-2 border-transparent transition-colors duration-200 ${teamPage.membersHidden ? "bg-indigo-600" : "bg-slate-200 dark:bg-slate-700"}`}>
-                        <div className={`h-4 w-4 transform rounded-full bg-white transition-transform ${teamPage.membersHidden ? "translate-x-4" : "translate-x-0"}`}/>
-                      </button>
-                    </div>
-                    <div className="space-y-4">
-                      {teamPage.members.map((m, i) => (
-                        <div 
-                          key={i} 
-                          draggable
-                          onDragStart={(e) => handleDragStart(e, i, "team")}
-                          onDragOver={(e) => e.preventDefault()}
-                          onDrop={(e) => handleDrop(e, i, "team", teamPage.members, (v) => setTeamPage({ ...teamPage, members: v }), teamPageEN.members, (v) => setTeamPageEN({ ...teamPageEN, members: v }))}
-                          className="group relative rounded-xl border border-slate-200/90 bg-white/80 p-4 transition-all hover:border-indigo-200 hover:shadow-sm dark:border-slate-700 dark:bg-slate-900/40"
-                        >
-                          <div className="absolute right-4 top-4 opacity-0 transition-opacity group-hover:opacity-100">
-                            <MoveControls 
-                              isFirst={i === 0} 
-                              isLast={i === teamPage.members.length - 1} 
-                              onMoveUp={() => {
-                                setTeamPage({ ...teamPage, members: reorder(teamPage.members, i, i - 1) });
-                                setTeamPageEN({ ...teamPageEN, members: reorder(teamPageEN.members, i, i - 1) });
-                              }}
-                              onMoveDown={() => {
-                                setTeamPage({ ...teamPage, members: reorder(teamPage.members, i, i + 1) });
-                                setTeamPageEN({ ...teamPageEN, members: reorder(teamPageEN.members, i, i + 1) });
-                              }}
-                            />
-                          </div>
-                          <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-                            <DualInput label={lang === "mn" ? "Нэр" : "Name"} mnValue={m.name} enValue={teamPageEN.members[i]?.name ?? ""} onChangeMN={(v) => {
-                                const members = [...teamPage.members];
-                                members[i] = { ...members[i], name: v };
-                                setTeamPage({ ...teamPage, members });
-                            }} onChangeEN={(v) => {
-                                    const membersEN = [...teamPageEN.members];
-                                    if (!membersEN[i])
-                                        membersEN[i] = { ...m, name: "" };
-                                    membersEN[i] = { ...membersEN[i], name: v };
-                                    setTeamPageEN({ ...teamPageEN, members: membersEN });
-                                }}/>
-                            <DualInput label={lang === "mn" ? "Албан тушаал" : "Role"} mnValue={m.role} enValue={teamPageEN.members[i]?.role ?? ""} onChangeMN={(v) => {
-                                const members = [...teamPage.members];
-                                members[i] = { ...members[i], role: v };
-                                setTeamPage({ ...teamPage, members });
-                            }} onChangeEN={(v) => {
-                                    const membersEN = [...teamPageEN.members];
-                                    if (!membersEN[i])
-                                        membersEN[i] = { ...m, role: "" };
-                                    membersEN[i] = { ...membersEN[i], role: v };
-                                    setTeamPageEN({ ...teamPageEN, members: membersEN });
-                                }}/>
-                            <DualInput label={lang === "mn" ? "Эхний үсэг" : "Initials"} mnValue={m.initials} enValue={teamPageEN.members[i]?.initials ?? ""} onChangeMN={(v) => {
-                                const members = [...teamPage.members];
-                                members[i] = { ...members[i], initials: v };
-                                setTeamPage({ ...teamPage, members });
-                            }} onChangeEN={(v) => {
-                                    const membersEN = [...teamPageEN.members];
-                                    if (!membersEN[i])
-                                        membersEN[i] = { ...m, initials: "" };
-                                    membersEN[i] = { ...membersEN[i], initials: v };
-                                    setTeamPageEN({ ...teamPageEN, members: membersEN });
-                                }}/>
-                            <div>
-                              <label className="text-xs text-zinc-500">Утас</label>
-                              <input className={scInput} value={m.phone} onChange={(e) => {
-                                    const v = e.target.value;
-                                    const members = [...teamPage.members];
-                                    members[i] = { ...members[i], phone: v };
-                                    setTeamPage({ ...teamPage, members });
-                                    const membersEN = [...teamPageEN.members];
-                                    if (membersEN[i]) {
-                                        membersEN[i] = { ...membersEN[i], phone: v };
-                                        setTeamPageEN({ ...teamPageEN, members: membersEN });
-                                    }
-                                }}/>
+
+                      <div className="space-y-3 pl-4 border-l-2 border-slate-100 dark:border-slate-800">
+                        {(section.items || []).map((link, li) => (
+                          <div
+                            key={li}
+                            className="flex items-end gap-3 rounded-lg p-1"
+                          >
+                            <div className="flex-1 grid gap-3 sm:grid-cols-2">
+                              <DualInput label="Текст" mnValue={link.label} enValue={footerEN.sections[si]?.items[li]?.label ?? ""} onChangeMN={(v) => {
+                                const s = [...footer.sections];
+                                const items = [...s[si].items];
+                                items[li] = { ...items[li], label: v };
+                                s[si] = { ...s[si], items };
+                                setFooter({ ...footer, sections: s });
+                              }} onChangeEN={(v) => {
+                                const s = [...footerEN.sections];
+                                if (!s[si])
+                                  return;
+                                const items = [...s[si].items];
+                                if (!items[li])
+                                  items[li] = { ...link, label: "" };
+                                items[li] = { ...items[li], label: v };
+                                s[si] = { ...s[si], items };
+                                setFooterEN({ ...footerEN, sections: s });
+                              }} />
+                              <div className="space-y-1.5">
+                                <label className="text-[11px] font-bold uppercase tracking-wider text-slate-400">URL</label>
+                                <input className={scInput} list="site-paths" value={link.href} onChange={(e) => {
+                                  const v = e.target.value;
+                                  const s = [...footer.sections];
+                                  const items = [...s[si].items];
+                                  items[li] = { ...items[li], href: v };
+                                  s[si] = { ...s[si], items };
+                                  setFooter({ ...footer, sections: s });
+                                  const sEN = [...footerEN.sections];
+                                  if (sEN[si]) {
+                                    const itemsEN = [...sEN[si].items];
+                                    if (itemsEN[li])
+                                      itemsEN[li] = { ...itemsEN[li], href: v };
+                                    sEN[si] = { ...sEN[si], items: itemsEN };
+                                    setFooterEN({ ...footerEN, sections: sEN });
+                                  }
+                                }} />
+                              </div>
                             </div>
-                            <div>
-                              <label className="text-xs text-zinc-500">Имэйл</label>
-                              <input className={scInput} value={m.email} onChange={(e) => {
-                                    const v = e.target.value;
-                                    const members = [...teamPage.members];
-                                    members[i] = { ...members[i], email: v };
-                                    setTeamPage({ ...teamPage, members });
-                                    const membersEN = [...teamPageEN.members];
-                                    if (membersEN[i]) {
-                                        membersEN[i] = { ...membersEN[i], email: v };
-                                        setTeamPageEN({ ...teamPageEN, members: membersEN });
-                                    }
-                                }}/>
+                            <div className="flex flex-col gap-1 items-center mb-1">
+                              <button type="button" onClick={() => {
+                                const s = [...footer.sections];
+                                const items = [...s[si].items];
+                                items[li] = { ...items[li], hidden: !items[li].hidden };
+                                s[si] = { ...s[si], items };
+                                setFooter({ ...footer, sections: s });
+                                const sEN = [...footerEN.sections];
+                                if (sEN[si]) {
+                                  const itemsEN = [...sEN[si].items];
+                                  if (itemsEN[li])
+                                    itemsEN[li] = { ...itemsEN[li], hidden: items[li].hidden };
+                                  sEN[si] = { ...sEN[si], items: itemsEN };
+                                  setFooterEN({ ...footerEN, sections: sEN });
+                                }
+                              }} className={`h-4 w-7 rounded-full border border-transparent transition-colors ${link.hidden ? "bg-indigo-500" : "bg-slate-200 dark:bg-slate-700"}`}>
+                                <div className={`h-3 w-3 transform rounded-full bg-white transition-transform ${link.hidden ? "translate-x-3" : "translate-x-0"}`} />
+                              </button>
+                              <button onClick={() => {
+                                const s = [...footer.sections];
+                                s[si] = { ...s[si], items: s[si].items.filter((_, k) => k !== li) };
+                                setFooter({ ...footer, sections: s });
+                                const sEN = [...footerEN.sections];
+                                if (sEN[si]) {
+                                  sEN[si] = { ...sEN[si], items: sEN[si].items.filter((_, k) => k !== li) };
+                                  setFooterEN({ ...footerEN, sections: sEN });
+                                }
+                              }} className="text-slate-400 hover:text-red-500">
+                                <Trash2 className="h-3.5 w-3.5" />
+                              </button>
                             </div>
-                            <div>
-                              <label className="text-xs text-zinc-500">Төслүүд (тоо)</label>
-                              <input type="number" className={scInput} value={m.projects} onChange={(e) => {
-                                    const v = Number(e.target.value) || 0;
-                                    const members = [...teamPage.members];
-                                    members[i] = { ...members[i], projects: v };
-                                    setTeamPage({ ...teamPage, members });
-                                    const membersEN = [...teamPageEN.members];
-                                    if (membersEN[i]) {
-                                        membersEN[i] = { ...membersEN[i], projects: v };
-                                        setTeamPageEN({ ...teamPageEN, members: membersEN });
-                                    }
-                                }}/>
-                            </div>
-                            <div className="sm:col-span-2 lg:col-span-3">
-                              <DualTextarea label={lang === "mn" ? "Тайлбар" : "Bio"} mnValue={m.bio} enValue={teamPageEN.members[i]?.bio ?? ""} onChangeMN={(v) => {
-                                const members = [...teamPage.members];
-                                members[i] = { ...members[i], bio: v };
-                                setTeamPage({ ...teamPage, members });
-                            }} onChangeEN={(v) => {
-                                    const membersEN = [...teamPageEN.members];
-                                    if (!membersEN[i])
-                                        membersEN[i] = { ...m, bio: "" };
-                                    membersEN[i] = { ...membersEN[i], bio: v };
-                                    setTeamPageEN({ ...teamPageEN, members: membersEN });
-                                }}/>
-                            </div>
-                          </div>
-                          <div className="mt-3 flex justify-end">
-                            <DangerMini onClick={() => {
-                                setTeamPage({
-                                    ...teamPage,
-                                    members: teamPage.members.filter((_, j) => j !== i),
-                                });
-                                setTeamPageEN({
-                                    ...teamPageEN,
-                                    members: teamPageEN.members.filter((_, j) => j !== i),
-                                });
-                            }}>
-                              {t.siteContent.common.remove}
-                            </DangerMini>
-                          </div>
-                        </div>))}
-                      <GhostButton onClick={() => {
-                const newMember = {
-                    name: "", role: "", initials: "", color: "bg-accent-500", phone: "", email: "", bio: "", projects: 0,
-                };
-                setTeamPage({
-                    ...teamPage,
-                    members: [...teamPage.members, newMember],
-                });
-                setTeamPageEN({
-                    ...teamPageEN,
-                    members: [...teamPageEN.members, newMember],
-                });
-            }}>
-                        + Гишүүн нэмэх
-                      </GhostButton>
-                    </div>
-                  </EditorSection>
-                  <EditorSection id="team-cta" title="Доод урилга (CTA)">
-                    <div className="space-y-4">
-                      <DualInput label={lang === "mn" ? "Гарчиг" : "Title"} mnValue={teamPage.cta.title} enValue={teamPageEN.cta.title} onChangeMN={(v) => setTeamPage({ ...teamPage, cta: { ...teamPage.cta, title: v } })} onChangeEN={(v) => setTeamPageEN({ ...teamPageEN, cta: { ...teamPageEN.cta, title: v } })}/>
-                      <DualTextarea label={lang === "mn" ? "Дэд текст" : "Subtitle"} mnValue={teamPage.cta.subtitle} enValue={teamPageEN.cta.subtitle} onChangeMN={(v) => setTeamPage({ ...teamPage, cta: { ...teamPage.cta, subtitle: v } })} onChangeEN={(v) => setTeamPageEN({ ...teamPageEN, cta: { ...teamPageEN.cta, subtitle: v } })} rows={2}/>
-                      <div className="grid gap-4 sm:grid-cols-2">
-                        <DualInput label={lang === "mn" ? "Товчны текст" : "Button Label"} mnValue={teamPage.cta.buttonLabel} enValue={teamPageEN.cta.buttonLabel} onChangeMN={(v) => setTeamPage({ ...teamPage, cta: { ...teamPage.cta, buttonLabel: v } })} onChangeEN={(v) => setTeamPageEN({ ...teamPageEN, cta: { ...teamPageEN.cta, buttonLabel: v } })}/>
+                          </div>))}
+                        <GhostButton onClick={() => {
+                          const s = [...footer.sections];
+                          s[si] = { ...s[si], items: [...s[si].items, { label: "", href: "" }] };
+                          setFooter({ ...footer, sections: s });
+                          const sEN = [...footerEN.sections];
+                          if (sEN[si]) {
+                            sEN[si] = { ...sEN[si], items: [...sEN[si].items, { label: "", href: "" }] };
+                            setFooterEN({ ...footerEN, sections: sEN });
+                          }
+                        }}>
+                          + Линк нэмэх
+                        </GhostButton>
+                      </div>
+                      <div className="mt-4 flex justify-end">
+                        <DangerMini onClick={() => {
+                          setFooter({ ...footer, sections: footer.sections.filter((_, j) => j !== si) });
+                          setFooterEN({ ...footerEN, sections: footerEN.sections.filter((_, j) => j !== si) });
+                        }}>Устгах</DangerMini>
+                      </div>
+                    </div>))}
+                  <GhostButton onClick={() => {
+                    const newSec = { label: "", items: [] };
+                    setFooter({ ...footer, sections: [...footer.sections, newSec] });
+                    setFooterEN({ ...footerEN, sections: [...footerEN.sections, { ...newSec }] });
+                  }}>
+                    + Багана нэмэх
+                  </GhostButton>
+                </div>
+              </EditorSection>
+
+              <EditorSection id="footer-socials" title="Сошиал">
+                <div className="space-y-4">
+                  {footer.socials.map((s, i) => (<div key={i} className="flex flex-wrap items-end gap-3 rounded-lg border border-slate-200 p-3 dark:border-slate-700">
+                    <div className="flex-1 space-y-3 min-w-[200px]">
+                      <div className="flex items-center justify-between mb-2">
+                        <div className="flex items-center gap-2">
+                          <span className="text-[10px] font-bold uppercase text-slate-400">{t.siteContent.common.hide}</span>
+                          <button type="button" onClick={() => {
+                            const list = [...footer.socials];
+                            list[i] = { ...list[i], hidden: !list[i].hidden };
+                            setFooter({ ...footer, socials: list });
+                            const listEN = [...footerEN.socials];
+                            if (listEN[i]) {
+                              listEN[i] = { ...listEN[i], hidden: list[i].hidden };
+                              setFooterEN({ ...footerEN, socials: listEN });
+                            }
+                          }} className={`h-4 w-7 rounded-full border border-transparent transition-colors ${s.hidden ? "bg-indigo-500" : "bg-slate-200 dark:bg-slate-700"}`}>
+                            <div className={`h-3 w-3 transform rounded-full bg-white transition-transform ${s.hidden ? "translate-x-3" : "translate-x-0"}`} />
+                          </button>
+                        </div>
+                      </div>
+                      <DualInput label="Label (hover text)" mnValue={s.label} enValue={footerEN.socials[i]?.label ?? ""} onChangeMN={(v) => {
+                        const list = [...footer.socials];
+                        list[i] = { ...list[i], label: v };
+                        setFooter({ ...footer, socials: list });
+                      }} onChangeEN={(v) => {
+                        const list = [...footerEN.socials];
+                        if (!list[i])
+                          list[i] = { ...s, label: "" };
+                        list[i] = { ...list[i], label: v };
+                        setFooterEN({ ...footerEN, socials: list });
+                      }} />
+                      <div className="grid gap-3 sm:grid-cols-2">
                         <div className="space-y-1.5">
-                          <label className="text-[11px] font-bold uppercase tracking-[0.12em] text-slate-500">
-                             {lang === "mn" ? "Холбоос (ж: /contact)" : "Href (e.g., /contact)"}
-                          </label>
-                          <input className={scInput} value={teamPage.cta.buttonHref} onChange={(e) => {
-                const v = e.target.value;
-                setTeamPage({ ...teamPage, cta: { ...teamPage.cta, buttonHref: v } });
-                setTeamPageEN({ ...teamPageEN, cta: { ...teamPageEN.cta, buttonHref: v } });
-            }}/>
+                          <label className="text-xs text-slate-400">URL</label>
+                          <input className={scInput} list="site-paths" value={s.href} onChange={(e) => {
+                            const v = e.target.value;
+                            const list = [...footer.socials];
+                            list[i] = { ...list[i], href: v };
+                            setFooter({ ...footer, socials: list });
+                            const listEN = [...footerEN.socials];
+                            if (listEN[i]) {
+                              listEN[i] = { ...listEN[i], href: v };
+                              setFooterEN({ ...footerEN, socials: listEN });
+                            }
+                          }} />
+                        </div>
+                        <div className="space-y-1.5">
+                          <label className="text-xs text-slate-400">Icon Type</label>
+                          <select className={scInput} value={s.iconType} onChange={(e) => {
+                            const v = e.target.value;
+                            const list = [...footer.socials];
+                            list[i] = { ...list[i], iconType: v };
+                            setFooter({ ...footer, socials: list });
+                            const listEN = [...footerEN.socials];
+                            if (listEN[i]) {
+                              listEN[i] = { ...listEN[i], iconType: v };
+                              setFooterEN({ ...footerEN, socials: listEN });
+                            }
+                          }}>
+                            <option value="facebook">Facebook</option>
+                            <option value="instagram">Instagram</option>
+                            <option value="linkedin">LinkedIn</option>
+                            <option value="twitter">Twitter</option>
+                            <option value="youtube">YouTube</option>
+                          </select>
                         </div>
                       </div>
                     </div>
-                  </EditorSection>
-                  <PrimarySave disabled={saving} onClick={() => void save("team")}>
-                    {saving ? t.common.saving : t.siteContent.common.saveTab(t.siteContent.tabs.team.label)}
-                  </PrimarySave>
-                </EditorBody>) : tab === "projects-page" ? (<EditorBody sectionJumpKey={tab} sectionItems={[
-                { id: "projects-header", label: t.siteContent.projectsPage.sections.header },
-                { id: "projects-items", label: t.siteContent.projectsPage.sections.items },
-            ]}>
-                  <EditorSection id="projects-header" title={t.siteContent.projectsPage.fields.headerTitle} subtitle={t.siteContent.projectsPage.fields.headerSubtitle}>
-                    <div className="mb-4 flex items-center gap-2">
-                      <span className="text-[10px] font-bold uppercase text-slate-400">{t.siteContent.common.hide}</span>
-                      <button type="button" onClick={() => {
-                const next = !projectsPage.header.hidden;
-                setProjectsPage({ ...projectsPage, header: { ...projectsPage.header, hidden: next } });
-                setProjectsPageEN({ ...projectsPageEN, header: { ...projectsPageEN.header, hidden: next } });
-            }} className={`h-5 w-9 rounded-full border-2 border-transparent transition-colors duration-200 ${projectsPage.header.hidden ? "bg-indigo-600" : "bg-slate-200 dark:bg-slate-700"}`}>
-                        <div className={`h-4 w-4 transform rounded-full bg-white transition-transform ${projectsPage.header.hidden ? "translate-x-4" : "translate-x-0"}`}/>
-                      </button>
-                    </div>
-                    <div className="space-y-4">
-                      <DualInput label={t.siteContent.projectsPage.fields.badge} mnValue={projectsPage.header.badge} enValue={projectsPageEN.header.badge} onChangeMN={(v) => setProjectsPage({ ...projectsPage, header: { ...projectsPage.header, badge: v } })} onChangeEN={(v) => setProjectsPageEN({ ...projectsPageEN, header: { ...projectsPageEN.header, badge: v } })}/>
-                      <div className="grid gap-4 sm:grid-cols-2">
-                        <DualInput label={t.siteContent.projectsPage.fields.titleLine1} mnValue={projectsPage.header.titleLine1} enValue={projectsPageEN.header.titleLine1} onChangeMN={(v) => setProjectsPage({ ...projectsPage, header: { ...projectsPage.header, titleLine1: v } })} onChangeEN={(v) => setProjectsPageEN({ ...projectsPageEN, header: { ...projectsPageEN.header, titleLine1: v } })}/>
-                        <DualInput label={t.siteContent.projectsPage.fields.titleAccent} mnValue={projectsPage.header.titleAccent} enValue={projectsPageEN.header.titleAccent} onChangeMN={(v) => setProjectsPage({ ...projectsPage, header: { ...projectsPage.header, titleAccent: v } })} onChangeEN={(v) => setProjectsPageEN({ ...projectsPageEN, header: { ...projectsPageEN.header, titleAccent: v } })}/>
+                    <DangerMini onClick={() => {
+                      setFooter({ ...footer, socials: footer.socials.filter((_, j) => j !== i) });
+                      setFooterEN({ ...footerEN, socials: footerEN.socials.filter((_, j) => j !== i) });
+                    }}>Устгах</DangerMini>
+                  </div>))}
+                  <GhostButton onClick={() => {
+                    const newSoc = { label: "", href: "", iconType: "facebook" };
+                    setFooter({ ...footer, socials: [...footer.socials, newSoc] });
+                    setFooterEN({ ...footerEN, socials: [...footerEN.socials, newSoc] });
+                  }}>
+                    + Сошиал нэмэх
+                  </GhostButton>
+                </div>
+              </EditorSection>
+
+              <EditorSection id="footer-partners" title="Түншүүд (лого)" subtitle="Лого файлуудыг public/ доор байршуулж, энд зөвхөн замыг оруулна (ж: /logos/x.svg)." defaultOpen={false}>
+                <div className="mb-4 flex items-center gap-2">
+                  <span className="text-[10px] font-bold uppercase text-slate-400">Section Нуух</span>
+                  <button type="button" onClick={() => {
+                    const next = !footer.partners.hidden;
+                    setFooter({ ...footer, partners: { ...footer.partners, hidden: next } });
+                    setFooterEN({ ...footerEN, partners: { ...footerEN.partners, hidden: next } });
+                  }} className={`h-5 w-9 rounded-full border-2 border-transparent transition-colors duration-200 ${footer.partners.hidden ? "bg-indigo-600" : "bg-slate-200 dark:bg-slate-700"}`}>
+                    <div className={`h-4 w-4 transform rounded-full bg-white transition-transform ${footer.partners.hidden ? "translate-x-4" : "translate-x-0"}`} />
+                  </button>
+                </div>
+                <div className="space-y-4">
+                  {footer.partners.items.map((row, i) => (<div key={i} className="rounded-lg border border-zinc-200 p-3 dark:border-zinc-700">
+                    <div className="grid gap-2 sm:grid-cols-2">
+                      <div className="flex-1">
+                        <DualInput label={lang === "mn" ? "Нэр" : "Name"} mnValue={row.name} enValue={footerEN.partners.items[i]?.name ?? ""} onChangeMN={(v) => {
+                          const items = [...footer.partners.items];
+                          items[i] = { ...items[i], name: v };
+                          setFooter({ ...footer, partners: { ...footer.partners, items } });
+                        }} onChangeEN={(v) => {
+                          const items = [...footerEN.partners.items];
+                          if (!items[i])
+                            items[i] = { ...row, name: "" };
+                          items[i] = { ...items[i], name: v };
+                          setFooterEN({ ...footerEN, partners: { ...footerEN.partners, items } });
+                        }} />
                       </div>
-                      <DualTextarea label={t.siteContent.projectsPage.fields.intro} mnValue={projectsPage.header.intro} enValue={projectsPageEN.header.intro} onChangeMN={(v) => setProjectsPage({ ...projectsPage, header: { ...projectsPage.header, intro: v } })} onChangeEN={(v) => setProjectsPageEN({ ...projectsPageEN, header: { ...projectsPageEN.header, intro: v } })}/>
-                    </div>
-                  </EditorSection>
-                  <EditorSection id="projects-items" title={t.siteContent.projectsPage.fields.itemsTitle} subtitle={t.siteContent.projectsPage.fields.headerSubtitle} defaultOpen={false}>
-                    <div className="mb-4 flex items-center justify-between">
-                      <div className="flex items-center gap-2">
-                        <span className="text-[10px] font-bold uppercase text-slate-400">{t.siteContent.common.section} {t.siteContent.common.hide}</span>
-                        <button type="button" onClick={() => {
-                            const next = !projectsPage.itemsHidden;
-                            setProjectsPage({ ...projectsPage, itemsHidden: next });
-                            setProjectsPageEN({ ...projectsPageEN, itemsHidden: next });
-                        }} className={`h-5 w-9 rounded-full border-2 border-transparent transition-colors duration-200 ${projectsPage.itemsHidden ? "bg-indigo-600" : "bg-slate-200 dark:bg-slate-700"}`}>
-                          <div className={`h-4 w-4 transform rounded-full bg-white transition-transform ${projectsPage.itemsHidden ? "translate-x-4" : "translate-x-0"}`}/>
-                        </button>
+                      <div className="sm:col-span-2">
+                        <ImageUploadField previewFit="contain" value={row.src} onChange={(next) => {
+                          const items = [...footer.partners.items];
+                          items[i] = { ...items[i], src: next };
+                          setFooter({ ...footer, partners: { ...footer.partners, items } });
+                          const itemsEN = [...footerEN.partners.items];
+                          if (!itemsEN[i]) {
+                            itemsEN[i] = { ...items[i], src: next };
+                          }
+                          else {
+                            itemsEN[i] = { ...itemsEN[i], src: next };
+                          }
+                          setFooterEN({ ...footerEN, partners: { ...footerEN.partners, items: itemsEN } });
+                        }} />
                       </div>
-                      <GhostButton onClick={() => {
-                        const sorted = [...projectsPage.items].sort((a, b) => (Number(a.id) || 0) - (Number(b.id) || 0));
-                        setProjectsPage({ ...projectsPage, items: sorted });
-                        const sortedEN = [...projectsPageEN.items].sort((a, b) => (Number(a.id) || 0) - (Number(b.id) || 0));
-                        setProjectsPageEN({ ...projectsPageEN, items: sortedEN });
-                      }}>
-                        ID-аар эрэмбэлэх
-                      </GhostButton>
-                    </div>
-                    <div className="space-y-4">
-                      {projectsPage.items.map((item, i) => (
-                        <div 
-                          key={item.reactKey || i} 
-                          draggable
-                          onDragStart={(e) => handleDragStart(e, i, "project")}
-                          onDragOver={(e) => e.preventDefault()}
-                          onDrop={(e) => handleDrop(e, i, "project", projectsPage.items, (v) => setProjectsPage({ ...projectsPage, items: v }), projectsPageEN.items, (v) => setProjectsPageEN({ ...projectsPageEN, items: v }))}
-                          className="group relative rounded-xl border border-slate-200/90 bg-white/80 p-4 transition-all hover:border-indigo-200 hover:shadow-sm dark:border-slate-700 dark:bg-slate-900/40"
-                        >
-                          <div className="absolute right-4 top-4 opacity-0 transition-opacity group-hover:opacity-100 z-10">
-                            <MoveControls 
-                              isFirst={i === 0} 
-                              isLast={i === projectsPage.items.length - 1} 
-                              onMoveUp={() => {
-                                setProjectsPage({ ...projectsPage, items: reorder(projectsPage.items, i, i - 1) });
-                                setProjectsPageEN({ ...projectsPageEN, items: reorder(projectsPageEN.items, i, i - 1) });
-                              }}
-                              onMoveDown={() => {
-                                setProjectsPage({ ...projectsPage, items: reorder(projectsPage.items, i, i + 1) });
-                                setProjectsPageEN({ ...projectsPageEN, items: reorder(projectsPageEN.items, i, i + 1) });
-                              }}
-                            />
-                          </div>
-                          <div className="space-y-4">
-                            <div className="grid gap-4 sm:grid-cols-2">
-                              <div className="space-y-1.5">
-                                <label className="text-[11px] font-bold uppercase tracking-[0.12em] text-slate-500 dark:text-slate-400">
-                                  {t.siteContent.projectsPage.fields.id}
-                                </label>
-                                <input 
-                                  type="number" 
-                                  className={scInput} 
-                                  value={item.id} 
-                                  onChange={(e) => {
-                                    const v = parseInt(e.target.value) || 0;
-                                    const items = [...projectsPage.items];
-                                    items[i] = { ...items[i], id: v };
-                                    setProjectsPage({ ...projectsPage, items });
-                                    const itemsEN = [...projectsPageEN.items];
-                                    if (itemsEN[i]) {
-                                      itemsEN[i] = { ...itemsEN[i], id: v };
-                                      setProjectsPageEN({ ...projectsPageEN, items: itemsEN });
-                                    }
-                                  }} 
-                                />
-                              </div>
-                              <DualInput label={t.siteContent.projectsPage.fields.name} mnValue={item.name} enValue={projectsPageEN.items[i]?.name ?? ""} onChangeMN={(v) => {
-                                const items = [...projectsPage.items];
-                                items[i] = { ...items[i], name: v };
-                                setProjectsPage({ ...projectsPage, items });
-                            }} onChangeEN={(v) => {
-                                    const items = [...projectsPageEN.items];
-                                    if (!items[i])
-                                        items[i] = { ...item, name: "" };
-                                    items[i] = { ...items[i], name: v };
-                                    setProjectsPageEN({ ...projectsPageEN, items });
-                                }}/>
-                            </div>
-                            <DualInput label={t.siteContent.projectsPage.fields.category} mnValue={item.category} enValue={projectsPageEN.items[i]?.category ?? ""} onChangeMN={(v) => {
-                                const items = [...projectsPage.items];
-                                items[i] = { ...items[i], category: v };
-                                setProjectsPage({ ...projectsPage, items });
-                            }} onChangeEN={(v) => {
-                                    const items = [...projectsPageEN.items];
-                                    if (!items[i])
-                                        items[i] = { ...item, category: "" };
-                                    items[i] = { ...items[i], category: v };
-                                    setProjectsPageEN({ ...projectsPageEN, items });
-                                }}/>
-                            <div className="space-y-1.5">
-                              <label className="text-[11px] font-bold uppercase tracking-[0.12em] text-slate-500 dark:text-slate-400">
-                                {t.siteContent.projectsPage.fields.coverImage}
-                              </label>
-                              <ImageUploadField value={item.coverImage} onChange={(v) => {
-                                    const items = [...projectsPage.items];
-                                    items[i] = { ...items[i], coverImage: v };
-                                    setProjectsPage({ ...projectsPage, items });
-                                    const itemsEN = [...projectsPageEN.items];
-                                    if (!itemsEN[i]) {
-                                        itemsEN[i] = { ...items[i], coverImage: v };
-                                    }
-                                    else {
-                                        itemsEN[i] = { ...itemsEN[i], coverImage: v };
-                                    }
-                                    setProjectsPageEN({ ...projectsPageEN, items: itemsEN });
-                                }}/>
-                            </div>
-                            <DualTextarea label={t.siteContent.projectsPage.fields.description} mnValue={item.description} enValue={projectsPageEN.items[i]?.description ?? ""} onChangeMN={(v) => {
-                                const items = [...projectsPage.items];
-                                items[i] = { ...items[i], description: v };
-                                setProjectsPage({ ...projectsPage, items });
-                            }} onChangeEN={(v) => {
-                                    const items = [...projectsPageEN.items];
-                                    if (!items[i])
-                                        items[i] = { ...item, description: "" };
-                                    items[i] = { ...items[i], description: v };
-                                    setProjectsPageEN({ ...projectsPageEN, items });
-                                }} rows={2}/>
-                            <div className="space-y-2">
-                              <label className="text-[11px] font-bold uppercase tracking-[0.12em] text-slate-500 dark:text-slate-400">
-                                {t.siteContent.projectsPage.fields.images}
-                              </label>
-                              <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 lg:grid-cols-4">
-                                {item.images.map((imgUrl, j) => (
-                                  <div key={j} className="group/img relative">
-                                    <ImageUploadField value={imgUrl} onChange={(v) => {
-                                      const items = [...projectsPage.items];
-                                      const imgs = [...items[i].images];
-                                      imgs[j] = v;
-                                      items[i] = { ...items[i], images: imgs };
-                                      setProjectsPage({ ...projectsPage, items });
-                                      const itemsEN = [...projectsPageEN.items];
-                                      if (itemsEN[i]) {
-                                          const imgsEN = [...(itemsEN[i].images ?? [])];
-                                          imgsEN[j] = v;
-                                          itemsEN[i] = { ...itemsEN[i], images: imgsEN };
-                                          setProjectsPageEN({ ...projectsPageEN, items: itemsEN });
-                                      }
-                                    }}/>
-                                    <button onClick={() => {
-                                      const items = [...projectsPage.items];
-                                      items[i] = { ...items[i], images: items[i].images.filter((_, k) => k !== j) };
-                                      setProjectsPage({ ...projectsPage, items });
-                                    }} className="absolute -right-1 -top-1 hidden h-5 w-5 items-center justify-center rounded-full bg-rose-500 text-white shadow-sm group-hover/img:flex">×</button>
-                                  </div>
-                                ))}
-                                <GhostButton onClick={() => {
-                                    const items = [...projectsPage.items];
-                                    items[i] = { ...items[i], images: [...items[i].images, ""] };
-                                    setProjectsPage({ ...projectsPage, items });
-                                    const itemsEN = [...projectsPageEN.items];
-                                    if (itemsEN[i]) {
-                                        itemsEN[i] = { ...itemsEN[i], images: [...(itemsEN[i].images ?? []), ""] };
-                                        setProjectsPageEN({ ...projectsPageEN, items: itemsEN });
-                                    }
-                                }}>
-                                  + {t.siteContent.projectsPage.fields.addImage}
-                                </GhostButton>
-                              </div>
-                            </div>
-                          </div>
-                          <div className="mt-3 flex justify-end">
-                            <DangerMini onClick={() => {
-                                setProjectsPage({
-                                    ...projectsPage,
-                                    items: projectsPage.items.filter((_, j) => j !== i).map((it, idx) => ({ ...it, id: idx + 1 })),
-                                });
-                                setProjectsPageEN({
-                                    ...projectsPageEN,
-                                    items: projectsPageEN.items.filter((_, j) => j !== i).map((it, idx) => ({ ...it, id: idx + 1 })),
-                                });
-                            }}>
-                              {t.siteContent.common.remove}
-                            </DangerMini>
-                          </div>
-                        </div>))}
-                      <GhostButton onClick={() => {
-                const newItem = {
-                    id: projectsPage.items.length + 1,
-                    name: "",
-                    coverImage: "",
-                    images: [],
-                    description: "",
-                    category: "",
-                    reactKey: `project-new-${Date.now()}`,
-                };
-                setProjectsPage({ ...projectsPage, items: [...projectsPage.items, newItem] });
-                setProjectsPageEN({ ...projectsPageEN, items: [...projectsPageEN.items, { ...newItem }] });
-            }}>
-                        + {lang === "mn" ? "Төсөл нэмэх" : "Add Project"}
-                      </GhostButton>
-                    </div>
-                  </EditorSection>
-                  <PrimarySave disabled={saving} onClick={() => void save("projects-page")}>
-                    {saving ? t.common.saving : t.siteContent.common.saveTab(t.siteContent.tabs.projectsPage.label)}
-                  </PrimarySave>
-                </EditorBody>) : (<EditorBody sectionJumpKey={tab} sectionItems={[
-                { id: "footer-brand", label: "Брэнд & Лого" },
-                { id: "footer-sections", label: "Холбоосууд" },
-                { id: "footer-socials", label: "Сошиал" },
-                { id: "footer-partners", label: "Түншүүд" },
-                { id: "footer-copyright", label: "Copyright" },
-            ]}>
-                  <EditorSection id="footer-brand" title="Лого & Брэнд">
-                    <div className="mb-4 flex items-center gap-2">
-                      <span className="text-[10px] font-bold uppercase text-slate-400">{t.siteContent.common.section} {t.siteContent.common.hide}</span>
-                      <button type="button" onClick={() => {
-                const next = !footer.brand.hidden;
-                setFooter({ ...footer, brand: { ...footer.brand, hidden: next } });
-                setFooterEN({ ...footerEN, brand: { ...footerEN.brand, hidden: next } });
-            }} className={`h-5 w-9 rounded-full border-2 border-transparent transition-colors duration-200 ${footer.brand.hidden ? "bg-indigo-600" : "bg-slate-200 dark:bg-slate-700"}`}>
-                        <div className={`h-4 w-4 transform rounded-full bg-white transition-transform ${footer.brand.hidden ? "translate-x-4" : "translate-x-0"}`}/>
-                      </button>
-                    </div>
-                    <div className="space-y-4">
-                      <div className="space-y-1.5">
-                        <label className="text-[11px] font-bold uppercase tracking-wider text-slate-400">Лого</label>
-                        <ImageUploadField value={footer.logo} onChange={(v) => {
-                setFooter({ ...footer, logo: v });
-                setFooterEN({ ...footerEN, logo: v });
-            }}/>
+                      <div className="grid grid-cols-2 gap-3 sm:col-span-2">
+                        <div className="space-y-1.5">
+                          <label className="text-[11px] font-bold uppercase tracking-wider text-slate-400">Width</label>
+                          <input type="number" className={scInput} value={row.width} onChange={(next) => {
+                            const v = Number(next.target.value) || 0;
+                            const items = [...footer.partners.items];
+                            items[i] = { ...items[i], width: v };
+                            setFooter({ ...footer, partners: { ...footer.partners, items } });
+                            const itemsEN = [...footerEN.partners.items];
+                            if (itemsEN[i]) {
+                              itemsEN[i] = { ...itemsEN[i], width: v };
+                              setFooterEN({ ...footerEN, partners: { ...footerEN.partners, items: itemsEN } });
+                            }
+                          }} />
+                        </div>
+                        <div className="space-y-1.5">
+                          <label className="text-[11px] font-bold uppercase tracking-wider text-slate-400">Height</label>
+                          <input type="number" className={scInput} value={row.height} onChange={(next) => {
+                            const v = Number(next.target.value) || 0;
+                            const items = [...footer.partners.items];
+                            items[i] = { ...items[i], height: v };
+                            setFooter({ ...footer, partners: { ...footer.partners, items } });
+                            const itemsEN = [...footerEN.partners.items];
+                            if (itemsEN[i]) {
+                              itemsEN[i] = { ...itemsEN[i], height: v };
+                              setFooterEN({ ...footerEN, partners: { ...footerEN.partners, items: itemsEN } });
+                            }
+                          }} />
+                        </div>
                       </div>
-                      <DualTextarea 
-                        label={lang === "mn" ? "Брэндийн тайлбар" : "Brand Description"} 
-                        mnValue={footer.brand.desc} 
-                        enValue={footerEN.brand.desc} 
-                        onChangeMN={(v) => setFooter({ ...footer, brand: { ...footer.brand, desc: v } })} 
-                        onChangeEN={(v) => setFooterEN({ ...footerEN, brand: { ...footerEN.brand, desc: v } })} 
-                        rows={3}
-                      />
                     </div>
-                  </EditorSection>
-
-                  <EditorSection id="footer-sections" title="Холбоосууд (Баганууд)">
-                    <div className="space-y-6">
-                      {footer.sections.map((section, si) => (
-                        <div 
-                          key={si} 
-                          className="rounded-xl border border-slate-200 bg-slate-50/30 p-4 dark:border-slate-800 dark:bg-slate-900/20"
-                        >
-                          <div className="mb-4 flex items-center justify-between gap-4">
-                            <div className="flex-1">
-                              <DualInput label="Баганын нэр" mnValue={section.label} enValue={footerEN.sections[si]?.label ?? ""} onChangeMN={(v) => {
-                                const s = [...footer.sections];
-                                s[si] = { ...s[si], label: v };
-                                setFooter({ ...footer, sections: s });
-                            }} onChangeEN={(v) => {
-                                    const s = [...footerEN.sections];
-                                    if (!s[si])
-                                        s[si] = { ...section, label: "" };
-                                    s[si] = { ...s[si], label: v };
-                                    setFooterEN({ ...footerEN, sections: s });
-                                }}/>
-                            </div>
-                            <div className="flex items-center gap-2 pt-5">
-                              <span className="text-[10px] font-bold uppercase text-slate-400">{t.siteContent.common.hide}</span>
-                              <button type="button" onClick={() => {
-                                    const s = [...footer.sections];
-                                    s[si] = { ...s[si], hidden: !s[si].hidden };
-                                    setFooter({ ...footer, sections: s });
-                                    const sEN = [...footerEN.sections];
-                                    if (sEN[si]) {
-                                        sEN[si] = { ...sEN[si], hidden: s[si].hidden };
-                                        setFooterEN({ ...footerEN, sections: sEN });
-                                    }
-                                }} className={`h-5 w-9 rounded-full border-2 border-transparent transition-colors duration-200 ${section.hidden ? "bg-indigo-600" : "bg-slate-200 dark:bg-slate-700"}`}>
-                                <div className={`h-4 w-4 transform rounded-full bg-white transition-transform ${section.hidden ? "translate-x-4" : "translate-x-0"}`}/>
-                              </button>
-                            </div>
-                          </div>
-
-                          <div className="space-y-3 pl-4 border-l-2 border-slate-100 dark:border-slate-800">
-                            {(section.items || []).map((link, li) => (
-                              <div 
-                                key={li} 
-                                className="flex items-end gap-3 rounded-lg p-1"
-                              >
-                                <div className="flex-1 grid gap-3 sm:grid-cols-2">
-                                  <DualInput label="Текст" mnValue={link.label} enValue={footerEN.sections[si]?.items[li]?.label ?? ""} onChangeMN={(v) => {
-                                    const s = [...footer.sections];
-                                    const items = [...s[si].items];
-                                    items[li] = { ...items[li], label: v };
-                                    s[si] = { ...s[si], items };
-                                    setFooter({ ...footer, sections: s });
-                                }} onChangeEN={(v) => {
-                                        const s = [...footerEN.sections];
-                                        if (!s[si])
-                                            return;
-                                        const items = [...s[si].items];
-                                        if (!items[li])
-                                            items[li] = { ...link, label: "" };
-                                        items[li] = { ...items[li], label: v };
-                                        s[si] = { ...s[si], items };
-                                        setFooterEN({ ...footerEN, sections: s });
-                                    }}/>
-                                  <div className="space-y-1.5">
-                                    <label className="text-[11px] font-bold uppercase tracking-wider text-slate-400">URL</label>
-                                    <input className={scInput} list="site-paths" value={link.href} onChange={(e) => {
-                                        const v = e.target.value;
-                                        const s = [...footer.sections];
-                                        const items = [...s[si].items];
-                                        items[li] = { ...items[li], href: v };
-                                        s[si] = { ...s[si], items };
-                                        setFooter({ ...footer, sections: s });
-                                        const sEN = [...footerEN.sections];
-                                        if (sEN[si]) {
-                                            const itemsEN = [...sEN[si].items];
-                                            if (itemsEN[li])
-                                                itemsEN[li] = { ...itemsEN[li], href: v };
-                                            sEN[si] = { ...sEN[si], items: itemsEN };
-                                            setFooterEN({ ...footerEN, sections: sEN });
-                                        }
-                                    }}/>
-                                  </div>
-                                </div>
-                                <div className="flex flex-col gap-1 items-center mb-1">
-                                  <button type="button" onClick={() => {
-                                        const s = [...footer.sections];
-                                        const items = [...s[si].items];
-                                        items[li] = { ...items[li], hidden: !items[li].hidden };
-                                        s[si] = { ...s[si], items };
-                                        setFooter({ ...footer, sections: s });
-                                        const sEN = [...footerEN.sections];
-                                        if (sEN[si]) {
-                                            const itemsEN = [...sEN[si].items];
-                                            if (itemsEN[li])
-                                                itemsEN[li] = { ...itemsEN[li], hidden: items[li].hidden };
-                                            sEN[si] = { ...sEN[si], items: itemsEN };
-                                            setFooterEN({ ...footerEN, sections: sEN });
-                                        }
-                                    }} className={`h-4 w-7 rounded-full border border-transparent transition-colors ${link.hidden ? "bg-indigo-500" : "bg-slate-200 dark:bg-slate-700"}`}>
-                                    <div className={`h-3 w-3 transform rounded-full bg-white transition-transform ${link.hidden ? "translate-x-3" : "translate-x-0"}`}/>
-                                  </button>
-                                  <button onClick={() => {
-                                        const s = [...footer.sections];
-                                        s[si] = { ...s[si], items: s[si].items.filter((_, k) => k !== li) };
-                                        setFooter({ ...footer, sections: s });
-                                        const sEN = [...footerEN.sections];
-                                        if (sEN[si]) {
-                                            sEN[si] = { ...sEN[si], items: sEN[si].items.filter((_, k) => k !== li) };
-                                            setFooterEN({ ...footerEN, sections: sEN });
-                                        }
-                                    }} className="text-slate-400 hover:text-red-500">
-                                    <Trash2 className="h-3.5 w-3.5"/>
-                                  </button>
-                                </div>
-                              </div>))}
-                            <GhostButton onClick={() => {
-                    const s = [...footer.sections];
-                    s[si] = { ...s[si], items: [...s[si].items, { label: "", href: "" }] };
-                    setFooter({ ...footer, sections: s });
-                    const sEN = [...footerEN.sections];
-                    if (sEN[si]) {
-                        sEN[si] = { ...sEN[si], items: [...sEN[si].items, { label: "", href: "" }] };
-                        setFooterEN({ ...footerEN, sections: sEN });
-                    }
-                }}>
-                              + Линк нэмэх
-                            </GhostButton>
-                          </div>
-                          <div className="mt-4 flex justify-end">
-                             <DangerMini onClick={() => {
-                    setFooter({ ...footer, sections: footer.sections.filter((_, j) => j !== si) });
-                    setFooterEN({ ...footerEN, sections: footerEN.sections.filter((_, j) => j !== si) });
-                }}>Устгах</DangerMini>
-                          </div>
-                        </div>))}
-                      <GhostButton onClick={() => {
-                const newSec = { label: "", items: [] };
-                setFooter({ ...footer, sections: [...footer.sections, newSec] });
-                setFooterEN({ ...footerEN, sections: [...footerEN.sections, { ...newSec }] });
-            }}>
-                        + Багана нэмэх
-                      </GhostButton>
-                    </div>
-                  </EditorSection>
-
-                  <EditorSection id="footer-socials" title="Сошиал">
-                    <div className="space-y-4">
-                      {footer.socials.map((s, i) => (<div key={i} className="flex flex-wrap items-end gap-3 rounded-lg border border-slate-200 p-3 dark:border-slate-700">
-                          <div className="flex-1 space-y-3 min-w-[200px]">
-                            <div className="flex items-center justify-between mb-2">
-                              <div className="flex items-center gap-2">
-                                <span className="text-[10px] font-bold uppercase text-slate-400">{t.siteContent.common.hide}</span>
-                                <button type="button" onClick={() => {
-                        const list = [...footer.socials];
-                        list[i] = { ...list[i], hidden: !list[i].hidden };
-                        setFooter({ ...footer, socials: list });
-                        const listEN = [...footerEN.socials];
-                        if (listEN[i]) {
-                          listEN[i] = { ...listEN[i], hidden: list[i].hidden };
-                          setFooterEN({ ...footerEN, socials: listEN });
-                        }
-                      }} className={`h-4 w-7 rounded-full border border-transparent transition-colors ${s.hidden ? "bg-indigo-500" : "bg-slate-200 dark:bg-slate-700"}`}>
-                                  <div className={`h-3 w-3 transform rounded-full bg-white transition-transform ${s.hidden ? "translate-x-3" : "translate-x-0"}`}/>
-                                </button>
-                              </div>
-                            </div>
-                             <DualInput label="Label (hover text)" mnValue={s.label} enValue={footerEN.socials[i]?.label ?? ""} onChangeMN={(v) => {
-                const list = [...footer.socials];
-                list[i] = { ...list[i], label: v };
-                setFooter({ ...footer, socials: list });
-            }} onChangeEN={(v) => {
-                    const list = [...footerEN.socials];
-                    if (!list[i])
-                        list[i] = { ...s, label: "" };
-                    list[i] = { ...list[i], label: v };
-                    setFooterEN({ ...footerEN, socials: list });
-                }}/>
-                             <div className="grid gap-3 sm:grid-cols-2">
-                               <div className="space-y-1.5">
-                                 <label className="text-xs text-slate-400">URL</label>
-                                 <input className={scInput} list="site-paths" value={s.href} onChange={(e) => {
-                    const v = e.target.value;
-                    const list = [...footer.socials];
-                    list[i] = { ...list[i], href: v };
-                    setFooter({ ...footer, socials: list });
-                    const listEN = [...footerEN.socials];
-                    if (listEN[i]) {
-                        listEN[i] = { ...listEN[i], href: v };
-                        setFooterEN({ ...footerEN, socials: listEN });
-                    }
-                }}/>
-                               </div>
-                               <div className="space-y-1.5">
-                                 <label className="text-xs text-slate-400">Icon Type</label>
-                                 <select className={scInput} value={s.iconType} onChange={(e) => {
-                    const v = e.target.value;
-                    const list = [...footer.socials];
-                    list[i] = { ...list[i], iconType: v };
-                    setFooter({ ...footer, socials: list });
-                    const listEN = [...footerEN.socials];
-                    if (listEN[i]) {
-                        listEN[i] = { ...listEN[i], iconType: v };
-                        setFooterEN({ ...footerEN, socials: listEN });
-                    }
-                }}>
-                                   <option value="facebook">Facebook</option>
-                                   <option value="instagram">Instagram</option>
-                                   <option value="linkedin">LinkedIn</option>
-                                   <option value="twitter">Twitter</option>
-                                   <option value="youtube">YouTube</option>
-                                 </select>
-                               </div>
-                             </div>
-                          </div>
-                          <DangerMini onClick={() => {
-                    setFooter({ ...footer, socials: footer.socials.filter((_, j) => j !== i) });
-                    setFooterEN({ ...footerEN, socials: footerEN.socials.filter((_, j) => j !== i) });
-                }}>Устгах</DangerMini>
-                        </div>))}
-                      <GhostButton onClick={() => {
-                const newSoc = { label: "", href: "", iconType: "facebook" };
-                setFooter({ ...footer, socials: [...footer.socials, newSoc] });
-                setFooterEN({ ...footerEN, socials: [...footerEN.socials, newSoc] });
-            }}>
-                        + Сошиал нэмэх
-                      </GhostButton>
-                    </div>
-                  </EditorSection>
-
-                  <EditorSection id="footer-partners" title="Түншүүд (лого)" subtitle="Лого файлуудыг public/ доор байршуулж, энд зөвхөн замыг оруулна (ж: /logos/x.svg)." defaultOpen={false}>
-                    <div className="mb-4 flex items-center gap-2">
-                      <span className="text-[10px] font-bold uppercase text-slate-400">Section Нуух</span>
-                      <button type="button" onClick={() => {
-                const next = !footer.partners.hidden;
-                setFooter({ ...footer, partners: { ...footer.partners, hidden: next } });
-                setFooterEN({ ...footerEN, partners: { ...footerEN.partners, hidden: next } });
-            }} className={`h-5 w-9 rounded-full border-2 border-transparent transition-colors duration-200 ${footer.partners.hidden ? "bg-indigo-600" : "bg-slate-200 dark:bg-slate-700"}`}>
-                        <div className={`h-4 w-4 transform rounded-full bg-white transition-transform ${footer.partners.hidden ? "translate-x-4" : "translate-x-0"}`}/>
+                    <div className="mt-2 flex justify-end">
+                      <button type="button" className="inline-flex h-9 w-9 items-center justify-center rounded-md border border-red-200 text-red-600 transition-colors hover:bg-red-50 dark:border-red-900 dark:text-red-400 dark:hover:bg-red-950/50" onClick={() => {
+                        const items = footer.partners.items.filter((_, j) => j !== i);
+                        setFooter({
+                          ...footer,
+                          partners: { ...footer.partners, items },
+                        });
+                      }} aria-label="Түнш устгах">
+                        <Trash2 className="h-4 w-4" aria-hidden />
                       </button>
                     </div>
-                    <div className="space-y-4">
-                      {footer.partners.items.map((row, i) => (<div key={i} className="rounded-lg border border-zinc-200 p-3 dark:border-zinc-700">
-                          <div className="grid gap-2 sm:grid-cols-2">
-                            <div className="flex-1">
-                              <DualInput label={lang === "mn" ? "Нэр" : "Name"} mnValue={row.name} enValue={footerEN.partners.items[i]?.name ?? ""} onChangeMN={(v) => {
-                const items = [...footer.partners.items];
-                items[i] = { ...items[i], name: v };
-                setFooter({ ...footer, partners: { ...footer.partners, items } });
-            }} onChangeEN={(v) => {
-                    const items = [...footerEN.partners.items];
-                    if (!items[i])
-                        items[i] = { ...row, name: "" };
-                    items[i] = { ...items[i], name: v };
-                    setFooterEN({ ...footerEN, partners: { ...footerEN.partners, items } });
-                }}/>
-                            </div>
-                            <div className="sm:col-span-2">
-                              <ImageUploadField previewFit="contain" value={row.src} onChange={(next) => {
-                    const items = [...footer.partners.items];
-                    items[i] = { ...items[i], src: next };
-                    setFooter({ ...footer, partners: { ...footer.partners, items } });
-                    const itemsEN = [...footerEN.partners.items];
-                    if (!itemsEN[i]) {
-                        itemsEN[i] = { ...items[i], src: next };
-                    }
-                    else {
-                        itemsEN[i] = { ...itemsEN[i], src: next };
-                    }
-                    setFooterEN({ ...footerEN, partners: { ...footerEN.partners, items: itemsEN } });
-                }}/>
-                            </div>
-                            <div className="grid grid-cols-2 gap-3 sm:col-span-2">
-                              <div className="space-y-1.5">
-                                <label className="text-[11px] font-bold uppercase tracking-wider text-slate-400">Width</label>
-                                <input type="number" className={scInput} value={row.width} onChange={(next) => {
-                    const v = Number(next.target.value) || 0;
-                    const items = [...footer.partners.items];
-                    items[i] = { ...items[i], width: v };
-                    setFooter({ ...footer, partners: { ...footer.partners, items } });
-                    const itemsEN = [...footerEN.partners.items];
-                    if (itemsEN[i]) {
-                        itemsEN[i] = { ...itemsEN[i], width: v };
-                        setFooterEN({ ...footerEN, partners: { ...footerEN.partners, items: itemsEN } });
-                    }
-                }}/>
-                              </div>
-                              <div className="space-y-1.5">
-                                <label className="text-[11px] font-bold uppercase tracking-wider text-slate-400">Height</label>
-                                <input type="number" className={scInput} value={row.height} onChange={(next) => {
-                    const v = Number(next.target.value) || 0;
-                    const items = [...footer.partners.items];
-                    items[i] = { ...items[i], height: v };
-                    setFooter({ ...footer, partners: { ...footer.partners, items } });
-                    const itemsEN = [...footerEN.partners.items];
-                    if (itemsEN[i]) {
-                        itemsEN[i] = { ...itemsEN[i], height: v };
-                        setFooterEN({ ...footerEN, partners: { ...footerEN.partners, items: itemsEN } });
-                    }
-                }}/>
-                              </div>
-                            </div>
-                          </div>
-                          <div className="mt-2 flex justify-end">
-                            <button type="button" className="inline-flex h-9 w-9 items-center justify-center rounded-md border border-red-200 text-red-600 transition-colors hover:bg-red-50 dark:border-red-900 dark:text-red-400 dark:hover:bg-red-950/50" onClick={() => {
-                    const items = footer.partners.items.filter((_, j) => j !== i);
-                    setFooter({
-                        ...footer,
-                        partners: { ...footer.partners, items },
-                    });
-                }} aria-label="Түнш устгах">
-                              <Trash2 className="h-4 w-4" aria-hidden/>
-                            </button>
-                          </div>
-                        </div>))}
-                      <GhostButton onClick={() => {
-                const newItem = { name: "", src: "", width: 100, height: 36 };
-                setFooter({ ...footer, partners: { ...footer.partners, items: [...footer.partners.items, newItem] } });
-                setFooterEN({ ...footerEN, partners: { ...footerEN.partners, items: [...footerEN.partners.items, newItem] } });
-            }}>
-                        + {lang === "mn" ? "Түнш нэмэх" : "Add Partner"}
-                      </GhostButton>
-                    </div>
-                  </EditorSection>
+                  </div>))}
+                  <GhostButton onClick={() => {
+                    const newItem = { name: "", src: "", width: 100, height: 36 };
+                    setFooter({ ...footer, partners: { ...footer.partners, items: [...footer.partners.items, newItem] } });
+                    setFooterEN({ ...footerEN, partners: { ...footerEN.partners, items: [...footerEN.partners.items, newItem] } });
+                  }}>
+                    + {lang === "mn" ? "Түнш нэмэх" : "Add Partner"}
+                  </GhostButton>
+                </div>
+              </EditorSection>
 
-                  <EditorSection id="footer-copyright" title="Copyright">
-                    <div className="mb-4 flex items-center gap-2">
-                      <span className="text-[10px] font-bold uppercase text-slate-400">Нуух</span>
-                      <button type="button" onClick={() => {
-                const next = !footer.copyrightHidden;
-                setFooter({ ...footer, copyrightHidden: next });
-                setFooterEN({ ...footerEN, copyrightHidden: next });
-            }} className={`h-5 w-9 rounded-full border-2 border-transparent transition-colors duration-200 ${footer.copyrightHidden ? "bg-indigo-600" : "bg-slate-200 dark:bg-slate-700"}`}>
-                        <div className={`h-4 w-4 transform rounded-full bg-white transition-transform ${footer.copyrightHidden ? "translate-x-4" : "translate-x-0"}`}/>
-                      </button>
-                    </div>
-                    <DualInput label="Copyright Text" mnValue={footer.copyright} enValue={footerEN.copyright} onChangeMN={(v) => setFooter({ ...footer, copyright: v })} onChangeEN={(v) => setFooterEN({ ...footerEN, copyright: v })}/>
-                  </EditorSection>
+              <EditorSection id="footer-copyright" title="Copyright">
+                <div className="mb-4 flex items-center gap-2">
+                  <span className="text-[10px] font-bold uppercase text-slate-400">Нуух</span>
+                  <button type="button" onClick={() => {
+                    const next = !footer.copyrightHidden;
+                    setFooter({ ...footer, copyrightHidden: next });
+                    setFooterEN({ ...footerEN, copyrightHidden: next });
+                  }} className={`h-5 w-9 rounded-full border-2 border-transparent transition-colors duration-200 ${footer.copyrightHidden ? "bg-indigo-600" : "bg-slate-200 dark:bg-slate-700"}`}>
+                    <div className={`h-4 w-4 transform rounded-full bg-white transition-transform ${footer.copyrightHidden ? "translate-x-4" : "translate-x-0"}`} />
+                  </button>
+                </div>
+                <DualInput label="Copyright Text" mnValue={footer.copyright} enValue={footerEN.copyright} onChangeMN={(v) => setFooter({ ...footer, copyright: v })} onChangeEN={(v) => setFooterEN({ ...footerEN, copyright: v })} />
+              </EditorSection>
 
-                  <PrimarySave disabled={saving} onClick={() => void save("footer")}>
-                    {saving ? t.common.saving : t.siteContent.common.saveTab(t.siteContent.tabs.footer.label)}
-                  </PrimarySave>
-                </EditorBody>)}
-            </div>
-          </EditorSurface>
-        </div>
+              <PrimarySave disabled={saving} onClick={() => void save("footer")}>
+                {saving ? t.common.saving : t.siteContent.common.saveTab(t.siteContent.tabs.footer.label)}
+              </PrimarySave>
+            </EditorBody>)}
+          </div>
+        </EditorSurface>
       </div>
-      <datalist id="site-paths">
-        <option value="/">Нүүр</option>
-        <option value="/about">Бидний тухай</option>
-        <option value="/gallery">Галлерей</option>
-        <option value="/contact">Холбоо барих</option>
-        <option value="/properties">Properties</option>
-        <option value="/sales">Борлуулалт</option>
-        <option value="/jobs">Ажлын зар</option>
-        <option value="/team">Мэдээ мэдээлэл</option>
-        <option value="/projects">Төслүүд</option>
-      </datalist>
-    </div>);
+    </div>
+    <datalist id="site-paths">
+      <option value="/">Нүүр</option>
+      <option value="/about">Бидний тухай</option>
+      <option value="/gallery">Галлерей</option>
+      <option value="/contact">Холбоо барих</option>
+      <option value="/properties">Properties</option>
+      <option value="/sales">Борлуулалт</option>
+      <option value="/jobs">Ажлын зар</option>
+      <option value="/team">Мэдээ мэдээлэл</option>
+      <option value="/projects">Төслүүд</option>
+    </datalist>
+  </div>);
 }
