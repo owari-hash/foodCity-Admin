@@ -133,7 +133,7 @@ type TeamPageState = {
 type ProjectsPageState = {
     hidden: boolean;
     header: { hidden?: boolean; badge: string; titleLine1: string; titleAccent: string; intro: string; };
-    items: { id: number; name: string; coverImage: string; images: string[]; description: string; category: string; hidden?: boolean; }[];
+    items: { id: number; name: string; coverImage: string; images: string[]; description: string; category: string; hidden?: boolean; reactKey?: string; }[];
     itemsHidden?: boolean;
 };
 const EMPTY_HOME: HomeState = {
@@ -396,8 +396,9 @@ function normalizeProjectsPage(v: unknown): ProjectsPageState {
         hidden: !!root.hidden,
         header: { ...EMPTY_PROJECTS_PAGE.header, ...asRecord(root.header) },
         items: Array.isArray(root.items)
-            ? (root.items as ProjectsPageState["items"]).map((item) => ({
+            ? (root.items as ProjectsPageState["items"]).map((item, idx) => ({
                 ...item,
+                reactKey: `project-${idx}-${Date.now()}-${Math.random()}`,
                 images: Array.isArray(item.images) ? item.images : [],
             }))
             : [],
@@ -2244,61 +2245,54 @@ export default function SiteContentPage() {
                     </div>
                   </EditorSection>
                   <EditorSection id="projects-items" title={t.siteContent.projectsPage.fields.itemsTitle} subtitle={t.siteContent.projectsPage.fields.headerSubtitle} defaultOpen={false}>
-                    <div className="mb-4 flex items-center gap-2">
-                      <span className="text-[10px] font-bold uppercase text-slate-400">{t.siteContent.common.section} {t.siteContent.common.hide}</span>
-                      <button type="button" onClick={() => {
-                const next = !projectsPage.itemsHidden;
-                setProjectsPage({ ...projectsPage, itemsHidden: next });
-                setProjectsPageEN({ ...projectsPageEN, itemsHidden: next });
-            }} className={`h-5 w-9 rounded-full border-2 border-transparent transition-colors duration-200 ${projectsPage.itemsHidden ? "bg-indigo-600" : "bg-slate-200 dark:bg-slate-700"}`}>
-                        <div className={`h-4 w-4 transform rounded-full bg-white transition-transform ${projectsPage.itemsHidden ? "translate-x-4" : "translate-x-0"}`}/>
-                      </button>
+                    <div className="mb-4 flex items-center justify-between">
+                      <div className="flex items-center gap-2">
+                        <span className="text-[10px] font-bold uppercase text-slate-400">{t.siteContent.common.section} {t.siteContent.common.hide}</span>
+                        <button type="button" onClick={() => {
+                            const next = !projectsPage.itemsHidden;
+                            setProjectsPage({ ...projectsPage, itemsHidden: next });
+                            setProjectsPageEN({ ...projectsPageEN, itemsHidden: next });
+                        }} className={`h-5 w-9 rounded-full border-2 border-transparent transition-colors duration-200 ${projectsPage.itemsHidden ? "bg-indigo-600" : "bg-slate-200 dark:bg-slate-700"}`}>
+                          <div className={`h-4 w-4 transform rounded-full bg-white transition-transform ${projectsPage.itemsHidden ? "translate-x-4" : "translate-x-0"}`}/>
+                        </button>
+                      </div>
+                      <GhostButton onClick={() => {
+                        const sorted = [...projectsPage.items].sort((a, b) => (Number(a.id) || 0) - (Number(b.id) || 0));
+                        setProjectsPage({ ...projectsPage, items: sorted });
+                        const sortedEN = [...projectsPageEN.items].sort((a, b) => (Number(a.id) || 0) - (Number(b.id) || 0));
+                        setProjectsPageEN({ ...projectsPageEN, items: sortedEN });
+                      }}>
+                        ID-аар эрэмбэлэх
+                      </GhostButton>
                     </div>
                     <div className="space-y-4">
                       {projectsPage.items.map((item, i) => (
                         <div 
-                          key={item.id || i} 
-                          draggable
-                          onDragStart={(e) => handleDragStart(e, i, "project")}
-                          onDragOver={(e) => e.preventDefault()}
-                          onDrop={(e) => {
-                            handleDrop(e, i, "project", projectsPage.items, (v) => {
-                              const updated = v.map((it, idx) => ({ ...it, id: idx + 1 }));
-                              setProjectsPage({ ...projectsPage, items: updated });
-                            }, projectsPageEN.items, (v) => {
-                              const updated = v.map((it, idx) => ({ ...it, id: idx + 1 }));
-                              setProjectsPageEN({ ...projectsPageEN, items: updated });
-                            });
-                          }}
+                          key={item.reactKey || i} 
                           className="group relative rounded-xl border border-slate-200/90 bg-white/80 p-4 transition-all hover:border-indigo-200 hover:shadow-sm dark:border-slate-700 dark:bg-slate-900/40"
                         >
-                          <div className="absolute right-4 top-4 opacity-0 transition-opacity group-hover:opacity-100">
-                            <MoveControls 
-                              isFirst={i === 0} 
-                              isLast={i === projectsPage.items.length - 1} 
-                              onMoveUp={() => {
-                                const next = reorder(projectsPage.items, i, i - 1).map((it, idx) => ({ ...it, id: idx + 1 }));
-                                setProjectsPage({ ...projectsPage, items: next });
-                                const nextEN = reorder(projectsPageEN.items, i, i - 1).map((it, idx) => ({ ...it, id: idx + 1 }));
-                                setProjectsPageEN({ ...projectsPageEN, items: nextEN });
-                              }}
-                              onMoveDown={() => {
-                                const next = reorder(projectsPage.items, i, i + 1).map((it, idx) => ({ ...it, id: idx + 1 }));
-                                setProjectsPage({ ...projectsPage, items: next });
-                                const nextEN = reorder(projectsPageEN.items, i, i + 1).map((it, idx) => ({ ...it, id: idx + 1 }));
-                                setProjectsPageEN({ ...projectsPageEN, items: nextEN });
-                              }}
-                            />
-                          </div>
                           <div className="space-y-4">
                             <div className="grid gap-4 sm:grid-cols-2">
                               <div className="space-y-1.5">
                                 <label className="text-[11px] font-bold uppercase tracking-[0.12em] text-slate-500 dark:text-slate-400">
                                   {t.siteContent.projectsPage.fields.id}
                                 </label>
-                                <div className="flex h-10 items-center px-3 text-sm font-medium text-slate-500 bg-slate-50/50 rounded-xl border border-slate-100 dark:bg-slate-800/50 dark:border-slate-700">
-                                  #{item.id}
-                                </div>
+                                <input 
+                                  type="number" 
+                                  className={scInput} 
+                                  value={item.id} 
+                                  onChange={(e) => {
+                                    const v = parseInt(e.target.value) || 0;
+                                    const items = [...projectsPage.items];
+                                    items[i] = { ...items[i], id: v };
+                                    setProjectsPage({ ...projectsPage, items });
+                                    const itemsEN = [...projectsPageEN.items];
+                                    if (itemsEN[i]) {
+                                      itemsEN[i] = { ...itemsEN[i], id: v };
+                                      setProjectsPageEN({ ...projectsPageEN, items: itemsEN });
+                                    }
+                                  }} 
+                                />
                               </div>
                               <DualInput label={t.siteContent.projectsPage.fields.name} mnValue={item.name} enValue={projectsPageEN.items[i]?.name ?? ""} onChangeMN={(v) => {
                                 const items = [...projectsPage.items];
@@ -2418,6 +2412,7 @@ export default function SiteContentPage() {
                     images: [],
                     description: "",
                     category: "",
+                    reactKey: `project-new-${Date.now()}`,
                 };
                 setProjectsPage({ ...projectsPage, items: [...projectsPage.items, newItem] });
                 setProjectsPageEN({ ...projectsPageEN, items: [...projectsPageEN.items, { ...newItem }] });
@@ -2471,26 +2466,8 @@ export default function SiteContentPage() {
                       {footer.sections.map((section, si) => (
                         <div 
                           key={si} 
-                          draggable
-                          onDragStart={(e) => handleDragStart(e, si, "footer-section")}
-                          onDragOver={(e) => e.preventDefault()}
-                          onDrop={(e) => handleDrop(e, si, "footer-section", footer.sections, (v) => setFooter({ ...footer, sections: v }), footerEN.sections, (v) => setFooterEN({ ...footerEN, sections: v }))}
-                          className="group relative rounded-xl border border-slate-200 bg-slate-50/30 p-4 transition-all hover:border-indigo-200 hover:shadow-sm dark:border-slate-800 dark:bg-slate-900/20"
+                          className="rounded-xl border border-slate-200 bg-slate-50/30 p-4 dark:border-slate-800 dark:bg-slate-900/20"
                         >
-                          <div className="absolute right-4 top-4 opacity-0 transition-opacity group-hover:opacity-100">
-                            <MoveControls 
-                              isFirst={si === 0} 
-                              isLast={si === footer.sections.length - 1} 
-                              onMoveUp={() => {
-                                setFooter({ ...footer, sections: reorder(footer.sections, si, si - 1) });
-                                setFooterEN({ ...footerEN, sections: reorder(footerEN.sections, si, si - 1) });
-                              }}
-                              onMoveDown={() => {
-                                setFooter({ ...footer, sections: reorder(footer.sections, si, si + 1) });
-                                setFooterEN({ ...footerEN, sections: reorder(footerEN.sections, si, si + 1) });
-                              }}
-                            />
-                          </div>
                           <div className="mb-4 flex items-center justify-between gap-4">
                             <div className="flex-1">
                               <DualInput label="Баганын нэр" mnValue={section.label} enValue={footerEN.sections[si]?.label ?? ""} onChangeMN={(v) => {
@@ -2526,27 +2503,7 @@ export default function SiteContentPage() {
                             {(section.items || []).map((link, li) => (
                               <div 
                                 key={li} 
-                                draggable
-                                onDragStart={(e) => {
-                                  e.stopPropagation();
-                                  handleDragStart(e, li, `footer-link-${si}`);
-                                }}
-                                onDragOver={(e) => e.preventDefault()}
-                                onDrop={(e) => {
-                                  e.stopPropagation();
-                                  handleDrop(e, li, `footer-link-${si}`, section.items, (v) => {
-                                    const s = [...footer.sections];
-                                    s[si] = { ...s[si], items: v };
-                                    setFooter({ ...footer, sections: s });
-                                  }, footerEN.sections[si]?.items, (v) => {
-                                    const s = [...footerEN.sections];
-                                    if (s[si]) {
-                                      s[si] = { ...s[si], items: v };
-                                      setFooterEN({ ...footerEN, sections: s });
-                                    }
-                                  });
-                                }}
-                                className="group/link relative flex items-end gap-3 rounded-lg p-1 transition-colors hover:bg-slate-100/50 dark:hover:bg-slate-800/50"
+                                className="flex items-end gap-3 rounded-lg p-1"
                               >
                                 <div className="flex-1 grid gap-3 sm:grid-cols-2">
                                   <DualInput label="Текст" mnValue={link.label} enValue={footerEN.sections[si]?.items[li]?.label ?? ""} onChangeMN={(v) => {
@@ -2587,32 +2544,6 @@ export default function SiteContentPage() {
                                   </div>
                                 </div>
                                 <div className="flex flex-col gap-1 items-center mb-1">
-                                  <div className="opacity-0 transition-opacity group-hover/link:opacity-100">
-                                    <MoveControls 
-                                      isFirst={li === 0} 
-                                      isLast={li === section.items.length - 1} 
-                                      onMoveUp={() => {
-                                        const s = [...footer.sections];
-                                        s[si] = { ...s[si], items: reorder(s[si].items, li, li - 1) };
-                                        setFooter({ ...footer, sections: s });
-                                        const sEN = [...footerEN.sections];
-                                        if (sEN[si]) {
-                                          sEN[si] = { ...sEN[si], items: reorder(sEN[si].items, li, li - 1) };
-                                          setFooterEN({ ...footerEN, sections: sEN });
-                                        }
-                                      }}
-                                      onMoveDown={() => {
-                                        const s = [...footer.sections];
-                                        s[si] = { ...s[si], items: reorder(s[si].items, li, li + 1) };
-                                        setFooter({ ...footer, sections: s });
-                                        const sEN = [...footerEN.sections];
-                                        if (sEN[si]) {
-                                          sEN[si] = { ...sEN[si], items: reorder(sEN[si].items, li, li + 1) };
-                                          setFooterEN({ ...footerEN, sections: sEN });
-                                        }
-                                      }}
-                                    />
-                                  </div>
                                   <button type="button" onClick={() => {
                                         const s = [...footer.sections];
                                         const items = [...s[si].items];

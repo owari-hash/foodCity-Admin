@@ -10,6 +10,8 @@ export const adminTranslations = {
       loading: "Уншиж байна...",
       success: "Амжилттай хадгалагдлаа",
       error: "Алдаа гарлаа",
+      update: "Шинэчлэх",
+      add: "Нэмэх",
     },
     nav: {
       dashboard: "Хянах самбар",
@@ -261,6 +263,23 @@ export const adminTranslations = {
     jobs: {
       title: "Ажлын зар",
       addJob: "Зар нэмэх",
+      editJob: "Зар засах",
+      searchPlaceholder: "Ажлын нэр, компаниар хайх...",
+      empty: "Ажлын зар байхгүй байна",
+      noResults: "Хайлтад тохирох зар олдсонгүй",
+      fields: {
+        title: "Албан тушаал",
+        location: "Байршил",
+        salary: "Цалин",
+        company: "Компани",
+        contactEmail: "Холбоо барих имэйл",
+        imageUrl: "Зураг",
+        description: "Ажлын тайлбар",
+      },
+      status: {
+        active: "Идэвхтэй",
+        inactive: "Идэвхгүй",
+      },
     },
     salesAds: {
       title: "Борлуулалтын зар",
@@ -406,6 +425,8 @@ export const adminTranslations = {
       loading: "Loading...",
       success: "Saved successfully",
       error: "An error occurred",
+      update: "Update",
+      add: "Add",
     },
     nav: {
       dashboard: "Dashboard",
@@ -657,6 +678,23 @@ export const adminTranslations = {
     jobs: {
       title: "Jobs",
       addJob: "Add Job",
+      editJob: "Edit Job",
+      searchPlaceholder: "Search by title or company...",
+      empty: "No jobs posted yet",
+      noResults: "No jobs found matching your search",
+      fields: {
+        title: "Job Title",
+        location: "Location",
+        salary: "Salary",
+        company: "Company",
+        contactEmail: "Contact Email",
+        imageUrl: "Image",
+        description: "Job Description",
+      },
+      status: {
+        active: "Active",
+        inactive: "Inactive",
+      },
     },
     salesAds: {
       title: "Sales Ads",
