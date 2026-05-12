@@ -6,7 +6,7 @@ import { ensureClientAuthorized, PERMISSION_DENIED_MN, withClientAdminAuth, } fr
 import { getApiBaseUrl, joinBackendRequestUrl } from "@/lib/api";
 import { Briefcase, Building2, ClipboardList, Home, LayoutGrid, FolderOpen, Megaphone, Newspaper, Phone, Trash2, } from "lucide-react";
 import ImageUploadField from "@/components/ImageUploadField";
-import { DangerMini, EditorAlerts, EditorBody, EditorSection, EditorSurface, EditorTabRail, EditorTabSelect, GhostButton, PrimarySave, scInput, scTextarea, DualInput, DualTextarea, } from "./editorUi";
+import { DangerMini, EditorAlerts, EditorBody, EditorSection, EditorSurface, EditorTabRail, EditorTabSelect, GhostButton, MoveControls, PrimarySave, scInput, scTextarea, DualInput, DualTextarea, } from "./editorUi";
 type HomeState = {
     hidden: boolean;
     hero: {
@@ -516,6 +516,32 @@ export default function SiteContentPage() {
     const [teamPageEN, setTeamPageEN] = useState<TeamPageState>(EMPTY_TEAM_PAGE);
     const [projectsPage, setProjectsPage] = useState<ProjectsPageState>(EMPTY_PROJECTS_PAGE);
     const [projectsPageEN, setProjectsPageEN] = useState<ProjectsPageState>(EMPTY_PROJECTS_PAGE);
+
+    const reorder = <T,>(arr: T[], from: number, to: number): T[] => {
+        const next = [...arr];
+        const [removed] = next.splice(from, 1);
+        next.splice(to, 0, removed);
+        return next;
+    };
+
+    const handleDragStart = (e: React.DragEvent, index: number, type: string) => {
+        e.dataTransfer.setData("index", index.toString());
+        e.dataTransfer.setData("type", type);
+        e.dataTransfer.effectAllowed = "move";
+    };
+
+    const handleDrop = (e: React.DragEvent, toIndex: number, type: string, items: any[], setter: (val: any[]) => void, itemsEN?: any[], setterEN?: (val: any[]) => void) => {
+        e.preventDefault();
+        const fromIndex = parseInt(e.dataTransfer.getData("index"));
+        const dragType = e.dataTransfer.getData("type");
+        if (dragType !== type || fromIndex === toIndex) return;
+
+        const next = reorder(items, fromIndex, toIndex);
+        setter(next);
+        if (itemsEN && setterEN) {
+            setterEN(reorder(itemsEN, fromIndex, toIndex));
+        }
+    };
     const load = useCallback(async () => {
         setError(null);
         setLoading(true);
@@ -1691,24 +1717,38 @@ export default function SiteContentPage() {
                       </button>
                     </div>
                     <div className="space-y-4">
-                      {propertiesPage.items.map((item, i) => (<div key={item.id || i} className="rounded-xl border border-slate-200/90 bg-white/80 p-4 dark:border-slate-700 dark:bg-slate-900/40">
+                      {propertiesPage.items.map((item, i) => (
+                        <div 
+                          key={item.id || i} 
+                          draggable
+                          onDragStart={(e) => handleDragStart(e, i, "property")}
+                          onDragOver={(e) => e.preventDefault()}
+                          onDrop={(e) => handleDrop(e, i, "property", propertiesPage.items, (v) => setPropertiesPage({ ...propertiesPage, items: v }), propertiesPageEN.items, (v) => setPropertiesPageEN({ ...propertiesPageEN, items: v }))}
+                          className="group relative rounded-xl border border-slate-200/90 bg-white/80 p-4 transition-all hover:border-indigo-200 hover:shadow-sm dark:border-slate-700 dark:bg-slate-900/40"
+                        >
+                          <div className="absolute right-4 top-4 opacity-0 transition-opacity group-hover:opacity-100">
+                            <MoveControls 
+                              isFirst={i === 0} 
+                              isLast={i === propertiesPage.items.length - 1} 
+                              onMoveUp={() => {
+                                setPropertiesPage({ ...propertiesPage, items: reorder(propertiesPage.items, i, i - 1) });
+                                setPropertiesPageEN({ ...propertiesPageEN, items: reorder(propertiesPageEN.items, i, i - 1) });
+                              }}
+                              onMoveDown={() => {
+                                setPropertiesPage({ ...propertiesPage, items: reorder(propertiesPage.items, i, i + 1) });
+                                setPropertiesPageEN({ ...propertiesPageEN, items: reorder(propertiesPageEN.items, i, i + 1) });
+                              }}
+                            />
+                          </div>
                           <div className="grid gap-6 lg:grid-cols-2">
                             <div className="space-y-4">
                               <div className="space-y-1.5">
                                 <label className="text-[11px] font-bold uppercase tracking-[0.12em] text-slate-500">
                                   {t.siteContent.propertiesPage.fields.id}
                                 </label>
-                                <input type="number" className={scInput} value={item.id} onChange={(e) => {
-                    const v = Number(e.target.value) || 0;
-                    const items = [...propertiesPage.items];
-                    items[i] = { ...items[i], id: v };
-                    setPropertiesPage({ ...propertiesPage, items });
-                    const itemsEN = [...propertiesPageEN.items];
-                    if (itemsEN[i]) {
-                        itemsEN[i] = { ...itemsEN[i], id: v };
-                        setPropertiesPageEN({ ...propertiesPageEN, items: itemsEN });
-                    }
-                }}/>
+                                <div className="flex h-10 items-center px-3 text-sm font-medium text-slate-500 bg-slate-50/50 rounded-xl border border-slate-100 dark:bg-slate-800/50 dark:border-slate-700">
+                                  #{item.id}
+                                </div>
                               </div>
                               <DualInput label={t.siteContent.propertiesPage.fields.name} mnValue={item.name} enValue={propertiesPageEN.items[i]?.name ?? ""} onChangeMN={(v) => {
                 const items = [...propertiesPage.items];
@@ -2012,108 +2052,130 @@ export default function SiteContentPage() {
                       </button>
                     </div>
                     <div className="space-y-4">
-                      {teamPage.members.map((m, i) => (<div key={i} className="rounded-xl border border-slate-200/90 bg-white/80 p-4 dark:border-slate-700 dark:bg-slate-900/40">
+                      {teamPage.members.map((m, i) => (
+                        <div 
+                          key={i} 
+                          draggable
+                          onDragStart={(e) => handleDragStart(e, i, "team")}
+                          onDragOver={(e) => e.preventDefault()}
+                          onDrop={(e) => handleDrop(e, i, "team", teamPage.members, (v) => setTeamPage({ ...teamPage, members: v }), teamPageEN.members, (v) => setTeamPageEN({ ...teamPageEN, members: v }))}
+                          className="group relative rounded-xl border border-slate-200/90 bg-white/80 p-4 transition-all hover:border-indigo-200 hover:shadow-sm dark:border-slate-700 dark:bg-slate-900/40"
+                        >
+                          <div className="absolute right-4 top-4 opacity-0 transition-opacity group-hover:opacity-100">
+                            <MoveControls 
+                              isFirst={i === 0} 
+                              isLast={i === teamPage.members.length - 1} 
+                              onMoveUp={() => {
+                                setTeamPage({ ...teamPage, members: reorder(teamPage.members, i, i - 1) });
+                                setTeamPageEN({ ...teamPageEN, members: reorder(teamPageEN.members, i, i - 1) });
+                              }}
+                              onMoveDown={() => {
+                                setTeamPage({ ...teamPage, members: reorder(teamPage.members, i, i + 1) });
+                                setTeamPageEN({ ...teamPageEN, members: reorder(teamPageEN.members, i, i + 1) });
+                              }}
+                            />
+                          </div>
                           <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
                             <DualInput label={lang === "mn" ? "Нэр" : "Name"} mnValue={m.name} enValue={teamPageEN.members[i]?.name ?? ""} onChangeMN={(v) => {
-                const members = [...teamPage.members];
-                members[i] = { ...members[i], name: v };
-                setTeamPage({ ...teamPage, members });
-            }} onChangeEN={(v) => {
-                    const membersEN = [...teamPageEN.members];
-                    if (!membersEN[i])
-                        membersEN[i] = { ...m, name: "" };
-                    membersEN[i] = { ...membersEN[i], name: v };
-                    setTeamPageEN({ ...teamPageEN, members: membersEN });
-                }}/>
+                                const members = [...teamPage.members];
+                                members[i] = { ...members[i], name: v };
+                                setTeamPage({ ...teamPage, members });
+                            }} onChangeEN={(v) => {
+                                    const membersEN = [...teamPageEN.members];
+                                    if (!membersEN[i])
+                                        membersEN[i] = { ...m, name: "" };
+                                    membersEN[i] = { ...membersEN[i], name: v };
+                                    setTeamPageEN({ ...teamPageEN, members: membersEN });
+                                }}/>
                             <DualInput label={lang === "mn" ? "Албан тушаал" : "Role"} mnValue={m.role} enValue={teamPageEN.members[i]?.role ?? ""} onChangeMN={(v) => {
-                const members = [...teamPage.members];
-                members[i] = { ...members[i], role: v };
-                setTeamPage({ ...teamPage, members });
-            }} onChangeEN={(v) => {
-                    const membersEN = [...teamPageEN.members];
-                    if (!membersEN[i])
-                        membersEN[i] = { ...m, role: "" };
-                    membersEN[i] = { ...membersEN[i], role: v };
-                    setTeamPageEN({ ...teamPageEN, members: membersEN });
-                }}/>
+                                const members = [...teamPage.members];
+                                members[i] = { ...members[i], role: v };
+                                setTeamPage({ ...teamPage, members });
+                            }} onChangeEN={(v) => {
+                                    const membersEN = [...teamPageEN.members];
+                                    if (!membersEN[i])
+                                        membersEN[i] = { ...m, role: "" };
+                                    membersEN[i] = { ...membersEN[i], role: v };
+                                    setTeamPageEN({ ...teamPageEN, members: membersEN });
+                                }}/>
                             <DualInput label={lang === "mn" ? "Эхний үсэг" : "Initials"} mnValue={m.initials} enValue={teamPageEN.members[i]?.initials ?? ""} onChangeMN={(v) => {
-                const members = [...teamPage.members];
-                members[i] = { ...members[i], initials: v };
-                setTeamPage({ ...teamPage, members });
-            }} onChangeEN={(v) => {
-                    const membersEN = [...teamPageEN.members];
-                    if (!membersEN[i])
-                        membersEN[i] = { ...m, initials: "" };
-                    membersEN[i] = { ...membersEN[i], initials: v };
-                    setTeamPageEN({ ...teamPageEN, members: membersEN });
-                }}/>
+                                const members = [...teamPage.members];
+                                members[i] = { ...members[i], initials: v };
+                                setTeamPage({ ...teamPage, members });
+                            }} onChangeEN={(v) => {
+                                    const membersEN = [...teamPageEN.members];
+                                    if (!membersEN[i])
+                                        membersEN[i] = { ...m, initials: "" };
+                                    membersEN[i] = { ...membersEN[i], initials: v };
+                                    setTeamPageEN({ ...teamPageEN, members: membersEN });
+                                }}/>
                             <div>
                               <label className="text-xs text-zinc-500">Утас</label>
                               <input className={scInput} value={m.phone} onChange={(e) => {
-                    const v = e.target.value;
-                    const members = [...teamPage.members];
-                    members[i] = { ...members[i], phone: v };
-                    setTeamPage({ ...teamPage, members });
-                    const membersEN = [...teamPageEN.members];
-                    if (membersEN[i]) {
-                        membersEN[i] = { ...membersEN[i], phone: v };
-                        setTeamPageEN({ ...teamPageEN, members: membersEN });
-                    }
-                }}/>
+                                    const v = e.target.value;
+                                    const members = [...teamPage.members];
+                                    members[i] = { ...members[i], phone: v };
+                                    setTeamPage({ ...teamPage, members });
+                                    const membersEN = [...teamPageEN.members];
+                                    if (membersEN[i]) {
+                                        membersEN[i] = { ...membersEN[i], phone: v };
+                                        setTeamPageEN({ ...teamPageEN, members: membersEN });
+                                    }
+                                }}/>
                             </div>
                             <div>
                               <label className="text-xs text-zinc-500">Имэйл</label>
                               <input className={scInput} value={m.email} onChange={(e) => {
-                    const v = e.target.value;
-                    const members = [...teamPage.members];
-                    members[i] = { ...members[i], email: v };
-                    setTeamPage({ ...teamPage, members });
-                    const membersEN = [...teamPageEN.members];
-                    if (membersEN[i]) {
-                        membersEN[i] = { ...membersEN[i], email: v };
-                        setTeamPageEN({ ...teamPageEN, members: membersEN });
-                    }
-                }}/>
+                                    const v = e.target.value;
+                                    const members = [...teamPage.members];
+                                    members[i] = { ...members[i], email: v };
+                                    setTeamPage({ ...teamPage, members });
+                                    const membersEN = [...teamPageEN.members];
+                                    if (membersEN[i]) {
+                                        membersEN[i] = { ...membersEN[i], email: v };
+                                        setTeamPageEN({ ...teamPageEN, members: membersEN });
+                                    }
+                                }}/>
                             </div>
                             <div>
                               <label className="text-xs text-zinc-500">Төслүүд (тоо)</label>
                               <input type="number" className={scInput} value={m.projects} onChange={(e) => {
-                    const v = Number(e.target.value) || 0;
-                    const members = [...teamPage.members];
-                    members[i] = { ...members[i], projects: v };
-                    setTeamPage({ ...teamPage, members });
-                    const membersEN = [...teamPageEN.members];
-                    if (membersEN[i]) {
-                        membersEN[i] = { ...membersEN[i], projects: v };
-                        setTeamPageEN({ ...teamPageEN, members: membersEN });
-                    }
-                }}/>
+                                    const v = Number(e.target.value) || 0;
+                                    const members = [...teamPage.members];
+                                    members[i] = { ...members[i], projects: v };
+                                    setTeamPage({ ...teamPage, members });
+                                    const membersEN = [...teamPageEN.members];
+                                    if (membersEN[i]) {
+                                        membersEN[i] = { ...membersEN[i], projects: v };
+                                        setTeamPageEN({ ...teamPageEN, members: membersEN });
+                                    }
+                                }}/>
                             </div>
                             <div className="sm:col-span-2 lg:col-span-3">
                               <DualTextarea label={lang === "mn" ? "Тайлбар" : "Bio"} mnValue={m.bio} enValue={teamPageEN.members[i]?.bio ?? ""} onChangeMN={(v) => {
-                const members = [...teamPage.members];
-                members[i] = { ...members[i], bio: v };
-                setTeamPage({ ...teamPage, members });
-            }} onChangeEN={(v) => {
-                    const membersEN = [...teamPageEN.members];
-                    if (!membersEN[i])
-                        membersEN[i] = { ...m, bio: "" };
-                    membersEN[i] = { ...membersEN[i], bio: v };
-                    setTeamPageEN({ ...teamPageEN, members: membersEN });
-                }}/>
+                                const members = [...teamPage.members];
+                                members[i] = { ...members[i], bio: v };
+                                setTeamPage({ ...teamPage, members });
+                            }} onChangeEN={(v) => {
+                                    const membersEN = [...teamPageEN.members];
+                                    if (!membersEN[i])
+                                        membersEN[i] = { ...m, bio: "" };
+                                    membersEN[i] = { ...membersEN[i], bio: v };
+                                    setTeamPageEN({ ...teamPageEN, members: membersEN });
+                                }}/>
                             </div>
                           </div>
                           <div className="mt-3 flex justify-end">
                             <DangerMini onClick={() => {
-                    setTeamPage({
-                        ...teamPage,
-                        members: teamPage.members.filter((_, j) => j !== i),
-                    });
-                    setTeamPageEN({
-                        ...teamPageEN,
-                        members: teamPageEN.members.filter((_, j) => j !== i),
-                    });
-                }}>
+                                setTeamPage({
+                                    ...teamPage,
+                                    members: teamPage.members.filter((_, j) => j !== i),
+                                });
+                                setTeamPageEN({
+                                    ...teamPageEN,
+                                    members: teamPageEN.members.filter((_, j) => j !== i),
+                                });
+                            }}>
                               {t.siteContent.common.remove}
                             </DangerMini>
                           </div>
@@ -2193,137 +2255,157 @@ export default function SiteContentPage() {
                       </button>
                     </div>
                     <div className="space-y-4">
-                      {projectsPage.items.map((item, i) => (<div key={item.id || i} className="rounded-xl border border-slate-200/90 bg-white/80 p-4 dark:border-slate-700 dark:bg-slate-900/40">
+                      {projectsPage.items.map((item, i) => (
+                        <div 
+                          key={item.id || i} 
+                          draggable
+                          onDragStart={(e) => handleDragStart(e, i, "project")}
+                          onDragOver={(e) => e.preventDefault()}
+                          onDrop={(e) => {
+                            handleDrop(e, i, "project", projectsPage.items, (v) => {
+                              const updated = v.map((it, idx) => ({ ...it, id: idx + 1 }));
+                              setProjectsPage({ ...projectsPage, items: updated });
+                            }, projectsPageEN.items, (v) => {
+                              const updated = v.map((it, idx) => ({ ...it, id: idx + 1 }));
+                              setProjectsPageEN({ ...projectsPageEN, items: updated });
+                            });
+                          }}
+                          className="group relative rounded-xl border border-slate-200/90 bg-white/80 p-4 transition-all hover:border-indigo-200 hover:shadow-sm dark:border-slate-700 dark:bg-slate-900/40"
+                        >
+                          <div className="absolute right-4 top-4 opacity-0 transition-opacity group-hover:opacity-100">
+                            <MoveControls 
+                              isFirst={i === 0} 
+                              isLast={i === projectsPage.items.length - 1} 
+                              onMoveUp={() => {
+                                const next = reorder(projectsPage.items, i, i - 1).map((it, idx) => ({ ...it, id: idx + 1 }));
+                                setProjectsPage({ ...projectsPage, items: next });
+                                const nextEN = reorder(projectsPageEN.items, i, i - 1).map((it, idx) => ({ ...it, id: idx + 1 }));
+                                setProjectsPageEN({ ...projectsPageEN, items: nextEN });
+                              }}
+                              onMoveDown={() => {
+                                const next = reorder(projectsPage.items, i, i + 1).map((it, idx) => ({ ...it, id: idx + 1 }));
+                                setProjectsPage({ ...projectsPage, items: next });
+                                const nextEN = reorder(projectsPageEN.items, i, i + 1).map((it, idx) => ({ ...it, id: idx + 1 }));
+                                setProjectsPageEN({ ...projectsPageEN, items: nextEN });
+                              }}
+                            />
+                          </div>
                           <div className="space-y-4">
                             <div className="grid gap-4 sm:grid-cols-2">
                               <div className="space-y-1.5">
                                 <label className="text-[11px] font-bold uppercase tracking-[0.12em] text-slate-500 dark:text-slate-400">
                                   {t.siteContent.projectsPage.fields.id}
                                 </label>
-                                <input type="number" className={scInput} value={item.id} onChange={(e) => {
-                    const v = Number(e.target.value) || 0;
-                    const items = [...projectsPage.items];
-                    items[i] = { ...items[i], id: v };
-                    setProjectsPage({ ...projectsPage, items });
-                    const itemsEN = [...projectsPageEN.items];
-                    if (itemsEN[i]) {
-                        itemsEN[i] = { ...itemsEN[i], id: v };
-                        setProjectsPageEN({ ...projectsPageEN, items: itemsEN });
-                    }
-                }}/>
+                                <div className="flex h-10 items-center px-3 text-sm font-medium text-slate-500 bg-slate-50/50 rounded-xl border border-slate-100 dark:bg-slate-800/50 dark:border-slate-700">
+                                  #{item.id}
+                                </div>
                               </div>
                               <DualInput label={t.siteContent.projectsPage.fields.name} mnValue={item.name} enValue={projectsPageEN.items[i]?.name ?? ""} onChangeMN={(v) => {
-                const items = [...projectsPage.items];
-                items[i] = { ...items[i], name: v };
-                setProjectsPage({ ...projectsPage, items });
-            }} onChangeEN={(v) => {
-                    const items = [...projectsPageEN.items];
-                    if (!items[i])
-                        items[i] = { ...item, name: "" };
-                    items[i] = { ...items[i], name: v };
-                    setProjectsPageEN({ ...projectsPageEN, items });
-                }}/>
+                                const items = [...projectsPage.items];
+                                items[i] = { ...items[i], name: v };
+                                setProjectsPage({ ...projectsPage, items });
+                            }} onChangeEN={(v) => {
+                                    const items = [...projectsPageEN.items];
+                                    if (!items[i])
+                                        items[i] = { ...item, name: "" };
+                                    items[i] = { ...items[i], name: v };
+                                    setProjectsPageEN({ ...projectsPageEN, items });
+                                }}/>
                             </div>
                             <DualInput label={t.siteContent.projectsPage.fields.category} mnValue={item.category} enValue={projectsPageEN.items[i]?.category ?? ""} onChangeMN={(v) => {
-                const items = [...projectsPage.items];
-                items[i] = { ...items[i], category: v };
-                setProjectsPage({ ...projectsPage, items });
-            }} onChangeEN={(v) => {
-                    const items = [...projectsPageEN.items];
-                    if (!items[i])
-                        items[i] = { ...item, category: "" };
-                    items[i] = { ...items[i], category: v };
-                    setProjectsPageEN({ ...projectsPageEN, items });
-                }}/>
+                                const items = [...projectsPage.items];
+                                items[i] = { ...items[i], category: v };
+                                setProjectsPage({ ...projectsPage, items });
+                            }} onChangeEN={(v) => {
+                                    const items = [...projectsPageEN.items];
+                                    if (!items[i])
+                                        items[i] = { ...item, category: "" };
+                                    items[i] = { ...items[i], category: v };
+                                    setProjectsPageEN({ ...projectsPageEN, items });
+                                }}/>
                             <div className="space-y-1.5">
                               <label className="text-[11px] font-bold uppercase tracking-[0.12em] text-slate-500 dark:text-slate-400">
                                 {t.siteContent.projectsPage.fields.coverImage}
                               </label>
                               <ImageUploadField value={item.coverImage} onChange={(v) => {
-                    const items = [...projectsPage.items];
-                    items[i] = { ...items[i], coverImage: v };
-                    setProjectsPage({ ...projectsPage, items });
-                    const itemsEN = [...projectsPageEN.items];
-                    if (!itemsEN[i]) {
-                        itemsEN[i] = { ...items[i], coverImage: v };
-                    }
-                    else {
-                        itemsEN[i] = { ...itemsEN[i], coverImage: v };
-                    }
-                    setProjectsPageEN({ ...projectsPageEN, items: itemsEN });
-                }}/>
+                                    const items = [...projectsPage.items];
+                                    items[i] = { ...items[i], coverImage: v };
+                                    setProjectsPage({ ...projectsPage, items });
+                                    const itemsEN = [...projectsPageEN.items];
+                                    if (!itemsEN[i]) {
+                                        itemsEN[i] = { ...items[i], coverImage: v };
+                                    }
+                                    else {
+                                        itemsEN[i] = { ...itemsEN[i], coverImage: v };
+                                    }
+                                    setProjectsPageEN({ ...projectsPageEN, items: itemsEN });
+                                }}/>
                             </div>
                             <DualTextarea label={t.siteContent.projectsPage.fields.description} mnValue={item.description} enValue={projectsPageEN.items[i]?.description ?? ""} onChangeMN={(v) => {
-                const items = [...projectsPage.items];
-                items[i] = { ...items[i], description: v };
-                setProjectsPage({ ...projectsPage, items });
-            }} onChangeEN={(v) => {
-                    const items = [...projectsPageEN.items];
-                    if (!items[i])
-                        items[i] = { ...item, description: "" };
-                    items[i] = { ...items[i], description: v };
-                    setProjectsPageEN({ ...projectsPageEN, items });
-                }} rows={2}/>
+                                const items = [...projectsPage.items];
+                                items[i] = { ...items[i], description: v };
+                                setProjectsPage({ ...projectsPage, items });
+                            }} onChangeEN={(v) => {
+                                    const items = [...projectsPageEN.items];
+                                    if (!items[i])
+                                        items[i] = { ...item, description: "" };
+                                    items[i] = { ...items[i], description: v };
+                                    setProjectsPageEN({ ...projectsPageEN, items });
+                                }} rows={2}/>
                             <div className="space-y-2">
                               <label className="text-[11px] font-bold uppercase tracking-[0.12em] text-slate-500 dark:text-slate-400">
                                 {t.siteContent.projectsPage.fields.images}
                               </label>
-                              {item.images.map((imgUrl, j) => (<div key={j} className="flex items-center gap-2">
-                                  <div className="flex-1">
+                              <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 lg:grid-cols-4">
+                                {item.images.map((imgUrl, j) => (
+                                  <div key={j} className="group/img relative">
                                     <ImageUploadField value={imgUrl} onChange={(v) => {
-                        const items = [...projectsPage.items];
-                        const imgs = [...items[i].images];
-                        imgs[j] = v;
-                        items[i] = { ...items[i], images: imgs };
-                        setProjectsPage({ ...projectsPage, items });
-                        const itemsEN = [...projectsPageEN.items];
-                        if (!itemsEN[i]) {
-                            itemsEN[i] = { ...items[i] };
-                        }
-                        const imgsEN = [...(itemsEN[i].images ?? [])];
-                        imgsEN[j] = v;
-                        itemsEN[i] = { ...itemsEN[i], images: imgsEN };
-                        setProjectsPageEN({ ...projectsPageEN, items: itemsEN });
-                    }}/>
+                                      const items = [...projectsPage.items];
+                                      const imgs = [...items[i].images];
+                                      imgs[j] = v;
+                                      items[i] = { ...items[i], images: imgs };
+                                      setProjectsPage({ ...projectsPage, items });
+                                      const itemsEN = [...projectsPageEN.items];
+                                      if (itemsEN[i]) {
+                                          const imgsEN = [...(itemsEN[i].images ?? [])];
+                                          imgsEN[j] = v;
+                                          itemsEN[i] = { ...itemsEN[i], images: imgsEN };
+                                          setProjectsPageEN({ ...projectsPageEN, items: itemsEN });
+                                      }
+                                    }}/>
+                                    <button onClick={() => {
+                                      const items = [...projectsPage.items];
+                                      items[i] = { ...items[i], images: items[i].images.filter((_, k) => k !== j) };
+                                      setProjectsPage({ ...projectsPage, items });
+                                    }} className="absolute -right-1 -top-1 hidden h-5 w-5 items-center justify-center rounded-full bg-rose-500 text-white shadow-sm group-hover/img:flex">×</button>
                                   </div>
-                                  <DangerMini onClick={() => {
-                        const items = [...projectsPage.items];
-                        items[i] = { ...items[i], images: items[i].images.filter((_, k) => k !== j) };
-                        setProjectsPage({ ...projectsPage, items });
-                        const itemsEN = [...projectsPageEN.items];
-                        if (itemsEN[i]) {
-                            itemsEN[i] = { ...itemsEN[i], images: (itemsEN[i].images ?? []).filter((_, k) => k !== j) };
-                            setProjectsPageEN({ ...projectsPageEN, items: itemsEN });
-                        }
-                    }}>
-                                    {t.siteContent.common.remove}
-                                  </DangerMini>
-                                </div>))}
-                              <GhostButton onClick={() => {
-                    const items = [...projectsPage.items];
-                    items[i] = { ...items[i], images: [...items[i].images, ""] };
-                    setProjectsPage({ ...projectsPage, items });
-                    const itemsEN = [...projectsPageEN.items];
-                    if (itemsEN[i]) {
-                        itemsEN[i] = { ...itemsEN[i], images: [...(itemsEN[i].images ?? []), ""] };
-                        setProjectsPageEN({ ...projectsPageEN, items: itemsEN });
-                    }
-                }}>
-                                + {t.siteContent.projectsPage.fields.addImage}
-                              </GhostButton>
+                                ))}
+                                <GhostButton onClick={() => {
+                                    const items = [...projectsPage.items];
+                                    items[i] = { ...items[i], images: [...items[i].images, ""] };
+                                    setProjectsPage({ ...projectsPage, items });
+                                    const itemsEN = [...projectsPageEN.items];
+                                    if (itemsEN[i]) {
+                                        itemsEN[i] = { ...itemsEN[i], images: [...(itemsEN[i].images ?? []), ""] };
+                                        setProjectsPageEN({ ...projectsPageEN, items: itemsEN });
+                                    }
+                                }}>
+                                  + {t.siteContent.projectsPage.fields.addImage}
+                                </GhostButton>
+                              </div>
                             </div>
                           </div>
                           <div className="mt-3 flex justify-end">
                             <DangerMini onClick={() => {
-                    setProjectsPage({
-                        ...projectsPage,
-                        items: projectsPage.items.filter((_, j) => j !== i),
-                    });
-                    setProjectsPageEN({
-                        ...projectsPageEN,
-                        items: projectsPageEN.items.filter((_, j) => j !== i),
-                    });
-                }}>
+                                setProjectsPage({
+                                    ...projectsPage,
+                                    items: projectsPage.items.filter((_, j) => j !== i).map((it, idx) => ({ ...it, id: idx + 1 })),
+                                });
+                                setProjectsPageEN({
+                                    ...projectsPageEN,
+                                    items: projectsPageEN.items.filter((_, j) => j !== i).map((it, idx) => ({ ...it, id: idx + 1 })),
+                                });
+                            }}>
                               {t.siteContent.common.remove}
                             </DangerMini>
                           </div>
@@ -2386,107 +2468,178 @@ export default function SiteContentPage() {
 
                   <EditorSection id="footer-sections" title="Холбоосууд (Баганууд)">
                     <div className="space-y-6">
-                      {footer.sections.map((section, si) => (<div key={si} className="rounded-xl border border-slate-200 bg-slate-50/30 p-4 dark:border-slate-800 dark:bg-slate-900/20">
+                      {footer.sections.map((section, si) => (
+                        <div 
+                          key={si} 
+                          draggable
+                          onDragStart={(e) => handleDragStart(e, si, "footer-section")}
+                          onDragOver={(e) => e.preventDefault()}
+                          onDrop={(e) => handleDrop(e, si, "footer-section", footer.sections, (v) => setFooter({ ...footer, sections: v }), footerEN.sections, (v) => setFooterEN({ ...footerEN, sections: v }))}
+                          className="group relative rounded-xl border border-slate-200 bg-slate-50/30 p-4 transition-all hover:border-indigo-200 hover:shadow-sm dark:border-slate-800 dark:bg-slate-900/20"
+                        >
+                          <div className="absolute right-4 top-4 opacity-0 transition-opacity group-hover:opacity-100">
+                            <MoveControls 
+                              isFirst={si === 0} 
+                              isLast={si === footer.sections.length - 1} 
+                              onMoveUp={() => {
+                                setFooter({ ...footer, sections: reorder(footer.sections, si, si - 1) });
+                                setFooterEN({ ...footerEN, sections: reorder(footerEN.sections, si, si - 1) });
+                              }}
+                              onMoveDown={() => {
+                                setFooter({ ...footer, sections: reorder(footer.sections, si, si + 1) });
+                                setFooterEN({ ...footerEN, sections: reorder(footerEN.sections, si, si + 1) });
+                              }}
+                            />
+                          </div>
                           <div className="mb-4 flex items-center justify-between gap-4">
                             <div className="flex-1">
                               <DualInput label="Баганын нэр" mnValue={section.label} enValue={footerEN.sections[si]?.label ?? ""} onChangeMN={(v) => {
-                const s = [...footer.sections];
-                s[si] = { ...s[si], label: v };
-                setFooter({ ...footer, sections: s });
-            }} onChangeEN={(v) => {
-                    const s = [...footerEN.sections];
-                    if (!s[si])
-                        s[si] = { ...section, label: "" };
-                    s[si] = { ...s[si], label: v };
-                    setFooterEN({ ...footerEN, sections: s });
-                }}/>
+                                const s = [...footer.sections];
+                                s[si] = { ...s[si], label: v };
+                                setFooter({ ...footer, sections: s });
+                            }} onChangeEN={(v) => {
+                                    const s = [...footerEN.sections];
+                                    if (!s[si])
+                                        s[si] = { ...section, label: "" };
+                                    s[si] = { ...s[si], label: v };
+                                    setFooterEN({ ...footerEN, sections: s });
+                                }}/>
                             </div>
                             <div className="flex items-center gap-2 pt-5">
                               <span className="text-[10px] font-bold uppercase text-slate-400">{t.siteContent.common.hide}</span>
                               <button type="button" onClick={() => {
-                    const s = [...footer.sections];
-                    s[si] = { ...s[si], hidden: !s[si].hidden };
-                    setFooter({ ...footer, sections: s });
-                    const sEN = [...footerEN.sections];
-                    if (sEN[si]) {
-                        sEN[si] = { ...sEN[si], hidden: s[si].hidden };
-                        setFooterEN({ ...footerEN, sections: sEN });
-                    }
-                }} className={`h-5 w-9 rounded-full border-2 border-transparent transition-colors duration-200 ${section.hidden ? "bg-indigo-600" : "bg-slate-200 dark:bg-slate-700"}`}>
+                                    const s = [...footer.sections];
+                                    s[si] = { ...s[si], hidden: !s[si].hidden };
+                                    setFooter({ ...footer, sections: s });
+                                    const sEN = [...footerEN.sections];
+                                    if (sEN[si]) {
+                                        sEN[si] = { ...sEN[si], hidden: s[si].hidden };
+                                        setFooterEN({ ...footerEN, sections: sEN });
+                                    }
+                                }} className={`h-5 w-9 rounded-full border-2 border-transparent transition-colors duration-200 ${section.hidden ? "bg-indigo-600" : "bg-slate-200 dark:bg-slate-700"}`}>
                                 <div className={`h-4 w-4 transform rounded-full bg-white transition-transform ${section.hidden ? "translate-x-4" : "translate-x-0"}`}/>
                               </button>
                             </div>
                           </div>
 
                           <div className="space-y-3 pl-4 border-l-2 border-slate-100 dark:border-slate-800">
-                            {(section.items || []).map((link, li) => (<div key={li} className="flex items-end gap-3">
+                            {(section.items || []).map((link, li) => (
+                              <div 
+                                key={li} 
+                                draggable
+                                onDragStart={(e) => {
+                                  e.stopPropagation();
+                                  handleDragStart(e, li, `footer-link-${si}`);
+                                }}
+                                onDragOver={(e) => e.preventDefault()}
+                                onDrop={(e) => {
+                                  e.stopPropagation();
+                                  handleDrop(e, li, `footer-link-${si}`, section.items, (v) => {
+                                    const s = [...footer.sections];
+                                    s[si] = { ...s[si], items: v };
+                                    setFooter({ ...footer, sections: s });
+                                  }, footerEN.sections[si]?.items, (v) => {
+                                    const s = [...footerEN.sections];
+                                    if (s[si]) {
+                                      s[si] = { ...s[si], items: v };
+                                      setFooterEN({ ...footerEN, sections: s });
+                                    }
+                                  });
+                                }}
+                                className="group/link relative flex items-end gap-3 rounded-lg p-1 transition-colors hover:bg-slate-100/50 dark:hover:bg-slate-800/50"
+                              >
                                 <div className="flex-1 grid gap-3 sm:grid-cols-2">
                                   <DualInput label="Текст" mnValue={link.label} enValue={footerEN.sections[si]?.items[li]?.label ?? ""} onChangeMN={(v) => {
-                    const s = [...footer.sections];
-                    const items = [...s[si].items];
-                    items[li] = { ...items[li], label: v };
-                    s[si] = { ...s[si], items };
-                    setFooter({ ...footer, sections: s });
-                }} onChangeEN={(v) => {
-                        const s = [...footerEN.sections];
-                        if (!s[si])
-                            return;
-                        const items = [...s[si].items];
-                        if (!items[li])
-                            items[li] = { ...link, label: "" };
-                        items[li] = { ...items[li], label: v };
-                        s[si] = { ...s[si], items };
-                        setFooterEN({ ...footerEN, sections: s });
-                    }}/>
+                                    const s = [...footer.sections];
+                                    const items = [...s[si].items];
+                                    items[li] = { ...items[li], label: v };
+                                    s[si] = { ...s[si], items };
+                                    setFooter({ ...footer, sections: s });
+                                }} onChangeEN={(v) => {
+                                        const s = [...footerEN.sections];
+                                        if (!s[si])
+                                            return;
+                                        const items = [...s[si].items];
+                                        if (!items[li])
+                                            items[li] = { ...link, label: "" };
+                                        items[li] = { ...items[li], label: v };
+                                        s[si] = { ...s[si], items };
+                                        setFooterEN({ ...footerEN, sections: s });
+                                    }}/>
                                   <div className="space-y-1.5">
                                     <label className="text-[11px] font-bold uppercase tracking-wider text-slate-400">URL</label>
                                     <input className={scInput} list="site-paths" value={link.href} onChange={(e) => {
-                        const v = e.target.value;
-                        const s = [...footer.sections];
-                        const items = [...s[si].items];
-                        items[li] = { ...items[li], href: v };
-                        s[si] = { ...s[si], items };
-                        setFooter({ ...footer, sections: s });
-                        const sEN = [...footerEN.sections];
-                        if (sEN[si]) {
-                            const itemsEN = [...sEN[si].items];
-                            if (itemsEN[li])
-                                itemsEN[li] = { ...itemsEN[li], href: v };
-                            sEN[si] = { ...sEN[si], items: itemsEN };
-                            setFooterEN({ ...footerEN, sections: sEN });
-                        }
-                    }}/>
+                                        const v = e.target.value;
+                                        const s = [...footer.sections];
+                                        const items = [...s[si].items];
+                                        items[li] = { ...items[li], href: v };
+                                        s[si] = { ...s[si], items };
+                                        setFooter({ ...footer, sections: s });
+                                        const sEN = [...footerEN.sections];
+                                        if (sEN[si]) {
+                                            const itemsEN = [...sEN[si].items];
+                                            if (itemsEN[li])
+                                                itemsEN[li] = { ...itemsEN[li], href: v };
+                                            sEN[si] = { ...sEN[si], items: itemsEN };
+                                            setFooterEN({ ...footerEN, sections: sEN });
+                                        }
+                                    }}/>
                                   </div>
-
                                 </div>
                                 <div className="flex flex-col gap-1 items-center mb-1">
+                                  <div className="opacity-0 transition-opacity group-hover/link:opacity-100">
+                                    <MoveControls 
+                                      isFirst={li === 0} 
+                                      isLast={li === section.items.length - 1} 
+                                      onMoveUp={() => {
+                                        const s = [...footer.sections];
+                                        s[si] = { ...s[si], items: reorder(s[si].items, li, li - 1) };
+                                        setFooter({ ...footer, sections: s });
+                                        const sEN = [...footerEN.sections];
+                                        if (sEN[si]) {
+                                          sEN[si] = { ...sEN[si], items: reorder(sEN[si].items, li, li - 1) };
+                                          setFooterEN({ ...footerEN, sections: sEN });
+                                        }
+                                      }}
+                                      onMoveDown={() => {
+                                        const s = [...footer.sections];
+                                        s[si] = { ...s[si], items: reorder(s[si].items, li, li + 1) };
+                                        setFooter({ ...footer, sections: s });
+                                        const sEN = [...footerEN.sections];
+                                        if (sEN[si]) {
+                                          sEN[si] = { ...sEN[si], items: reorder(sEN[si].items, li, li + 1) };
+                                          setFooterEN({ ...footerEN, sections: sEN });
+                                        }
+                                      }}
+                                    />
+                                  </div>
                                   <button type="button" onClick={() => {
-                        const s = [...footer.sections];
-                        const items = [...s[si].items];
-                        items[li] = { ...items[li], hidden: !items[li].hidden };
-                        s[si] = { ...s[si], items };
-                        setFooter({ ...footer, sections: s });
-                        const sEN = [...footerEN.sections];
-                        if (sEN[si]) {
-                            const itemsEN = [...sEN[si].items];
-                            if (itemsEN[li])
-                                itemsEN[li] = { ...itemsEN[li], hidden: items[li].hidden };
-                            sEN[si] = { ...sEN[si], items: itemsEN };
-                            setFooterEN({ ...footerEN, sections: sEN });
-                        }
-                    }} className={`h-4 w-7 rounded-full border border-transparent transition-colors ${link.hidden ? "bg-indigo-500" : "bg-slate-200 dark:bg-slate-700"}`}>
+                                        const s = [...footer.sections];
+                                        const items = [...s[si].items];
+                                        items[li] = { ...items[li], hidden: !items[li].hidden };
+                                        s[si] = { ...s[si], items };
+                                        setFooter({ ...footer, sections: s });
+                                        const sEN = [...footerEN.sections];
+                                        if (sEN[si]) {
+                                            const itemsEN = [...sEN[si].items];
+                                            if (itemsEN[li])
+                                                itemsEN[li] = { ...itemsEN[li], hidden: items[li].hidden };
+                                            sEN[si] = { ...sEN[si], items: itemsEN };
+                                            setFooterEN({ ...footerEN, sections: sEN });
+                                        }
+                                    }} className={`h-4 w-7 rounded-full border border-transparent transition-colors ${link.hidden ? "bg-indigo-500" : "bg-slate-200 dark:bg-slate-700"}`}>
                                     <div className={`h-3 w-3 transform rounded-full bg-white transition-transform ${link.hidden ? "translate-x-3" : "translate-x-0"}`}/>
                                   </button>
                                   <button onClick={() => {
-                        const s = [...footer.sections];
-                        s[si] = { ...s[si], items: s[si].items.filter((_, k) => k !== li) };
-                        setFooter({ ...footer, sections: s });
-                        const sEN = [...footerEN.sections];
-                        if (sEN[si]) {
-                            sEN[si] = { ...sEN[si], items: sEN[si].items.filter((_, k) => k !== li) };
-                            setFooterEN({ ...footerEN, sections: sEN });
-                        }
-                    }} className="text-slate-400 hover:text-red-500">
+                                        const s = [...footer.sections];
+                                        s[si] = { ...s[si], items: s[si].items.filter((_, k) => k !== li) };
+                                        setFooter({ ...footer, sections: s });
+                                        const sEN = [...footerEN.sections];
+                                        if (sEN[si]) {
+                                            sEN[si] = { ...sEN[si], items: sEN[si].items.filter((_, k) => k !== li) };
+                                            setFooterEN({ ...footerEN, sections: sEN });
+                                        }
+                                    }} className="text-slate-400 hover:text-red-500">
                                     <Trash2 className="h-3.5 w-3.5"/>
                                   </button>
                                 </div>
