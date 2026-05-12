@@ -18,6 +18,7 @@ import {
   Users,
   MessageSquare,
   Settings,
+  User,
 } from "lucide-react";
 import { ThemeToggle } from "@/components/theme-toggle";
 import {
@@ -51,6 +52,7 @@ export default function AdminShell({ children }: { children: React.ReactNode }) 
     { href: "/chat", label: t.nav.chat, icon: MessageCircle, perm: "chat" },
     { href: "/sms-config", label: lang === "mn" ? "Мессеж болон санал" : "Messages & Feedback", icon: MessageSquare, perm: "site-content" },
     { href: "/users", label: t.nav.users, icon: Users, perm: "admin-users" },
+    { href: "/profile", label: t.profile.title, icon: User, perm: "dashboard" },
   ];
 
   const titles: Record<string, string> = {
@@ -62,6 +64,7 @@ export default function AdminShell({ children }: { children: React.ReactNode }) 
     "/chat": t.nav.chat,
     "/sms-config": lang === "mn" ? "Мессеж болон санал" : "Messages & Feedback",
     "/users": t.nav.users,
+    "/profile": t.profile.title,
   };
 
   const title = titles[pathname] ?? "Food City Admin";
