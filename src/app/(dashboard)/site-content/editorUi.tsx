@@ -502,7 +502,13 @@ export function VisualEditor({
         contentEditable
         suppressContentEditableWarning
         className={`w-full bg-transparent px-3.5 py-2.5 text-sm text-slate-900 focus:outline-none dark:text-slate-100 ${multiline ? "min-h-[100px] overflow-y-auto" : "whitespace-nowrap overflow-x-auto"}`}
-        onBlur={(e) => onChange(e.currentTarget.innerHTML)}
+        onBlur={(e) => {
+          let html = e.currentTarget.innerHTML;
+          if (html === "<br>" || html === "<p><br></p>" || html.trim() === "") {
+            html = "";
+          }
+          onChange(html);
+        }}
         dangerouslySetInnerHTML={{ __html: value }}
         onKeyDown={(e) => {
           if (!multiline && e.key === "Enter") {
