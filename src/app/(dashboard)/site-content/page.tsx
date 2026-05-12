@@ -732,18 +732,19 @@ export default function SiteContentPage() {
         else if (pageId === "projects-page") {
             const mn = mnSections as ProjectsPageState;
             const en = enSections as ProjectsPageState;
-            if (en.items.length === 0)
-                en.items = mn.items.map(it => ({ ...it }));
-            else {
-                mn.items.forEach((it, i) => {
-                    if (en.items[i]) {
-                        if (!en.items[i].coverImage)
-                            en.items[i].coverImage = it.coverImage;
-                        if (en.items[i].images.length === 0)
-                            en.items[i].images = [...it.images];
-                    }
-                });
-            }
+            
+            // Strictly align EN items to MN structure/assets
+            const nextENItems: ProjectsPageState["items"] = mn.items.map((mnItem, i) => {
+                // Try to find by ID first, fallback to index
+                const existingEN = en.items.find(it => it.id === mnItem.id) || en.items[i];
+                return {
+                    ...mnItem, // Take all assets and structure from MN
+                    name: existingEN?.name || mnItem.name, // Keep EN name if exists
+                    description: existingEN?.description || mnItem.description, // Keep EN desc if exists
+                    category: existingEN?.category || mnItem.category, // Keep EN category if exists
+                };
+            });
+            en.items = nextENItems;
         }
         else if (pageId === "contact") {
             const mn = mnSections as ContactState;
@@ -2411,8 +2412,26 @@ export default function SiteContentPage() {
                       {projectsPage.items.map((item, i) => (
                         <div 
                           key={item.reactKey || i} 
+                          draggable
+                          onDragStart={(e) => handleDragStart(e, i, "project")}
+                          onDragOver={(e) => e.preventDefault()}
+                          onDrop={(e) => handleDrop(e, i, "project", projectsPage.items, (v) => setProjectsPage({ ...projectsPage, items: v }), projectsPageEN.items, (v) => setProjectsPageEN({ ...projectsPageEN, items: v }))}
                           className="group relative rounded-xl border border-slate-200/90 bg-white/80 p-4 transition-all hover:border-indigo-200 hover:shadow-sm dark:border-slate-700 dark:bg-slate-900/40"
                         >
+                          <div className="absolute right-4 top-4 opacity-0 transition-opacity group-hover:opacity-100 z-10">
+                            <MoveControls 
+                              isFirst={i === 0} 
+                              isLast={i === projectsPage.items.length - 1} 
+                              onMoveUp={() => {
+                                setProjectsPage({ ...projectsPage, items: reorder(projectsPage.items, i, i - 1) });
+                                setProjectsPageEN({ ...projectsPageEN, items: reorder(projectsPageEN.items, i, i - 1) });
+                              }}
+                              onMoveDown={() => {
+                                setProjectsPage({ ...projectsPage, items: reorder(projectsPage.items, i, i + 1) });
+                                setProjectsPageEN({ ...projectsPageEN, items: reorder(projectsPageEN.items, i, i + 1) });
+                              }}
+                            />
+                          </div>
                           <div className="space-y-4">
                             <div className="grid gap-4 sm:grid-cols-2">
                               <div className="space-y-1.5">
